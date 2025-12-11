@@ -1,7 +1,7 @@
 // This script runs in MAIN world (page context)
 // Returns the fetched data directly
 
-(async function() {
+(async function () {
   function sendProgress(count) {
     window.postMessage({
       source: 'shopee-stats',
@@ -12,6 +12,17 @@
 
   function _VietNamCurrency(number) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+  }
+
+  async function getOrderDetail(orderId) {
+    try {
+      let url = `https://shopee.vn/api/v4/order/get_order_detail?order_id=${orderId}`;
+      let json = await (await fetch(url)).json();
+      return json.data;
+    } catch (error) {
+      console.error('Error fetching order detail:', error);
+      return null;
+    }
   }
 
   async function getOrders(offset, limit) {
@@ -34,7 +45,6 @@
   try {
     while (true) {
       let data = await getOrders(offset, limit);
-      console.log(`Shopee Stats: Fetched ${data.length} orders at offset ${offset}`);
       sendProgress(allOrders.length + data.length);
 
       if (data.length === 0) break;
@@ -67,6 +77,35 @@
         const shopName = orderCard.shop_info.username + " - " + orderCard.shop_info.shop_name;
         const products = orderCard.product_info.item_groups;
 
+        // Get order date from shipping.tracking_info.ctime (delivery/received time)
+        let orderTime = 0;
+
+        // Skip timestamp for cancelled orders (no delivery/received time)
+        if (listType !== 4) {
+          // Use shipping.tracking_info.ctime if available
+          if (item.shipping && item.shipping.tracking_info && item.shipping.tracking_info.ctime) {
+            orderTime = item.shipping.tracking_info.ctime;
+          }
+          // Fallback: try status.update_time
+          else if (item.status && item.status.update_time) {
+            orderTime = item.status.update_time;
+          }
+          // Fallback: try to extract from order_id (first 10 digits might be timestamp)
+          else if (infoCard.order_id) {
+            const orderIdStr = String(infoCard.order_id);
+            if (orderIdStr.length >= 10) {
+              const possibleTimestamp = parseInt(orderIdStr.substring(0, 10));
+              // Check if it's a reasonable timestamp (year 2020-2030)
+              const testDate = new Date(possibleTimestamp * 1000);
+              if (testDate.getFullYear() >= 2020 && testDate.getFullYear() <= 2030) {
+                orderTime = possibleTimestamp;
+              }
+            }
+          }
+        }
+
+        const deliveryDate = orderTime ? new Date(orderTime * 1000) : null;
+
         const productSummary = products
           .map(g => g.items
             .map(i => `${i.name} (SL: ${i.amount}, Giá: ${_VietNamCurrency(i.item_price / 100000)})`)
@@ -76,6 +115,7 @@
         const name = products[0].items[0].name;
 
         allOrders.push({
+          orderId: infoCard.order_id,
           name: name,
           productCount: productCount,
           subTotal: subTotal,
@@ -83,14 +123,15 @@
           status: status,
           statusCode: listType,
           shopName: shopName,
-          productSummary: productSummary
+          productSummary: productSummary,
+          deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
+          orderMonth: deliveryDate ? deliveryDate.getMonth() + 1 : null,
+          orderYear: deliveryDate ? deliveryDate.getFullYear() : null
         });
       }
 
       offset += limit;
     }
-
-    console.log(`Shopee Stats: Done! Total ${allOrders.length} orders`);
 
     return {
       success: true,

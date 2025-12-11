@@ -35,8 +35,13 @@ body {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Header */
@@ -55,6 +60,87 @@ body {
 .header p {
   font-size: 13px;
   opacity: 0.9;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid #eee;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filters select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.filters select:focus {
+  outline: none;
+  border-color: #ee4d2d;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-export {
+  padding: 8px 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-export:hover {
+  background: #218838;
+}
+
+/* Charts */
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+.chart-box {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chart-box h3 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.chart-box canvas {
+  max-height: 300px;
 }
 
 /* Summary */
@@ -110,7 +196,8 @@ table {
   font-size: 14px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #eee;
   padding: 12px 16px;
   text-align: left;
@@ -125,6 +212,47 @@ th {
   z-index: 10;
 }
 
+/* Expandable rows */
+.order-row {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.order-row:hover {
+  background: #fff3e0 !important;
+}
+
+.order-row.expanded {
+  background: #ffe0b2 !important;
+}
+
+.detail-row {
+  display: none;
+  background: #fafafa;
+}
+
+.detail-row.show {
+  display: table-row;
+}
+
+.detail-content {
+  padding: 12px 20px;
+  border-left: 4px solid #ee4d2d;
+}
+
+.detail-item {
+  padding: 6px 0;
+  font-size: 13px;
+  color: #333;
+}
+
+.detail-item strong {
+  color: #666;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 100px;
+}
+
 tr:nth-child(even) {
   background: #f9f9f9;
 }
@@ -133,45 +261,40 @@ tr:hover {
   background: #fff3e0;
 }
 
-td:nth-child(1) {
+/* Column styles: STT, Mã đơn, Ngày, Trạng thái, Tên SP, Tổng tiền */
+.order-row td:nth-child(1) {
   text-align: center;
   width: 50px;
 }
 
-td:nth-child(2) {
-  max-width: 250px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.order-row td:nth-child(2) {
+  width: 140px;
+  white-space: nowrap;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.order-row td:nth-child(3) {
+  width: 110px;
   white-space: nowrap;
 }
 
-td:nth-child(3) {
-  text-align: center;
-  width: 80px;
-}
-
-td:nth-child(4) {
-  text-align: right;
-  width: 120px;
-  font-weight: 600;
-  color: #ee4d2d;
-}
-
-td:nth-child(5) {
+.order-row td:nth-child(4) {
   width: 100px;
 }
 
-td:nth-child(6) {
-  max-width: 200px;
+.order-row td:nth-child(5) {
+  max-width: 350px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-td:nth-child(7) {
-  max-width: 300px;
-  font-size: 12px;
-  color: #666;
+.order-row td:nth-child(6) {
+  text-align: right;
+  width: 100px;
+  font-weight: 600;
+  color: #ee4d2d;
 }
 
 /* Status badges */
@@ -183,12 +306,35 @@ td:nth-child(7) {
   font-weight: 500;
 }
 
-.status-3 { background: #e8f5e9; color: #2e7d32; }
-.status-4 { background: #ffebee; color: #c62828; }
-.status-7 { background: #e3f2fd; color: #1565c0; }
-.status-8 { background: #fff3e0; color: #e65100; }
-.status-9 { background: #f3e5f5; color: #7b1fa2; }
-.status-12 { background: #fce4ec; color: #c2185b; }
+.status-3 {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-4 {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.status-7 {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-8 {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-9 {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.status-12 {
+  background: #fce4ec;
+  color: #c2185b;
+}
 
 /* No data */
 .no-data {
@@ -216,6 +362,19 @@ td:nth-child(7) {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters select {
+    width: 100%;
+  }
+
   .summary {
     flex-direction: column;
     align-items: center;
@@ -226,10 +385,15 @@ td:nth-child(7) {
     max-width: 300px;
   }
 
-  td:nth-child(6),
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  /* Hide Shop and Chi tiết columns on mobile */
   td:nth-child(7),
-  th:nth-child(6),
-  th:nth-child(7) {
+  th:nth-child(7),
+  td:nth-child(8),
+  th:nth-child(8) {
     display: none;
   }
 }
