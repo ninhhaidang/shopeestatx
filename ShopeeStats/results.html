@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Shopee Stats - Thống kê đơn hàng</title>
+  <link rel="stylesheet" href="results.css">
+</head>
+<body>
+  <div id="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p id="loadingText">Đang lấy dữ liệu từ Shopee...</p>
+  </div>
+
+  <div id="content" class="hidden">
+    <header class="header">
+      <h1>Shopee Stats</h1>
+      <p id="fetchedAt"></p>
+    </header>
+
+    <div class="summary">
+      <div class="summary-item">
+        <span class="label">Tổng đơn hàng</span>
+        <span id="totalOrders" class="value">0</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Tổng sản phẩm</span>
+        <span id="totalProducts" class="value">0</span>
+      </div>
+      <div class="summary-item highlight">
+        <span class="label">Tổng tiền đã tiêu</span>
+        <span id="totalAmount" class="value">0 ₫</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Tên sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Shop</th>
+            <th>Chi tiết</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="noData" class="no-data hidden">
+    <p>Không có dữ liệu. Vui lòng thử lại.</p>
+    <a href="https://shopee.vn" target="_blank">Mở Shopee</a>
+  </div>
+
+  <script src="results.js"></script>
+</body>
+</html>
