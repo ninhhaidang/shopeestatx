@@ -3,7 +3,8 @@
     "allow": [
       "Bash(tree -L 3:*)",
       "Bash(find:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(curl:*)"
     ]
   }
 }

@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Shopee Stats - Thống kê đơn hàng</title>
   <link rel="stylesheet" href="results.css">
+  <script src="chart.min.js"></script>
+  <script src="xlsx.min.js"></script>
 </head>
+
 <body>
   <div id="loading" class="loading-container">
     <div class="spinner"></div>
@@ -18,9 +22,46 @@
       <p id="fetchedAt"></p>
     </header>
 
+    <!-- Filter & Actions -->
+    <div class="toolbar">
+      <div class="filters">
+        <select id="filterYear">
+          <option value="">Tất cả năm</option>
+        </select>
+        <select id="filterMonth">
+          <option value="">Tất cả tháng</option>
+          <option value="1">Tháng 1</option>
+          <option value="2">Tháng 2</option>
+          <option value="3">Tháng 3</option>
+          <option value="4">Tháng 4</option>
+          <option value="5">Tháng 5</option>
+          <option value="6">Tháng 6</option>
+          <option value="7">Tháng 7</option>
+          <option value="8">Tháng 8</option>
+          <option value="9">Tháng 9</option>
+          <option value="10">Tháng 10</option>
+          <option value="11">Tháng 11</option>
+          <option value="12">Tháng 12</option>
+        </select>
+        <select id="filterStatus">
+          <option value="">Tất cả trạng thái</option>
+          <option value="3">Hoàn thành</option>
+          <option value="4">Đã hủy</option>
+          <option value="7">Vận chuyển</option>
+          <option value="8">Đang giao</option>
+          <option value="9">Chờ thanh toán</option>
+          <option value="12">Trả hàng</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button id="btnExport" class="btn-export">Xuất Excel</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
     <div class="summary">
       <div class="summary-item">
-        <span class="label">Tổng đơn hàng</span>
+        <span class="label">Đơn hàng (đã lọc)</span>
         <span id="totalOrders" class="value">0</span>
       </div>
       <div class="summary-item">
@@ -33,17 +74,29 @@
       </div>
     </div>
 
+    <!-- Charts -->
+    <div class="charts-container">
+      <div class="chart-box">
+        <h3>Chi tiêu theo tháng</h3>
+        <canvas id="monthlyChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>Top 5 Shop mua nhiều nhất</h3>
+        <canvas id="shopChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Table -->
     <div class="table-container">
       <table id="ordersTable">
         <thead>
           <tr>
-            <th>STT</th>
+            <th width="50">STT</th>
+            <th width="140">Mã đơn hàng</th>
+            <th width="110">Ngày giao</th>
+            <th width="100">Trạng thái</th>
             <th>Tên sản phẩm</th>
-            <th>Số lượng</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-            <th>Shop</th>
-            <th>Chi tiết</th>
+            <th width="100">Tổng tiền</th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -59,4 +112,5 @@
 
   <script src="results.js"></script>
 </body>
+
 </html>
