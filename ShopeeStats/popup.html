@@ -1,25 +1,63 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shopee Stats</title>
+  <title>ShopeeStatX</title>
   <link rel="stylesheet" href="popup.css">
 </head>
+
 <body>
-  <div class="container">
-    <h1>Shopee Stats</h1>
-    <p class="description">Thống kê tổng tiền đã tiêu trên Shopee</p>
+  <div class="popup-container">
+    <!-- Header with gradient -->
+    <div class="popup-header">
+      <h1 class="popup-title">ShopeeStatX</h1>
+      <div class="version-badge">v2.1</div>
+    </div>
 
-    <button id="btnStart" class="btn-primary">
-      Thống kê đơn hàng
-    </button>
+    <!-- Main content -->
+    <div class="popup-body">
+      <div class="feature-card">
+        <h2 class="feature-title">Phân tích chi tiêu thông minh</h2>
+        <p class="feature-description">Xem chi tiết lịch sử mua hàng, xu hướng chi tiêu và thống kê từng shop</p>
+      </div>
 
-    <p id="warning" class="warning hidden">
-      Vui lòng mở <a href="https://shopee.vn/user/purchase" target="_blank">trang đơn hàng Shopee</a> và đăng nhập trước.
-    </p>
+      <button id="btnStart" class="btn-primary">
+        Bắt đầu phân tích
+      </button>
+
+      <p id="warning" class="warning-message hidden">
+        Vui lòng mở <a href="https://shopee.vn/user/purchase" target="_blank">Shopee</a> và đăng nhập trước.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="popup-footer">
+      <div class="footer-links">
+        <a href="https://ninhhaidang.dev" target="_blank" class="footer-link" title="Portfolio">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        </a>
+        <span class="footer-divider">•</span>
+        <a href="https://github.com/ninhhaidang/shopee-orders-statics" target="_blank" class="footer-link"
+          title="GitHub">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+          </svg>
+        </a>
+        <span class="footer-divider">•</span>
+        <a href="https://www.buymeacoffee.com/ninhhaidang" target="_blank"><img
+            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee"
+            style="height: 30px !important;width: 108px !important;"></a>
+      </div>
+    </div>
   </div>
 
   <script src="popup.js"></script>
 </body>
+
 </html>
