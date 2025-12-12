@@ -61,10 +61,12 @@ A Chrome extension to track and analyze your Shopee spending in detail with intu
 
 ## ⚙️ Installation
 
-1. Clone repository:
-```bash
-git clone https://github.com/your-username/shopee-orders-statics.git
-```
+1. Download source code:
+   - **Download ZIP file**: Download from [Releases](https://github.com/ninhhaidang/shopeestatx/releases) and extract
+   - **Or Clone repository**:
+   ```bash
+   git clone https://github.com/ninhhaidang/shopeestatx.git
+   ```
 
 2. Open Chrome, go to `chrome://extensions/`
 
