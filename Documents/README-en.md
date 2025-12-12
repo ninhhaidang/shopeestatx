@@ -8,7 +8,7 @@
 
 ---
 
-[![GitHub stars](https://img.shields.io/github/stars/ninhhaidang/shopee-orders-statics?style=for-the-badge&logo=github&label=Star%20this%20repo)](https://github.com/ninhhaidang/shopee-orders-statics/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/ninhhaidang/shopee-orders-statics?style=for-the-badge&logo=github&label=Star%20this%20repo)](https://github.com/ninhhaidang/shopeestatx/stargazers)
 
 </div>
 
