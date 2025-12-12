@@ -16,6 +16,18 @@
 
 Extension Chrome giúp theo dõi và phân tích chi tiêu trên Shopee một cách chi tiết và trực quan.
 
+## 📸 Screenshots
+
+### Giao diện Popup
+![Popup Interface](Screenshots/popup.png)
+
+### Giao diện phân tích
+![Analysis Interface 1](Screenshots/screenshot-1.png)
+
+![Analysis Interface 2](Screenshots/screenshot-2.png)
+
+![Analysis Interface 3](Screenshots/screenshot-3.png)
+
 ## Tính năng chính
 
 ### 📊 Thống kê tổng quan
