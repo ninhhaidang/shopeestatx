@@ -61,10 +61,12 @@ Extension Chrome giúp theo dõi và phân tích chi tiêu trên Shopee một c�
 
 ## ⚙️ Cài đặt
 
-1. Clone repository:
-```bash
-git clone https://github.com/your-username/shopee-orders-statics.git
-```
+1. Tải mã nguồn:
+   - **Tải file ZIP**: Tải từ [Releases](https://github.com/ninhhaidang/shopeestatx/releases) và giải nén
+   - **Hoặc Clone repository**:
+   ```bash
+   git clone https://github.com/ninhhaidang/shopeestatx.git
+   ```
 
 2. Mở Chrome, vào `chrome://extensions/`
 
