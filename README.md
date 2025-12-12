@@ -26,8 +26,6 @@ Extension Chrome giúp theo dõi và phân tích chi tiêu trên Shopee một c�
 
 ![Analysis Interface 2](Screenshots/screenshot-2.png)
 
-![Analysis Interface 3](Screenshots/screenshot-3.png)
-
 ## Tính năng chính
 
 ### 📊 Thống kê tổng quan
