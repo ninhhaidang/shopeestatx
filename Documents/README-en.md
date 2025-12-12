@@ -16,6 +16,18 @@
 
 A Chrome extension to track and analyze your Shopee spending in detail with intuitive visualizations.
 
+## 📸 Screenshots
+
+### Popup Interface
+![Popup Interface](../Screenshots/popup.png)
+
+### Analysis Interface
+![Analysis Interface 1](../Screenshots/screenshot-1.png)
+
+![Analysis Interface 2](../Screenshots/screenshot-2.png)
+
+![Analysis Interface 3](../Screenshots/screenshot-3.png)
+
 ## Key Features
 
 ### 📊 Overview Statistics
