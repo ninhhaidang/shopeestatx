@@ -8,12 +8,38 @@ document.addEventListener('DOMContentLoaded', async function () {
   const filterYear = document.getElementById('filterYear');
   const filterMonth = document.getElementById('filterMonth');
   const filterStatus = document.getElementById('filterStatus');
+  const searchBox = document.getElementById('searchBox');
   const btnExport = document.getElementById('btnExport');
+  const btnRefresh = document.getElementById('btnRefresh');
+  const lastUpdated = document.getElementById('lastUpdated');
+  const btnClearFilters = document.getElementById('btnClearFilters');
+  const btnResetFilters = document.getElementById('btnResetFilters');
+
+  // Pagination elements
+  const pageSize = document.getElementById('pageSize');
+  const btnFirstPage = document.getElementById('btnFirstPage');
+  const btnPrevPage = document.getElementById('btnPrevPage');
+  const btnNextPage = document.getElementById('btnNextPage');
+  const btnLastPage = document.getElementById('btnLastPage');
+  const pageNumbers = document.getElementById('pageNumbers');
+
+  // Shop chart controls
+  const shopCountSelect = document.getElementById('shopCount');
+  const shopMetricSelect = document.getElementById('shopMetric');
+  const shopCountDisplay = document.getElementById('shopCountDisplay');
 
   // Store all orders data
   let allOrdersData = null;
+  let filteredOrders = [];
   let monthlyChart = null;
   let shopChart = null;
+  let currentSort = { field: null, direction: 'asc' };
+  let searchTimeout = null;
+  let currentPage = 1;
+  let itemsPerPage = 20;
+  let selectedDay = null; // Track selected day when filtering by month
+  let shopCount = 5; // Default number of shops to show
+  let shopMetric = 'amount'; // Default metric: amount, orders, or products
 
   // Check if we need to fetch data
   const urlParams = new URLSearchParams(window.location.search);
@@ -26,10 +52,84 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // Event listeners
-  filterYear.addEventListener('change', applyFilters);
-  filterMonth.addEventListener('change', applyFilters);
-  filterStatus.addEventListener('change', applyFilters);
+  filterYear.addEventListener('change', () => { selectedDay = null; currentPage = 1; applyFilters(); });
+  filterMonth.addEventListener('change', () => { selectedDay = null; currentPage = 1; applyFilters(); });
+  filterStatus.addEventListener('change', () => { currentPage = 1; applyFilters(); });
   btnExport.addEventListener('click', exportToExcel);
+  btnRefresh.addEventListener('click', refreshData);
+  btnClearFilters.addEventListener('click', clearAllFilters);
+  btnResetFilters.addEventListener('click', clearAllFilters);
+
+  // Pagination
+  pageSize.addEventListener('change', function () {
+    itemsPerPage = this.value === 'all' ? Infinity : parseInt(this.value);
+    currentPage = 1;
+    renderCurrentPage();
+  });
+  btnFirstPage.addEventListener('click', () => { currentPage = 1; renderCurrentPage(); });
+  btnPrevPage.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderCurrentPage(); } });
+  btnNextPage.addEventListener('click', () => { const totalPages = Math.ceil(filteredOrders.length / itemsPerPage); if (currentPage < totalPages) { currentPage++; renderCurrentPage(); } });
+  btnLastPage.addEventListener('click', () => { currentPage = Math.ceil(filteredOrders.length / itemsPerPage); renderCurrentPage(); });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', function (e) {
+    // Focus search with '/'
+    if (e.key === '/' && document.activeElement !== searchBox) {
+      e.preventDefault();
+      searchBox.focus();
+    }
+    // Clear search with 'Escape'
+    if (e.key === 'Escape' && document.activeElement === searchBox) {
+      searchBox.value = '';
+      applyFilters();
+      searchBox.blur();
+    }
+    // Refresh with 'r'
+    if (e.key === 'r' && document.activeElement === document.body) {
+      refreshData();
+    }
+  });
+
+  // Search with debounce
+  searchBox.addEventListener('input', function () {
+    clearTimeout(searchTimeout);
+    currentPage = 1;
+    searchTimeout = setTimeout(applyFilters, 300);
+  });
+
+  // Sort headers
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', function () {
+      const field = this.dataset.sort;
+      handleSort(field);
+    });
+  });
+
+  // Shop chart controls
+  shopCountSelect.addEventListener('change', function () {
+    shopCount = parseInt(this.value);
+    shopCountDisplay.textContent = shopCount;
+
+    // Clear search filter if searching for a shop
+    if (searchBox.value.trim()) {
+      searchBox.value = '';
+      applyFilters();
+    } else {
+      renderCharts(filteredOrders);
+    }
+  });
+
+  shopMetricSelect.addEventListener('change', function () {
+    shopMetric = this.value;
+
+    // Clear search filter if searching for a shop
+    if (searchBox.value.trim()) {
+      searchBox.value = '';
+      applyFilters();
+    } else {
+      renderCharts(filteredOrders);
+    }
+  });
 
   async function fetchDataFromShopee() {
     try {
@@ -71,9 +171,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         throw new Error(result.error || 'Có lỗi xảy ra khi lấy dữ liệu');
       }
 
-      await chrome.storage.local.set({ shopeeStats: result.data });
+      // Save to cache with timestamp
+      const cacheData = {
+        ...result.data,
+        cachedAt: new Date().toISOString()
+      };
+      await chrome.storage.local.set({ shopeeStats: cacheData });
       allOrdersData = result.data;
       initializeUI(result.data);
+      updateLastUpdatedTime(cacheData.cachedAt);
 
     } catch (error) {
       console.error('Fetch error:', error);
@@ -95,7 +201,32 @@ document.addEventListener('DOMContentLoaded', async function () {
 
       allOrdersData = data;
       initializeUI(data);
+      updateLastUpdatedTime(data.cachedAt);
     });
+  }
+
+  function refreshData() {
+    window.location.href = 'results.html?fetch=true';
+  }
+
+  function updateLastUpdatedTime(timestamp) {
+    if (!timestamp) return;
+
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    let timeText;
+    if (minutes < 1) timeText = 'vừa xong';
+    else if (minutes < 60) timeText = `${minutes} phút trước`;
+    else if (hours < 24) timeText = `${hours} giờ trước`;
+    else timeText = `${days} ngày trước`;
+
+    lastUpdated.textContent = `Cập nhật: ${timeText}`;
   }
 
   function initializeUI(data) {
@@ -127,17 +258,182 @@ document.addEventListener('DOMContentLoaded', async function () {
     const year = filterYear.value;
     const month = filterMonth.value;
     const status = filterStatus.value;
+    const searchTerm = searchBox.value.toLowerCase().trim();
 
     let filtered = allOrdersData.orders.filter(order => {
       // If filtering by year/month, exclude orders without delivery date
       if (year && (!order.orderYear || order.orderYear != year)) return false;
       if (month && (!order.orderMonth || order.orderMonth != month)) return false;
+
+      // Filter by day if selected (only when month filter is active)
+      if (selectedDay !== null && month) {
+        if (!order.deliveryDate) return false;
+        const date = new Date(order.deliveryDate);
+        if (date.getDate() != selectedDay) return false;
+      }
+
       if (status && order.statusCode != status) return false;
+
+      // Search filter
+      if (searchTerm) {
+        const searchableText = [
+          order.orderId?.toString(),
+          order.name,
+          order.shopName,
+          order.productSummary,
+          order.status
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        if (!searchableText.includes(searchTerm)) return false;
+      }
+
       return true;
     });
 
+    // Apply sorting
+    if (currentSort.field) {
+      filtered = sortOrders(filtered, currentSort.field, currentSort.direction);
+    }
+
+    filteredOrders = filtered;
+    currentPage = 1;
+
+    // Update active filters chips
+    updateActiveFilters();
+
+    // Show/hide empty state
+    const emptyState = document.getElementById('emptyState');
+    const ordersTable = document.getElementById('ordersTable');
+    const paginationContainer = document.getElementById('paginationContainer');
+
+    if (filtered.length === 0) {
+      emptyState.classList.remove('hidden');
+      ordersTable.classList.add('hidden');
+      paginationContainer.classList.add('hidden');
+    } else {
+      emptyState.classList.add('hidden');
+      ordersTable.classList.remove('hidden');
+      paginationContainer.classList.remove('hidden');
+    }
+
     renderData(filtered);
     renderCharts(filtered);
+    renderCurrentPage();
+  }
+
+  function updateActiveFilters() {
+    const year = filterYear.value;
+    const month = filterMonth.value;
+    const status = filterStatus.value;
+    const searchTerm = searchBox.value.trim();
+
+    const activeFiltersContainer = document.getElementById('activeFiltersContainer');
+    const activeFiltersDiv = document.getElementById('activeFilters');
+    const chips = [];
+
+    if (year) chips.push({ label: `Năm ${year}`, type: 'year' });
+    if (month) chips.push({ label: `Tháng ${month}`, type: 'month' });
+    if (selectedDay !== null && month) chips.push({ label: `Ngày ${selectedDay}`, type: 'day' });
+    if (status) {
+      const statusText = filterStatus.options[filterStatus.selectedIndex].text;
+      chips.push({ label: statusText, type: 'status' });
+    }
+    if (searchTerm) chips.push({ label: `Tìm: "${searchTerm}"`, type: 'search' });
+
+    if (chips.length > 0) {
+      activeFiltersContainer.classList.remove('hidden');
+      activeFiltersDiv.innerHTML = chips.map(chip =>
+        `<span class="filter-chip" data-type="${chip.type}">
+          ${chip.label}
+          <span class="chip-remove" data-filter-type="${chip.type}">&times;</span>
+        </span>`
+      ).join('');
+
+      // Add click event listeners to all chip-remove buttons
+      activeFiltersDiv.querySelectorAll('.chip-remove').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const type = this.getAttribute('data-filter-type');
+          removeFilter(type);
+        });
+      });
+    } else {
+      activeFiltersContainer.classList.add('hidden');
+    }
+  }
+
+  function clearAllFilters() {
+    filterYear.value = '';
+    filterMonth.value = '';
+    filterStatus.value = '';
+    searchBox.value = '';
+    selectedDay = null;
+    currentPage = 1;
+    applyFilters();
+  }
+
+  // Make removeFilter global
+  window.removeFilter = function (type) {
+    if (type === 'year') filterYear.value = '';
+    if (type === 'month') filterMonth.value = '';
+    if (type === 'day') selectedDay = null;
+    if (type === 'status') filterStatus.value = '';
+    if (type === 'search') searchBox.value = '';
+    currentPage = 1;
+    applyFilters();
+  };
+
+  function handleSort(field) {
+    // Toggle sort direction
+    if (currentSort.field === field) {
+      currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort.field = field;
+      currentSort.direction = 'asc';
+    }
+
+    // Update UI indicators
+    document.querySelectorAll('th.sortable').forEach(th => {
+      th.classList.remove('asc', 'desc');
+    });
+
+    const activeHeader = document.querySelector(`th[data-sort="${field}"]`);
+    if (activeHeader) {
+      activeHeader.classList.add(currentSort.direction);
+    }
+
+    applyFilters();
+  }
+
+  function sortOrders(orders, field, direction) {
+    const sorted = [...orders].sort((a, b) => {
+      let aVal, bVal;
+
+      switch (field) {
+        case 'deliveryDate':
+          aVal = a.deliveryDate ? new Date(a.deliveryDate).getTime() : 0;
+          bVal = b.deliveryDate ? new Date(b.deliveryDate).getTime() : 0;
+          break;
+        case 'subTotal':
+          aVal = a.subTotal || 0;
+          bVal = b.subTotal || 0;
+          break;
+        case 'status':
+          aVal = a.statusCode || 0;
+          bVal = b.statusCode || 0;
+          break;
+        default:
+          return 0;
+      }
+
+      if (direction === 'asc') {
+        return aVal > bVal ? 1 : -1;
+      } else {
+        return aVal < bVal ? 1 : -1;
+      }
+    });
+
+    return sorted;
   }
 
   function renderData(orders) {
@@ -156,76 +452,295 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('totalProducts').textContent = totalProducts.toLocaleString('vi-VN');
     document.getElementById('totalAmount').textContent = formatVND(totalAmount);
 
+    // Time comparison calculations
+    renderTimeComparison(allOrdersData.orders);
+  }
+
+  function renderCurrentPage() {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = itemsPerPage === Infinity ? filteredOrders.length : Math.min(start + itemsPerPage, filteredOrders.length);
+    const pageOrders = filteredOrders.slice(start, end);
+
     // Render table
     const tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
 
-    orders.forEach(function (order, index) {
+    pageOrders.forEach(function (order, index) {
+      const globalIndex = start + index + 1;
       const dateStr = order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString('vi-VN') : 'Chưa có';
+
+      // Status badge with icon
+      let statusIcon = '';
+      let statusClass = `status-${order.statusCode}`;
+      switch (order.statusCode) {
+        case 3: statusIcon = '✓'; break; // Hoàn thành
+        case 4: statusIcon = '✗'; statusClass += ' status-cancelled'; break; // Đã hủy
+        case 7: case 8: statusIcon = '🚚'; statusClass += ' status-shipping'; break; // Vận chuyển
+        case 12: statusIcon = '↩'; statusClass += ' status-return'; break; // Trả hàng
+        default: statusIcon = '●';
+      }
 
       // Main row
       const tr = document.createElement('tr');
       tr.className = 'order-row';
       tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${order.orderId}</td>
+        <td>${globalIndex}</td>
+        <td><a href="https://shopee.vn/user/purchase/order/${order.orderId}" class="order-link" target="_blank" onclick="event.stopPropagation()">${order.orderId}</a></td>
         <td>${dateStr}</td>
-        <td><span class="status-badge status-${order.statusCode}">${order.status}</span></td>
+        <td><span class="status-badge ${statusClass}">${statusIcon} ${order.status}</span></td>
         <td title="${escapeHtml(order.name)}">${escapeHtml(order.name)}</td>
+        <td style="text-align: center;">${order.productCount}</td>
         <td>${order.subTotalFormatted}</td>
       `;
+
+      // Build order details with clickable filters
+      const detailItems = [];
+
+      // Mã đơn hàng
+      detailItems.push(`<div class="detail-item"><strong>Mã đơn hàng:</strong> ${order.orderId}</div>`);
+
+      // Tên sản phẩm
+      detailItems.push(`<div class="detail-item"><strong>Tên sản phẩm:</strong> ${escapeHtml(order.name)}</div>`);
+
+      // Số lượng sản phẩm
+      detailItems.push(`<div class="detail-item"><strong>Số lượng sản phẩm:</strong> ${order.productCount}</div>`);
+
+      // Tổng tiền
+      detailItems.push(`<div class="detail-item"><strong>Tổng tiền:</strong> ${order.subTotalFormatted}</div>`);
+
+      // Trạng thái (clickable)
+      detailItems.push(`<div class="detail-item"><strong>Trạng thái:</strong> <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${order.status}</span></div>`);
+
+      // Người bán (clickable)
+      detailItems.push(`<div class="detail-item"><strong>Người bán:</strong> <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span></div>`);
+
+      // Ngày giao hàng (clickable if available)
+      if (order.deliveryDate) {
+        const fullDate = new Date(order.deliveryDate).toLocaleString('vi-VN');
+        const dateObj = new Date(order.deliveryDate);
+        const dateData = JSON.stringify({ year: dateObj.getFullYear(), month: dateObj.getMonth() + 1, day: dateObj.getDate() });
+        detailItems.push(`<div class="detail-item"><strong>Ngày giao hàng:</strong> <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span></div>`);
+      }
+
+      // Chi tiết sản phẩm
+      detailItems.push(`<div class="detail-item"><strong>Chi tiết sản phẩm:</strong> ${escapeHtml(order.productSummary)}</div>`);
 
       // Expanded detail row
       const detailRow = document.createElement('tr');
       detailRow.className = 'detail-row';
       detailRow.innerHTML = `
-        <td colspan="6">
+        <td colspan="7">
           <div class="detail-content">
-            <div class="detail-item"><strong>Số lượng:</strong> ${order.productCount}</div>
-            <div class="detail-item"><strong>Người bán:</strong> ${escapeHtml(order.shopName)}</div>
-            <div class="detail-item"><strong>Chi tiết:</strong> ${escapeHtml(order.productSummary)}</div>
+            ${detailItems.join('')}
           </div>
         </td>
       `;
 
       // Toggle expand/collapse
-      tr.addEventListener('click', function () {
+      tr.addEventListener('click', function (e) {
+        // Prevent toggle if clicking on a clickable filter
+        if (e.target.classList.contains('detail-value-clickable')) {
+          return;
+        }
         tr.classList.toggle('expanded');
         detailRow.classList.toggle('show');
+      });
+
+      // Add click handlers for clickable filters
+      detailRow.querySelectorAll('.detail-value-clickable').forEach(el => {
+        el.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const filterType = this.dataset.filter;
+          const filterValue = this.dataset.value;
+
+          if (filterType === 'status') {
+            // Apply status filter
+            filterStatus.value = filterValue;
+            applyFilters();
+          } else if (filterType === 'shop') {
+            // Apply shop search
+            searchBox.value = filterValue;
+            applyFilters();
+          } else if (filterType === 'date') {
+            // Apply date filter
+            const dateData = JSON.parse(filterValue);
+            filterYear.value = dateData.year;
+            filterMonth.value = dateData.month;
+            selectedDay = dateData.day;
+            applyFilters();
+          }
+
+          // Scroll to top to see filters
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
       });
 
       tableBody.appendChild(tr);
       tableBody.appendChild(detailRow);
     });
+
+    // Update pagination info
+    updatePaginationInfo();
+  }
+
+  function updatePaginationInfo() {
+    const totalItems = filteredOrders.length;
+    const totalPages = itemsPerPage === Infinity ? 1 : Math.ceil(totalItems / itemsPerPage);
+    const start = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+    const end = itemsPerPage === Infinity ? totalItems : Math.min(currentPage * itemsPerPage, totalItems);
+
+    document.getElementById('pageStart').textContent = start;
+    document.getElementById('pageEnd').textContent = end;
+    document.getElementById('pageTotal').textContent = totalItems;
+
+    // Update page numbers
+    const pageNumbersDiv = document.getElementById('pageNumbers');
+    pageNumbersDiv.innerHTML = '';
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbersDiv.appendChild(createPageButton(i));
+      }
+    } else {
+      pageNumbersDiv.appendChild(createPageButton(1));
+      if (currentPage > 3) {
+        pageNumbersDiv.appendChild(document.createTextNode('...'));
+      }
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+        pageNumbersDiv.appendChild(createPageButton(i));
+      }
+      if (currentPage < totalPages - 2) {
+        pageNumbersDiv.appendChild(document.createTextNode('...'));
+      }
+      if (totalPages > 1) {
+        pageNumbersDiv.appendChild(createPageButton(totalPages));
+      }
+    }
+
+    // Update button states
+    document.getElementById('btnFirstPage').disabled = currentPage === 1;
+    document.getElementById('btnPrevPage').disabled = currentPage === 1;
+    document.getElementById('btnNextPage').disabled = currentPage === totalPages || totalPages === 0;
+    document.getElementById('btnLastPage').disabled = currentPage === totalPages || totalPages === 0;
+  }
+
+  function createPageButton(pageNum) {
+    const btn = document.createElement('button');
+    btn.className = 'btn-page-num' + (pageNum === currentPage ? ' active' : '');
+    btn.textContent = pageNum;
+    btn.addEventListener('click', () => {
+      currentPage = pageNum;
+      renderCurrentPage();
+    });
+    return btn;
   }
 
   function renderCharts(orders) {
-    // Monthly spending chart
-    const monthlyData = {};
-    orders.forEach(order => {
+    // Monthly/Daily spending chart
+    const chartData = {};
+    const hasMonthFilter = filterMonth.value !== '';
+
+    // For chart display, we want to show ALL days in the month
+    // even when a specific day is selected (day filter only affects table)
+    const chartOrders = hasMonthFilter && selectedDay !== null
+      ? allOrdersData.orders.filter(order => {
+        const year = filterYear.value;
+        const month = filterMonth.value;
+        const status = filterStatus.value;
+        const searchTerm = searchBox.value.toLowerCase().trim();
+
+        // Apply same filters as main filter, but exclude selectedDay filter
+        if (year && (!order.orderYear || order.orderYear != year)) return false;
+        if (month && (!order.orderMonth || order.orderMonth != month)) return false;
+        if (status && order.statusCode != status) return false;
+
+        if (searchTerm) {
+          const searchableText = [
+            order.orderId?.toString(),
+            order.name,
+            order.shopName,
+            order.productSummary,
+            order.status
+          ].filter(Boolean).join(' ').toLowerCase();
+          if (!searchableText.includes(searchTerm)) return false;
+        }
+
+        return true;
+      })
+      : orders;
+
+    chartOrders.forEach(order => {
       if (order.statusCode === 4 || order.statusCode === 12) return;
-      const key = `${order.orderMonth}/${order.orderYear}`;
-      monthlyData[key] = (monthlyData[key] || 0) + order.subTotal;
+
+      let key;
+      if (hasMonthFilter && order.deliveryDate) {
+        // If filtering by month, group by day
+        const date = new Date(order.deliveryDate);
+        const day = date.getDate();
+        key = `${day}/${order.orderMonth}/${order.orderYear}`;
+      } else {
+        // Otherwise group by month
+        if (!order.orderMonth || !order.orderYear) return;
+        key = `${order.orderMonth}/${order.orderYear}`;
+      }
+
+      chartData[key] = (chartData[key] || 0) + order.subTotal;
     });
 
-    const sortedMonths = Object.keys(monthlyData).sort((a, b) => {
-      const [m1, y1] = a.split('/').map(Number);
-      const [m2, y2] = b.split('/').map(Number);
-      return y1 - y2 || m1 - m2;
+    const sortedKeys = Object.keys(chartData).sort((a, b) => {
+      const parts1 = a.split('/').map(Number);
+      const parts2 = b.split('/').map(Number);
+
+      if (hasMonthFilter) {
+        // day/month/year
+        const [d1, m1, y1] = parts1;
+        const [d2, m2, y2] = parts2;
+        return y1 - y2 || m1 - m2 || d1 - d2;
+      } else {
+        // month/year
+        const [m1, y1] = parts1;
+        const [m2, y2] = parts2;
+        return y1 - y2 || m1 - m2;
+      }
     });
 
-    const monthlyValues = sortedMonths.map(k => monthlyData[k]);
+    // Format labels based on filter type
+    const chartLabels = hasMonthFilter
+      ? sortedKeys.map(k => {
+        const [day, month] = k.split('/');
+        return `${day}/${month}`;
+      })
+      : sortedKeys;
+
+    const monthlyValues = sortedKeys.map(k => chartData[k]);
+
+    // Prepare backgroundColor array (highlight selected day if applicable)
+    const backgroundColors = monthlyValues.map((value, index) => {
+      if (hasMonthFilter && selectedDay !== null) {
+        const key = sortedKeys[index];
+        const [day] = key.split('/').map(Number);
+        return day === selectedDay ? '#ff6b3d' : '#ee4d2d';
+      }
+      return '#ee4d2d';
+    });
+
+    // Update chart title
+    const chartTitle = document.querySelector('.chart-box h3');
+    if (chartTitle) {
+      chartTitle.textContent = hasMonthFilter ? 'Chi tiêu theo ngày' : 'Chi tiêu theo tháng';
+    }
 
     if (monthlyChart) monthlyChart.destroy();
     monthlyChart = new Chart(document.getElementById('monthlyChart'), {
       type: 'bar',
       data: {
-        labels: sortedMonths,
+        labels: chartLabels,
         datasets: [{
           label: 'Chi tiêu (VNĐ)',
           data: monthlyValues,
-          backgroundColor: '#ee4d2d',
-          borderRadius: 4
+          backgroundColor: backgroundColors,
+          borderRadius: 4,
+          hoverBackgroundColor: '#ff6b3d'
         }]
       },
       options: {
@@ -245,6 +760,41 @@ document.addEventListener('DOMContentLoaded', async function () {
               callback: value => formatVND(value, true)
             }
           }
+        },
+        onClick: (event, activeElements) => {
+          if (activeElements.length > 0) {
+            const index = activeElements[0].index;
+
+            if (hasMonthFilter) {
+              // When filtering by month, toggle day selection
+              const dayLabel = sortedKeys[index];
+              const [day] = dayLabel.split('/').map(Number);
+
+              // Toggle selected day
+              if (selectedDay === day) {
+                selectedDay = null; // Deselect
+              } else {
+                selectedDay = day; // Select
+              }
+
+              // Reapply filters
+              applyFilters();
+            } else {
+              // When not filtering by month, select month
+              const monthLabel = sortedKeys[index];
+              const [monthNum, year] = monthLabel.split('/');
+
+              // Set filters
+              filterYear.value = year;
+              filterMonth.value = monthNum;
+
+              // Apply filters
+              applyFilters();
+
+              // Scroll to table
+              document.getElementById('ordersTable').scrollIntoView({ behavior: 'smooth' });
+            }
+          }
         }
       }
     });
@@ -254,12 +804,30 @@ document.addEventListener('DOMContentLoaded', async function () {
     orders.forEach(order => {
       if (order.statusCode === 4 || order.statusCode === 12) return;
       const shop = order.shopName.split(' - ')[1] || order.shopName;
-      shopData[shop] = (shopData[shop] || 0) + order.subTotal;
+
+      if (!shopData[shop]) {
+        shopData[shop] = { amount: 0, orders: 0, products: 0 };
+      }
+
+      shopData[shop].amount += order.subTotal;
+      shopData[shop].orders += 1;
+      shopData[shop].products += order.productCount;
     });
 
+    // Sort and get top shops based on selected metric
     const topShops = Object.entries(shopData)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
+      .sort((a, b) => b[1][shopMetric] - a[1][shopMetric])
+      .slice(0, shopCount);
+
+    // Format tooltip based on metric
+    let tooltipFormatter;
+    if (shopMetric === 'amount') {
+      tooltipFormatter = ctx => `${ctx.label}: ${formatVND(ctx.raw)}`;
+    } else if (shopMetric === 'orders') {
+      tooltipFormatter = ctx => `${ctx.label}: ${ctx.raw} đơn`;
+    } else {
+      tooltipFormatter = ctx => `${ctx.label}: ${ctx.raw} sản phẩm`;
+    }
 
     if (shopChart) shopChart.destroy();
     shopChart = new Chart(document.getElementById('shopChart'), {
@@ -267,8 +835,9 @@ document.addEventListener('DOMContentLoaded', async function () {
       data: {
         labels: topShops.map(s => s[0].substring(0, 20)),
         datasets: [{
-          data: topShops.map(s => s[1]),
-          backgroundColor: ['#ee4d2d', '#ff7043', '#ffab91', '#ffccbc', '#fbe9e7']
+          data: topShops.map(s => s[1][shopMetric]),
+          backgroundColor: ['#ee4d2d', '#ff7043', '#ffab91', '#ffccbc', '#fbe9e7', '#ffe0b2', '#ffd180', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00', '#ef6c00', '#e65100'],
+          hoverOffset: 10
         }]
       },
       options: {
@@ -276,8 +845,23 @@ document.addEventListener('DOMContentLoaded', async function () {
         plugins: {
           tooltip: {
             callbacks: {
-              label: ctx => `${ctx.label}: ${formatVND(ctx.raw)}`
+              label: tooltipFormatter
             }
+          }
+        },
+        onClick: (event, activeElements) => {
+          if (activeElements.length > 0) {
+            const index = activeElements[0].index;
+            const shopName = topShops[index][0];
+
+            // Search for shop name
+            searchBox.value = shopName;
+
+            // Apply filters
+            applyFilters();
+
+            // Scroll to table
+            document.getElementById('ordersTable').scrollIntoView({ behavior: 'smooth' });
           }
         }
       }
@@ -331,4 +915,80 @@ document.addEventListener('DOMContentLoaded', async function () {
     div.textContent = text;
     return div.innerHTML;
   }
+
+  function renderTimeComparison(allOrders) {
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+    const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+    const lastYear = currentYear - 1;
+
+    // Filter completed orders only
+    const completedOrders = allOrders.filter(o => o.statusCode !== 4 && o.statusCode !== 12);
+
+    // Current month
+    const currentMonthOrders = completedOrders.filter(o =>
+      o.orderMonth === currentMonth && o.orderYear === currentYear
+    );
+    const currentMonthTotal = currentMonthOrders.reduce((sum, o) => sum + o.subTotal, 0);
+
+    // Last month
+    const lastMonthOrders = completedOrders.filter(o =>
+      o.orderMonth === lastMonth && o.orderYear === lastMonthYear
+    );
+    const lastMonthTotal = lastMonthOrders.reduce((sum, o) => sum + o.subTotal, 0);
+
+    // Current year
+    const currentYearOrders = completedOrders.filter(o => o.orderYear === currentYear);
+    const currentYearTotal = currentYearOrders.reduce((sum, o) => sum + o.subTotal, 0);
+
+    // Last year
+    const lastYearOrders = completedOrders.filter(o => o.orderYear === lastYear);
+    const lastYearTotal = lastYearOrders.reduce((sum, o) => sum + o.subTotal, 0);
+
+    // Average order value
+    const avgOrderValue = completedOrders.length > 0
+      ? completedOrders.reduce((sum, o) => sum + o.subTotal, 0) / completedOrders.length
+      : 0;
+
+    // Calculate changes
+    const monthChange = lastMonthTotal > 0
+      ? ((currentMonthTotal - lastMonthTotal) / lastMonthTotal * 100).toFixed(1)
+      : null;
+
+    const yearChange = lastYearTotal > 0
+      ? ((currentYearTotal - lastYearTotal) / lastYearTotal * 100).toFixed(1)
+      : null;
+
+    // Update UI
+    document.getElementById('currentMonthAmount').textContent = formatVND(currentMonthTotal);
+    document.getElementById('currentYearAmount').textContent = formatVND(currentYearTotal);
+    document.getElementById('avgOrderValue').textContent = formatVND(avgOrderValue);
+
+    // Month comparison
+    const monthCompEl = document.getElementById('monthComparison');
+    if (monthChange !== null) {
+      const arrow = monthChange >= 0 ? '↑' : '↓';
+      const color = monthChange >= 0 ? '#f44336' : '#4caf50';
+      monthCompEl.innerHTML = `<span style="color: ${color}">${arrow} ${Math.abs(monthChange)}% so với tháng trước</span>`;
+    } else {
+      monthCompEl.textContent = 'Chưa có dữ liệu tháng trước';
+    }
+
+    // Year comparison
+    const yearCompEl = document.getElementById('yearComparison');
+    if (yearChange !== null) {
+      const arrow = yearChange >= 0 ? '↑' : '↓';
+      const color = yearChange >= 0 ? '#f44336' : '#4caf50';
+      yearCompEl.innerHTML = `<span style="color: ${color}">${arrow} ${Math.abs(yearChange)}% so với năm ngoái</span>`;
+    } else {
+      yearCompEl.textContent = 'Chưa có dữ liệu năm ngoái';
+    }
+
+    // Average comparison (show count)
+    const avgCompEl = document.getElementById('avgComparison');
+    avgCompEl.textContent = `${completedOrders.length} đơn hàng hoàn thành`;
+  }
+
 });

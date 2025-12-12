@@ -145,7 +145,7 @@
     };
 
   } catch (error) {
-    console.error('Shopee Stats Error:', error);
+    console.error('ShopeeStatX Error:', error);
     return {
       success: false,
       error: error.message
