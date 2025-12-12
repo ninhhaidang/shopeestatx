@@ -72,7 +72,7 @@ A Chrome extension to track and analyze your Shopee spending in detail with intu
 
 3. Enable "Developer mode"
 
-4. Click "Load unpacked" and select the `ShopeeStats` folder
+4. Click "Load unpacked" and select the `ShopeeStatX` folder
 
 ## 📖 User Guide
 
