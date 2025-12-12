@@ -72,7 +72,7 @@ Extension Chrome giúp theo dõi và phân tích chi tiêu trên Shopee một c�
 
 3. Bật "Chế độ nhà phát triển"
 
-4. Click "Tải chưa giải nén" và chọn thư mục `ShopeeStats`
+4. Click "Tải chưa giải nén" và chọn thư mục `ShopeeStatX`
 
 ## 📖 Hướng dẫn sử dụng
 
