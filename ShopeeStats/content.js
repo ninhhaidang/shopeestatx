@@ -32,24 +32,32 @@
   }
 
   // Map status label string to status code and Vietnamese text
+  // Actual labels from Shopee API: label_cancelled, label_to_ship, label_to_receive, 
+  // label_return_refund_requested, label_completed
   function parseStatusLabel(statusLabel) {
     const label = (statusLabel || '').toLowerCase();
 
-    if (label.includes('completed') || label.includes('received')) {
+    // label_completed → Hoàn thành (must check before 'to_receive' since 'completed' contains no 'receive')
+    if (label.includes('completed')) {
       return { code: 3, text: 'Hoàn thành' };
     }
+    // label_cancelled → Đã hủy
     if (label.includes('cancelled') || label.includes('cancel')) {
       return { code: 4, text: 'Đã hủy' };
     }
+    // label_to_ship → Chờ vận chuyển (seller preparing)
     if (label.includes('to_ship') || label.includes('preparing') || label.includes('process')) {
       return { code: 7, text: 'Chờ vận chuyển' };
     }
-    if (label.includes('shipping') || label.includes('transit') || label.includes('delivery')) {
+    // label_to_receive → Đang giao (in transit, waiting for customer to receive)
+    if (label.includes('to_receive') || label.includes('shipping') || label.includes('transit') || label.includes('delivery')) {
       return { code: 8, text: 'Đang giao' };
     }
+    // Chờ thanh toán
     if (label.includes('pay') || label.includes('unpaid')) {
       return { code: 9, text: 'Chờ thanh toán' };
     }
+    // label_return_refund_requested → Trả hàng/Hoàn tiền
     if (label.includes('return') || label.includes('refund')) {
       return { code: 12, text: 'Trả hàng' };
     }
