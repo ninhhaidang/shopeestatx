@@ -949,6 +949,11 @@ th.sortable.desc .sort-indicator::before {
   white-space: nowrap;
 }
 
+.status-0 {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
 .status-3 {
   background: var(--success-bg);
   color: var(--success);
@@ -959,7 +964,11 @@ th.sortable.desc .sort-indicator::before {
   color: var(--danger);
 }
 
-.status-7,
+.status-7 {
+  background: #fef3c7;
+  color: #d97706;
+}
+
 .status-8 {
   background: var(--info-bg);
   color: var(--info);
@@ -971,8 +980,8 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .status-12 {
-  background: var(--warning-bg);
-  color: var(--warning);
+  background: #fed7aa;
+  color: #ea580c;
 }
 
 /* ===== EXPANDABLE ROWS ===== */
