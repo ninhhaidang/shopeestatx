@@ -356,7 +356,7 @@ Code vẫn hỗ trợ API cũ nếu Shopee rollback:
 4. Charts và filters phải hoạt động bình thường
 
 ### Final Checklist
-- [ ] Extension fetch được data từ API mới
-- [ ] Status được parse đúng (Hoàn thành, Đang giao, etc.)
-- [ ] Tổng tiền được tính đúng
-- [ ] Backward compatible với API cũ
+- [x] Extension fetch được data từ API mới
+- [x] Status được parse đúng (Hoàn thành, Đang giao, etc.)
+- [x] Tổng tiền được tính đúng
+- [x] Backward compatible với API cũ
