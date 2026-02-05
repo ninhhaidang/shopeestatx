@@ -102,7 +102,7 @@
           switch (statusCode) {
             case 3: statusText = "Hoàn thành"; break;
             case 4: statusText = "Đã hủy"; break;
-            case 7: statusText = "Vận chuyển"; break;
+            case 7: statusText = "Chờ vận chuyển"; break;
             case 8: statusText = "Đang giao"; break;
             case 9: statusText = "Chờ thanh toán"; break;
             case 12: statusText = "Trả hàng"; break;
