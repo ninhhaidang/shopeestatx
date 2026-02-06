@@ -1,3 +1,25 @@
 *.DS_Store
-*.zip
 *.log
+*.zip
+
+# OS/Editor
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# Env/config
+.env
+.env.*
+
+# Node/bundlers (in case used locally)
+node_modules/
+dist/
+build/
+
+# Cache
+.cache/
+*.cache
