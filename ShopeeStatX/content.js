@@ -157,9 +157,9 @@
             const orderIdStr = String(infoCard.order_id);
             if (orderIdStr.length >= 10) {
               const possibleTimestamp = parseInt(orderIdStr.substring(0, 10));
-              // Check if it's a reasonable timestamp (year 2020-2030)
+              // Check if it's a reasonable timestamp (year >= 2020 and not in the future)
               const testDate = new Date(possibleTimestamp * 1000);
-              if (testDate.getFullYear() >= 2020 && testDate.getFullYear() <= 2030) {
+              if (testDate.getFullYear() >= 2020 && testDate.getTime() <= Date.now()) {
                 orderTime = possibleTimestamp;
               }
             }
