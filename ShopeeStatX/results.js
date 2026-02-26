@@ -9,7 +9,7 @@ import { exportToExcel } from './export.js';
 import { renderCharts } from './charts.js';
 import { renderCurrentPage, updatePaginationInfo, createPageButton } from './table.js';
 import { applyFilters, clearAllFilters, removeFilter, handleSort } from './filters.js';
-import { fetchDataFromShopee, loadDataFromStorage, refreshData, updateLastUpdatedTime } from './data.js';
+import { fetchDataFromShopee, loadDataFromStorage, refreshData, updateLastUpdatedTime, isExtensionContext, loadMockData } from './data.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
   // DOM element references for event wiring ONLY
@@ -38,7 +38,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   const urlParams = new URLSearchParams(window.location.search);
   const shouldFetch = urlParams.get('fetch') === 'true';
 
-  if (shouldFetch) {
+  if (!isExtensionContext()) {
+    // Demo mode: load mock data when running outside Chrome Extension (localhost preview)
+    await loadMockData();
+  } else if (shouldFetch) {
     await fetchDataFromShopee();
   } else {
     loadDataFromStorage();

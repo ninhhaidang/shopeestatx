@@ -2,6 +2,26 @@
 import { state } from './state.js';
 import { applyFilters } from './filters.js';
 
+// Detect if running inside Chrome Extension context
+export function isExtensionContext() {
+  return typeof chrome !== 'undefined' && chrome.storage && chrome.scripting;
+}
+
+// Load mock data for preview/development outside extension
+export async function loadMockData() {
+  try {
+    const { mockData } = await import('./mock-data.js');
+    state.allOrdersData = mockData;
+    initializeUI(mockData);
+    updateLastUpdatedTime(mockData.cachedAt);
+  } catch (error) {
+    console.error('Mock data load error:', error);
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('noData').classList.remove('hidden');
+    document.getElementById('noData').querySelector('p').textContent = 'Không thể tải dữ liệu demo: ' + error.message;
+  }
+}
+
 export async function fetchDataFromShopee() {
   try {
     const storage = await chrome.storage.local.get(['shopeeTabId']);

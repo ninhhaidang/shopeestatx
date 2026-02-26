@@ -4,7 +4,11 @@
       "Bash(tree -L 3:*)",
       "Bash(find:*)",
       "Bash(tree:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(wc -l \"/d/ninhhaidang/Workspace/shopeestatx/ShopeeStatX\"/*.js)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(node --version)",
+      "Bash(npx --version)"
     ]
   }
 }
