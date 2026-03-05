@@ -2,7 +2,22 @@
 
 ## Overview
 
-ShopeeStatX is a Chrome Extension MV3 with no backend. All logic runs in the browser.
+ShopeeStatX is a Chrome Extension MV3 (v2.5.0) built with TypeScript + Vite, with zero backend. All logic runs in the browser.
+
+## Build Pipeline
+
+```
+src/ (TypeScript)
+  → Vite 6.0 (dev: npm run dev | build: npm run build)
+    → TypeScript strict type check
+    → Multi-entry rollupOptions (results, popup, welcome, background)
+    → dist/ (bundled JS)
+  → Vitest 3.0 + jsdom (npm test)
+    → 31 tests covering dashboard, filters, data, charts
+    → Coverage via @vitest/coverage-v8
+  → GitHub Actions CI (on push)
+    → TypeScript check, build, tests
+```
 
 ## Dual-World Pattern
 
@@ -10,50 +25,40 @@ Chrome Extensions run in ISOLATED world by default — cannot access page cookie
 ShopeeStatX bypasses this legally via the Dual-World Pattern:
 
 ```
-popup.js
+popup.ts
   └── opens results.html?fetch=true
-        └── results.js (ES module orchestrator)
-              ├── injects bridge.js → ISOLATED world (relay)
-              └── injects content.js → MAIN world (fetches Shopee API with cookies)
-                    └── postMessage → bridge.js → chrome.runtime.sendMessage → results.js
+        └── results.ts (TypeScript orchestrator)
+              ├── injects bridge.ts → ISOLATED world (relay)
+              └── injects content.js → MAIN world (API fetcher, IIFE)
+                    └── postMessage → bridge.ts → chrome.runtime.sendMessage → results.ts
 ```
 
-## Module Map
+## Module Structure
 
 ```
-ShopeeStatX/
-├── manifest.json        # MV3 config: permissions, host_permissions, service_worker
-├── background.js        # Service worker: message relay + onInstalled listener for welcome
-├── welcome.html         # First-run onboarding page (shown on extension install)
-├── welcome.css          # Onboarding page styles (168 lines)
-├── welcome.js           # Onboarding page logic (18 lines)
-├── popup.html/js/css    # Extension popup UI (~30 lines logic + footer links to help/privacy)
-├── privacy.html         # In-extension privacy policy (224 lines)
-├── results.html         # Dashboard shell (236 lines)
-├── results.css          # Design system + responsive layout (1467 lines)
-├── results.js           # ES module orchestrator — DOM wiring only (123 lines)
-├── state.js             # Shared mutable state singleton (29 lines)
-├── data.js              # Fetch, cache, storage, mock data (144 lines)
-├── filters.js           # Filter/sort/search logic (193 lines)
-├── table.js             # Table render + pagination (195 lines)
-├── charts.js            # Chart.js bar + pie rendering (242 lines)
-├── comparison.js        # Summary cards + time comparison (98 lines)
-├── export.js            # SheetJS Excel export (39 lines)
-├── utils.js             # formatVND, escapeHtml (16 lines)
-├── mock-data.js         # Static demo data for localhost preview (142 lines)
-├── content.js           # MAIN world — Shopee API fetch (216 lines)
-├── bridge.js            # ISOLATED world — message relay
-├── chart.min.js         # Chart.js vendored
-└── xlsx.min.js          # SheetJS vendored
+dist/ (built extension)
+├── manifest.json              # MV3config: permissions, service_worker
+├── results.html / results.js  # Dashboard (compiled from src/dashboard/)
+├── popup.html / popup.js      # Extension popup (compiled from src/popup/)
+├── welcome.html / welcome.js  # Onboarding (compiled from src/welcome/)
+├── background.js              # Service worker (compiled from src/background.ts)
+├── bridge.js                  # Message relay (compiled from src/bridge/bridge.ts)
+├── content.js                 # API fetcher (src/content/content.js, IIFE, not bundled)
+├── styles/                    # CSS modules
+│   ├── results.css
+│   ├── popup.css
+│   ├── welcome.css
+│   └── shared.css
+└── icons/                     # Extension icons
 ```
 
 ## Data Flow
 
-### First Install
+### Extension Startup (First Install)
 ```
 User installs extension
-  → background.js::onInstalled listener (reason === 'install')
-    → opens welcome.html
+  → background.ts::chrome.runtime.onInstalled (reason === 'install')
+    → chrome.tabs.create(welcome.html)
       → Displays onboarding info + links to results/privacy
       → User clicks "Start Analysis" or closes
 ```
@@ -61,11 +66,12 @@ User installs extension
 ### Analytics Flow
 ```
 User clicks "Bat dau phan tich"
-  → popup.js stores shopeeTabId in chrome.storage.local
+  → popup.ts stores shopeeTabId in chrome.storage.local
   → opens results.html?fetch=true
-    → data.js::fetchDataFromShopee()
-      → executeScript(bridge.js, ISOLATED)
-      → executeScript(content.js, MAIN)
+    → results.ts initializes UI
+    → data.ts::fetchDataFromShopee()
+      → chrome.scripting.executeScript(bridge.ts, ISOLATED)
+      → chrome.scripting.executeScript(content.js, MAIN)
         → loops GET /api/v4/order/get_all_order_and_checkout_list?offset=N&limit=20
         → postMessage progress updates (MAIN → ISOLATED → runtime)
         → returns allOrders[]
@@ -76,18 +82,20 @@ User clicks "Bat dau phan tich"
 
 ## State Management
 
-Single shared object in `state.js`:
+Single shared state object in `state.ts` (TypeScript):
 
 | Field | Type | Purpose |
 |-------|------|---------|
-| allOrdersData | object | Raw fetched/cached data |
-| filteredOrders | array | After active filters |
+| allOrdersData | ShopeeData | Raw fetched/cached data |
+| filteredOrders | Order[] | After active filters |
 | currentPage | number | Pagination cursor |
 | itemsPerPage | number | 20/50/100/Infinity |
 | selectedDay | number\|null | Drill-down day filter |
 | shopCount | number | Top N shops in pie chart |
 | shopMetric | string | 'amount' or 'count' |
-| currentSort | object | {field, direction} |
+| currentSort | Sort | {field, direction} |
+
+(See `src/types/index.ts` for TypeScript interfaces)
 
 ## API
 
@@ -107,6 +115,14 @@ Single shared object in `state.js`:
 
 ## Demo Mode
 
-When `isExtensionContext()` returns false (running via `python -m http.server`):
-- Loads `mock-data.js` instead of calling Shopee API
+When `isExtensionContext()` returns false (running via Vite dev server):
+- Loads `mock-data.ts` instead of calling Shopee API
 - Enables UI development/preview without extension installation
+
+## Testing Strategy
+
+- **Unit tests**: Individual functions (formatVND, filters, utils)
+- **Integration tests**: Dashboard initialization, data flow, state mutations
+- **Test runner**: Vitest with jsdom (no real DOM)
+- **Coverage**: @vitest/coverage-v8
+- **CI**: Automated on every push via GitHub Actions
