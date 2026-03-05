@@ -13,6 +13,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Help and privacy links open internal pages
+  document.getElementById('btnHelp').addEventListener('click', function(e) {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+  });
+
+  document.getElementById('btnPrivacy').addEventListener('click', function(e) {
+    e.preventDefault();
+    chrome.tabs.create({ url: chrome.runtime.getURL('privacy.html') });
+  });
+
   btnStart.addEventListener('click', async function() {
     // Get current shopee tab ID
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
