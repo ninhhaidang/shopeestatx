@@ -15,11 +15,11 @@
 
 | File | Content |
 |------|---------|
-| `screenshots/01-dashboard-overview.png` | Full results page — charts + table visible |
-| `screenshots/02-bar-chart-drilldown.png` | Monthly chart clicked → daily view |
-| `screenshots/03-table-with-filters.png` | Filter chips + sorted table + expanded row |
-| `screenshots/04-popup-on-shopee.png` | Popup UI on shopee.vn tab |
-| `screenshots/05-excel-export.png` | Export in action or Excel file preview |
+| `screenshots/01-summary-cards.png` | Summary cards — tổng quan chi tiêu |
+| `screenshots/02-charts.png` | Charts — biểu đồ theo tháng và top shop |
+| `screenshots/03-order-details.png` | Order details — chi tiết đơn hàng mở rộng |
+| `screenshots/04-orders-table.png` | Orders table — bảng dữ liệu với filter |
+| `screenshots/05-popup.png` | Popup UI trên shopee.vn |
 
 **How to capture:**
 ```bash
