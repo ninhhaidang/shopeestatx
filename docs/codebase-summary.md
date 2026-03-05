@@ -28,12 +28,16 @@
 | popup.css | 370 | Popup UI styles |
 | comparison.js | 98 | Summary cards + month/year comparison rendering |
 | results.js | 123 | ES module orchestrator — DOM event wiring only |
-| popup.js | 29 | Domain check + open results page |
+| welcome.html | 155 | First-run onboarding page (shown on install) |
+| privacy.html | 224 | In-extension privacy policy (linked from popup footer) |
+| popup.js | 29 | Domain check + open results page + footer links |
 | state.js | 29 | Shared state singleton |
 | export.js | 39 | SheetJS Excel export |
 | utils.js | 16 | formatVND, escapeHtml |
+| welcome.css | 168 | Onboarding page styles |
+| welcome.js | 18 | Onboarding page logic (close button, link handlers) |
 | bridge.js | — | ISOLATED world message relay |
-| background.js | — | MV3 service worker |
+| background.js | — | MV3 service worker + onInstalled listener for welcome page |
 
 ### Config & Assets
 

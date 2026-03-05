@@ -23,8 +23,12 @@ popup.js
 ```
 ShopeeStatX/
 ├── manifest.json        # MV3 config: permissions, host_permissions, service_worker
-├── background.js        # Service worker (minimal — message relay only)
-├── popup.html/js/css    # Extension popup UI (~30 lines logic)
+├── background.js        # Service worker: message relay + onInstalled listener for welcome
+├── welcome.html         # First-run onboarding page (shown on extension install)
+├── welcome.css          # Onboarding page styles (168 lines)
+├── welcome.js           # Onboarding page logic (18 lines)
+├── popup.html/js/css    # Extension popup UI (~30 lines logic + footer links to help/privacy)
+├── privacy.html         # In-extension privacy policy (224 lines)
 ├── results.html         # Dashboard shell (236 lines)
 ├── results.css          # Design system + responsive layout (1467 lines)
 ├── results.js           # ES module orchestrator — DOM wiring only (123 lines)
@@ -45,6 +49,16 @@ ShopeeStatX/
 
 ## Data Flow
 
+### First Install
+```
+User installs extension
+  → background.js::onInstalled listener (reason === 'install')
+    → opens welcome.html
+      → Displays onboarding info + links to results/privacy
+      → User clicks "Start Analysis" or closes
+```
+
+### Analytics Flow
 ```
 User clicks "Bat dau phan tich"
   → popup.js stores shopeeTabId in chrome.storage.local

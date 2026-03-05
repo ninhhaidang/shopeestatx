@@ -8,7 +8,15 @@
       "Bash(wc -l \"/d/ninhhaidang/Workspace/shopeestatx/ShopeeStatX\"/*.js)",
       "mcp__Claude_Preview__preview_start",
       "Bash(node --version)",
-      "Bash(npx --version)"
+      "Bash(npx --version)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(node:*)",
+      "Bash(mkdir:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(mv:*)"
     ]
   }
 }

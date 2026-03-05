@@ -4,6 +4,6 @@
   "private": true,
   "description": "Chrome Extension thống kê chi tiêu Shopee",
   "scripts": {
-    "dev": "python -m http.server 3000 --directory ShopeeStatX"
+    "dev": "python3 -m http.server 3000 --directory ShopeeStatX"
   }
 }
