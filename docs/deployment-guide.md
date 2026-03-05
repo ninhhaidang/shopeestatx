@@ -27,9 +27,11 @@ Chrome only sees `ShopeeStatX/`:
 ```
 ShopeeStatX/
 ├── manifest.json       # Required — extension config
-├── background.js       # Service worker
+├── background.js       # Service worker (onInstalled listener)
 ├── popup.html/js/css
-├── results.html/js/css
+├── welcome.html/js/css # First-run onboarding
+├── privacy.html        # In-extension privacy policy
+├── results.html/js/css # Analytics dashboard
 ├── content.js
 ├── bridge.js
 ├── chart.min.js
@@ -46,7 +48,7 @@ ShopeeStatX/
 └── icons/
 ```
 
-Files outside `ShopeeStatX/` (docs/, plans/, Documents/, etc.) are not included in the extension.
+Files outside `ShopeeStatX/` (docs/, plans/, Documents/, public/, store-assets/, etc.) are not included in the extension.
 
 ## Updating the Extension
 
@@ -55,13 +57,27 @@ After code changes:
 2. Click the refresh icon on ShopeeStatX card
 3. Reload any open results pages
 
+## GitHub Pages (Privacy Policy)
+
+Public privacy policy is served via GitHub Pages:
+1. `public/privacy.html` contains the privacy policy
+2. `.nojekyll` file enables GitHub Pages to serve it
+3. Public URL: `https://dang-dev.github.io/shopeestatx/privacy.html`
+4. Referenced in store listing and footer links
+
+To update GitHub Pages:
+- Edit `public/privacy.html`
+- Push to repository (pages auto-rebuild)
+
 ## Chrome Web Store (Future)
 
 Not yet published. To prepare a store package:
-1. Zip the contents of `ShopeeStatX/` (not the directory itself)
-2. Submit via Chrome Developer Dashboard
-3. Required: store listing assets (screenshots, description)
-4. Review: typically 1-3 business days
+1. Check `store-assets/submission-checklist.md` for submission requirements
+2. Ensure `store-assets/description-en.md` and `description-vi.md` are current
+3. Ensure store-assets/screenshots/ contain required store screenshots
+4. Zip the contents of `ShopeeStatX/` (not the directory itself)
+5. Submit via Chrome Developer Dashboard
+6. Review: typically 1-3 business days
 
 ## Version Bumping
 

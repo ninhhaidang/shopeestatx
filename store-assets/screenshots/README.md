@@ -13,11 +13,11 @@ Required: 5 screenshots at **1280×800px** PNG format.
 
 | Filename | State to capture |
 |----------|-----------------|
-| `01-dashboard-overview.png` | Default view: summary cards + monthly bar chart + table |
-| `02-bar-chart-drilldown.png` | Click a month bar → shows daily breakdown chart |
-| `03-table-with-filters.png` | Apply a filter → filter chip visible + table filtered |
-| `04-popup-on-shopee.png` | Open extension popup while on shopee.vn |
-| `05-excel-export.png` | Click export → browser download dialog OR opened Excel file |
+| `01-summary-cards.png` | Trang kết quả — summary cards hiển thị tổng chi tiêu, số đơn, trung bình/đơn, so sánh tháng/năm |
+| `02-charts.png` | Biểu đồ cột chi tiêu theo tháng + biểu đồ tròn top shop |
+| `03-order-details.png` | Bảng đơn hàng với 1 row mở rộng hiển thị chi tiết sản phẩm |
+| `04-orders-table.png` | Bảng đơn hàng đầy đủ với danh sách các đơn |
+| `05-popup.png` | Popup extension khi đang ở shopee.vn (nút "Bắt đầu phân tích" active) |
 
 ## Tips
 

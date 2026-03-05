@@ -24,6 +24,8 @@
 - [x] Demo mode (mock data for localhost preview)
 - [x] Modular ES module architecture (refactored from monolith)
 - [x] Status badge redesign (7 status types with color coding)
+- [x] Onboarding / first-run flow (welcome.html + background.js onInstalled listener)
+- [x] Privacy Policy page (in-extension + public GitHub Pages)
 
 ### Potential Future Work
 
