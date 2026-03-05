@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chào mừng đến với ShopeeStatX</title>
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <div class="welcome-container">
+
+    <header class="hero">
+      <div class="hero-inner">
+        <img src="../icons/icon128.png" alt="ShopeeStatX" class="hero-logo">
+        <h1 class="hero-title">ShopeeStatX</h1>
+        <p class="hero-tagline">Theo dõi và phân tích toàn bộ chi tiêu Shopee của bạn</p>
+        <span class="hero-version">v2.5</span>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <section class="section">
+        <h2 class="section-title">Extension này làm gì?</h2>
+        <div class="feature-grid">
+          <div class="feature-item">
+            <div class="feature-icon">&#128202;</div>
+            <h3>Lấy toàn bộ lịch sử</h3>
+            <p>Tự động lấy tất cả đơn hàng Shopee của bạn — không giới hạn thời gian</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">&#128200;</div>
+            <h3>Phân tích trực quan</h3>
+            <p>Biểu đồ chi tiêu theo tháng, top shop, drill-down từng ngày</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">&#128229;</div>
+            <h3>Xuất dữ liệu</h3>
+            <p>Export toàn bộ lịch sử đơn hàng ra file Excel (.xlsx)</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Tại sao cần các quyền này?</h2>
+        <div class="permissions-list">
+          <div class="permission-item">
+            <span class="permission-name">activeTab</span>
+            <span class="permission-desc">Kiểm tra bạn đang ở shopee.vn trước khi bắt đầu</span>
+          </div>
+          <div class="permission-item">
+            <span class="permission-name">storage</span>
+            <span class="permission-desc">Lưu cache dữ liệu đơn hàng trên máy bạn (không gửi đi đâu)</span>
+          </div>
+          <div class="permission-item">
+            <span class="permission-name">scripting</span>
+            <span class="permission-desc">Gọi API Shopee bằng session trình duyệt của bạn (cần để lấy dữ liệu)</span>
+          </div>
+          <div class="permission-item">
+            <span class="permission-name">shopee.vn</span>
+            <span class="permission-desc">Extension chỉ hoạt động trên shopee.vn — không truy cập trang web khác</span>
+          </div>
+        </div>
+        <p class="privacy-note">
+          Dữ liệu của bạn <strong>không rời khỏi máy</strong>. Không có server, không có tài khoản, không thu thập thông tin cá nhân.
+          <a id="privacyLink" href="#">Xem chính sách bảo mật &#8594;</a>
+        </p>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">Cách sử dụng</h2>
+        <ol class="steps-list">
+          <li class="step-item">
+            <span class="step-number">1</span>
+            <div class="step-content">
+              <strong>Đăng nhập Shopee</strong>
+              <p>Mở <a href="https://shopee.vn" target="_blank">shopee.vn</a> và đăng nhập tài khoản của bạn</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-number">2</span>
+            <div class="step-content">
+              <strong>Mở extension</strong>
+              <p>Click vào icon ShopeeStatX trên thanh công cụ Chrome</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-number">3</span>
+            <div class="step-content">
+              <strong>Bắt đầu phân tích</strong>
+              <p>Click "Bắt đầu phân tích" — extension sẽ lấy toàn bộ lịch sử đơn hàng</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-number">4</span>
+            <div class="step-content">
+              <strong>Khám phá dữ liệu</strong>
+              <p>Dùng bộ lọc, biểu đồ, click drill-down, xuất Excel tùy ý</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <div class="cta-section">
+        <button id="btnOpenShopee" class="btn-primary">Mở Shopee ngay &#8594;</button>
+        <p class="cta-note">Extension chỉ hoạt động khi bạn đang ở shopee.vn và đã đăng nhập</p>
+      </div>
+
+    </main>
+
+    <footer class="welcome-footer">
+      <p>ShopeeStatX không liên kết với Shopee chính thức &nbsp;&bull;&nbsp;
+        <a id="footerPrivacy" href="#">Chính sách bảo mật</a> &nbsp;&bull;&nbsp;
+        <a href="https://github.com/ninhhaidang/shopeestatx" target="_blank">GitHub</a>
+      </p>
+    </footer>
+
+  </div>
+
+  <script type="module" src="./welcome.ts"></script>
+</body>
+</html>

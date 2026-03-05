@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ShopeeStatX - Thống kê đơn hàng</title>
+</head>
+
+<body>
+  <div id="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p id="loadingText">Đang lấy dữ liệu từ Shopee...</p>
+  </div>
+
+  <div id="content" class="hidden">
+    <header class="header">
+      <h1>ShopeeStatX</h1>
+      <p id="fetchedAt"></p>
+    </header>
+
+    <!-- Filter & Actions -->
+    <div class="toolbar">
+      <div class="filters">
+        <input type="text" id="searchBox" placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
+        <select id="filterYear">
+          <option value="">Tất cả năm</option>
+        </select>
+        <select id="filterMonth">
+          <option value="">Tất cả tháng</option>
+          <option value="1">Tháng 1</option>
+          <option value="2">Tháng 2</option>
+          <option value="3">Tháng 3</option>
+          <option value="4">Tháng 4</option>
+          <option value="5">Tháng 5</option>
+          <option value="6">Tháng 6</option>
+          <option value="7">Tháng 7</option>
+          <option value="8">Tháng 8</option>
+          <option value="9">Tháng 9</option>
+          <option value="10">Tháng 10</option>
+          <option value="11">Tháng 11</option>
+          <option value="12">Tháng 12</option>
+        </select>
+        <select id="filterStatus">
+          <option value="">Tất cả trạng thái</option>
+          <option value="3">Hoàn thành</option>
+          <option value="4">Đã hủy</option>
+          <option value="7">Chờ vận chuyển</option>
+          <option value="8">Đang giao</option>
+          <option value="9">Chờ thanh toán</option>
+          <option value="12">Trả hàng</option>
+        </select>
+      </div>
+      <div class="actions">
+        <span id="lastUpdated" class="last-updated"></span>
+        <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu">&#8635;</button>
+        <button id="btnExport" class="btn-export">Xuất file xlsx</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary">
+      <div class="summary-item" data-tooltip="Số đơn hàng hiển thị sau khi áp dụng bộ lọc">
+        <span class="label">Đơn hàng</span>
+        <span id="totalOrders" class="value">0</span>
+      </div>
+      <div class="summary-item" data-tooltip="Tổng số sản phẩm trong các đơn hàng đã lọc">
+        <span class="label">Tổng sản phẩm</span>
+        <span id="totalProducts" class="value">0</span>
+      </div>
+      <div class="summary-item highlight" data-tooltip="Chỉ tính đơn hoàn thành, không bao gồm đơn huỷ và trả hàng">
+        <span class="label">Tổng tiền đã tiêu</span>
+        <span id="totalAmount" class="value">0 &#8363;</span>
+      </div>
+    </div>
+
+    <!-- Active Filters -->
+    <div id="activeFiltersContainer" class="active-filters-container hidden">
+      <div class="active-filters-label">Bộ lọc đang áp dụng:</div>
+      <div id="activeFilters" class="active-filters"></div>
+      <button id="btnClearFilters" class="btn-clear-filters">Xóa tất cả</button>
+    </div>
+
+    <!-- Time Comparison -->
+    <div class="comparison-cards">
+      <div class="comparison-card">
+        <div class="card-title">Tháng này</div>
+        <div id="currentMonthAmount" class="card-value">0 &#8363;</div>
+        <div id="monthComparison" class="card-change"></div>
+      </div>
+      <div class="comparison-card">
+        <div class="card-title">Năm nay</div>
+        <div id="currentYearAmount" class="card-value">0 &#8363;</div>
+        <div id="yearComparison" class="card-change"></div>
+      </div>
+      <div class="comparison-card">
+        <div class="card-title">Giá trung bình/đơn</div>
+        <div id="avgOrderValue" class="card-value">0 &#8363;</div>
+        <div id="avgComparison" class="card-change"></div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-container">
+      <div class="chart-box">
+        <h3>Chi tiêu theo tháng</h3>
+        <canvas id="monthlyChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-header">
+          <h3>Top <span id="shopCountDisplay">5</span> Shop</h3>
+          <div class="chart-controls">
+            <div class="control-group">
+              <select id="shopCount" class="chart-select">
+                <option value="3">3</option>
+                <option value="5" selected>5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <select id="shopMetric" class="chart-select">
+                <option value="amount">Tổng tiền</option>
+                <option value="orders">Số đơn hàng</option>
+                <option value="products">Số sản phẩm</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <canvas id="shopChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-icon">&#128269;</div>
+        <div class="empty-title">Không tìm thấy đơn hàng nào</div>
+        <div class="empty-message">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</div>
+        <button id="btnResetFilters" class="btn-reset">Đặt lại bộ lọc</button>
+      </div>
+
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th width="50">STT</th>
+            <th width="140">Mã đơn hàng</th>
+            <th width="110" class="sortable" data-sort="deliveryDate">
+              Ngày giao <span class="sort-indicator"></span>
+            </th>
+            <th width="100" class="sortable" data-sort="status">
+              Trạng thái <span class="sort-indicator"></span>
+            </th>
+            <th>Tên sản phẩm</th>
+            <th width="80">Số lượng</th>
+            <th width="100" class="sortable" data-sort="subTotal">
+              Tổng tiền <span class="sort-indicator"></span>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div id="paginationContainer" class="pagination-container">
+        <div class="pagination-info">
+          Hiển thị <span id="pageStart">0</span> - <span id="pageEnd">0</span> trong tổng số <span
+            id="pageTotal">0</span> đơn
+        </div>
+        <div class="pagination-controls">
+          <button id="btnFirstPage" class="btn-page" title="Trang đầu">&laquo;</button>
+          <button id="btnPrevPage" class="btn-page" title="Trang trước">&lsaquo;</button>
+          <span id="pageNumbers" class="page-numbers"></span>
+          <button id="btnNextPage" class="btn-page" title="Trang sau">&rsaquo;</button>
+          <button id="btnLastPage" class="btn-page" title="Trang cuối">&raquo;</button>
+        </div>
+        <div class="pagination-size">
+          <select id="pageSize">
+            <option value="20">20/trang</option>
+            <option value="50">50/trang</option>
+            <option value="100">100/trang</option>
+            <option value="all">Tất cả</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <span class="footer-brand">ShopeeStatX</span>
+          <span class="footer-version">v2.5</span>
+        </div>
+        <div class="footer-center">
+          <a href="https://github.com/ninhhaidang/shopee-orders-statics/blob/main/LICENSE" target="_blank"
+            class="footer-text-link">MIT License</a>
+          <span class="footer-divider">&bull;</span>
+          <span class="footer-author">Developed by <a href="https://github.com/ninhhaidang" target="_blank"
+              class="footer-text-link">Ninh Hải Đăng</a></span>
+        </div>
+        <div class="footer-right">
+          <a href="https://ninhhaidang.github.io" target="_blank" class="footer-icon-link" title="Portfolio">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+          </a>
+          <a href="https://github.com/ninhhaidang/shopee-orders-statics" target="_blank" class="footer-icon-link"
+            title="Star on GitHub">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+            </svg>
+          </a>
+          <a href="https://www.buymeacoffee.com/ninhhaidang" target="_blank"><img
+              src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee"
+              style="height: 40px !important;width: 145px !important;"></a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="noData" class="no-data hidden">
+    <p>Không có dữ liệu. Vui lòng thử lại.</p>
+    <a href="https://shopee.vn" target="_blank">Mở Shopee</a>
+  </div>
+
+  <script type="module" src="./results.ts"></script>
+</body>
+
+</html>

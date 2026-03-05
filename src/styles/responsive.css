@@ -1,0 +1,97 @@
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    top: 0;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters select,
+  #searchBox {
+    width: 100%;
+    max-width: none;
+  }
+
+  .summary {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .card-value {
+    font-size: 28px;
+  }
+
+  .table-container {
+    margin: var(--spacing-md);
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    padding: 12px 8px;
+  }
+
+  /* Hide less important columns on mobile */
+  td:nth-child(7),
+  th:nth-child(7),
+  td:nth-child(8),
+  th:nth-child(8) {
+    display: none;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* ===== SMOOTH TRANSITIONS ===== */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
