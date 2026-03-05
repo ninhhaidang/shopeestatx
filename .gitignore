@@ -11,6 +11,9 @@ Thumbs.db
 *.tmp
 *.bak
 
+# Windows Zone.Identifier (metadata from downloaded files)
+*:Zone.Identifier
+
 # Env/config
 .env
 .env.*
@@ -23,3 +26,14 @@ build/
 # Cache
 .cache/
 *.cache
+
+# Internal planning & docs (not for public consumption)
+plans/
+docs/
+.sisyphus/
+.claude/
+
+# Store assets internal notes (screenshots are kept, descriptions/checklist are internal)
+store-assets/description-vi.md
+store-assets/description-en.md
+store-assets/submission-checklist.md
