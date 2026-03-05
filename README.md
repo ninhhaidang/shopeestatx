@@ -17,13 +17,16 @@
 > Chrome Extension giúp theo dõi và phân tích chi tiêu trên Shopee một cách chi tiết và trực quan.
 
 ## 📸 Screenshots
-### Giao diện Popup
-![Popup Interface](Screenshots/popup.png)
 
-### Giao diện phân tích
-![Analysis Interface 1](Screenshots/screenshot-1.png)
+![Summary Cards](Screenshots/01-summary-cards.png)
 
-![Analysis Interface 2](Screenshots/screenshot-2.png)
+![Charts](Screenshots/02-charts.png)
+
+![Order Details](Screenshots/03-order-details.png)
+
+![Orders Table](Screenshots/04-orders-table.png)
+
+![Popup](Screenshots/05-popup.png)
 
 ## Giới thiệu
 Shopee không cung cấp bất kỳ công cụ nào để người dùng biết mình đã tiêu bao nhiêu. ShopeeStatX giải quyết vấn đề đó — một extension Chrome tự động lấy toàn bộ lịch sử đơn hàng, phân tích và hiển thị trực quan bằng biểu đồ và bảng dữ liệu. Không cần server, không cần tài khoản riêng, dữ liệu không rời khỏi máy bạn.
