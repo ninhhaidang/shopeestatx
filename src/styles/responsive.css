@@ -92,6 +92,27 @@
 }
 
 /* ===== SMOOTH TRANSITIONS ===== */
-* {
+/* .no-transitions suppresses animation during initial theme paint (see FOUC script) */
+html:not(.no-transitions) * {
   transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* ===== PRINT / PDF EXPORT ===== */
+@media print {
+  .toolbar,
+  .pagination-container,
+  .export-dropdown,
+  .btn-refresh,
+  .btn-theme,
+  .page-footer,
+  .chart-controls,
+  .active-filters-container,
+  #btnClearFilters,
+  #btnResetFilters { display: none !important; }
+
+  .charts-container { grid-template-columns: 1fr; }
+  .comparison-cards { grid-template-columns: repeat(3, 1fr); }
+  .table-container { margin: 0; box-shadow: none; border: 1px solid #ccc; }
+  body { background: white !important; color: black !important; }
+  canvas { max-width: 100% !important; }
 }

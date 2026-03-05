@@ -5,6 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ShopeeStatX - Thống kê đơn hàng</title>
+  <!-- FOUC prevention: apply theme + disable transitions on first paint -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('shopeestatx-theme');
+      if (t) document.documentElement.dataset.theme = t;
+      else if (matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.theme = 'dark';
+      // Disable CSS transitions during initial paint, re-enable after first frame
+      document.documentElement.classList.add('no-transitions');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          document.documentElement.classList.remove('no-transitions');
+        });
+      });
+    })();
+  </script>
 </head>
 
 <body>
@@ -15,8 +31,13 @@
 
   <div id="content" class="hidden">
     <header class="header">
-      <h1>ShopeeStatX</h1>
-      <p id="fetchedAt"></p>
+      <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;">
+        <div>
+          <h1 style="margin-bottom:0">ShopeeStatX</h1>
+          <p id="fetchedAt"></p>
+        </div>
+        <button id="btnTheme" class="btn-theme" title="Chuyển giao diện sáng/tối">🌙</button>
+      </div>
     </header>
 
     <!-- Filter & Actions -->
@@ -54,7 +75,14 @@
       <div class="actions">
         <span id="lastUpdated" class="last-updated"></span>
         <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu">&#8635;</button>
-        <button id="btnExport" class="btn-export">Xuất file xlsx</button>
+        <div class="export-dropdown">
+          <button id="btnExport" class="btn-export">Xuất dữ liệu ▾</button>
+          <div id="exportMenu" class="export-menu">
+            <button id="btnExportXlsx">Excel (.xlsx)</button>
+            <button id="btnExportCsv">CSV (.csv)</button>
+            <button id="btnExportPdf">In / PDF</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -191,7 +219,7 @@
       <div class="footer-content">
         <div class="footer-left">
           <span class="footer-brand">ShopeeStatX</span>
-          <span class="footer-version">v2.5</span>
+          <span class="footer-version">v2.6</span>
         </div>
         <div class="footer-center">
           <a href="https://github.com/ninhhaidang/shopee-orders-statics/blob/main/LICENSE" target="_blank"

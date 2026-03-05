@@ -52,7 +52,7 @@ body {
 
 /* ===== TOOLBAR ===== */
 .toolbar {
-  background: white;
+  background: var(--bg-card);
   padding: var(--spacing-lg);
   display: flex;
   justify-content: space-between;

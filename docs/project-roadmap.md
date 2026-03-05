@@ -1,6 +1,6 @@
 # Project Roadmap
 
-## Current Version: 2.5.0
+## Current Version: 2.6.0
 
 ## Phase 1: Foundation — Complete (v2.5.0)
 
@@ -53,15 +53,43 @@
 - [x] Onboarding / first-run flow (welcome.html + background.ts onInstalled listener)
 - [x] Privacy Policy page (in-extension + public GitHub Pages)
 
-## Phase 2: Enhanced Analytics (Backlog)
+## Phase 2: Enhanced UX & Export — Complete (v2.6.0)
 
-**Priority:** Medium | **Target:** Q2 2026
+**Status:** ✅ COMPLETED (2026-03-05)
+
+### Phase 2 Deliverables
+
+**Dark Mode:**
+- [x] CSS custom properties (light/dark theme variables)
+- [x] data-theme attribute toggle (localStorage persistence)
+- [x] FOUC (flash of unstyled content) prevention
+- [x] Chart.js dark mode colors via cssVar helper
+- [x] New file: `src/styles/dark-theme.css`
+- [x] New file: `src/dashboard/theme-toggle.ts`
+
+**Incremental Data Fetch:**
+- [x] In-place data refresh (append new orders to existing data)
+- [x] Cache merge by orderId (prevent duplicates)
+- [x] No page reload required
+- [x] New file: `src/dashboard/incremental-fetch.ts`
+
+**Enhanced Export:**
+- [x] CSV export (UTF-8 BOM, proper encoding)
+- [x] PDF export (window.print() integration)
+- [x] Export format dropdown UI selector
+- [x] Updated `export.ts` module
+
+**Utilities & Testing:**
+- [x] showToast() notification utility
+- [x] 64 total tests (33 new for Phase 2)
+
+## Phase 3: Advanced Analytics (Backlog)
+
+**Priority:** Medium | **Target:** Q3 2026
 
 - [ ] Date range filter (custom from/to)
 - [ ] Category/tag analysis
 - [ ] Seller comparison across time periods
-- [ ] Export to CSV option
-- [ ] Dark mode toggle
 - [ ] Product-level analytics (most purchased items)
 - [ ] Spending forecast / trend line
 
@@ -73,7 +101,7 @@
 
 ## Architecture Stability
 
-After Phase 1 (Vite + TypeScript migration), the module boundaries are stable and type-safe:
+After Phase 2 (Dark mode + Export enhancements), module boundaries remain stable and type-safe:
 
 | Module | Responsibility | Status |
 |--------|---------------|--------|
@@ -84,8 +112,10 @@ After Phase 1 (Vite + TypeScript migration), the module boundaries are stable an
 | table.ts | Table render + pagination | Stable |
 | charts.ts | Chart.js integration | Stable |
 | comparison.ts | Summary cards + metrics | Stable |
-| export.ts | SheetJS Excel export | Stable |
-| utils.ts | Formatting helpers | Stable |
+| export.ts | CSV/PDF export | Updated v2.6 |
+| theme-toggle.ts | Dark mode toggle + cssVar helper | New v2.6 |
+| incremental-fetch.ts | In-place data refresh | New v2.6 |
+| utils.ts | Formatting + toast notifications | Updated v2.6 |
 | results.ts | Orchestrator + DOM wiring | Stable |
 | content.js | MAIN world API fetcher | Stable |
 | bridge.ts | ISOLATED world relay | Stable |
