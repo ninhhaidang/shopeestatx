@@ -23,6 +23,9 @@ export async function loadMockData(): Promise<void> {
 }
 
 export async function fetchDataFromShopee(): Promise<void> {
+  const btnRefresh = document.getElementById('btnRefresh') as HTMLButtonElement | null;
+  if (btnRefresh) { btnRefresh.disabled = true; btnRefresh.style.opacity = '0.6'; }
+
   try {
     const storage = await chrome.storage.local.get(['shopeeTabId']);
     const tabId = storage.shopeeTabId;
@@ -77,6 +80,8 @@ export async function fetchDataFromShopee(): Promise<void> {
     const noData = document.getElementById('noData')!;
     noData.classList.remove('hidden');
     noData.querySelector('p')!.textContent = (error as Error).message;
+  } finally {
+    if (btnRefresh) { btnRefresh.disabled = false; btnRefresh.style.opacity = ''; }
   }
 }
 
@@ -97,7 +102,8 @@ export function loadDataFromStorage(): void {
 }
 
 export function refreshData(): void {
-  window.location.href = 'results.html?fetch=true';
+  // Delegates to incremental-fetch.ts to keep data.ts under 200 lines
+  import('./incremental-fetch.js').then(m => m.incrementalFetch());
 }
 
 export function updateLastUpdatedTime(timestamp: string | undefined): void {
@@ -126,6 +132,8 @@ export function initializeUI(data: OrderData): void {
 
   const years = [...new Set(data.orders.map(o => o.orderYear).filter((y): y is number => y !== null))].sort((a, b) => b - a);
   const filterYear = document.getElementById('filterYear') as HTMLSelectElement;
+  // Clear existing options (keep the "Tất cả năm" default), then repopulate
+  while (filterYear.options.length > 1) filterYear.remove(1);
   years.forEach(year => {
     const option = document.createElement('option');
     option.value = String(year);

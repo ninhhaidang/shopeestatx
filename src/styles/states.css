@@ -48,7 +48,7 @@
 .empty-state {
   text-align: center;
   padding: 80px 40px;
-  background: white;
+  background: var(--bg-card);
   animation: fadeIn 0.5s ease-out;
 }
 

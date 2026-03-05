@@ -13,3 +13,19 @@ export function escapeHtml(text: string | null | undefined): string {
   div.textContent = text;
   return div.innerHTML;
 }
+
+/** Show a non-intrusive toast notification that auto-dismisses after 3s */
+export function showToast(message: string, durationMs = 3000): void {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('toast-fade-out');
+    toast.addEventListener('animationend', () => toast.remove(), { once: true });
+  }, durationMs);
+}

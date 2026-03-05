@@ -7,6 +7,12 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
+/** Read a CSS variable from the document root (adapts to dark mode) */
+function cssVar(name: string, fallback: string): string {
+  const val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return val || fallback;
+}
+
 let monthlyChart: Chart | null = null;
 let shopChart: Chart | null = null;
 
@@ -102,8 +108,14 @@ export function renderCharts(orders: Order[]): void {
         y: {
           beginAtZero: true,
           ticks: {
+            color: cssVar('--text-secondary', '#718096'),
             callback: value => formatVND(value as number, true),
           },
+          grid: { color: cssVar('--border-color', '#e2e8f0') },
+        },
+        x: {
+          ticks: { color: cssVar('--text-secondary', '#718096') },
+          grid: { color: 'transparent' },
         },
       },
       onClick: (_event, activeElements) => {

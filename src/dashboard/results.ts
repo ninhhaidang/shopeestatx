@@ -1,13 +1,18 @@
 // Main orchestrator — imports all modules and wires DOM event listeners
 import { state } from './state.js';
-import { exportToExcel } from './export.js';
+import { exportToExcel, exportToCSV, exportToPDF } from './export.js';
 import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
 import { applyFilters, clearAllFilters, handleSort } from './filters.js';
 import { fetchDataFromShopee, loadDataFromStorage, refreshData, isExtensionContext, loadMockData } from './data.js';
+import { initTheme, toggleTheme, syncThemeButton } from './theme-toggle.js';
 import './results.css';
 
 document.addEventListener('DOMContentLoaded', async function () {
+  // Apply theme immediately (also handled by FOUC inline script)
+  initTheme();
+  syncThemeButton();
+
   const filterYear = document.getElementById('filterYear') as HTMLSelectElement;
   const filterMonth = document.getElementById('filterMonth') as HTMLSelectElement;
   const filterStatus = document.getElementById('filterStatus') as HTMLSelectElement;
@@ -40,11 +45,31 @@ document.addEventListener('DOMContentLoaded', async function () {
     loadDataFromStorage();
   }
 
+  // Theme toggle
+  document.getElementById('btnTheme')!.addEventListener('click', () => {
+    toggleTheme(() => renderCharts(state.filteredOrders));
+    syncThemeButton();
+  });
+
+  // Export dropdown toggle
+  const exportMenu = document.getElementById('exportMenu')!;
+  btnExport.setAttribute('aria-haspopup', 'true');
+  btnExport.setAttribute('aria-expanded', 'false');
+  const setExportOpen = (open: boolean) => {
+    exportMenu.classList.toggle('open', open);
+    btnExport.setAttribute('aria-expanded', String(open));
+  };
+  btnExport.addEventListener('click', (e) => { e.stopPropagation(); setExportOpen(!exportMenu.classList.contains('open')); });
+  document.addEventListener('click', () => setExportOpen(false));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setExportOpen(false); });
+  document.getElementById('btnExportXlsx')!.addEventListener('click', () => { exportToExcel(); setExportOpen(false); });
+  document.getElementById('btnExportCsv')!.addEventListener('click', () => { exportToCSV(); setExportOpen(false); });
+  document.getElementById('btnExportPdf')!.addEventListener('click', () => { exportToPDF(); setExportOpen(false); });
+
   // Filter changes
   filterYear.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
   filterMonth.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
   filterStatus.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
-  btnExport.addEventListener('click', exportToExcel);
   btnRefresh.addEventListener('click', refreshData);
   btnClearFilters.addEventListener('click', clearAllFilters);
   btnResetFilters.addEventListener('click', clearAllFilters);

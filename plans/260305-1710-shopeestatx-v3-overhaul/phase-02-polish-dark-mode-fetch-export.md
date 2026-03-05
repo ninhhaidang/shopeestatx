@@ -7,8 +7,8 @@
 
 ## Overview
 - **Priority:** P0
-- **Status:** Pending
-- **Effort:** 12h
+- **Status:** Complete
+- **Effort:** 12h (completed)
 - **Version target:** v2.6
 
 Ship high-impact user-facing features: dark mode, faster data refresh via incremental fetch, CSV/PDF export, improved loading UX.
@@ -232,23 +232,23 @@ Replace single "Xuat file xlsx" button with dropdown:
 4. Replace spinner with skeletons progressively
 
 ## Todo List
-- [ ] Create dark theme CSS variables
-- [ ] Fix hardcoded colors in existing CSS
-- [ ] Create theme toggle module
-- [ ] Add FOUC prevention inline script
-- [ ] Add toggle button UI in header
-- [ ] Implement incrementalFetch in data.ts
-- [ ] Add showToast utility
-- [ ] Modify refreshData to use incremental fetch
-- [ ] Implement CSV export
-- [ ] Add print CSS for PDF export
-- [ ] Create export dropdown UI
-- [ ] Wire new buttons in results.ts
-- [ ] Create skeleton loading markup + CSS
-- [ ] Test dark mode in all views (popup, welcome, results)
-- [ ] Test incremental fetch (first load vs refresh)
-- [ ] Test all export formats
-- [ ] Bump version to 2.6.0
+- [x] Create dark theme CSS variables
+- [x] Fix hardcoded colors in existing CSS
+- [x] Create theme toggle module
+- [x] Add FOUC prevention inline script
+- [x] Add toggle button UI in header
+- [x] Implement incrementalFetch in data.ts
+- [x] Add showToast utility
+- [x] Modify refreshData to use incremental fetch
+- [x] Implement CSV export
+- [x] Add print CSS for PDF export
+- [x] Create export dropdown UI
+- [x] Wire new buttons in results.ts
+- [x] Create skeleton loading markup + CSS
+- [x] Test dark mode in all views (popup, welcome, results)
+- [x] Test incremental fetch (first load vs refresh)
+- [x] Test all export formats
+- [x] Bump version to 2.6.0
 
 ## Success Criteria
 - Dark mode works with system preference + manual toggle

@@ -26,8 +26,10 @@ src/
 │   ├── table.ts           # Table render + pagination
 │   ├── charts.ts          # Chart.js bar + pie
 │   ├── comparison.ts      # Summary cards + comparison
-│   ├── export.ts          # SheetJS Excel export
-│   ├── utils.ts           # formatVND, escapeHtml
+│   ├── export.ts          # SheetJS CSV/PDF export
+│   ├── theme-toggle.ts    # Dark mode toggle + cssVar helper
+│   ├── incremental-fetch.ts # In-place data refresh, cache merge
+│   ├── utils.ts           # formatVND, escapeHtml, showToast
 │   ├── icons.ts           # Icon data URIs
 │   └── mock-data.ts       # Static demo data
 ├── types/                  # Type definitions
@@ -43,6 +45,7 @@ src/
 │   └── bridge.ts          # ISOLATED world message relay
 └── styles/                 # CSS modules
     ├── results.css        # Dashboard design system
+    ├── dark-theme.css     # Dark mode variables (v2.6)
     ├── popup.css          # Popup UI styles
     ├── welcome.css        # Onboarding styles
     └── shared.css         # Shared variables
@@ -69,8 +72,10 @@ public/
 results.ts (orchestrator)
   ├── state.ts
   ├── utils.ts
+  ├── theme-toggle.ts → state.ts (dark mode toggle, cssVar helper)
+  ├── incremental-fetch.ts → state.ts, utils.ts, showToast
   ├── comparison.ts → state.ts, utils.ts
-  ├── export.ts → state.ts, utils.ts
+  ├── export.ts → state.ts, utils.ts (CSV + PDF)
   ├── charts.ts → state.ts, types/index.ts
   ├── table.ts → state.ts, utils.ts, filters.ts
   ├── filters.ts → state.ts, utils.ts, charts.ts, table.ts, comparison.ts
@@ -99,6 +104,15 @@ results.ts (orchestrator)
 | API Fetcher | src/content/content.js | src/ (IIFE, not bundled) |
 | Dev preview | `npm run dev` (Vite dev server) | localhost:5173 |
 
+## Key Features (Phase 2 — v2.6.0)
+
+- **Dark Mode**: CSS custom properties, data-theme attribute, no FOUC (flash of unstyled content)
+- **Incremental Fetch**: In-place data refresh, cache merge by orderId, no page reload required
+- **Enhanced Export**: CSV (UTF-8 BOM) + PDF (window.print()), dropdown UI selector
+- **Toast Notifications**: showToast() utility for user feedback
+- **Dark Mode Chart Colors**: Chart.js integration via cssVar helper
+- **Test Coverage**: 64 tests (33 new for Phase 2 features)
+
 ## Version
 
-Current: **2.5.0** (Phase 1 completion)
+Current: **2.6.0** (Phase 2 completion)
