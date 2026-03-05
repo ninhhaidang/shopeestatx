@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chính sách bảo mật — ShopeeStatX</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f9fc;
+      color: #1a202c;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
+    header { text-align: center; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid #ee4d2d; }
+    header h1 { font-size: 28px; font-weight: 800; color: #ee4d2d; margin-bottom: 6px; }
+    header p { font-size: 14px; color: #718096; }
+    section { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+    h2 { font-size: 16px; font-weight: 700; color: #1a202c; margin-bottom: 12px; }
+    p { font-size: 14px; color: #4a5568; margin-bottom: 8px; }
+    p:last-child { margin-bottom: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th { background: #f8f9fc; font-size: 13px; font-weight: 700; color: #1a202c; padding: 10px 12px; text-align: left; border: 1px solid #e2e8f0; }
+    td { font-size: 13px; color: #4a5568; padding: 10px 12px; border: 1px solid #e2e8f0; vertical-align: top; }
+    td:first-child { font-family: monospace; color: #ee4d2d; font-weight: 700; white-space: nowrap; }
+    .highlight { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 16px; margin-top: 12px; font-size: 14px; color: #166534; }
+    a { color: #ee4d2d; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    footer { text-align: center; margin-top: 32px; font-size: 12px; color: #a0aec0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Chính sách bảo mật</h1>
+      <p>ShopeeStatX &nbsp;•&nbsp; Cập nhật lần cuối: 05/03/2026</p>
+      <p><em>Privacy Policy / Politique de confidentialité</em></p>
+    </header>
+
+    <section>
+      <h2>1. Tổng quan (Overview)</h2>
+      <p>ShopeeStatX là Chrome Extension giúp người dùng phân tích lịch sử chi tiêu trên Shopee. Extension hoạt động hoàn toàn cục bộ — không có server, không có cơ sở dữ liệu bên ngoài, không thu thập hay truyền dữ liệu cá nhân ra bên ngoài.</p>
+      <p><em>ShopeeStatX is a Chrome Extension that helps users analyze their Shopee spending history. The extension runs entirely locally — no server, no external database, no collection or transmission of personal data.</em></p>
+    </section>
+
+    <section>
+      <h2>2. Dữ liệu được truy cập (Data Accessed)</h2>
+      <p>Extension chỉ truy cập dữ liệu khi người dùng chủ động nhấn "Bắt đầu phân tích":</p>
+      <ul style="margin: 8px 0 0 20px; font-size: 14px; color: #4a5568;">
+        <li>Lịch sử đơn hàng Shopee (qua API Shopee, sử dụng session trình duyệt)</li>
+        <li>Thông tin đơn hàng: mã đơn, tên sản phẩm, ngày giao, trạng thái, tổng tiền, tên shop</li>
+      </ul>
+      <p style="margin-top: 10px;">Dữ liệu này <strong>chỉ được lưu trên máy người dùng</strong> trong <code>chrome.storage.local</code> và <strong>không bao giờ được gửi đến server hay bên thứ ba nào</strong>.</p>
+    </section>
+
+    <section>
+      <h2>3. Quyền truy cập và lý do (Permissions)</h2>
+      <table>
+        <tr>
+          <th>Quyền</th>
+          <th>Lý do sử dụng</th>
+        </tr>
+        <tr>
+          <td>activeTab</td>
+          <td>Đọc URL tab hiện tại để kiểm tra người dùng đang ở shopee.vn trước khi bắt đầu</td>
+        </tr>
+        <tr>
+          <td>storage</td>
+          <td>Lưu cache lịch sử đơn hàng trên máy người dùng để tránh phải tải lại mỗi lần mở extension</td>
+        </tr>
+        <tr>
+          <td>scripting</td>
+          <td>Inject script vào tab Shopee để gọi API Shopee với cookie trình duyệt — đây là cách duy nhất để lấy dữ liệu mà không cần tài khoản riêng hay server trung gian</td>
+        </tr>
+        <tr>
+          <td>https://shopee.vn/*</td>
+          <td>Giới hạn host permission — extension chỉ có thể inject script vào shopee.vn, không có quyền trên bất kỳ trang web nào khác</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. Dữ liệu không được chia sẻ (No Data Sharing)</h2>
+      <p>ShopeeStatX <strong>không</strong>:</p>
+      <ul style="margin: 8px 0 0 20px; font-size: 14px; color: #4a5568;">
+        <li>Gửi dữ liệu đến server nào</li>
+        <li>Sử dụng analytics hay tracking</li>
+        <li>Thu thập thông tin cá nhân</li>
+        <li>Tạo tài khoản người dùng</li>
+        <li>Chia sẻ dữ liệu với bên thứ ba</li>
+      </ul>
+      <div class="highlight">Toàn bộ dữ liệu đơn hàng chỉ tồn tại trên máy của bạn và bị xóa hoàn toàn khi bạn gỡ cài đặt extension.</div>
+    </section>
+
+    <section>
+      <h2>5. Lưu trữ dữ liệu (Data Storage)</h2>
+      <p>Dữ liệu được lưu tại <code>chrome.storage.local</code> — bộ nhớ cục bộ của Chrome, chỉ truy cập được từ extension này, không đồng bộ lên cloud. Xóa khi:</p>
+      <ul style="margin: 8px 0 0 20px; font-size: 14px; color: #4a5568;">
+        <li>Gỡ cài đặt extension</li>
+        <li>Xóa dữ liệu Chrome tại <code>chrome://settings/clearBrowserData</code></li>
+        <li>Nhấn "Làm mới dữ liệu" trong extension (xóa cache cũ, tải lại)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>6. Tuyên bố miễn trừ (Disclaimer)</h2>
+      <p>ShopeeStatX là dự án mã nguồn mở độc lập, <strong>không liên kết chính thức với Shopee</strong>. Extension sử dụng API Shopee theo cách tương tự trình duyệt web bình thường (dùng session đăng nhập sẵn có).</p>
+    </section>
+
+    <section>
+      <h2>7. Liên hệ (Contact)</h2>
+      <p>Nếu có câu hỏi về chính sách bảo mật:</p>
+      <ul style="margin: 8px 0 0 20px; font-size: 14px; color: #4a5568;">
+        <li>GitHub Issues: <a href="https://github.com/ninhhaidang/shopeestatx/issues" target="_blank">github.com/ninhhaidang/shopeestatx/issues</a></li>
+        <li>GitHub: <a href="https://github.com/ninhhaidang" target="_blank">github.com/ninhhaidang</a></li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>ShopeeStatX &nbsp;•&nbsp; MIT License &nbsp;•&nbsp;
+        <a href="https://github.com/ninhhaidang/shopeestatx" target="_blank">GitHub</a>
+      </p>
+    </footer>
+
+  </div>
+</body>
+</html>

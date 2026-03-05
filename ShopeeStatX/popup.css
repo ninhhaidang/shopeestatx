@@ -324,6 +324,26 @@ body {
   color: var(--text-muted);
 }
 
+/* Help & Privacy text links */
+.footer-help-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.footer-help-link {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-help-link:hover {
+  color: var(--primary);
+}
+
 /* Utility */
 .hidden {
   display: none !important;
