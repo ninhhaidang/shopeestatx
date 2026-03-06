@@ -82,7 +82,10 @@ body {
   flex: 1;
   max-width: 400px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: white url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" stroke="%23a0aec0" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="%23a0aec0" stroke-width="2" stroke-linecap="round"/></svg>') no-repeat 14px center;
+  background-color: var(--bg-card);
+  background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" stroke="%23a0aec0" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="%23a0aec0" stroke-width="2" stroke-linecap="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: 14px center;
   font-weight: 500;
 }
 
@@ -102,7 +105,8 @@ body {
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 14px;
-  background: white;
+  background: var(--bg-card);
+  color: var(--text-primary);
   cursor: pointer;
   min-width: 140px;
   font-weight: 500;
@@ -186,7 +190,7 @@ body {
 .page-footer {
   margin-top: 60px;
   padding: 24px 32px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: var(--bg-card);
   border-top: 1px solid var(--border-color);
 }
 
@@ -215,7 +219,7 @@ body {
 .footer-version {
   font-size: 12px;
   color: var(--text-secondary);
-  background: var(--background-secondary);
+  background: var(--bg-main);
   padding: 2px 8px;
   border-radius: var(--radius-sm);
 }
@@ -258,7 +262,9 @@ body {
   padding: 8px 12px;
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
-  background: white;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   box-shadow: var(--shadow-xs);
 }
 

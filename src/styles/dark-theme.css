@@ -33,6 +33,13 @@
   --danger: #f87171;
   --danger-bg: #450a0a;
 
+  /* Heatmap intensity (dark mode) */
+  --heatmap-0: #161b22;
+  --heatmap-1: #3d1f14;
+  --heatmap-2: #6b2e1a;
+  --heatmap-3: #a04020;
+  --heatmap-4: #ee4d2d;
+
   /* Shadows (darker for contrast) */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -58,9 +65,14 @@
 }
 
 [data-theme="dark"] th {
-  background: #12151e;
-  color: var(--text-secondary);
-  border-bottom-color: var(--border-color);
+  /* Keep orange gradient from thead — only override border */
+  background: transparent;
+  color: white;
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] thead {
+  box-shadow: 0 2px 8px rgba(255, 107, 61, 0.3);
 }
 
 [data-theme="dark"] td {
@@ -113,12 +125,79 @@
   background: #21253a;
 }
 
+[data-theme="dark"] .btn-page-num {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .btn-page-num:hover {
+  background: #21253a;
+}
+
+[data-theme="dark"] .pagination-size select {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
 [data-theme="dark"] .chart-box {
   background: var(--bg-card);
   border-color: var(--border-color);
 }
 
-/* Components not covered by CSS vars */
+/* ===== SEARCH BOX (ID selector needs higher specificity) ===== */
+/* Override hardcoded background: white + embedded SVG */
+[data-theme="dark"] #searchBox {
+  background-color: #21253a;
+  background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" stroke="%2364748b" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="%2364748b" stroke-width="2" stroke-linecap="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: 14px center;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] #searchBox:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 107, 61, 0.15);
+  background-color: #2a2f45;
+}
+
+/* Override hardcoded background: white on filter selects */
+[data-theme="dark"] .filters select {
+  background-color: #21253a;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .filters select:hover {
+  border-color: var(--primary);
+  background-color: #2a2f45;
+}
+
+/* ===== ACTIVE FILTERS — replace hardcoded yellow gradient ===== */
+[data-theme="dark"] .active-filters-container {
+  background: linear-gradient(135deg, #1e2235 0%, #252a3d 100%);
+  border-color: rgba(255, 107, 61, 0.3);
+}
+
+[data-theme="dark"] .active-filters-label {
+  color: var(--text-secondary);
+}
+
+/* Filter chips — replace hardcoded white background */
+[data-theme="dark"] .filter-chip {
+  background: #2a2f45;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+[data-theme="dark"] .filter-chip:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ===== COMPONENTS ===== */
 [data-theme="dark"] .table-container {
   background: var(--bg-card);
 }
@@ -163,22 +242,62 @@
   color: var(--text-primary);
 }
 
-[data-theme="dark"] .footer-icon-link,
+/* ===== FOOTER ===== */
+[data-theme="dark"] .footer-icon-link {
+  background: #21253a;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .footer-icon-link:hover {
+  background: #2a2f45;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 [data-theme="dark"] .footer-text-link {
   color: var(--text-muted);
 }
 
+[data-theme="dark"] .footer-text-link:hover {
+  color: var(--primary);
+}
+
+[data-theme="dark"] .page-footer {
+  background: linear-gradient(135deg, #0d1017 0%, #12151e 100%);
+  border-top-color: var(--border-color);
+}
+
+/* ===== SUMMARY HIGHLIGHT ===== */
 [data-theme="dark"] .summary-item.highlight {
   background: linear-gradient(135deg, #2a1a14 0%, #3a1f14 100%);
 }
 
-[data-theme="dark"] .active-filters-label {
+/* ===== SECTION CARDS (insights, heatmap, loyalty) ===== */
+[data-theme="dark"] .section-card {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .section-card h3 {
   color: var(--text-secondary);
 }
 
-[data-theme="dark"] .active-filters-container {
+[data-theme="dark"] .loyalty-section summary {
   background: var(--bg-card);
   border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .loyalty-section-body {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+/* ===== LAST UPDATED BADGE ===== */
+[data-theme="dark"] .last-updated {
+  background: #21253a;
+  color: var(--text-muted);
 }
 
 /* Toast notification (dark mode aware via CSS vars) */
