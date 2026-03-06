@@ -1,7 +1,7 @@
 // Excel, CSV, and PDF export functions
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 /** Helper: trigger browser file download */
 function downloadFile(content: string, filename: string, mimeType: string): void {
@@ -34,6 +34,12 @@ function getExportOrders() {
 
 export function exportToExcel(): void {
   const filtered = getExportOrders();
+
+  if (filtered.length === 0) {
+    alert(t('export.noData') || 'No data to export');
+    return;
+  }
+
   const data = filtered.map((order, index) => ({
     [t('export.col.index')]: index + 1,
     [t('export.col.orderId')]: order.orderId,
@@ -46,10 +52,40 @@ export function exportToExcel(): void {
     'Details': order.productSummary,
   }));
 
-  const ws = XLSX.utils.json_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Shopee Orders');
-  XLSX.writeFile(wb, `shopee-stats-${new Date().toISOString().split('T')[0]}.xlsx`);
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Shopee Orders');
+
+  // Add headers
+  const headers = Object.keys(data[0] || {});
+  headers.forEach((header, colIndex) => {
+    worksheet.getCell(1, colIndex + 1).value = header;
+  });
+
+  // Add data rows
+  data.forEach((row, rowIndex) => {
+    const values = Object.values(row);
+    values.forEach((value, colIndex) => {
+      worksheet.getCell(rowIndex + 2, colIndex + 1).value = value;
+    });
+  });
+
+  // Download via buffer with error handling
+  workbook.xlsx.writeBuffer()
+    .then(buffer => {
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `shopee-stats-${new Date().toISOString().split('T')[0]}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+      console.error('Export failed:', err);
+      alert('Failed to export Excel. Please try again.');
+    });
 }
 
 export function exportToCSV(): void {
