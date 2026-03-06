@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "ShopeeStatX",
     "description": "Thống kê tổng số tiền bạn đã tiêu trên Shopee",
-    "version": "2.1.0",
+    "version": "2.7.0",
     "icons": {
         "16": "icons/icon16.png",
         "48": "icons/icon48.png",
