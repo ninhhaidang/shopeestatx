@@ -71,10 +71,31 @@ export function renderHeatmap(container: HTMLElement, orders: Order[]): void {
   const svgWidth = COLS * step + 24; // +24 for day labels on left
   const svgHeight = ROWS * step + 20; // +20 for month labels
 
+  // Pre-compute month start columns for accurate label positioning
+  const monthStartCols: Record<number, number> = {};
+
+  for (let col = 0; col < COLS; col++) {
+    const weekStart = new Date(startDate);
+    weekStart.setDate(weekStart.getDate() + col * ROWS);
+
+    // Check each day in this week to find the 1st of month
+    for (let row = 0; row < ROWS; row++) {
+      const dayDate = new Date(weekStart);
+      dayDate.setDate(weekStart.getDate() + row);
+      if (dayDate > endDate) continue;
+
+      const monthKey = dayDate.getFullYear() * 12 + dayDate.getMonth();
+
+      // Store first occurrence of each month (within date range)
+      if (dayDate.getDate() === 1 && monthStartCols[monthKey] === undefined) {
+        monthStartCols[monthKey] = col;
+      }
+    }
+  }
+
   let cells = '';
   let monthLabels = '';
   let dayLabels = '';
-  let lastMonth = -1;
 
   // Add day labels (Mon, Wed, Fri) - GitHub style (English only)
   const DAYS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
@@ -102,13 +123,16 @@ export function renderHeatmap(container: HTMLElement, orders: Order[]): void {
         : dateStr;
 
       cells += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" class="heatmap-cell heatmap-${lvl}" data-date="${dateStr}" data-tip="${tooltipText}" />`;
-
-      if (row === 0 && d.getMonth() !== lastMonth) {
-        monthLabels += `<text x="${x}" y="12" class="heatmap-label">${MONTHS[d.getMonth()]}</text>`;
-        lastMonth = d.getMonth();
-      }
     }
   }
+
+  // Draw month labels at pre-computed positions (aligned to first day of each month)
+  Object.entries(monthStartCols)
+    .sort(([a], [b]) => Number(a) - Number(b))
+    .forEach(([monthKey, col]) => {
+      const month = Number(monthKey) % 12;
+      monthLabels += `<text x="${col * step + 24}" y="12" class="heatmap-label">${MONTHS[month]}</text>`;
+    });
 
   container.innerHTML = `
     <div class="heatmap-scroll">
