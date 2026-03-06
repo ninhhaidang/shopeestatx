@@ -109,25 +109,53 @@
 - [x] 87 total tests (all passing)
 - [x] Version bump to 3.1.0
 
-## Phase 3: Advanced Analytics (Backlog)
+## Phase 3: Advanced Analytics — Partial (v3.1.0)
 
-**Priority:** Medium | **Target:** Q3 2026
+**Status:** ⚠️ PARTIALLY COMPLETE
 
-- [ ] Date range filter (custom from/to)
-- [ ] Category/tag analysis
-- [ ] Seller comparison across time periods
+### Completed Features
+
+**Heatmap:**
+- [x] GitHub-style 52-week calendar heatmap
+- [x] Show order count instead of amount
+- [x] Filter by selected year (filterYear dropdown)
+- [x] Day labels on Y axis (Mon, Wed, Fri)
+- [x] English month names on X axis (Jan, Feb, Mar...)
+
+**Categories:**
+- [x] Keyword-based product categorization (8 categories + "Khác")
+- [x] Vietnamese + English keyword support
+- [x] Doughnut chart visualization
+- [x] Category breakdown in insights
+
+**Date Range Picker:**
+- [x] Preset buttons: Last 7 days, This month, Last month, 3 months, This year, Custom
+- [x] Custom date range input (from/to)
+- [x] Integration with filter logic
+
+**Spending Predictions:**
+- [x] Linear regression for monthly trend
+- [x] Next month forecast display
+- [x] Visual trend line on chart
+
+**Shop Loyalty:**
+- [x] Order count by shop tracking
+- [x] Top shops by order count
+- [x] Loyalty tier calculation (VIP, Regular, New)
+
+### Remaining Tasks
+- [ ] Category manual override UI (user can correct category)
 - [ ] Product-level analytics (most purchased items)
-- [ ] Spending forecast / trend line
 
 ## Distribution & Release
 
-- [x] Chrome Web Store submission (v2.7.0 — released 2026-03-06)
+- [x] Chrome Web Store submission (v3.1.0 — latest release)
 - [ ] Firefox extension port (Phase 3)
 - [ ] Auto-update via Chrome Web Store
 
 ## Architecture Stability
 
-After Phase 2 (Dark mode + Export enhancements), module boundaries remain stable and type-safe:
+After Phase 4 (i18n + Date Range Picker), module boundaries remain stable and type-safe:
 
 | Module | Responsibility | Status |
 |--------|---------------|--------|
@@ -138,12 +166,19 @@ After Phase 2 (Dark mode + Export enhancements), module boundaries remain stable
 | table.ts | Table render + pagination | Stable |
 | charts.ts | Chart.js integration | Stable |
 | comparison.ts | Summary cards + metrics | Stable |
-| export.ts | CSV/PDF export | Updated v2.6 |
-| theme-toggle.ts | Dark mode toggle + cssVar helper | New v2.6 |
-| incremental-fetch.ts | In-place data refresh | New v2.6 |
-| utils.ts | Formatting + toast notifications | Updated v2.6 |
+| export.ts | CSV/PDF export | Updated v3.1 |
+| theme-toggle.ts | Dark mode toggle + cssVar helper | Stable |
+| incremental-fetch.ts | In-place data refresh | Stable |
+| utils.ts | Formatting + toast notifications | Updated v3.1 |
 | results.ts | Orchestrator + DOM wiring | Stable |
 | content.js | MAIN world API fetcher | Stable |
+| i18n/index.ts | Translation (t, setLocale) | New v3.1 |
+| i18n/format.ts | Locale-aware formatting | New v3.1 |
+| date-range-picker.ts | Date range picker component | New v3.1 |
+| heatmap.ts | GitHub-style calendar heatmap | New v3.1 |
+| categories.ts | Keyword-based categorization | New v3.1 |
+| predictions.ts | Spending trend forecast | New v3.1 |
+| shop-loyalty.ts | Shop loyalty tracking | New v3.1 |
 | bridge.ts | ISOLATED world relay | Stable |
 | popup.ts | Extension popup logic | Stable |
 | welcome.ts | Onboarding logic | Stable |
