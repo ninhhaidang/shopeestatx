@@ -1,6 +1,8 @@
 // Popup script — domain check and start analysis trigger
+import { initLocale } from '../i18n/index.js';
 
 document.addEventListener('DOMContentLoaded', function () {
+  initLocale();
   const btnStart = document.getElementById('btnStart') as HTMLButtonElement;
   const warning = document.getElementById('warning')!;
 

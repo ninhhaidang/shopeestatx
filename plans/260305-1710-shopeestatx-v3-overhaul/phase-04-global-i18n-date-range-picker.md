@@ -7,7 +7,7 @@
 
 ## Overview
 - **Priority:** P2
-- **Status:** Pending
+- **Status:** Complete
 - **Effort:** 12h
 - **Version target:** v3.1
 

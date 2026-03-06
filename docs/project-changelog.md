@@ -2,6 +2,32 @@
 
 All notable changes to ShopeeStatX are documented here.
 
+## [3.1.0] - 2026-03-06
+
+### Phase 4: Global — i18n + Date Range Picker
+
+#### Added
+
+**i18n (Internationalization)**
+- Core i18n module with t(), setLocale(), getLocale() functions
+- Locale-aware currency/date formatting via Intl.NumberFormat
+- Vietnamese (vi) and English (en) locale files (~100 keys each)
+- Language switcher in header — instant switch, no reload
+- Full i18n coverage: dashboard, popup, welcome pages
+
+**Date Range Picker**
+- Custom component with preset buttons: Last 7 days, This month, Last month, 3 months, This year
+- Custom date range input (from/to)
+- Integration with existing filter logic
+
+#### Changed
+
+- Version bump to 3.1.0
+- popup.html version display: v2.5 → v3.1
+- welcome.html version display: v2.5 → v3.1
+
+---
+
 ## [2.7.0] - 2026-03-06
 
 ### Chrome Web Store Release
@@ -130,6 +156,7 @@ All notable changes to ShopeeStatX are documented here.
 
 | Version | Date | Status | Focus |
 |---------|------|--------|-------|
+| 3.1.0 | 2026-03-06 | Stable | i18n (VI/EN), date range picker |
 | 2.7.0 | 2026-03-06 | Stable | Chrome Web Store release |
 | 2.6.0 | 2026-03-05 | Stable | Dark mode, incremental fetch, enhanced export |
 | 2.5.0 | 2026-03-01 | Stable | Build system & TypeScript migration |
