@@ -7,7 +7,7 @@
 
 ## Overview
 - **Priority:** P1
-- **Status:** Pending
+- **Status:** Complete
 - **Effort:** 28h
 - **Version target:** v3.0
 
@@ -228,30 +228,30 @@ interface BudgetConfig {
 5. Clickable shop names → filter table
 
 ## Todo List
-- [ ] Create heatmap data builder
-- [ ] Create heatmap SVG renderer
-- [ ] Add heatmap colors to CSS variables (light + dark)
-- [ ] Add heatmap section to results.html
-- [ ] Create category keyword rules
-- [ ] Create categorization engine
-- [ ] Create category chart renderer
-- [ ] Add category filter to toolbar
-- [ ] Extend applyFilters for category
-- [ ] Write categorization tests
-- [ ] Create budget config storage
-- [ ] Create budget progress ring widget
-- [ ] Create budget settings modal
-- [ ] Create budget alerts (toast)
-- [ ] Create insights generator
-- [ ] Create insights display card
-- [ ] Create spending prediction calculator
-- [ ] Integrate prediction into comparison card
-- [ ] Write prediction tests
-- [ ] Create shop loyalty analyzer
-- [ ] Create shop loyalty UI section
-- [ ] Wire all new modules in results.ts
-- [ ] Test all features in light + dark mode
-- [ ] Bump version to 3.0.0
+- [x] Create heatmap data builder
+- [x] Create heatmap SVG renderer
+- [x] Add heatmap colors to CSS variables (light + dark)
+- [x] Add heatmap section to results.html
+- [x] Create category keyword rules
+- [x] Create categorization engine
+- [x] Create category chart renderer
+- [x] Add category filter to toolbar
+- [x] Extend applyFilters for category
+- [x] Write categorization tests
+- [x] Create budget config storage
+- [x] Create budget progress ring widget
+- [x] Create budget settings modal
+- [x] Create budget alerts (toast)
+- [x] Create insights generator
+- [x] Create insights display card
+- [x] Create spending prediction calculator
+- [x] Integrate prediction into comparison card
+- [x] Write prediction tests
+- [x] Create shop loyalty analyzer
+- [x] Create shop loyalty UI section
+- [x] Wire all new modules in results.ts
+- [x] Test all features in light + dark mode
+- [x] Bump version to 3.0.0
 
 ## Success Criteria
 - Heatmap renders full year data, tooltips work, click filters table
