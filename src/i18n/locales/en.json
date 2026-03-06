@@ -124,6 +124,10 @@
   "chart.tooltip.products": "{value} products",
 
   "heatmap.title": "Daily Spending (Last 12 Months)",
+  "heatmap.tooltip.orders": "orders",
+  "heatmap.day.mon": "Mon",
+  "heatmap.day.wed": "Wed",
+  "heatmap.day.fri": "Fri",
   "insights.title": "Spending Analysis",
   "insights.empty": "Not enough data to analyze yet.",
   "loyalty.title": "Favorite Shops",

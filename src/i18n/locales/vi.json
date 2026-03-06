@@ -124,6 +124,10 @@
   "chart.tooltip.products": "{value} sản phẩm",
 
   "heatmap.title": "Chi tiêu theo ngày (12 tháng qua)",
+  "heatmap.tooltip.orders": "đơn",
+  "heatmap.day.mon": "T2",
+  "heatmap.day.wed": "T4",
+  "heatmap.day.fri": "T6",
   "insights.title": "Phân tích chi tiêu",
   "insights.empty": "Chưa đủ dữ liệu để phân tích.",
   "loyalty.title": "Shop thân thiết",
