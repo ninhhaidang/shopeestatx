@@ -1,7 +1,7 @@
 ---
 title: "ShopeeStatX v2.5-v3.1 Major Overhaul"
 description: "4-phase upgrade: Foundation (Vite+TS), Polish (dark mode, incremental fetch), Insights (heatmap, categories, budget), Global (i18n)"
-status: pending
+status: completed
 priority: P1
 effort: 80h
 branch: main
@@ -27,8 +27,8 @@ Transform ShopeeStatX from a vanilla JS Chrome extension into a modern, typed, t
 |---|-------|---------|--------|--------|------|
 | 1 | Foundation — Vite + TypeScript + Tests + CI/CD | v2.5 | Complete | 28h | [phase-01](./phase-01-foundation-vite-typescript-tests.md) |
 | 2 | Polish — Dark Mode + Incremental Fetch + Export | v2.6 | Complete | 12h | [phase-02](./phase-02-polish-dark-mode-fetch-export.md) |
-| 3 | Insights — Heatmap + Categories + Budget + Trends | v3.0 | Pending | 28h | [phase-03](./phase-03-insights-heatmap-categories-budget.md) |
-| 4 | Global — i18n + Date Range Picker | v3.1 | Pending | 12h | [phase-04](./phase-04-global-i18n-date-range-picker.md) |
+| 3 | Insights — Heatmap + Categories + Budget + Trends | v3.0 | Complete | 28h | [phase-03](./phase-03-insights-heatmap-categories-budget.md) |
+| 4 | Global — i18n + Date Range Picker | v3.1 | Complete | 12h | [phase-04](./phase-04-global-i18n-date-range-picker.md) |
 
 ## Dependencies
 

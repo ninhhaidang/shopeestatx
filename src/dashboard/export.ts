@@ -1,5 +1,6 @@
 // Excel, CSV, and PDF export functions
 import { state } from './state.js';
+import { t } from '../i18n/index.js';
 import * as XLSX from 'xlsx';
 
 /** Helper: trigger browser file download */
@@ -34,27 +35,36 @@ function getExportOrders() {
 export function exportToExcel(): void {
   const filtered = getExportOrders();
   const data = filtered.map((order, index) => ({
-    'STT': index + 1,
-    'Mã đơn hàng': order.orderId,
-    'Ngày giao hàng': order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString('vi-VN') : 'Chưa có',
-    'Trạng thái': order.status,
-    'Tên sản phẩm': order.name,
-    'Số lượng': order.productCount,
-    'Tổng tiền': order.subTotal,
-    'Người bán': order.shopName,
-    'Chi tiết': order.productSummary,
+    [t('export.col.index')]: index + 1,
+    [t('export.col.orderId')]: order.orderId,
+    [t('export.col.date')]: order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString('vi-VN') : t('table.noDate'),
+    [t('export.col.status')]: order.status,
+    [t('export.col.product')]: order.name,
+    [t('export.col.quantity')]: order.productCount,
+    [t('export.col.total')]: order.subTotal,
+    'Seller': order.shopName,
+    'Details': order.productSummary,
   }));
 
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Đơn hàng Shopee');
+  XLSX.utils.book_append_sheet(wb, ws, 'Shopee Orders');
   XLSX.writeFile(wb, `shopee-stats-${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
 export function exportToCSV(): void {
   const filtered = getExportOrders();
   const BOM = '\uFEFF'; // UTF-8 BOM for Excel compatibility
-  const headers = ['STT', 'Mã đơn', 'Ngày giao', 'Trạng thái', 'Tên sản phẩm', 'Số lượng', 'Tổng tiền (VNĐ)', 'Người bán'];
+  const headers = [
+    t('export.col.index'),
+    t('export.col.orderId'),
+    t('export.col.date'),
+    t('export.col.status'),
+    t('export.col.product'),
+    t('export.col.quantity'),
+    t('export.col.total'),
+    'Seller'
+  ];
   const rows = filtered.map((o, i) => [
     i + 1,
     o.orderId,

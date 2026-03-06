@@ -1,6 +1,6 @@
 # Project Roadmap
 
-## Current Version: 2.7.0
+## Current Version: 3.1.0
 
 ## Phase 1: Foundation — Complete (v2.5.0)
 
@@ -82,6 +82,32 @@
 **Utilities & Testing:**
 - [x] showToast() notification utility
 - [x] 64 total tests (33 new for Phase 2)
+
+## Phase 4: Global — Complete (v3.1.0)
+
+**Status:** ✅ COMPLETED (2026-03-06)
+
+### Phase 4 Deliverables
+
+**i18n (Internationalization):**
+- [x] Core i18n module (`src/i18n/index.ts`) with t(), setLocale(), getLocale()
+- [x] Locale-aware formatting (`src/i18n/format.ts`) for currency, dates
+- [x] Vietnamese locale (`src/i18n/locales/vi.json`) - ~100 translation keys
+- [x] English locale (`src/i18n/locales/en.json`)
+- [x] Language switcher UI in header
+- [x] Apply i18n to all modules: comparison.ts, table.ts, charts.ts, filters.ts, insights.ts, export.ts
+- [x] i18n for popup.html and welcome.html
+
+**Date Range Picker:**
+- [x] Custom date range picker component (`src/dashboard/date-range-picker.ts`)
+- [x] Preset buttons: Last 7 days, This month, Last month, 3 months, This year, Custom
+- [x] Custom date input panel (from/to)
+- [x] Date picker CSS styles
+- [x] Integration with filter logic
+
+**Testing & Version:**
+- [x] 87 total tests (all passing)
+- [x] Version bump to 3.1.0
 
 ## Phase 3: Advanced Analytics (Backlog)
 
