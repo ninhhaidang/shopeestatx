@@ -25,10 +25,9 @@ describe('formatVND', () => {
     expect(formatVND(2000000, true)).toBe('2.0M');
   });
 
-  it('short format below 1M returns full format', () => {
+  it('short format below 1M returns K format', () => {
     const result = formatVND(500000, true);
-    expect(result).toContain('500');
-    expect(result).toContain('₫');
+    expect(result).toBe('500K');
   });
 
   it('short format at exactly 1M', () => {
