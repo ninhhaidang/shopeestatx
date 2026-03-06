@@ -2,6 +2,23 @@
 
 All notable changes to ShopeeStatX are documented here.
 
+## [2.7.0] - 2026-03-06
+
+### Chrome Web Store Release
+
+#### Added
+
+**Store Distribution**
+- Onboarding flow (welcome.html + background.ts onInstalled listener)
+- Privacy Policy page (in-extension + public GitHub Pages)
+- Store listing assets (descriptions, screenshots)
+
+#### Changed
+
+- Extension version bumped to 2.7.0 for store submission
+
+---
+
 ## [2.6.0] - 2026-03-05
 
 ### Phase 2: Enhanced UX & Export
@@ -113,5 +130,6 @@ All notable changes to ShopeeStatX are documented here.
 
 | Version | Date | Status | Focus |
 |---------|------|--------|-------|
+| 2.7.0 | 2026-03-06 | Stable | Chrome Web Store release |
 | 2.6.0 | 2026-03-05 | Stable | Dark mode, incremental fetch, enhanced export |
 | 2.5.0 | 2026-03-01 | Stable | Build system & TypeScript migration |

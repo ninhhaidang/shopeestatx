@@ -1,6 +1,6 @@
 # Project Roadmap
 
-## Current Version: 2.6.0
+## Current Version: 2.7.0
 
 ## Phase 1: Foundation — Complete (v2.5.0)
 
@@ -95,7 +95,7 @@
 
 ## Distribution & Release
 
-- [ ] Chrome Web Store submission (v2.5.0 — target Q1 2026)
+- [x] Chrome Web Store submission (v2.7.0 — released 2026-03-06)
 - [ ] Firefox extension port (Phase 3)
 - [ ] Auto-update via Chrome Web Store
 

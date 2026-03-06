@@ -1,7 +1,7 @@
 ---
 title: "Chrome Web Store Release Prep"
 description: "Add onboarding flow, privacy policy page, and prepare store listing assets for public Chrome Web Store submission."
-status: in-progress
+status: completed
 priority: P1
 effort: 6h
 issue:
