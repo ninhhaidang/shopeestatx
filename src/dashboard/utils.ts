@@ -1,11 +1,12 @@
 // Pure utility functions — no dependencies, no side effects
+import { formatCurrency } from '../i18n/format.js';
 
+/** @deprecated Use formatCurrency from i18n/format.ts instead */
 export function formatVND(number: number, short = false): string {
-  if (short && number >= 1000000) {
-    return (number / 1000000).toFixed(1) + 'M';
-  }
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
+  return formatCurrency(number, short);
 }
+
+export { formatCurrency };
 
 export function escapeHtml(text: string | null | undefined): string {
   if (!text) return '';

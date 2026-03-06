@@ -28,6 +28,11 @@ export interface OrderData {
   cachedAt?: string;
 }
 
+export interface DateRange {
+  start: Date | null;
+  end: Date | null;
+}
+
 export interface AppState {
   allOrdersData: OrderData | null;
   filteredOrders: Order[];
@@ -37,4 +42,5 @@ export interface AppState {
   shopCount: number;
   shopMetric: ShopMetric;
   currentSort: { field: string | null; direction: SortDirection };
+  dateRange: DateRange;
 }

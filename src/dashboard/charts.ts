@@ -2,6 +2,7 @@
 import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { formatVND } from './utils.js';
+import { t } from '../i18n/index.js';
 import { applyFilters, filterOrders } from './filters.js';
 import { Chart, registerables } from 'chart.js';
 
@@ -78,7 +79,7 @@ export function renderCharts(orders: Order[]): void {
 
   const chartTitle = document.querySelector('.chart-box h3');
   if (chartTitle) {
-    chartTitle.textContent = hasMonthFilter ? 'Chi tiêu theo ngày' : 'Chi tiêu theo tháng';
+    chartTitle.textContent = hasMonthFilter ? t('chart.spendingByDay') : t('chart.spendingByMonth');
   }
 
   if (monthlyChart) monthlyChart.destroy();
@@ -87,7 +88,7 @@ export function renderCharts(orders: Order[]): void {
     data: {
       labels: chartLabels,
       datasets: [{
-        label: 'Chi tiêu (VNĐ)',
+        label: t('chart.dataset.spending'),
         data: monthlyValues,
         backgroundColor: backgroundColors,
         borderRadius: 4,
@@ -132,6 +133,9 @@ export function renderCharts(orders: Order[]): void {
             const [monthNum, year] = monthLabel.split('/');
             (document.getElementById('filterYear') as HTMLSelectElement).value = year;
             (document.getElementById('filterMonth') as HTMLSelectElement).value = monthNum;
+            // BUG-2: clear ghost dateRange so it doesn't silently reactivate on chip removal
+            state.dateRange = { start: null, end: null };
+            document.dispatchEvent(new CustomEvent('shopeestatx:date-range-cleared'));
             applyFilters();
             document.getElementById('ordersTable')!.scrollIntoView({ behavior: 'smooth' });
           }
@@ -163,9 +167,9 @@ export function renderCharts(orders: Order[]): void {
   if (state.shopMetric === 'amount') {
     tooltipFormatter = ctx => `${ctx.label}: ${formatVND(ctx.raw as number)}`;
   } else if (state.shopMetric === 'orders') {
-    tooltipFormatter = ctx => `${ctx.label}: ${ctx.raw} đơn`;
+    tooltipFormatter = ctx => `${ctx.label}: ${t('chart.tooltip.orders', { value: String(ctx.raw) })}`;
   } else {
-    tooltipFormatter = ctx => `${ctx.label}: ${ctx.raw} sản phẩm`;
+    tooltipFormatter = ctx => `${ctx.label}: ${t('chart.tooltip.products', { value: String(ctx.raw) })}`;
   }
 
   if (shopChart) shopChart.destroy();
