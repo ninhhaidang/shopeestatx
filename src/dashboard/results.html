@@ -26,7 +26,7 @@
 <body>
   <div id="loading" class="loading-container">
     <div class="spinner"></div>
-    <p id="loadingText">Đang lấy dữ liệu từ Shopee...</p>
+    <p id="loadingText" data-i18n="loading.text">Đang lấy dữ liệu từ Shopee...</p>
   </div>
 
   <div id="content" class="hidden">
@@ -36,40 +36,58 @@
           <h1 style="margin-bottom:0">ShopeeStatX</h1>
           <p id="fetchedAt"></p>
         </div>
-        <button id="btnTheme" class="btn-theme" title="Chuyển giao diện sáng/tối">🌙</button>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="lang-switcher">
+            <button class="lang-btn active" data-lang="vi">VI</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+          </div>
+          <button id="btnTheme" class="btn-theme" data-i18n-title="theme.btn.title" title="Chuyển giao diện sáng/tối">🌙</button>
+        </div>
       </div>
     </header>
 
     <!-- Filter & Actions -->
     <div class="toolbar">
       <div class="filters">
-        <input type="text" id="searchBox" placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
-        <select id="filterYear">
-          <option value="">Tất cả năm</option>
+        <input type="text" id="searchBox"
+          data-i18n-placeholder="filter.search.placeholder"
+          placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
+
+        <!-- Date range picker (replaces year/month dropdowns in UI) -->
+        <div id="dateRangePickerContainer"></div>
+
+        <!-- Hidden year/month selects kept for chart drill-down compatibility -->
+        <select id="filterYear" style="display:none">
+          <option value=""></option>
         </select>
-        <select id="filterMonth">
-          <option value="">Tất cả tháng</option>
-          <option value="1">Tháng 1</option>
-          <option value="2">Tháng 2</option>
-          <option value="3">Tháng 3</option>
-          <option value="4">Tháng 4</option>
-          <option value="5">Tháng 5</option>
-          <option value="6">Tháng 6</option>
-          <option value="7">Tháng 7</option>
-          <option value="8">Tháng 8</option>
-          <option value="9">Tháng 9</option>
-          <option value="10">Tháng 10</option>
-          <option value="11">Tháng 11</option>
-          <option value="12">Tháng 12</option>
+        <select id="filterMonth" style="display:none">
+          <option value=""></option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          <option value="10">10</option><option value="11">11</option><option value="12">12</option>
         </select>
+
         <select id="filterStatus">
-          <option value="">Tất cả trạng thái</option>
-          <option value="3">Hoàn thành</option>
-          <option value="4">Đã hủy</option>
-          <option value="7">Chờ vận chuyển</option>
-          <option value="8">Đang giao</option>
-          <option value="9">Chờ thanh toán</option>
-          <option value="12">Trả hàng</option>
+          <option value="" data-i18n-opt="filter.allStatus">Tất cả trạng thái</option>
+          <option value="3" data-i18n-opt="status.completed">Hoàn thành</option>
+          <option value="4" data-i18n-opt="status.cancelled">Đã hủy</option>
+          <option value="7" data-i18n-opt="status.waitingShipment">Chờ vận chuyển</option>
+          <option value="8" data-i18n-opt="status.delivering">Đang giao</option>
+          <option value="9" data-i18n-opt="status.waitingPayment">Chờ thanh toán</option>
+          <option value="12" data-i18n-opt="status.returned">Trả hàng</option>
+        </select>
+        <select id="filterCategory">
+          <option value="" data-i18n-opt="filter.allCategories">Tất cả danh mục</option>
+          <option value="Điện tử">Điện tử</option>
+          <option value="Thời trang">Thời trang</option>
+          <option value="Sắc đẹp">Sắc đẹp</option>
+          <option value="Thực phẩm">Thực phẩm</option>
+          <option value="Nhà cửa">Nhà cửa</option>
+          <option value="Sức khỏe">Sức khỏe</option>
+          <option value="Thể thao">Thể thao</option>
+          <option value="Sách &amp; Văn phòng">Sách &amp; Văn phòng</option>
+          <option value="Khác">Khác</option>
         </select>
       </div>
       <div class="actions">
@@ -89,49 +107,62 @@
     <!-- Summary -->
     <div class="summary">
       <div class="summary-item" data-tooltip="Số đơn hàng hiển thị sau khi áp dụng bộ lọc">
-        <span class="label">Đơn hàng</span>
+        <span class="label" data-i18n="summary.orders">Đơn hàng</span>
         <span id="totalOrders" class="value">0</span>
       </div>
       <div class="summary-item" data-tooltip="Tổng số sản phẩm trong các đơn hàng đã lọc">
-        <span class="label">Tổng sản phẩm</span>
+        <span class="label" data-i18n="summary.products">Tổng sản phẩm</span>
         <span id="totalProducts" class="value">0</span>
       </div>
       <div class="summary-item highlight" data-tooltip="Chỉ tính đơn hoàn thành, không bao gồm đơn huỷ và trả hàng">
-        <span class="label">Tổng tiền đã tiêu</span>
+        <span class="label" data-i18n="summary.totalSpent">Tổng tiền đã tiêu</span>
         <span id="totalAmount" class="value">0 &#8363;</span>
       </div>
     </div>
 
     <!-- Active Filters -->
     <div id="activeFiltersContainer" class="active-filters-container hidden">
-      <div class="active-filters-label">Bộ lọc đang áp dụng:</div>
+      <div class="active-filters-label" data-i18n="filter.active">Bộ lọc đang áp dụng:</div>
       <div id="activeFilters" class="active-filters"></div>
-      <button id="btnClearFilters" class="btn-clear-filters">Xóa tất cả</button>
+      <button id="btnClearFilters" class="btn-clear-filters" data-i18n="filter.clearAll">Xóa tất cả</button>
     </div>
 
     <!-- Time Comparison -->
     <div class="comparison-cards">
       <div class="comparison-card">
-        <div class="card-title">Tháng này</div>
+        <div class="card-title" data-i18n="comparison.thisMonth">Tháng này</div>
         <div id="currentMonthAmount" class="card-value">0 &#8363;</div>
         <div id="monthComparison" class="card-change"></div>
+        <div id="predictionInfo" class="prediction-info"></div>
       </div>
       <div class="comparison-card">
-        <div class="card-title">Năm nay</div>
+        <div class="card-title" data-i18n="comparison.thisYear">Năm nay</div>
         <div id="currentYearAmount" class="card-value">0 &#8363;</div>
         <div id="yearComparison" class="card-change"></div>
       </div>
       <div class="comparison-card">
-        <div class="card-title">Giá trung bình/đơn</div>
+        <div class="card-title" data-i18n="comparison.avgOrder">Giá trung bình/đơn</div>
         <div id="avgOrderValue" class="card-value">0 &#8363;</div>
         <div id="avgComparison" class="card-change"></div>
       </div>
     </div>
 
+    <!-- Spending Heatmap -->
+    <div class="section-card">
+      <h3 data-i18n="heatmap.title">Chi tiêu theo ngày (12 tháng qua)</h3>
+      <div id="heatmapContainer"></div>
+    </div>
+
+    <!-- Auto-generated Insights -->
+    <div class="section-card">
+      <h3 data-i18n="insights.title">Phân tích chi tiêu</h3>
+      <div id="insightsContainer" class="insights-panel"></div>
+    </div>
+
     <!-- Charts -->
     <div class="charts-container">
       <div class="chart-box">
-        <h3>Chi tiêu theo tháng</h3>
+        <h3 data-i18n="chart.spendingByMonth">Chi tiêu theo tháng</h3>
         <canvas id="monthlyChart"></canvas>
       </div>
       <div class="chart-box">
@@ -157,15 +188,27 @@
         </div>
         <canvas id="shopChart"></canvas>
       </div>
+      <div class="chart-box">
+        <h3 data-i18n="chart.categories">Danh mục chi tiêu</h3>
+        <canvas id="categoryChart"></canvas>
+      </div>
     </div>
+
+    <!-- Shop Loyalty (collapsible) -->
+    <details class="loyalty-section">
+      <summary data-i18n="loyalty.title">Shop thân thiết</summary>
+      <div class="loyalty-section-body">
+        <div id="loyaltyContainer"></div>
+      </div>
+    </details>
 
     <!-- Table -->
     <div class="table-container">
       <div id="emptyState" class="empty-state hidden">
         <div class="empty-icon">&#128269;</div>
-        <div class="empty-title">Không tìm thấy đơn hàng nào</div>
-        <div class="empty-message">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</div>
-        <button id="btnResetFilters" class="btn-reset">Đặt lại bộ lọc</button>
+        <div class="empty-title" data-i18n="empty.title">Không tìm thấy đơn hàng nào</div>
+        <div class="empty-message" data-i18n="empty.message">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</div>
+        <button id="btnResetFilters" class="btn-reset" data-i18n="filter.reset">Đặt lại bộ lọc</button>
       </div>
 
       <table id="ordersTable">
@@ -219,7 +262,7 @@
       <div class="footer-content">
         <div class="footer-left">
           <span class="footer-brand">ShopeeStatX</span>
-          <span class="footer-version">v2.6</span>
+          <span class="footer-version">v3.0</span>
         </div>
         <div class="footer-center">
           <a href="https://github.com/ninhhaidang/shopee-orders-statics/blob/main/LICENSE" target="_blank"
@@ -249,9 +292,30 @@
   </div>
 
   <div id="noData" class="no-data hidden">
-    <p>Không có dữ liệu. Vui lòng thử lại.</p>
-    <a href="https://shopee.vn" target="_blank">Mở Shopee</a>
+    <p data-i18n="nodata.text">Không có dữ liệu. Vui lòng thử lại.</p>
+    <a href="https://shopee.vn" target="_blank" data-i18n="nodata.link">Mở Shopee</a>
   </div>
+
+  <!-- Budget Settings Dialog -->
+  <dialog id="budgetDialog">
+    <h3 data-i18n="budget.title">Cài đặt ngân sách</h3>
+    <div class="dialog-field">
+      <label for="budgetLimit" data-i18n="budget.limit.label">Hạn mức hàng tháng (VND)</label>
+      <input type="number" id="budgetLimit" min="0" step="100000" placeholder="5000000" />
+    </div>
+    <div class="dialog-field">
+      <label for="budgetThreshold"><span data-i18n="budget.threshold.label">Cảnh báo tại:</span> <span id="budgetThresholdValue">80%</span></label>
+      <input type="range" id="budgetThreshold" min="50" max="95" value="80" />
+    </div>
+    <label class="dialog-checkbox-row">
+      <input type="checkbox" id="budgetEnabled" />
+      <span data-i18n="budget.enabled.label">Bật theo dõi ngân sách</span>
+    </label>
+    <div class="dialog-actions">
+      <button id="btnBudgetClose" class="btn-dialog-close" data-i18n="budget.btn.close">Đóng</button>
+      <button id="btnBudgetSave" class="btn-dialog-save" data-i18n="budget.btn.save">Lưu</button>
+    </div>
+  </dialog>
 
   <script type="module" src="./results.ts"></script>
 </body>
