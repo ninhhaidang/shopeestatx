@@ -49,16 +49,24 @@ export function renderHeatmap(container: HTMLElement, orders: Order[]): void {
   // Determine date range based on selected year
   let startDate: Date, endDate: Date;
   if (selectedYear) {
-    // Show full year
+    // Show full year - align to Sunday before Jan 1
     startDate = new Date(selectedYear, 0, 1);
+    startDate.setDate(startDate.getDate() - startDate.getDay()); // Align to Sunday
     endDate = new Date(selectedYear, 11, 31, 23, 59, 59, 999);
   } else {
-    // Fallback: last 12 months
+    // Fallback: last 12 months - align to first of month, then to Sunday
     endDate = new Date();
+    endDate.setDate(0); // Last day of previous month
     startDate = new Date(endDate);
     startDate.setFullYear(startDate.getFullYear() - 1);
-    startDate.setDate(startDate.getDate() - startDate.getDay()); // align to Sunday
+    startDate.setDate(1); // First day of month
+    // Align to Sunday before or on the first day
+    startDate.setDate(startDate.getDate() - startDate.getDay());
   }
+
+  // Calculate actual number of weeks needed
+  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  const COLS = Math.ceil(totalDays / 7);
 
   const dayIndex = buildDayIndex(orders, startDate, endDate);
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -66,7 +74,6 @@ export function renderHeatmap(container: HTMLElement, orders: Order[]): void {
   const cellSize = 12;
   const gap = 3;
   const step = cellSize + gap;
-  const COLS = 53;
   const ROWS = 7;
   const svgWidth = COLS * step + 24; // +24 for day labels on left
   const svgHeight = ROWS * step + 20; // +20 for month labels
