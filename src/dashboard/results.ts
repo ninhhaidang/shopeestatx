@@ -6,6 +6,9 @@ import { renderCurrentPage } from './table.js';
 import { applyFilters, clearAllFilters, handleSort } from './filters.js';
 import { fetchDataFromShopee, loadDataFromStorage, refreshData, isExtensionContext, loadMockData } from './data.js';
 import { initTheme, toggleTheme, syncThemeButton } from './theme-toggle.js';
+import { loadBudgetConfig, saveBudgetConfig, setCachedBudgetConfig, getCachedBudgetConfig } from './budget.js';
+import { initLocale, setLocale, getLocale } from '../i18n/index.js';
+import { renderDateRangePicker, refreshDateRangePickerLabels, resetDateRangePicker } from './date-range-picker.js';
 import './results.css';
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -13,9 +16,16 @@ document.addEventListener('DOMContentLoaded', async function () {
   initTheme();
   syncThemeButton();
 
+  // Initialize i18n before rendering anything
+  initLocale();
+
+  // Pre-load budget config so it's ready before first render
+  loadBudgetConfig().then(cfg => setCachedBudgetConfig(cfg));
+
   const filterYear = document.getElementById('filterYear') as HTMLSelectElement;
   const filterMonth = document.getElementById('filterMonth') as HTMLSelectElement;
   const filterStatus = document.getElementById('filterStatus') as HTMLSelectElement;
+  const filterCategory = document.getElementById('filterCategory') as HTMLSelectElement;
   const searchBox = document.getElementById('searchBox') as HTMLInputElement;
   const btnExport = document.getElementById('btnExport')!;
   const btnRefresh = document.getElementById('btnRefresh')!;
@@ -34,7 +44,47 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  // Date range picker
+  const dateRangeContainer = document.getElementById('dateRangePickerContainer')!;
+  renderDateRangePicker(dateRangeContainer);
+
+  // Language switcher
+  document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang!;
+      setLocale(lang);
+      // Update active state on lang buttons
+      document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.lang === lang);
+      });
+      // Re-render date picker labels after language switch
+      refreshDateRangePickerLabels(dateRangeContainer);
+      // Re-render charts and table to pick up locale-aware formatting
+      renderCharts(state.filteredOrders);
+      renderCurrentPage();
+    });
+  });
+
+  // Sync lang button active state on init
+  document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === getLocale());
+  });
+
+  // Reset date range picker when filters are cleared
+  document.addEventListener('shopeestatx:date-range-cleared', () => {
+    resetDateRangePicker(dateRangeContainer);
+  });
+
+  // URL lang param override
   const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  if (urlLang) {
+    setLocale(urlLang);
+    document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === urlLang);
+    });
+  }
+
   const shouldFetch = urlParams.get('fetch') === 'true';
 
   if (!isExtensionContext()) {
@@ -70,6 +120,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   filterYear.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
   filterMonth.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
   filterStatus.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
+  filterCategory.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
   btnRefresh.addEventListener('click', refreshData);
   btnClearFilters.addEventListener('click', clearAllFilters);
   btnResetFilters.addEventListener('click', clearAllFilters);
@@ -82,8 +133,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   });
   btnFirstPage.addEventListener('click', () => { state.currentPage = 1; renderCurrentPage(); });
   btnPrevPage.addEventListener('click', () => { if (state.currentPage > 1) { state.currentPage--; renderCurrentPage(); } });
-  btnNextPage.addEventListener('click', () => { const totalPages = Math.ceil(state.filteredOrders.length / state.itemsPerPage); if (state.currentPage < totalPages) { state.currentPage++; renderCurrentPage(); } });
-  btnLastPage.addEventListener('click', () => { state.currentPage = Math.ceil(state.filteredOrders.length / state.itemsPerPage); renderCurrentPage(); });
+  btnNextPage.addEventListener('click', () => { const totalPages = state.itemsPerPage === Infinity ? 1 : Math.ceil(state.filteredOrders.length / state.itemsPerPage); if (state.currentPage < totalPages) { state.currentPage++; renderCurrentPage(); } });
+  btnLastPage.addEventListener('click', () => { state.currentPage = state.itemsPerPage === Infinity ? 1 : Math.ceil(state.filteredOrders.length / state.itemsPerPage); renderCurrentPage(); });
 
   // Keyboard shortcuts
   document.addEventListener('keydown', function (e) {
@@ -114,6 +165,52 @@ document.addEventListener('DOMContentLoaded', async function () {
       handleSort(this.dataset.sort!);
     });
   });
+
+  // Heatmap click → applyFilters (dispatched via custom event to avoid circular dep)
+  document.addEventListener('shopeestatx:apply-filters', () => applyFilters());
+
+  // Shop loyalty: filter by shop name
+  document.addEventListener('shopeestatx:filter-by-shop', (e) => {
+    searchBox.value = (e as CustomEvent<string>).detail;
+    state.currentPage = 1;
+    applyFilters();
+    document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Budget dialog wiring (event delegation for dynamically rendered buttons)
+  const budgetDialog = document.getElementById('budgetDialog') as HTMLDialogElement;
+  const budgetLimitInput = document.getElementById('budgetLimit') as HTMLInputElement;
+  const budgetThresholdInput = document.getElementById('budgetThreshold') as HTMLInputElement;
+  const budgetThresholdValue = document.getElementById('budgetThresholdValue')!;
+  const budgetEnabledCheck = document.getElementById('budgetEnabled') as HTMLInputElement;
+
+  document.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('.btn-budget-settings')) {
+      const cfg = getCachedBudgetConfig();
+      budgetLimitInput.value = String(cfg.monthlyLimit);
+      budgetThresholdInput.value = String(Math.round(cfg.alertThreshold * 100));
+      budgetThresholdValue.textContent = budgetThresholdInput.value + '%';
+      budgetEnabledCheck.checked = cfg.enabled;
+      budgetDialog.showModal();
+    }
+  });
+
+  budgetThresholdInput.addEventListener('input', () => {
+    budgetThresholdValue.textContent = budgetThresholdInput.value + '%';
+  });
+
+  document.getElementById('btnBudgetSave')!.addEventListener('click', async () => {
+    const cfg = {
+      monthlyLimit: Number(budgetLimitInput.value),
+      alertThreshold: Number(budgetThresholdInput.value) / 100,
+      enabled: budgetEnabledCheck.checked,
+    };
+    await saveBudgetConfig(cfg);
+    budgetDialog.close();
+    applyFilters(); // re-render budget widget + prediction
+  });
+
+  document.getElementById('btnBudgetClose')!.addEventListener('click', () => budgetDialog.close());
 
   // Shop chart controls
   shopCountSelect.addEventListener('change', function () {

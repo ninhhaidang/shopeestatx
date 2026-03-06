@@ -1,4 +1,7 @@
 // Onboarding page interactions
+import { initLocale } from '../i18n/index.js';
+
+initLocale();
 
 document.getElementById('btnOpenShopee')!.addEventListener('click', function () {
   chrome.tabs.create({ url: 'https://shopee.vn' });

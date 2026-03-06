@@ -2,6 +2,7 @@
 import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { formatVND } from './utils.js';
+import { t } from '../i18n/index.js';
 
 export function renderData(orders: Order[]): void {
   let totalProducts = 0;
@@ -65,21 +66,23 @@ export function renderTimeComparison(allOrders: Order[]): void {
 
   const monthCompEl = document.getElementById('monthComparison')!;
   if (monthChange !== null) {
-    const arrow = Number(monthChange) >= 0 ? '↑' : '↓';
-    const color = Number(monthChange) >= 0 ? '#f44336' : '#4caf50';
-    monthCompEl.innerHTML = `<span style="color: ${color}">${arrow} ${Math.abs(Number(monthChange))}% so với tháng trước</span>`;
+    const isUp = Number(monthChange) >= 0;
+    const color = isUp ? '#f44336' : '#4caf50';
+    const key = isUp ? 'comparison.vsLastMonthUp' : 'comparison.vsLastMonthDown';
+    monthCompEl.innerHTML = `<span style="color: ${color}">${t(key, { change: Math.abs(Number(monthChange)) })}</span>`;
   } else {
-    monthCompEl.textContent = 'Chưa có dữ liệu tháng trước';
+    monthCompEl.textContent = t('comparison.noLastMonth');
   }
 
   const yearCompEl = document.getElementById('yearComparison')!;
   if (yearChange !== null) {
-    const arrow = Number(yearChange) >= 0 ? '↑' : '↓';
-    const color = Number(yearChange) >= 0 ? '#f44336' : '#4caf50';
-    yearCompEl.innerHTML = `<span style="color: ${color}">${arrow} ${Math.abs(Number(yearChange))}% so với năm ngoái</span>`;
+    const isUp = Number(yearChange) >= 0;
+    const color = isUp ? '#f44336' : '#4caf50';
+    const key = isUp ? 'comparison.vsLastYearUp' : 'comparison.vsLastYearDown';
+    yearCompEl.innerHTML = `<span style="color: ${color}">${t(key, { change: Math.abs(Number(yearChange)) })}</span>`;
   } else {
-    yearCompEl.textContent = 'Chưa có dữ liệu năm ngoái';
+    yearCompEl.textContent = t('comparison.noLastYear');
   }
 
-  document.getElementById('avgComparison')!.textContent = `${completedOrders.length} đơn hàng hoàn thành`;
+  document.getElementById('avgComparison')!.textContent = t('comparison.completedOrders', { count: completedOrders.length });
 }

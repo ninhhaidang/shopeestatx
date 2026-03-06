@@ -2,6 +2,8 @@
 import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { escapeHtml } from './utils.js';
+import { t } from '../i18n/index.js';
+import { formatDate, formatDateTime } from '../i18n/format.js';
 import { applyFilters } from './filters.js';
 import {
   ICON_CHECK_CIRCLE, ICON_X_CIRCLE, ICON_CLOCK, ICON_TRUCK,
@@ -20,7 +22,7 @@ export function renderCurrentPage(): void {
 
   pageOrders.forEach((order: Order, index: number) => {
     const globalIndex = start + index + 1;
-    const dateStr = order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString('vi-VN') : 'Chưa có';
+    const dateStr = order.deliveryDate ? formatDate(new Date(order.deliveryDate)) : t('table.noDate');
 
     let statusIcon = '';
     let statusClass = `status-${order.statusCode}`;
@@ -49,21 +51,21 @@ export function renderCurrentPage(): void {
       `;
 
     const detailItems: string[] = [];
-    detailItems.push(`<div class="detail-item"><strong>Mã đơn hàng:</strong> ${safeOrderId}</div>`);
-    detailItems.push(`<div class="detail-item"><strong>Tên sản phẩm:</strong> ${escapeHtml(order.name)}</div>`);
-    detailItems.push(`<div class="detail-item"><strong>Số lượng sản phẩm:</strong> ${order.productCount}</div>`);
-    detailItems.push(`<div class="detail-item"><strong>Tổng tiền:</strong> ${escapeHtml(order.subTotalFormatted)}</div>`);
-    detailItems.push(`<div class="detail-item"><strong>Trạng thái:</strong> <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${escapeHtml(order.status)}</span></div>`);
-    detailItems.push(`<div class="detail-item"><strong>Người bán:</strong> <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span></div>`);
+    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.orderId')}:</strong> ${safeOrderId}</div>`);
+    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.productName')}:</strong> ${escapeHtml(order.name)}</div>`);
+    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.quantity')}:</strong> ${order.productCount}</div>`);
+    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.total')}:</strong> ${escapeHtml(order.subTotalFormatted)}</div>`);
+    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.status')}:</strong> <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${escapeHtml(order.status)}</span></div>`);
+    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.seller')}:</strong> <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span></div>`);
 
     if (order.deliveryDate) {
-      const fullDate = new Date(order.deliveryDate).toLocaleString('vi-VN');
+      const fullDate = formatDateTime(new Date(order.deliveryDate));
       const dateObj = new Date(order.deliveryDate);
       const dateData = JSON.stringify({ year: dateObj.getFullYear(), month: dateObj.getMonth() + 1, day: dateObj.getDate() });
-      detailItems.push(`<div class="detail-item"><strong>Ngày giao hàng:</strong> <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span></div>`);
+      detailItems.push(`<div class="detail-item"><strong>${t('table.detail.deliveryDate')}:</strong> <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span></div>`);
     }
 
-    detailItems.push(`<div class="detail-item"><strong>Chi tiết sản phẩm:</strong> ${escapeHtml(order.productSummary)}</div>`);
+    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.productDetail')}:</strong> ${escapeHtml(order.productSummary)}</div>`);
 
     const detailRow = document.createElement('tr');
     detailRow.className = 'detail-row';

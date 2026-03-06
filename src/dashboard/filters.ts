@@ -1,9 +1,15 @@
 // Filter logic, sorting, active filter chips, and search
 import type { Order, SortDirection } from '../types/index.js';
 import { state } from './state.js';
+import { t } from '../i18n/index.js';
+import { formatDate } from '../i18n/format.js';
 import { renderData } from './comparison.js';
 import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
+import { categorizeOrder, getCategoryBreakdown, renderCategoryChart } from './categories.js';
+import { generateInsights, renderInsights } from './insights.js';
+import { renderHeatmap } from './heatmap.js';
+import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
 
 export function sortOrders(orders: Order[], field: string, direction: SortDirection): Order[] {
   return [...orders].sort((a, b) => {
@@ -36,9 +42,21 @@ export function filterOrders(
   orders: Order[],
   opts: { year: string; month: string; status: string; searchTerm: string },
 ): Order[] {
+  const { start, end } = state.dateRange;
+  const useDateRange = !opts.year && !opts.month && (start !== null || end !== null);
+
   return orders.filter(order => {
-    if (opts.year && (!order.orderYear || order.orderYear !== Number(opts.year))) return false;
-    if (opts.month && (!order.orderMonth || order.orderMonth !== Number(opts.month))) return false;
+    // Date range filter (only when year/month selects are not active)
+    if (useDateRange) {
+      if (!order.deliveryDate) return false;
+      const d = new Date(order.deliveryDate);
+      if (start && d < start) return false;
+      if (end && d > end) return false;
+    } else {
+      if (opts.year && (!order.orderYear || order.orderYear !== Number(opts.year))) return false;
+      if (opts.month && (!order.orderMonth || order.orderMonth !== Number(opts.month))) return false;
+    }
+
     if (opts.status && order.statusCode !== Number(opts.status)) return false;
 
     if (opts.searchTerm) {
@@ -63,8 +81,14 @@ export function applyFilters(): void {
   const month = (document.getElementById('filterMonth') as HTMLSelectElement).value;
   const status = (document.getElementById('filterStatus') as HTMLSelectElement).value;
   const searchTerm = (document.getElementById('searchBox') as HTMLInputElement).value.toLowerCase().trim();
+  const category = (document.getElementById('filterCategory') as HTMLSelectElement)?.value ?? '';
 
   let filtered = filterOrders(state.allOrdersData.orders, { year, month, status, searchTerm });
+
+  // Apply category filter (runs categorizeOrder on each order)
+  if (category) {
+    filtered = filtered.filter(o => categorizeOrder(o) === category);
+  }
 
   // Apply selectedDay filter (only in applyFilters, not in chart view)
   if (state.selectedDay !== null && month) {
@@ -100,6 +124,22 @@ export function applyFilters(): void {
   renderData(filtered);
   renderCharts(filtered);
   renderCurrentPage();
+
+  // Category chart — filtered orders breakdown
+  const catCanvas = document.getElementById('categoryChart') as HTMLCanvasElement | null;
+  if (catCanvas) renderCategoryChart(catCanvas, getCategoryBreakdown(filtered));
+
+  // Insights panel — updates on every filter change
+  const insightsEl = document.getElementById('insightsContainer');
+  if (insightsEl) renderInsights(insightsEl, generateInsights(filtered, state.allOrdersData!.orders));
+
+  // Heatmap — always uses all orders (past year), re-renders on filter changes
+  const heatmapEl = document.getElementById('heatmapContainer');
+  if (heatmapEl) renderHeatmap(heatmapEl, state.allOrdersData!.orders);
+
+  // Shop loyalty — always uses all orders
+  const loyaltyEl = document.getElementById('loyaltyContainer');
+  if (loyaltyEl) renderShopLoyalty(loyaltyEl, analyzeShopLoyalty(state.allOrdersData!.orders));
 }
 
 export function updateActiveFilters(): void {
@@ -112,15 +152,23 @@ export function updateActiveFilters(): void {
   const activeFiltersContainer = document.getElementById('activeFiltersContainer')!;
   const activeFiltersDiv = document.getElementById('activeFilters')!;
   const chips: { label: string; type: string }[] = [];
+  const categoryFilter = document.getElementById('filterCategory') as HTMLSelectElement | null;
+  const category = categoryFilter?.value ?? '';
 
-  if (year) chips.push({ label: `Năm ${year}`, type: 'year' });
-  if (month) chips.push({ label: `Tháng ${month}`, type: 'month' });
-  if (state.selectedDay !== null && month) chips.push({ label: `Ngày ${state.selectedDay}`, type: 'day' });
+  if (year) chips.push({ label: t('filter.chip.year', { value: year }), type: 'year' });
+  if (month) chips.push({ label: t('filter.chip.month', { value: month }), type: 'month' });
+  if (state.selectedDay !== null && month) chips.push({ label: t('filter.chip.day', { value: `${state.selectedDay}/${month}` }), type: 'day' });
+  if (!year && !month && (state.dateRange.start || state.dateRange.end)) {
+    const startStr = state.dateRange.start ? formatDate(state.dateRange.start) : '…';
+    const endStr = state.dateRange.end ? formatDate(state.dateRange.end) : '…';
+    chips.push({ label: t('filter.chip.dateRange', { start: startStr, end: endStr }), type: 'dateRange' });
+  }
   if (status) {
     const statusText = filterStatus.options[filterStatus.selectedIndex].text;
     chips.push({ label: statusText, type: 'status' });
   }
-  if (searchTerm) chips.push({ label: `Tìm: "${searchTerm}"`, type: 'search' });
+  if (searchTerm) chips.push({ label: t('filter.chip.search', { value: searchTerm }), type: 'search' });
+  if (category) chips.push({ label: t('filter.chip.category', { value: category }), type: 'category' });
 
   if (chips.length > 0) {
     activeFiltersContainer.classList.remove('hidden');
@@ -148,17 +196,32 @@ export function clearAllFilters(): void {
   (document.getElementById('filterMonth') as HTMLSelectElement).value = '';
   (document.getElementById('filterStatus') as HTMLSelectElement).value = '';
   (document.getElementById('searchBox') as HTMLInputElement).value = '';
+  const filterCat = document.getElementById('filterCategory') as HTMLSelectElement | null;
+  if (filterCat) filterCat.value = '';
   state.selectedDay = null;
+  state.dateRange = { start: null, end: null };
   state.currentPage = 1;
+  document.dispatchEvent(new CustomEvent('shopeestatx:date-range-cleared'));
   applyFilters();
 }
 
 export function removeFilter(type: string): void {
   if (type === 'year') (document.getElementById('filterYear') as HTMLSelectElement).value = '';
-  if (type === 'month') (document.getElementById('filterMonth') as HTMLSelectElement).value = '';
+  if (type === 'month') {
+    (document.getElementById('filterMonth') as HTMLSelectElement).value = '';
+    state.selectedDay = null; // BUG-1: clear stale selectedDay when month is removed
+  }
   if (type === 'day') state.selectedDay = null;
   if (type === 'status') (document.getElementById('filterStatus') as HTMLSelectElement).value = '';
   if (type === 'search') (document.getElementById('searchBox') as HTMLInputElement).value = '';
+  if (type === 'dateRange') {
+    state.dateRange = { start: null, end: null };
+    document.dispatchEvent(new CustomEvent('shopeestatx:date-range-cleared'));
+  }
+  if (type === 'category') {
+    const el = document.getElementById('filterCategory') as HTMLSelectElement | null;
+    if (el) el.value = '';
+  }
   state.currentPage = 1;
   applyFilters();
 }

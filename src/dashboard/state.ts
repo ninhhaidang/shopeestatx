@@ -10,4 +10,5 @@ export const state: AppState = {
   shopCount: 5,
   shopMetric: 'amount',
   currentSort: { field: null, direction: 'asc' },
+  dateRange: { start: null, end: null },
 };
