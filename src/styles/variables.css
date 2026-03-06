@@ -55,4 +55,11 @@
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
+
+  /* Heatmap intensity (light mode) */
+  --heatmap-0: #ebedf0;
+  --heatmap-1: #ffddd2;
+  --heatmap-2: #ffab91;
+  --heatmap-3: #ff6b3d;
+  --heatmap-4: #d73211;
 }

@@ -42,7 +42,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: white;
+  background: var(--bg-card);
   border: 2px solid var(--primary);
   border-radius: var(--radius-full);
   font-size: 13px;

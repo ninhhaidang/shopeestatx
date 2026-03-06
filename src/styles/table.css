@@ -1,6 +1,6 @@
 /* ===== TABLE ===== */
 .table-container {
-  background: white;
+  background: var(--bg-card);
   margin: var(--spacing-lg);
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -66,7 +66,7 @@ th.sortable:hover {
 
 .order-link:hover {
   background: var(--info-bg);
-  color: #1e40af;
+  color: var(--info);
   transform: translateX(2px);
 }
 
@@ -110,8 +110,8 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .status-0 {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--border-color);
+  color: var(--text-muted);
 }
 
 .status-3 {
@@ -125,8 +125,8 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .status-7 {
-  background: #fef3c7;
-  color: #d97706;
+  background: var(--warning-bg);
+  color: var(--warning);
 }
 
 .status-8 {
@@ -139,9 +139,19 @@ th.sortable.desc .sort-indicator::before {
   color: #7b1fa2;
 }
 
+[data-theme="dark"] .status-9 {
+  background: #2d1040;
+  color: #ce93d8;
+}
+
 .status-12 {
   background: #fed7aa;
   color: #ea580c;
+}
+
+[data-theme="dark"] .status-12 {
+  background: #431407;
+  color: #fb923c;
 }
 
 /* ===== EXPANDABLE ROWS ===== */
@@ -156,8 +166,16 @@ th.sortable.desc .sort-indicator::before {
   transform: scale(1.002);
 }
 
+[data-theme="dark"] .order-row:hover {
+  background: linear-gradient(135deg, #1e1a18 0%, #2a1f1a 100%);
+}
+
 .order-row.expanded {
   background: linear-gradient(135deg, #ffe8dd 0%, #ffd4bb 100%);
+}
+
+[data-theme="dark"] .order-row.expanded {
+  background: linear-gradient(135deg, #2a1f1a 0%, #3a2318 100%);
 }
 
 .detail-row {
@@ -183,7 +201,7 @@ th.sortable.desc .sort-indicator::before {
 .detail-content {
   padding: var(--spacing-lg) var(--spacing-xl);
   border-left: 4px solid var(--primary);
-  background: white;
+  background: var(--bg-card);
   margin: 8px;
   border-radius: var(--radius-md);
 }
@@ -227,13 +245,17 @@ tr:nth-child(even) {
   background: rgba(248, 249, 252, 0.5);
 }
 
+[data-theme="dark"] tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
 /* ===== PAGINATION ===== */
 .pagination-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: var(--spacing-lg);
-  background: white;
+  background: var(--bg-card);
   border-top: 1px solid var(--border-color);
   flex-wrap: wrap;
   gap: var(--spacing-md);
@@ -253,7 +275,7 @@ tr:nth-child(even) {
 
 .btn-page {
   padding: 8px 14px;
-  background: white;
+  background: var(--bg-card);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -279,7 +301,7 @@ tr:nth-child(even) {
 
 .btn-page-num {
   padding: 8px 12px;
-  background: white;
+  background: var(--bg-card);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -316,7 +338,7 @@ tr:nth-child(even) {
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 14px;
-  background: white;
+  background: var(--bg-card);
   cursor: pointer;
   font-weight: 600;
   color: var(--text-secondary);
