@@ -1,0 +1,381 @@
+/* ===== INSIGHTS, HEATMAP, BUDGET, PREDICTIONS, SHOP LOYALTY ===== */
+
+/* ----- Section Card (generic wrapper) ----- */
+.section-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+.section-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ----- Heatmap ----- */
+.heatmap-scroll {
+  overflow-x: auto;
+  padding-bottom: var(--spacing-xs);
+}
+
+.heatmap-svg {
+  display: block;
+}
+
+.heatmap-label {
+  font-size: 10px;
+  fill: var(--text-muted);
+  font-family: inherit;
+}
+
+.heatmap-day-label {
+  font-size: 9px;
+  fill: var(--text-muted);
+  font-family: inherit;
+}
+
+.heatmap-cell {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.heatmap-cell:hover { opacity: 0.75; }
+
+.heatmap-0 { fill: var(--heatmap-0); }
+.heatmap-1 { fill: var(--heatmap-1); }
+.heatmap-2 { fill: var(--heatmap-2); }
+.heatmap-3 { fill: var(--heatmap-3); }
+.heatmap-4 { fill: var(--heatmap-4); }
+
+.heatmap-tooltip {
+  display: none;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 12px;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+
+/* ----- Insights Panel ----- */
+.insights-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: 10px var(--spacing-md);
+  background: var(--bg-main);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  border-left: 3px solid var(--primary);
+}
+
+.insight-icon { flex-shrink: 0; }
+
+.insights-empty {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  padding: var(--spacing-md) 0;
+}
+
+/* ----- Budget Widget (inside comparison card) ----- */
+.budget-widget-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.budget-ring-wrap { flex-shrink: 0; }
+
+.budget-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.budget-spent {
+  font-size: 18px;
+  font-weight: 800;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.budget-limit {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.btn-budget-settings {
+  margin-top: 4px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-main);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-budget-settings:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.budget-disabled {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) 0;
+}
+
+.budget-disabled p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ----- Prediction Info ----- */
+.prediction-info {
+  margin-top: var(--spacing-sm);
+}
+
+.prediction-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+}
+
+.prediction-warn {
+  font-size: 12px;
+  color: var(--danger);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* ----- Budget Dialog ----- */
+#budgetDialog {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xl);
+  padding: var(--spacing-xl);
+  min-width: 320px;
+}
+
+#budgetDialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+#budgetDialog h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
+}
+
+.dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--spacing-md);
+}
+
+.dialog-field label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.dialog-field input[type="number"],
+.dialog-field input[type="range"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.dialog-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+.btn-dialog-save {
+  padding: 8px 20px;
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.15s;
+}
+
+.btn-dialog-save:hover { opacity: 0.9; }
+
+.btn-dialog-close {
+  padding: 8px 16px;
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* ----- Shop Loyalty Table ----- */
+.loyalty-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.loyalty-table th {
+  background: var(--bg-main);
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.loyalty-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.loyalty-table tr:last-child td { border-bottom: none; }
+
+.loyalty-table .text-center { text-align: center; }
+
+.loyalty-shop-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.loyalty-shop-btn:hover { opacity: 0.75; }
+
+.loyalty-empty {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  padding: var(--spacing-md) 0;
+}
+
+/* ----- Shop Loyalty collapsible ----- */
+.loyalty-section {
+  margin: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+.loyalty-section summary {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  user-select: none;
+}
+
+.loyalty-section summary::before {
+  content: '▶';
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+
+.loyalty-section[open] summary::before { transform: rotate(90deg); }
+
+.loyalty-section[open] summary {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-bottom: none;
+}
+
+.loyalty-section-body {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  padding: var(--spacing-md);
+}
+
+/* ----- Dark mode overrides ----- */
+[data-theme="dark"] .insight-item {
+  background: #12151e;
+}
+
+[data-theme="dark"] .loyalty-table th {
+  background: #12151e;
+  color: var(--text-secondary);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .loyalty-table td {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-budget-settings {
+  background: #21253a;
+}
+
+[data-theme="dark"] #budgetDialog {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
