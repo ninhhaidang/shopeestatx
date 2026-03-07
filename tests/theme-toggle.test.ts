@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { initTheme, toggleTheme, isDarkMode, syncThemeButton } from '../src/dashboard/theme-toggle';
+import { initTheme, setTheme, getCurrentTheme, getCurrentThemeId, getThemes, isDarkMode, updateThemeButton } from '../src/dashboard/theme-toggle';
 
 const THEME_KEY = 'shopeestatx-theme';
 
@@ -7,7 +7,7 @@ describe('Theme Toggle', () => {
   beforeEach(() => {
     // Reset DOM
     document.documentElement.dataset.theme = '';
-    document.body.innerHTML = '<button id="btnTheme"></button>';
+    document.body.innerHTML = '<button id="btnTheme"><span class="theme-color-dot"></span><span class="theme-name"></span></button>';
     localStorage.clear();
     vi.clearAllMocks();
   });
@@ -19,9 +19,9 @@ describe('Theme Toggle', () => {
 
   describe('initTheme', () => {
     it('applies stored theme from localStorage', () => {
-      localStorage.setItem(THEME_KEY, 'dark');
+      localStorage.setItem(THEME_KEY, 'dark-obsidian');
       initTheme();
-      expect(document.documentElement.dataset.theme).toBe('dark');
+      expect(document.documentElement.dataset.theme).toBe('dark-obsidian');
     });
 
     it('applies system dark preference when no stored theme', () => {
@@ -37,7 +37,7 @@ describe('Theme Toggle', () => {
       } as any);
 
       initTheme();
-      expect(document.documentElement.dataset.theme).toBe('dark');
+      expect(document.documentElement.dataset.theme).toBe('dark-obsidian');
     });
 
     it('does not apply theme when no stored theme and system prefers light', () => {
@@ -53,11 +53,11 @@ describe('Theme Toggle', () => {
       } as any);
 
       initTheme();
-      expect(document.documentElement.dataset.theme).not.toBe('dark');
+      expect(document.documentElement.dataset.theme).toBe('light');
     });
 
     it('prioritizes stored theme over system preference', () => {
-      localStorage.setItem(THEME_KEY, 'light');
+      localStorage.setItem(THEME_KEY, 'midnight-frost');
       vi.spyOn(window, 'matchMedia').mockReturnValueOnce({
         matches: true, // System prefers dark
         media: '(prefers-color-scheme: dark)',
@@ -69,126 +69,95 @@ describe('Theme Toggle', () => {
       } as any);
 
       initTheme();
-      expect(document.documentElement.dataset.theme).toBe('light');
+      expect(document.documentElement.dataset.theme).toBe('midnight-frost');
     });
   });
 
-  describe('toggleTheme', () => {
-    it('toggles from light to dark', () => {
-      document.documentElement.dataset.theme = 'light';
-      toggleTheme();
-      expect(document.documentElement.dataset.theme).toBe('dark');
+  describe('setTheme', () => {
+    it('sets theme by ID', () => {
+      setTheme('dark-obsidian');
+      expect(document.documentElement.dataset.theme).toBe('dark-obsidian');
     });
 
-    it('toggles from dark to light', () => {
-      document.documentElement.dataset.theme = 'dark';
-      toggleTheme();
+    it('persists theme to localStorage', () => {
+      setTheme('royal-purple');
+      expect(localStorage.getItem(THEME_KEY)).toBe('royal-purple');
+    });
+
+    it('falls back to light for unknown theme', () => {
+      setTheme('unknown-theme' as any);
       expect(document.documentElement.dataset.theme).toBe('light');
-    });
-
-    it('persists toggled theme to localStorage', () => {
-      document.documentElement.dataset.theme = 'light';
-      toggleTheme();
-      expect(localStorage.getItem(THEME_KEY)).toBe('dark');
-    });
-
-    it('updates theme button icon to sun (☀️) when toggling to dark', () => {
-      document.documentElement.dataset.theme = 'light';
-      const btn = document.getElementById('btnTheme') as HTMLElement;
-      btn.textContent = '🌙'; // Initial light mode icon
-
-      toggleTheme();
-
-      expect(btn.textContent).toBe('☀️');
-    });
-
-    it('updates theme button icon to moon (🌙) when toggling to light', () => {
-      document.documentElement.dataset.theme = 'dark';
-      const btn = document.getElementById('btnTheme') as HTMLElement;
-      btn.textContent = '☀️'; // Initial dark mode icon
-
-      toggleTheme();
-
-      expect(btn.textContent).toBe('🌙');
-    });
-
-    it('ignores button update if button does not exist', () => {
-      document.body.innerHTML = ''; // Remove button
-      document.documentElement.dataset.theme = 'light';
-
-      expect(() => toggleTheme()).not.toThrow();
-      expect(document.documentElement.dataset.theme).toBe('dark');
     });
 
     it('calls onToggle callback if provided', () => {
       const onToggle = vi.fn();
-      document.documentElement.dataset.theme = 'light';
-
-      toggleTheme(onToggle);
-
+      setTheme('slate', onToggle);
       expect(onToggle).toHaveBeenCalledOnce();
     });
+  });
 
-    it('does not call onToggle callback if not provided', () => {
-      document.documentElement.dataset.theme = 'light';
+  describe('getCurrentTheme', () => {
+    it('returns current theme object', () => {
+      document.documentElement.dataset.theme = 'midnight-frost';
+      const theme = getCurrentTheme();
+      expect(theme.id).toBe('midnight-frost');
+      expect(theme.primaryColor).toBe('#06b6d4');
+    });
 
-      expect(() => toggleTheme()).not.toThrow();
+    it('defaults to light theme for unknown', () => {
+      document.documentElement.dataset.theme = '';
+      const theme = getCurrentTheme();
+      expect(theme.id).toBe('light');
+    });
+  });
+
+  describe('getThemes', () => {
+    it('returns all available themes', () => {
+      const themes = getThemes();
+      expect(themes.length).toBe(5);
+      expect(themes.map(t => t.id)).toContain('light');
+      expect(themes.map(t => t.id)).toContain('dark-obsidian');
+      expect(themes.map(t => t.id)).toContain('midnight-frost');
+      expect(themes.map(t => t.id)).toContain('royal-purple');
+      expect(themes.map(t => t.id)).toContain('slate');
     });
   });
 
   describe('isDarkMode', () => {
-    it('returns true when theme is dark', () => {
-      document.documentElement.dataset.theme = 'dark';
+    it('returns true for dark themes', () => {
+      document.documentElement.dataset.theme = 'dark-obsidian';
+      expect(isDarkMode()).toBe(true);
+
+      document.documentElement.dataset.theme = 'midnight-frost';
+      expect(isDarkMode()).toBe(true);
+
+      document.documentElement.dataset.theme = 'royal-purple';
       expect(isDarkMode()).toBe(true);
     });
 
-    it('returns false when theme is light', () => {
+    it('returns false for light theme', () => {
       document.documentElement.dataset.theme = 'light';
-      expect(isDarkMode()).toBe(false);
-    });
-
-    it('returns false when theme is not set', () => {
-      document.documentElement.dataset.theme = '';
       expect(isDarkMode()).toBe(false);
     });
   });
 
-  describe('syncThemeButton', () => {
-    it('sets button icon to sun (☀️) when in dark mode', () => {
-      document.documentElement.dataset.theme = 'dark';
+  describe('updateThemeButton', () => {
+    it('updates button with current theme color and name', () => {
+      document.documentElement.dataset.theme = 'dark-obsidian';
       const btn = document.getElementById('btnTheme') as HTMLElement;
 
-      syncThemeButton();
+      updateThemeButton();
 
-      expect(btn.textContent).toBe('☀️');
+      const dot = btn.querySelector('.theme-color-dot') as HTMLElement;
+      const name = btn.querySelector('.theme-name') as HTMLElement;
+
+      expect(dot.style.backgroundColor).toBe('rgb(245, 158, 11)'); // #f59e0b
+      expect(name.textContent).toBe('Dark (Obsidian)');
     });
 
-    it('sets button icon to moon (🌙) when in light mode', () => {
-      document.documentElement.dataset.theme = 'light';
-      const btn = document.getElementById('btnTheme') as HTMLElement;
-
-      syncThemeButton();
-
-      expect(btn.textContent).toBe('🌙');
-    });
-
-    it('does nothing if button does not exist', () => {
-      document.body.innerHTML = ''; // Remove button
-      document.documentElement.dataset.theme = 'dark';
-
-      expect(() => syncThemeButton()).not.toThrow();
-    });
-
-    it('updates button on second call', () => {
-      const btn = document.getElementById('btnTheme') as HTMLElement;
-      document.documentElement.dataset.theme = 'dark';
-
-      syncThemeButton();
-      expect(btn.textContent).toBe('☀️');
-
-      document.documentElement.dataset.theme = 'light';
-      syncThemeButton();
-      expect(btn.textContent).toBe('🌙');
+    it('handles missing button gracefully', () => {
+      document.body.innerHTML = '';
+      expect(() => updateThemeButton()).not.toThrow();
     });
   });
 });
