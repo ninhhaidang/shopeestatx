@@ -2,28 +2,28 @@
 /* Applied when <html data-theme="dark"> is set */
 
 :root[data-theme="dark"] {
-  /* Shopee Orange — slightly brighter for dark backgrounds */
-  --primary: #ff6b3d;
-  --primary-light: #ff8c5a;
-  --primary-dark: #ee4d2d;
-  --primary-gradient: linear-gradient(135deg, #ff6b3d 0%, #ff8c5a 100%);
-  --secondary: #ff9671;
-  --secondary-light: #ffd08a;
+  /* Obsidian Ember Palette */
+  --primary: #f59e0b;
+  --primary-light: #fbbf24;
+  --primary-dark: #d97706;
+  --primary-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  --secondary: #fbbf24;
+  --secondary-light: #fcd34d;
 
   /* Backgrounds */
-  --bg-main: #0f1117;
-  --bg-card: #1a1d27;
-  --bg-sidebar: #1a1d27;
+  --bg-main: #0d0f14;
+  --bg-card: #16181f;
+  --bg-sidebar: #16181f;
 
   /* Text */
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #f0f2f5;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
 
   /* Border */
-  --border-color: #2d3348;
+  --border-color: #2a2f3a;
 
-  /* Accent Colors (adjusted for dark) */
+  /* Accent Colors */
   --success: #34d399;
   --success-bg: #064e3b;
   --info: #60a5fa;
@@ -34,19 +34,21 @@
   --danger-bg: #450a0a;
 
   /* Heatmap intensity (dark mode) */
-  --heatmap-0: #161b22;
-  --heatmap-1: #3d1f14;
-  --heatmap-2: #6b2e1a;
-  --heatmap-3: #a04020;
-  --heatmap-4: #ee4d2d;
+  --heatmap-0: #1a1d26;
+  --heatmap-1: #3d2e14;
+  --heatmap-2: #6b4a1a;
+  --heatmap-3: #a07020;
+  --heatmap-4: #f59e0b;
 
-  /* Shadows (darker for contrast) */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.6);
-  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.7);
-  --shadow-glow: 0 8px 32px rgba(255, 107, 61, 0.25);
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 8px 32px rgba(245, 158, 11, 0.2);
+
+  color-scheme: dark;
 }
 
 /* Dark mode overrides for elements with hardcoded colors */
@@ -72,7 +74,7 @@
 }
 
 [data-theme="dark"] thead {
-  box-shadow: 0 2px 8px rgba(255, 107, 61, 0.3);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
 }
 
 [data-theme="dark"] td {
@@ -150,7 +152,7 @@
 /* Override hardcoded background: white + embedded SVG */
 [data-theme="dark"] #searchBox {
   background-color: #21253a;
-  background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" stroke="%2364748b" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="%2364748b" stroke-width="2" stroke-linecap="round"/></svg>');
+  background-image: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="8" stroke="%236b7280" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="%236b7280" stroke-width="2" stroke-linecap="round"/></svg>');
   background-repeat: no-repeat;
   background-position: 14px center;
   border-color: var(--border-color);
@@ -159,7 +161,7 @@
 
 [data-theme="dark"] #searchBox:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(255, 107, 61, 0.15);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
   background-color: #2a2f45;
 }
 
@@ -178,7 +180,7 @@
 /* ===== ACTIVE FILTERS — replace hardcoded yellow gradient ===== */
 [data-theme="dark"] .active-filters-container {
   background: linear-gradient(135deg, #1e2235 0%, #252a3d 100%);
-  border-color: rgba(255, 107, 61, 0.3);
+  border-color: rgba(245, 158, 11, 0.3);
 }
 
 [data-theme="dark"] .active-filters-label {

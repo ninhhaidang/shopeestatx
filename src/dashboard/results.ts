@@ -5,7 +5,7 @@ import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
 import { applyFilters, clearAllFilters, handleSort } from './filters.js';
 import { fetchDataFromShopee, loadDataFromStorage, refreshData, isExtensionContext, loadMockData } from './data.js';
-import { initTheme, toggleTheme, syncThemeButton } from './theme-toggle.js';
+import { initTheme, setTheme, updateThemeButton, getThemes, toggleThemeDropdown, closeThemeDropdown } from './theme-toggle.js';
 import { loadBudgetConfig, saveBudgetConfig, setCachedBudgetConfig, getCachedBudgetConfig } from './budget.js';
 import { initLocale, setLocale, getLocale } from '../i18n/index.js';
 import { renderDateRangePicker, refreshDateRangePickerLabels, resetDateRangePicker } from './date-range-picker.js';
@@ -14,7 +14,7 @@ import './results.css';
 document.addEventListener('DOMContentLoaded', async function () {
   // Apply theme immediately (also handled by FOUC inline script)
   initTheme();
-  syncThemeButton();
+  updateThemeButton();
 
   // Initialize i18n before rendering anything
   initLocale();
@@ -95,10 +95,45 @@ document.addEventListener('DOMContentLoaded', async function () {
     loadDataFromStorage();
   }
 
-  // Theme toggle
+  // Theme selector
   document.getElementById('btnTheme')!.addEventListener('click', () => {
-    toggleTheme(() => renderCharts(state.filteredOrders));
-    syncThemeButton();
+    toggleThemeDropdown();
+  });
+
+  // Render theme dropdown options
+  const themeDropdown = document.getElementById('themeDropdown');
+  if (themeDropdown) {
+    const themes = getThemes();
+    const currentId = document.documentElement.dataset.theme || 'light';
+    themeDropdown.innerHTML = themes.map(theme => `
+      <button class="theme-option ${theme.id === currentId ? 'active' : ''}" data-theme="${theme.id}">
+        <span class="theme-color-dot" style="background: ${theme.primaryColor}"></span>
+        <span>${theme.nameEn}</span>
+        <span class="theme-check">✓</span>
+      </button>
+    `).join('');
+
+    // Theme selection
+    themeDropdown.querySelectorAll('.theme-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const themeId = (btn as HTMLElement).dataset.theme!;
+        setTheme(themeId, () => renderCharts(state.filteredOrders));
+        updateThemeButton();
+        closeThemeDropdown();
+
+        // Update active state in dropdown
+        themeDropdown.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('.theme-selector')) {
+      closeThemeDropdown();
+    }
   });
 
   // Export dropdown toggle

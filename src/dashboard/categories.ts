@@ -51,13 +51,29 @@ export function getCategoryBreakdown(orders: Order[]): CategoryBreakdown {
   return result;
 }
 
-const CHART_COLORS = ['#ee4d2d', '#ff7043', '#ffab91', '#ffd180', '#ffc371', '#a29bfe', '#82ca9d', '#74b9ff', '#fd79a8', '#00cec9'];
+/** Fixed diverse color palette for category chart (same across all themes) */
+function getChartColors(): string[] {
+  return [
+    '#FF6B6B', // Red
+    '#4ECDC4', // Teal
+    '#45B7D1', // Sky blue
+    '#96CEB4', // Sage green
+    '#FFEAA7', // Cream yellow
+    '#DDA0DD', // Plum
+    '#98D8C8', // Mint
+    '#F7DC6F', // Mustard
+    '#BB8FCE', // Lavender
+    '#85C1E9', // Light blue
+  ];
+}
 
 let categoryChart: Chart | null = null;
 
 export function renderCategoryChart(canvas: HTMLCanvasElement, data: CategoryBreakdown): void {
   const entries = Object.entries(data).sort((a, b) => b[1].amount - a[1].amount);
   if (entries.length === 0) return;
+
+  const chartColors = getChartColors();
 
   if (categoryChart) { categoryChart.destroy(); categoryChart = null; }
 
@@ -67,7 +83,7 @@ export function renderCategoryChart(canvas: HTMLCanvasElement, data: CategoryBre
       labels: entries.map(([cat]) => cat),
       datasets: [{
         data: entries.map(([, v]) => v.amount),
-        backgroundColor: CHART_COLORS.slice(0, entries.length),
+        backgroundColor: chartColors.slice(0, entries.length),
         hoverOffset: 10,
       }],
     },

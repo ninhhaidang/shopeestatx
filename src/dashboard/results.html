@@ -4,14 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#f59e0b">
   <title>ShopeeStatX - Thống kê đơn hàng</title>
   <!-- FOUC prevention: apply theme + disable transitions on first paint -->
   <script>
     (function () {
       var t = localStorage.getItem('shopeestatx-theme');
-      if (t) document.documentElement.dataset.theme = t;
-      else if (matchMedia('(prefers-color-scheme: dark)').matches)
-        document.documentElement.dataset.theme = 'dark';
+      if (t) {
+        document.documentElement.dataset.theme = t;
+      } else if (matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.dataset.theme = 'dark-obsidian';
+      } else {
+        document.documentElement.dataset.theme = 'light';
+      }
       // Disable CSS transitions during initial paint, re-enable after first frame
       document.documentElement.classList.add('no-transitions');
       requestAnimationFrame(function () {
@@ -41,7 +46,13 @@
             <button class="lang-btn active" data-lang="vi">VI</button>
             <button class="lang-btn" data-lang="en">EN</button>
           </div>
-          <button id="btnTheme" class="btn-theme" data-i18n-title="theme.btn.title" title="Chuyển giao diện sáng/tối">🌙</button>
+          <div class="theme-selector">
+            <button id="btnTheme" class="btn-theme" data-i18n-title="theme.btn.title" title="Chọn giao diện">
+              <span class="theme-color-dot"></span>
+              <span class="theme-name">Dark</span>
+            </button>
+            <div id="themeDropdown" class="theme-dropdown"></div>
+          </div>
         </div>
       </div>
     </header>

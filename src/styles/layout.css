@@ -18,6 +18,8 @@ body {
   color: white;
   padding: var(--spacing-xl) var(--spacing-lg);
   box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 100;
 }
 
 .header::before {

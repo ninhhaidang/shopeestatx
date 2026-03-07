@@ -4,6 +4,7 @@ import { state } from './state.js';
 import { formatVND } from './utils.js';
 import { t } from '../i18n/index.js';
 import { applyFilters, filterOrders } from './filters.js';
+import { getCurrentTheme } from './theme-toggle.js';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -20,6 +21,9 @@ let shopChart: Chart | null = null;
 export function renderCharts(orders: Order[]): void {
   const chartData: Record<string, number> = {};
   const hasMonthFilter = (document.getElementById('filterMonth') as HTMLSelectElement).value !== '';
+  const theme = getCurrentTheme();
+  const primaryColor = theme.primaryColor;
+  const primaryDarkColor = theme.primaryDark;
 
   // For chart display, show ALL days in the month even when a specific day is selected
   const chartOrders = hasMonthFilter && state.selectedDay !== null
@@ -72,9 +76,9 @@ export function renderCharts(orders: Order[]): void {
     if (hasMonthFilter && state.selectedDay !== null) {
       const key = sortedKeys[index];
       const [day] = key.split('/').map(Number);
-      return day === state.selectedDay ? '#ff6b3d' : '#ee4d2d';
+      return day === state.selectedDay ? primaryColor : primaryDarkColor;
     }
-    return '#ee4d2d';
+    return primaryDarkColor;
   });
 
   const chartTitle = document.querySelector('.chart-box h3');
@@ -92,7 +96,7 @@ export function renderCharts(orders: Order[]): void {
         data: monthlyValues,
         backgroundColor: backgroundColors,
         borderRadius: 4,
-        hoverBackgroundColor: '#ff6b3d',
+        hoverBackgroundColor: primaryColor,
       }],
     },
     options: {
@@ -173,13 +177,36 @@ export function renderCharts(orders: Order[]): void {
   }
 
   if (shopChart) shopChart.destroy();
+
+  // Generate gradient colors for shop chart (theme primary fading to lighter)
+  function generateGradientColors(primary: string, count: number): string[] {
+    const colors: string[] = [];
+    // Parse hex to get RGB
+    const hex = primary.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    for (let i = 0; i < count; i++) {
+      // Fade from primary to white (lighter)
+      const factor = i * (1 / count);
+      const newR = Math.round(r + (255 - r) * factor * 0.7);
+      const newG = Math.round(g + (255 - g) * factor * 0.7);
+      const newB = Math.round(b + (255 - b) * factor * 0.7);
+      colors.push(`rgb(${newR}, ${newG}, ${newB})`);
+    }
+    return colors;
+  }
+
+  const shopChartColors = generateGradientColors(primaryColor, Math.min(topShops.length, 10));
+
   shopChart = new Chart(document.getElementById('shopChart') as HTMLCanvasElement, {
     type: 'doughnut',
     data: {
       labels: topShops.map(s => s[0].substring(0, 20)),
       datasets: [{
         data: topShops.map(s => s[1][state.shopMetric]),
-        backgroundColor: ['#ee4d2d', '#ff7043', '#ffab91', '#ffccbc', '#fbe9e7', '#ffe0b2', '#ffd180', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00', '#ef6c00', '#e65100'],
+        backgroundColor: shopChartColors,
         hoverOffset: 10,
       }],
     },
