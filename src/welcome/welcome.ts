@@ -1,10 +1,11 @@
 // Onboarding page interactions
 import { initLocale } from '../i18n/index.js';
+import { getHomeUrl } from '../config.js';
 
 initLocale();
 
 document.getElementById('btnOpenShopee')!.addEventListener('click', function () {
-  chrome.tabs.create({ url: 'https://shopee.vn' });
+  chrome.tabs.create({ url: getHomeUrl() });
 });
 
 function openPrivacyPage(e: Event): void {

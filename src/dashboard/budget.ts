@@ -1,5 +1,6 @@
 // Budget tracking — chrome.storage config, SVG progress ring, threshold alerts
 import { showToast, formatVND } from './utils.js';
+import { STORAGE_KEYS } from '../config.js';
 
 export interface BudgetConfig {
   monthlyLimit: number;   // VND
@@ -7,7 +8,7 @@ export interface BudgetConfig {
   alertThreshold: number; // 0.8 = alert at 80%
 }
 
-const STORAGE_KEY = 'shopeestatxBudget';
+const STORAGE_KEY = STORAGE_KEYS.BUDGET;
 const DEFAULT: BudgetConfig = { monthlyLimit: 5_000_000, enabled: false, alertThreshold: 0.8 };
 
 /** Module-level cache — set via setCachedBudgetConfig() at startup */

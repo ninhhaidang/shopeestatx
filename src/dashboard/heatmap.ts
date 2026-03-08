@@ -2,6 +2,7 @@
 import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
+import { EVENTS } from '../config.js';
 
 export interface HeatmapDay {
   date: string;       // YYYY-MM-DD
@@ -176,7 +177,7 @@ export function renderHeatmap(container: HTMLElement, orders: Order[]): void {
     (document.getElementById('filterYear') as HTMLSelectElement).value = String(year);
     (document.getElementById('filterMonth') as HTMLSelectElement).value = String(month);
     state.selectedDay = day;
-    document.dispatchEvent(new CustomEvent('shopeestatx:apply-filters'));
+    document.dispatchEvent(new CustomEvent(EVENTS.APPLY_FILTERS));
     document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
   });
 }

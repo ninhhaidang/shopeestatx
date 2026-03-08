@@ -9,6 +9,7 @@ import {
   ICON_CHECK_CIRCLE, ICON_X_CIRCLE, ICON_CLOCK, ICON_TRUCK,
   ICON_CREDIT_CARD, ICON_ARROW_UTURN_LEFT, ICON_QUESTION_MARK_CIRCLE,
 } from './icons.js';
+import { getOrderUrl } from '../config.js';
 
 export function renderCurrentPage(): void {
   const start = (state.currentPage - 1) * state.itemsPerPage;
@@ -42,7 +43,7 @@ export function renderCurrentPage(): void {
     const safeOrderId = escapeHtml(String(order.orderId));
     tr.innerHTML = `
         <td>${globalIndex}</td>
-        <td><a href="https://shopee.vn/user/purchase/order/${safeOrderId}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a></td>
+        <td><a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a></td>
         <td>${escapeHtml(dateStr)}</td>
         <td><span class="status-badge ${statusClass}">${statusIcon} ${escapeHtml(order.status)}</span></td>
         <td title="${escapeHtml(order.name)}">${escapeHtml(order.name)}</td>

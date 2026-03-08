@@ -10,6 +10,7 @@ import { categorizeOrder, getCategoryBreakdown, renderCategoryChart } from './ca
 import { generateInsights, renderInsights } from './insights.js';
 import { renderHeatmap } from './heatmap.js';
 import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
+import { EVENTS } from '../config.js';
 
 export function sortOrders(orders: Order[], field: string, direction: SortDirection): Order[] {
   return [...orders].sort((a, b) => {
@@ -201,7 +202,7 @@ export function clearAllFilters(): void {
   state.selectedDay = null;
   state.dateRange = { start: null, end: null };
   state.currentPage = 1;
-  document.dispatchEvent(new CustomEvent('shopeestatx:date-range-cleared'));
+  document.dispatchEvent(new CustomEvent(EVENTS.DATE_RANGE_CLEARED));
   applyFilters();
 }
 
@@ -216,7 +217,7 @@ export function removeFilter(type: string): void {
   if (type === 'search') (document.getElementById('searchBox') as HTMLInputElement).value = '';
   if (type === 'dateRange') {
     state.dateRange = { start: null, end: null };
-    document.dispatchEvent(new CustomEvent('shopeestatx:date-range-cleared'));
+    document.dispatchEvent(new CustomEvent(EVENTS.DATE_RANGE_CLEARED));
   }
   if (type === 'category') {
     const el = document.getElementById('filterCategory') as HTMLSelectElement | null;

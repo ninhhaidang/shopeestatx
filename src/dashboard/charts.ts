@@ -6,6 +6,7 @@ import { t } from '../i18n/index.js';
 import { applyFilters, filterOrders } from './filters.js';
 import { getCurrentTheme } from './theme-toggle.js';
 import { Chart, registerables } from 'chart.js';
+import { EVENTS } from '../config.js';
 
 Chart.register(...registerables);
 
@@ -139,7 +140,7 @@ export function renderCharts(orders: Order[]): void {
             (document.getElementById('filterMonth') as HTMLSelectElement).value = monthNum;
             // BUG-2: clear ghost dateRange so it doesn't silently reactivate on chip removal
             state.dateRange = { start: null, end: null };
-            document.dispatchEvent(new CustomEvent('shopeestatx:date-range-cleared'));
+            document.dispatchEvent(new CustomEvent(EVENTS.DATE_RANGE_CLEARED));
             applyFilters();
             document.getElementById('ordersTable')!.scrollIntoView({ behavior: 'smooth' });
           }

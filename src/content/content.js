@@ -1,10 +1,15 @@
 // This script runs in MAIN world (page context)
 // Returns the fetched data directly
 
+// Configuration - Domain setup
+// This will be replaced by the actual domain at build time
+const SHOPEE_DOMAIN = 'shopee.vn';
+const MESSAGE_SOURCE = 'shopee-stats';
+
 (async function () {
   function sendProgress(count) {
     window.postMessage({
-      source: 'shopee-stats',
+      source: MESSAGE_SOURCE,
       type: 'progress',
       count: count
     }, '*');
@@ -15,7 +20,7 @@
   }
 
   async function getOrders(offset, limit) {
-    let url = "https://shopee.vn/api/v4/order/get_all_order_and_checkout_list?limit=" + limit + "&offset=" + offset;
+    let url = "https://" + SHOPEE_DOMAIN + "/api/v4/order/get_all_order_and_checkout_list?limit=" + limit + "&offset=" + offset;
     let json = await (await fetch(url)).json();
 
     // NEW API structure (2024+): data is in new_data.order_or_checkout_data
