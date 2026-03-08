@@ -19,16 +19,16 @@ describe('Theme Toggle', () => {
 
   describe('initTheme', () => {
     it('applies stored theme from localStorage', () => {
-      localStorage.setItem(THEME_KEY, 'dark-obsidian');
+      localStorage.setItem(THEME_KEY, 'forest');
       initTheme();
-      expect(document.documentElement.dataset.theme).toBe('dark-obsidian');
+      expect(document.documentElement.dataset.theme).toBe('forest');
     });
 
-    it('applies system dark preference when no stored theme', () => {
-      // Mock matchMedia for dark preference
+    it('applies light theme when no stored theme and no system preference', () => {
+      // Mock matchMedia for no preference
       vi.spyOn(window, 'matchMedia').mockReturnValueOnce({
-        matches: true,
-        media: '(prefers-color-scheme: dark)',
+        matches: false,
+        media: '(prefers-color-scheme: light)',
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
         addListener: vi.fn(),
@@ -37,14 +37,14 @@ describe('Theme Toggle', () => {
       } as any);
 
       initTheme();
-      expect(document.documentElement.dataset.theme).toBe('dark-obsidian');
+      expect(document.documentElement.dataset.theme).toBe('light');
     });
 
     it('does not apply theme when no stored theme and system prefers light', () => {
       // Mock matchMedia for light preference
       vi.spyOn(window, 'matchMedia').mockReturnValueOnce({
         matches: false,
-        media: '(prefers-color-scheme: dark)',
+        media: '(prefers-color-scheme: light)',
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
         addListener: vi.fn(),
@@ -57,10 +57,10 @@ describe('Theme Toggle', () => {
     });
 
     it('prioritizes stored theme over system preference', () => {
-      localStorage.setItem(THEME_KEY, 'midnight-frost');
+      localStorage.setItem(THEME_KEY, 'rose');
       vi.spyOn(window, 'matchMedia').mockReturnValueOnce({
-        matches: true, // System prefers dark
-        media: '(prefers-color-scheme: dark)',
+        matches: false,
+        media: '(prefers-color-scheme: light)',
         addEventListener: vi.fn(),
         removeEventListener: vi.fn(),
         addListener: vi.fn(),
@@ -69,19 +69,19 @@ describe('Theme Toggle', () => {
       } as any);
 
       initTheme();
-      expect(document.documentElement.dataset.theme).toBe('midnight-frost');
+      expect(document.documentElement.dataset.theme).toBe('rose');
     });
   });
 
   describe('setTheme', () => {
     it('sets theme by ID', () => {
-      setTheme('dark-obsidian');
-      expect(document.documentElement.dataset.theme).toBe('dark-obsidian');
+      setTheme('sky');
+      expect(document.documentElement.dataset.theme).toBe('sky');
     });
 
     it('persists theme to localStorage', () => {
-      setTheme('royal-purple');
-      expect(localStorage.getItem(THEME_KEY)).toBe('royal-purple');
+      setTheme('lavender');
+      expect(localStorage.getItem(THEME_KEY)).toBe('lavender');
     });
 
     it('falls back to light for unknown theme', () => {
@@ -91,17 +91,17 @@ describe('Theme Toggle', () => {
 
     it('calls onToggle callback if provided', () => {
       const onToggle = vi.fn();
-      setTheme('slate', onToggle);
+      setTheme('forest', onToggle);
       expect(onToggle).toHaveBeenCalledOnce();
     });
   });
 
   describe('getCurrentTheme', () => {
     it('returns current theme object', () => {
-      document.documentElement.dataset.theme = 'midnight-frost';
+      document.documentElement.dataset.theme = 'sky';
       const theme = getCurrentTheme();
-      expect(theme.id).toBe('midnight-frost');
-      expect(theme.primaryColor).toBe('#06b6d4');
+      expect(theme.id).toBe('sky');
+      expect(theme.primaryColor).toBe('#0ea5e9');
     });
 
     it('defaults to light theme for unknown', () => {
@@ -116,34 +116,22 @@ describe('Theme Toggle', () => {
       const themes = getThemes();
       expect(themes.length).toBe(5);
       expect(themes.map(t => t.id)).toContain('light');
-      expect(themes.map(t => t.id)).toContain('dark-obsidian');
-      expect(themes.map(t => t.id)).toContain('midnight-frost');
-      expect(themes.map(t => t.id)).toContain('royal-purple');
-      expect(themes.map(t => t.id)).toContain('slate');
+      expect(themes.map(t => t.id)).toContain('forest');
+      expect(themes.map(t => t.id)).toContain('rose');
+      expect(themes.map(t => t.id)).toContain('sky');
+      expect(themes.map(t => t.id)).toContain('lavender');
     });
   });
 
   describe('isDarkMode', () => {
-    it('returns true for dark themes', () => {
-      document.documentElement.dataset.theme = 'dark-obsidian';
-      expect(isDarkMode()).toBe(true);
-
-      document.documentElement.dataset.theme = 'midnight-frost';
-      expect(isDarkMode()).toBe(true);
-
-      document.documentElement.dataset.theme = 'royal-purple';
-      expect(isDarkMode()).toBe(true);
-    });
-
-    it('returns false for light theme', () => {
-      document.documentElement.dataset.theme = 'light';
+    it('returns false for all light themes', () => {
       expect(isDarkMode()).toBe(false);
     });
   });
 
   describe('updateThemeButton', () => {
     it('updates button with current theme color and name', () => {
-      document.documentElement.dataset.theme = 'dark-obsidian';
+      document.documentElement.dataset.theme = 'forest';
       const btn = document.getElementById('btnTheme') as HTMLElement;
 
       updateThemeButton();
@@ -151,8 +139,8 @@ describe('Theme Toggle', () => {
       const dot = btn.querySelector('.theme-color-dot') as HTMLElement;
       const name = btn.querySelector('.theme-name') as HTMLElement;
 
-      expect(dot.style.backgroundColor).toBe('rgb(245, 158, 11)'); // #f59e0b
-      expect(name.textContent).toBe('Dark (Obsidian)');
+      expect(dot.style.backgroundColor).toBe('rgb(34, 197, 94)');
+      expect(name.textContent).toBe('Forest');
     });
 
     it('handles missing button gracefully', () => {
