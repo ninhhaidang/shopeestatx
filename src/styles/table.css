@@ -162,7 +162,7 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .order-row:hover {
-  background: linear-gradient(135deg, #fff5f0 0%, #ffe8dd 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 15%, var(--bg-card)) 0%, color-mix(in srgb, var(--primary) 10%, var(--bg-card)) 100%);
   transform: scale(1.002);
 }
 
@@ -171,7 +171,7 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .order-row.expanded {
-  background: linear-gradient(135deg, #ffe8dd 0%, #ffd4bb 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--bg-card)) 0%, color-mix(in srgb, var(--primary) 15%, var(--bg-card)) 100%);
 }
 
 [data-theme="dark"] .order-row.expanded {
