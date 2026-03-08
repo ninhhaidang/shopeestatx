@@ -1,6 +1,7 @@
 // Shop loyalty analysis — repeat purchase metrics per shop
 import type { Order } from '../types/index.js';
 import { formatVND } from './utils.js';
+import { EVENTS } from '../config.js';
 
 export interface ShopLoyalty {
   shopName: string;
@@ -87,7 +88,7 @@ export function renderShopLoyalty(container: HTMLElement, data: ShopLoyalty[]): 
   // Dispatch event instead of importing applyFilters (avoids circular dep)
   container.querySelectorAll<HTMLButtonElement>('.loyalty-shop-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.dispatchEvent(new CustomEvent('shopeestatx:filter-by-shop', { detail: btn.dataset.shop }));
+      document.dispatchEvent(new CustomEvent(EVENTS.FILTER_BY_SHOP, { detail: btn.dataset.shop }));
     });
   });
 }

@@ -1,4 +1,5 @@
 // Theme configuration - defines all available themes
+import { STORAGE_KEYS } from '../config.js';
 
 export interface Theme {
   id: string;
@@ -117,7 +118,7 @@ export function getTheme(id: string): Theme | undefined {
 }
 
 export function getDefaultTheme(): Theme {
-  const stored = localStorage.getItem('shopeestatx-theme');
+  const stored = localStorage.getItem(STORAGE_KEYS.THEME);
   if (stored && getTheme(stored)) {
     return getTheme(stored)!;
   }

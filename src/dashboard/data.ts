@@ -2,6 +2,7 @@
 import type { OrderData } from '../types/index.js';
 import { state } from './state.js';
 import { applyFilters } from './filters.js';
+import { STORAGE_KEYS, MESSAGE_SOURCE } from '../config.js';
 
 export function isExtensionContext(): boolean {
   return typeof chrome !== 'undefined' && !!chrome.storage && !!chrome.scripting;
@@ -27,8 +28,8 @@ export async function fetchDataFromShopee(): Promise<void> {
   if (btnRefresh) { btnRefresh.disabled = true; btnRefresh.style.opacity = '0.6'; }
 
   try {
-    const storage = await chrome.storage.local.get(['shopeeTabId']);
-    const tabId = storage.shopeeTabId;
+    const storage = await chrome.storage.local.get([STORAGE_KEYS.TAB_ID]);
+    const tabId = storage[STORAGE_KEYS.TAB_ID];
 
     if (!tabId) {
       throw new Error('Không tìm thấy tab Shopee');
@@ -37,7 +38,7 @@ export async function fetchDataFromShopee(): Promise<void> {
     document.getElementById('loadingText')!.textContent = 'Đang kết nối với Shopee...';
 
     chrome.runtime.onMessage.addListener(function (message: { source: string; type: string; count: number; fetched?: number }) {
-      if (message.source === 'shopee-stats' && message.type === 'progress') {
+      if (message.source === MESSAGE_SOURCE && message.type === 'progress') {
         const fetchedText = message.fetched ? ` (+${message.fetched})` : '';
         document.getElementById('loadingText')!.textContent = `Đang lấy dữ liệu...${fetchedText} (${message.count} đơn hàng)`;
       }
@@ -69,7 +70,7 @@ export async function fetchDataFromShopee(): Promise<void> {
       ...result.data!,
       cachedAt: new Date().toISOString(),
     };
-    await chrome.storage.local.set({ shopeeStats: cacheData });
+    await chrome.storage.local.set({ [STORAGE_KEYS.STATS]: cacheData });
     state.allOrdersData = result.data!;
     initializeUI(result.data!);
     updateLastUpdatedTime(cacheData.cachedAt);
@@ -86,10 +87,10 @@ export async function fetchDataFromShopee(): Promise<void> {
 }
 
 export function loadDataFromStorage(): void {
-  chrome.storage.local.get(['shopeeStats'], function (result: { shopeeStats?: OrderData }) {
+  chrome.storage.local.get([STORAGE_KEYS.STATS], function (result: { [STORAGE_KEYS.STATS]?: OrderData }) {
     document.getElementById('loading')!.classList.add('hidden');
 
-    const data = result.shopeeStats;
+    const data = result[STORAGE_KEYS.STATS];
     if (!data || !data.orders || data.orders.length === 0) {
       document.getElementById('noData')!.classList.remove('hidden');
       return;

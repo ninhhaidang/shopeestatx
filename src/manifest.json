@@ -14,7 +14,13 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://shopee.vn/*"
+    "https://shopee.vn/*",
+    "https://shopee.co.id/*",
+    "https://shopee.co.th/*",
+    "https://shopee.ph/*",
+    "https://shopee.com.my/*",
+    "https://shopee.sg/*",
+    "https://shopee.tw/*"
   ],
   "background": {
     "service_worker": "background.js"

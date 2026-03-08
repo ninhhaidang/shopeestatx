@@ -3,6 +3,7 @@ import type { Order, OrderData } from '../types/index.js';
 import { state } from './state.js';
 import { isExtensionContext, initializeUI, updateLastUpdatedTime } from './data.js';
 import { showToast } from './utils.js';
+import { STORAGE_KEYS } from '../config.js';
 
 /** Fetch fresh data from Shopee and merge with cached orders (no page reload) */
 export async function incrementalFetch(): Promise<void> {
@@ -12,9 +13,9 @@ export async function incrementalFetch(): Promise<void> {
   if (btnRefresh) { btnRefresh.disabled = true; btnRefresh.style.opacity = '0.6'; }
 
   try {
-    const storage = await chrome.storage.local.get(['shopeeStats', 'shopeeTabId']);
-    const tabId = storage.shopeeTabId as number | undefined;
-    const cached = storage.shopeeStats as OrderData | undefined;
+    const storage = await chrome.storage.local.get([STORAGE_KEYS.STATS, STORAGE_KEYS.TAB_ID]);
+    const tabId = storage[STORAGE_KEYS.TAB_ID] as number | undefined;
+    const cached = storage[STORAGE_KEYS.STATS] as OrderData | undefined;
     const cachedIds = new Set<string>((cached?.orders ?? []).map((o: Order) => String(o.orderId)));
 
     document.getElementById('loadingText')!.textContent = 'Đang cập nhật dữ liệu...';
@@ -58,7 +59,7 @@ export async function incrementalFetch(): Promise<void> {
       cachedAt: new Date().toISOString(),
     };
 
-    await chrome.storage.local.set({ shopeeStats: merged });
+    await chrome.storage.local.set({ [STORAGE_KEYS.STATS]: merged });
     state.allOrdersData = merged;
     initializeUI(merged);
     updateLastUpdatedTime(merged.cachedAt);

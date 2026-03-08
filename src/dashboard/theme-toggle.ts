@@ -1,8 +1,9 @@
 // Theme toggle — multi-theme support with system preference detection
 
 import { themes, getTheme, getDefaultTheme, type Theme } from './theme-config.js';
+import { STORAGE_KEYS } from '../config.js';
 
-const THEME_KEY = 'shopeestatx-theme';
+const THEME_KEY = STORAGE_KEYS.THEME;
 
 /** Apply stored or system theme before first paint — call as early as possible */
 export function initTheme(): void {

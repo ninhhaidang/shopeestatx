@@ -9,6 +9,7 @@ import { initTheme, setTheme, updateThemeButton, getThemes, toggleThemeDropdown,
 import { loadBudgetConfig, saveBudgetConfig, setCachedBudgetConfig, getCachedBudgetConfig } from './budget.js';
 import { initLocale, setLocale, getLocale } from '../i18n/index.js';
 import { renderDateRangePicker, refreshDateRangePickerLabels, resetDateRangePicker } from './date-range-picker.js';
+import { EVENTS, getHomeUrl } from '../config.js';
 import './results.css';
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -18,6 +19,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   // Initialize i18n before rendering anything
   initLocale();
+
+  // Set dynamic shopee home link
+  const shopeeHomeLink = document.getElementById('shopee-home-link') as HTMLAnchorElement;
+  if (shopeeHomeLink) {
+    shopeeHomeLink.href = getHomeUrl();
+  }
 
   // Pre-load budget config so it's ready before first render
   loadBudgetConfig().then(cfg => setCachedBudgetConfig(cfg));
@@ -71,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   });
 
   // Reset date range picker when filters are cleared
-  document.addEventListener('shopeestatx:date-range-cleared', () => {
+  document.addEventListener(EVENTS.DATE_RANGE_CLEARED, () => {
     resetDateRangePicker(dateRangeContainer);
   });
 
@@ -202,10 +209,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   });
 
   // Heatmap click → applyFilters (dispatched via custom event to avoid circular dep)
-  document.addEventListener('shopeestatx:apply-filters', () => applyFilters());
+  document.addEventListener(EVENTS.APPLY_FILTERS, () => applyFilters());
 
   // Shop loyalty: filter by shop name
-  document.addEventListener('shopeestatx:filter-by-shop', (e) => {
+  document.addEventListener(EVENTS.FILTER_BY_SHOP, (e) => {
     searchBox.value = (e as CustomEvent<string>).detail;
     state.currentPage = 1;
     applyFilters();

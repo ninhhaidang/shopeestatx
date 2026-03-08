@@ -1,6 +1,7 @@
 // Core i18n module — t(), setLocale(), getLocale(), applyTranslations(), initLocale()
 import viLocale from './locales/vi.json';
 import enLocale from './locales/en.json';
+import { STORAGE_KEYS } from '../config.js';
 
 const LOCALES: Record<string, Record<string, string>> = {
   vi: viLocale,
@@ -20,7 +21,7 @@ export function setLocale(lang: string): void {
   currentLocale = LOCALES[resolved];
   currentLang = resolved;
   document.documentElement.lang = resolved;
-  localStorage.setItem('shopeestatx-lang', resolved);
+  localStorage.setItem(STORAGE_KEYS.LANGUAGE, resolved);
   applyTranslations();
 }
 
@@ -50,7 +51,7 @@ export function applyTranslations(): void {
 
 /** Initialize locale from localStorage or browser language preference */
 export function initLocale(): void {
-  const stored = localStorage.getItem('shopeestatx-lang');
+  const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
   const browserLang = navigator.language.startsWith('vi') ? 'vi' : 'en';
   setLocale(stored ?? browserLang);
 }
