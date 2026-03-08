@@ -41,7 +41,7 @@
 }
 
 .summary-item.highlight {
-  background: linear-gradient(135deg, #fff5f0 0%, #ffe8dd 100%);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 15%, var(--bg-card)) 0%, color-mix(in srgb, var(--primary) 10%, var(--bg-card)) 100%);
   border-color: var(--primary);
 }
 
