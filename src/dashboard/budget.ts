@@ -1,5 +1,5 @@
 // Budget tracking — chrome.storage config, SVG progress ring, threshold alerts
-import { showToast, formatVND } from './utils.js';
+import { showToast, formatVND, escapeHtml } from './utils.js';
 import { STORAGE_KEYS } from '../config.js';
 
 export interface BudgetConfig {
@@ -21,6 +21,12 @@ export async function loadBudgetConfig(): Promise<BudgetConfig> {
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
     return new Promise(resolve => {
       chrome.storage.local.get(STORAGE_KEY, result => {
+        // Check for storage errors
+        if (chrome.runtime.lastError) {
+          console.error('Budget storage error:', chrome.runtime.lastError);
+          resolve(DEFAULT);
+          return;
+        }
         resolve((result[STORAGE_KEY] as BudgetConfig) ?? DEFAULT);
       });
     });
@@ -37,9 +43,22 @@ export async function saveBudgetConfig(config: BudgetConfig): Promise<void> {
   setCachedBudgetConfig(config);
   resetBudgetAlert(); // ISSUE-4: re-evaluate alert with new config in same session
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-    return new Promise(resolve => chrome.storage.local.set({ [STORAGE_KEY]: config }, resolve));
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.set({ [STORAGE_KEY]: config }, () => {
+        if (chrome.runtime.lastError) {
+          console.error('Budget save error:', chrome.runtime.lastError);
+          reject(chrome.runtime.lastError);
+          return;
+        }
+        resolve();
+      });
+    });
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  } catch (err) {
+    console.error('Budget localStorage error:', err);
+  }
 }
 
 function buildRingSVG(percent: number, color: string): string {
@@ -75,8 +94,8 @@ export function renderBudgetWidget(container: HTMLElement, spent: number, config
   container.innerHTML = `
     <div class="budget-ring-wrap">${buildRingSVG(percent, color)}</div>
     <div class="budget-info">
-      <div class="budget-spent">${formatVND(spent)}</div>
-      <div class="budget-limit">/ ${formatVND(config.monthlyLimit)}</div>
+      <div class="budget-spent">${escapeHtml(formatVND(spent))}</div>
+      <div class="budget-limit">/ ${escapeHtml(formatVND(config.monthlyLimit))}</div>
       <button class="btn-budget-settings">Sửa</button>
     </div>`;
 

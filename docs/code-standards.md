@@ -42,6 +42,12 @@
 - Use `console.error()` for unexpected errors; log structured data
 - Return `null` or throw typed errors — never silent failures
 
+### Security
+- **XSS Prevention**: Use `escapeHtml()` utility for all user-generated content rendered in DOM
+- **CSP**: Content Security Policy enforced in manifest.json
+- **Memory Management**: Destroy Chart.js instances on page unload via `destroyAllCharts()`
+- **Accessibility**: All interactive elements must have proper aria-labels
+
 ### Comments
 - File-level TSDoc comment: `/** ShopeeStatX/filename.ts — purpose */`
 - TSDoc comments for exported functions/types
@@ -144,4 +150,30 @@ plans/                 # Implementation plans
 ```
 
 ### Version
-Current: **2.5.0** (Phase 1 complete with Vite + TypeScript)
+Current: **3.3.0** (Security fixes: XSS, CSP, Memory leaks)
+
+## Configuration
+
+All hardcoded values (domains, storage keys, event names) MUST be centralized in `src/config.ts`.
+
+### Config Module Usage
+
+```typescript
+import {
+  DOMAINS,
+  setActiveDomain,
+  getActiveDomain,
+  getApiBaseUrl,
+  getOrderUrl,
+  STORAGE_KEYS,
+  EVENTS,
+  getEventName,
+} from './config';
+```
+
+### Rules
+
+- **Domain**: Use `getApiBaseUrl()`, `getOrderUrl()`, `getPurchaseUrl()`, `getHomeUrl()` — never hardcode URLs
+- **Storage**: Use `STORAGE_KEYS.STATS`, `STORAGE_KEYS.THEME`, etc. — never hardcode keys
+- **Events**: Use `EVENTS.APPLY_FILTERS` or `getEventName('custom-event')` — never hardcode event names
+- **Adding new domains**: Add to `DOMAINS` object, update manifest.json host_permissions

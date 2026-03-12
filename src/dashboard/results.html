@@ -84,7 +84,8 @@
           <option value="10">10</option><option value="11">11</option><option value="12">12</option>
         </select>
 
-        <select id="filterStatus">
+        <label for="filterStatus" class="visually-hidden">Lọc theo trạng thái đơn hàng</label>
+        <select id="filterStatus" aria-label="Lọc theo trạng thái">
           <option value="" data-i18n-opt="filter.allStatus">Tất cả trạng thái</option>
           <option value="3" data-i18n-opt="status.completed">Hoàn thành</option>
           <option value="4" data-i18n-opt="status.cancelled">Đã hủy</option>
@@ -93,7 +94,8 @@
           <option value="9" data-i18n-opt="status.waitingPayment">Chờ thanh toán</option>
           <option value="12" data-i18n-opt="status.returned">Trả hàng</option>
         </select>
-        <select id="filterCategory">
+        <label for="filterCategory" class="visually-hidden">Lọc theo danh mục sản phẩm</label>
+        <select id="filterCategory" aria-label="Lọc theo danh mục">
           <option value="" data-i18n-opt="filter.allCategories">Tất cả danh mục</option>
           <option value="Điện tử">Điện tử</option>
           <option value="Thời trang">Thời trang</option>

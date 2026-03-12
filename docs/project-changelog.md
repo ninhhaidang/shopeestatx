@@ -2,6 +2,55 @@
 
 All notable changes to ShopeeStatX are documented here.
 
+## [3.3.0] - 2026-03-12
+
+### Security Fixes
+
+#### Added
+
+**XSS Prevention**
+- `escapeHtml()` utility in `src/dashboard/utils.ts`
+- Applied to: filters.ts, insights.ts, budget.ts, shop-loyalty.ts, table.ts
+- All user-generated content sanitized before DOM insertion
+
+**Content Security Policy**
+- `content_security_policy` added to manifest.json
+- Strict CSP headers enforced by Chrome
+
+**Memory Leak Prevention**
+- `destroyAllCharts()` function in `src/dashboard/charts.ts`
+- `beforeunload` listener ensures cleanup on page exit
+- Prevents Chart.js instance leaks
+
+**Accessibility**
+- aria-labels added to all dropdown elements
+
+**Error Handling**
+- try-catch blocks added to data.ts, budget.ts
+- Graceful error handling with user feedback
+
+---
+
+## [3.2.0] - TBD
+
+### Hardcode Detection & Removal
+
+#### Changed
+
+- Refactored all hardcoded values to centralized `src/config.ts` module
+- Added multi-domain support (vn, id, th, ph, my, sg, tw)
+- Unified storage keys with consistent prefix (`shopeestatx-*`)
+- Unified event names with consistent prefix (`shopeestatx:*`)
+- Updated manifest.json host_permissions for all supported domains
+
+#### Added
+
+- `src/config.ts` with DOMAINS, STORAGE_KEYS, EVENTS constants
+- Helper functions: `getApiBaseUrl()`, `getOrderUrl()`, `getPurchaseUrl()`, `getHomeUrl()`
+- Runtime domain switching via `setActiveDomain()`
+
+---
+
 ## [3.1.0] - 2026-03-06
 
 ### Phase 4: Global — i18n + Date Range Picker

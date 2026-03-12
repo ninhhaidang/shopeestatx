@@ -88,17 +88,30 @@ export async function fetchDataFromShopee(): Promise<void> {
 
 export function loadDataFromStorage(): void {
   chrome.storage.local.get([STORAGE_KEYS.STATS], function (result: { [STORAGE_KEYS.STATS]?: OrderData }) {
-    document.getElementById('loading')!.classList.add('hidden');
-
-    const data = result[STORAGE_KEYS.STATS];
-    if (!data || !data.orders || data.orders.length === 0) {
+    // Check for storage errors
+    if (chrome.runtime.lastError) {
+      console.error('Storage error:', chrome.runtime.lastError);
+      document.getElementById('loading')!.classList.add('hidden');
       document.getElementById('noData')!.classList.remove('hidden');
       return;
     }
 
-    state.allOrdersData = data;
-    initializeUI(data);
-    updateLastUpdatedTime(data.cachedAt);
+    try {
+      document.getElementById('loading')!.classList.add('hidden');
+
+      const data = result[STORAGE_KEYS.STATS];
+      if (!data || !data.orders || data.orders.length === 0) {
+        document.getElementById('noData')!.classList.remove('hidden');
+        return;
+      }
+
+      state.allOrdersData = data;
+      initializeUI(data);
+      updateLastUpdatedTime(data.cachedAt);
+    } catch (err) {
+      console.error('Failed to load data:', err);
+      document.getElementById('noData')!.classList.remove('hidden');
+    }
   });
 }
 

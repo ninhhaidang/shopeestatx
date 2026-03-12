@@ -54,3 +54,13 @@ Vietnamese Shopee users who want visibility into their spending history.
 - Uses browser session only (no stored credentials)
 - Permissions: `activeTab`, `storage`, `scripting` + host `shopee.vn`
 - Cancelled (code 4) and returned (code 12) orders excluded from spend totals
+
+### Security Measures
+
+| Measure | Implementation |
+|---------|---------------|
+| XSS Prevention | `escapeHtml()` sanitizes all rendered user data |
+| CSP | Strict Content-Security-Policy in manifest.json |
+| Memory Safety | Chart.js cleanup via `destroyAllCharts()` on unload |
+| Error Handling | try-catch guards in data.ts, budget.ts |
+| Accessibility | aria-labels on all interactive elements |

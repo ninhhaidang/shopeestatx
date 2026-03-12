@@ -1,6 +1,6 @@
 // Auto-generated spending insights from order data
 import type { Order } from '../types/index.js';
-import { formatVND } from './utils.js';
+import { formatVND, escapeHtml } from './utils.js';
 import { categorizeOrder } from './categories.js';
 import { t } from '../i18n/index.js';
 
@@ -90,6 +90,6 @@ export function renderInsights(container: HTMLElement, insights: string[]): void
     return;
   }
   container.innerHTML = insights
-    .map(text => `<div class="insight-item"><span class="insight-icon">💡</span>${text}</div>`)
+    .map(text => `<div class="insight-item"><span class="insight-icon">💡</span>${escapeHtml(text)}</div>`)
     .join('');
 }
