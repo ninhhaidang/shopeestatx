@@ -131,6 +131,21 @@ export function initializeUI(data: OrderData): void {
   document.getElementById('loading')!.classList.add('hidden');
   document.getElementById('content')!.classList.remove('hidden');
 
+  // Render user info in header
+  if (data.user) {
+    const userInfoEl = document.getElementById('userInfo');
+    const userAvatarEl = document.getElementById('userAvatar') as HTMLImageElement;
+    const userNameEl = document.getElementById('userName');
+
+    if (userInfoEl && userAvatarEl && userNameEl) {
+      if (data.user.avatar) {
+        userAvatarEl.src = data.user.avatar;
+      }
+      userNameEl.textContent = data.user.username || data.user.name || '';
+      userInfoEl.style.display = 'flex';
+    }
+  }
+
   const years = [...new Set(data.orders.map(o => o.orderYear).filter((y): y is number => y !== null))].sort((a, b) => b - a);
   const filterYear = document.getElementById('filterYear') as HTMLSelectElement;
   // Clear existing options (keep the "Tất cả năm" default), then repopulate
