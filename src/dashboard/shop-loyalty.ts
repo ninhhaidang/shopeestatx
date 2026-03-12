@@ -1,6 +1,6 @@
 // Shop loyalty analysis — repeat purchase metrics per shop
 import type { Order } from '../types/index.js';
-import { formatVND } from './utils.js';
+import { formatVND, escapeHtml } from './utils.js';
 import { EVENTS } from '../config.js';
 
 export interface ShopLoyalty {
@@ -62,12 +62,12 @@ export function renderShopLoyalty(container: HTMLElement, data: ShopLoyalty[]): 
 
   const rows = data.map(s => `
     <tr>
-      <td><button class="loyalty-shop-btn" data-shop="${s.shopName.substring(0, 25)}">${s.shopName.substring(0, 30)}</button></td>
+      <td><button class="loyalty-shop-btn" data-shop="${escapeHtml(s.shopName.substring(0, 25))}">${escapeHtml(s.shopName.substring(0, 30))}</button></td>
       <td class="text-center">${s.orderCount}</td>
       <td>${formatVND(s.totalSpent)}</td>
       <td>${formatVND(s.avgOrderValue)}</td>
       <td class="text-center">${s.repeatRate}/tháng</td>
-      <td class="text-center">${s.lastOrder}</td>
+      <td class="text-center">${escapeHtml(s.lastOrder)}</td>
     </tr>`).join('');
 
   container.innerHTML = `

@@ -11,6 +11,7 @@ import { generateInsights, renderInsights } from './insights.js';
 import { renderHeatmap } from './heatmap.js';
 import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
 import { EVENTS } from '../config.js';
+import { escapeHtml } from './utils.js';
 
 export function sortOrders(orders: Order[], field: string, direction: SortDirection): Order[] {
   return [...orders].sort((a, b) => {
@@ -166,7 +167,7 @@ export function updateActiveFilters(): void {
   }
   if (status) {
     const statusText = filterStatus.options[filterStatus.selectedIndex].text;
-    chips.push({ label: statusText, type: 'status' });
+    chips.push({ label: escapeHtml(statusText), type: 'status' });
   }
   if (searchTerm) chips.push({ label: t('filter.chip.search', { value: searchTerm }), type: 'search' });
   if (category) chips.push({ label: t('filter.chip.category', { value: category }), type: 'category' });
@@ -174,9 +175,9 @@ export function updateActiveFilters(): void {
   if (chips.length > 0) {
     activeFiltersContainer.classList.remove('hidden');
     activeFiltersDiv.innerHTML = chips.map(chip =>
-      `<span class="filter-chip" data-type="${chip.type}">
-        ${chip.label}
-        <span class="chip-remove" data-filter-type="${chip.type}">&times;</span>
+      `<span class="filter-chip" data-type="${escapeHtml(chip.type)}">
+        ${escapeHtml(chip.label)}
+        <span class="chip-remove" data-filter-type="${escapeHtml(chip.type)}">&times;</span>
       </span>`
     ).join('');
 

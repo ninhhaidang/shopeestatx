@@ -18,6 +18,25 @@ function cssVar(name: string, fallback: string): string {
 
 let monthlyChart: Chart | null = null;
 let shopChart: Chart | null = null;
+let _beforeunloadRegistered = false;
+
+/** Cleanup all chart instances to prevent memory leaks */
+export function destroyAllCharts(): void {
+  if (monthlyChart) {
+    monthlyChart.destroy();
+    monthlyChart = null;
+  }
+  if (shopChart) {
+    shopChart.destroy();
+    shopChart = null;
+  }
+}
+
+/** Initialize cleanup on page unload - prevent duplicate listeners */
+if (typeof window !== 'undefined' && !_beforeunloadRegistered) {
+  window.addEventListener('beforeunload', destroyAllCharts);
+  _beforeunloadRegistered = true;
+}
 
 export function renderCharts(orders: Order[]): void {
   const chartData: Record<string, number> = {};
