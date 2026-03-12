@@ -28,6 +28,10 @@
   --warning-bg: #fff3cd;
   --danger: #dc3545;
   --danger-bg: #f8d7da;
+  --pending: #7b1fa2;
+  --pending-bg: #f3e5f5;
+  --returned: #ea580c;
+  --returned-bg: #fed7aa;
 
   /* Heatmap - distinct from background, progressive intensity */
   --heatmap-0: #e9ecef;

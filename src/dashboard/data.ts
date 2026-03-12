@@ -142,7 +142,7 @@ export function initializeUI(data: OrderData): void {
         userAvatarEl.src = data.user.avatar;
       }
       userNameEl.textContent = data.user.username || data.user.name || '';
-      userInfoEl.style.display = 'flex';
+      userInfoEl.classList.remove('hidden');
     }
   }
 
