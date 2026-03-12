@@ -34,7 +34,8 @@ body {
   pointer-events: none;
 }
 
-.header h1 {
+.header h1,
+.header .header-title {
   font-size: 32px;
   font-weight: 800;
   margin-bottom: var(--spacing-xs);
@@ -42,6 +43,52 @@ body {
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   position: relative;
   z-index: 1;
+}
+
+.header-title {
+  margin-bottom: 0;
+}
+
+/* Header Controls - replaces inline styles */
+.header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.header-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* User Info */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  background: var(--bg-card);
+  border-radius: 24px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .header p {
@@ -142,8 +189,8 @@ body {
 }
 
 .btn-refresh {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
   color: white;

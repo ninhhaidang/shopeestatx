@@ -32,6 +32,10 @@
   --warning-bg: #451a03;
   --danger: #f87171;
   --danger-bg: #450a0a;
+  --pending: #ce93d8;
+  --pending-bg: #2d1040;
+  --returned: #fb923c;
+  --returned-bg: #431407;
 
   /* Heatmap intensity (dark mode) */
   --heatmap-0: #1a1d26;

@@ -36,26 +36,26 @@
 
   <div id="content" class="hidden">
     <header class="header">
-      <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;">
-        <div>
-          <h1 style="margin-bottom:0">ShopeeStatX</h1>
+      <div class="header-controls">
+        <div class="header-brand">
+          <h1 class="header-title">ShopeeStatX</h1>
           <p id="fetchedAt"></p>
         </div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <div id="userInfo" class="user-info" style="display:none;align-items:center;gap:8px;padding:4px 12px;background:var(--card-bg);border-radius:20px;">
-            <img id="userAvatar" src="" alt="Avatar" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
-            <span id="userName" style="font-size:14px;font-weight:500;"></span>
+        <div class="header-actions">
+          <div id="userInfo" class="user-info hidden">
+            <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+            <span id="userName" class="user-name"></span>
           </div>
           <div class="lang-switcher">
-            <button class="lang-btn active" data-lang="vi">VI</button>
-            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn active" data-lang="vi" aria-label="Tiếng Việt">VI</button>
+            <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
           </div>
           <div class="theme-selector">
-            <button id="btnTheme" class="btn-theme" data-i18n-title="theme.btn.title" title="Chọn giao diện">
+            <button id="btnTheme" class="btn-theme" data-i18n-title="theme.btn.title" title="Chọn giao diện" aria-label="Chọn giao diện">
               <span class="theme-color-dot"></span>
               <span class="theme-name">Dark</span>
             </button>
-            <div id="themeDropdown" class="theme-dropdown"></div>
+            <div id="themeDropdown" class="theme-dropdown" role="listbox" aria-label="Chọn giao diện"></div>
           </div>
         </div>
       </div>
@@ -64,6 +64,7 @@
     <!-- Filter & Actions -->
     <div class="toolbar">
       <div class="filters">
+        <label for="searchBox" class="visually-hidden">Tìm kiếm đơn hàng, sản phẩm, shop</label>
         <input type="text" id="searchBox"
           data-i18n-placeholder="filter.search.placeholder"
           placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
@@ -107,13 +108,13 @@
       </div>
       <div class="actions">
         <span id="lastUpdated" class="last-updated"></span>
-        <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu">&#8635;</button>
+        <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">&#8635;</button>
         <div class="export-dropdown">
-          <button id="btnExport" class="btn-export">Xuất dữ liệu ▾</button>
+          <button id="btnExport" class="btn-export" aria-label="Xuất dữ liệu">Xuất dữ liệu ▾</button>
           <div id="exportMenu" class="export-menu">
-            <button id="btnExportXlsx">Excel (.xlsx)</button>
-            <button id="btnExportCsv">CSV (.csv)</button>
-            <button id="btnExportPdf">In / PDF</button>
+            <button id="btnExportXlsx" aria-label="Xuất file Excel">Excel (.xlsx)</button>
+            <button id="btnExportCsv" aria-label="Xuất file CSV">CSV (.csv)</button>
+            <button id="btnExportPdf" aria-label="In hoặc xuất PDF">In / PDF</button>
           </div>
         </div>
       </div>

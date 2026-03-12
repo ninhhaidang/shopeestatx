@@ -8,7 +8,7 @@
 }
 
 .summary-item {
-  background: white;
+  background: var(--bg-card);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   position: relative;
@@ -119,7 +119,7 @@
 }
 
 .comparison-card {
-  background: white;
+  background: var(--bg-card);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-sm);

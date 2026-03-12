@@ -135,23 +135,23 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .status-9 {
-  background: #f3e5f5;
-  color: #7b1fa2;
+  background: var(--pending-bg);
+  color: var(--pending);
 }
 
 [data-theme="dark"] .status-9 {
-  background: #2d1040;
-  color: #ce93d8;
+  background: var(--pending-bg);
+  color: var(--pending);
 }
 
 .status-12 {
-  background: #fed7aa;
-  color: #ea580c;
+  background: var(--returned-bg);
+  color: var(--returned);
 }
 
 [data-theme="dark"] .status-12 {
-  background: #431407;
-  color: #fb923c;
+  background: var(--returned-bg);
+  color: var(--returned);
 }
 
 /* ===== EXPANDABLE ROWS ===== */
