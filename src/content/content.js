@@ -6,6 +6,40 @@
 const SHOPEE_DOMAIN = 'shopee.vn';
 const MESSAGE_SOURCE = 'shopee-stats';
 
+// Get user profile from localStorage
+function getUserProfile() {
+  try {
+    // Try mini-session first (contains full user object with avatar)
+    const miniSession = localStorage.getItem('mini-session');
+    if (miniSession) {
+      const parsed = JSON.parse(miniSession);
+      if (parsed.user) {
+        return {
+          userId: parsed.user.id,
+          uid: parsed.user.uid,
+          username: parsed.user.name,
+          name: parsed.user.name,
+          avatar: parsed.user.avatar || '',
+          shopId: parsed.user.shop_id
+        };
+      }
+    }
+
+    // Fallback: try @shopee/account-basic-info
+    const accountInfo = localStorage.getItem('@shopee/account-basic-info');
+    if (accountInfo) {
+      const parsed = JSON.parse(accountInfo);
+      return {
+        username: parsed.username,
+        avatar: parsed.portrait ? `https://cf.shopee.vn/file/${parsed.portrait}` : ''
+      };
+    }
+  } catch (e) {
+    console.error('Failed to get user profile:', e);
+  }
+  return null;
+}
+
 (async function () {
   function sendProgress(count) {
     window.postMessage({
@@ -203,6 +237,7 @@ const MESSAGE_SOURCE = 'shopee-stats';
     return {
       success: true,
       data: {
+        user: getUserProfile(),
         orders: allOrders,
         totalCount: count,
         totalAmount: sum,

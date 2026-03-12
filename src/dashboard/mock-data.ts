@@ -127,6 +127,14 @@ function generateOrders(): { orders: Order[]; totalCount: number; totalAmount: n
 const { orders, totalCount, totalAmount } = generateOrders();
 
 export const mockData: OrderData = {
+  user: {
+    userId: 123456789,
+    uid: '0-123456789',
+    username: 'demo_user',
+    name: 'Demo User',
+    avatar: 'https://cf.shopee.vn/file/demo-avatar-image',
+    shopId: 123456780
+  },
   orders,
   totalCount,
   totalAmount,
