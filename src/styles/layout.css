@@ -69,26 +69,49 @@ body {
   align-items: center;
 }
 
-/* User Info */
+/* User Info - Floating Avatar Style (Option 2) */
 .user-info {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 16px;
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 28px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.user-info:hover {
   background: var(--bg-card);
-  border-radius: 24px;
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid var(--primary);
+  box-shadow: var(--shadow-xs);
 }
 
 .user-name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-dropdown-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.user-info:hover .user-dropdown-icon {
+  color: var(--text-secondary);
+  transform: rotate(180deg);
 }
 
 .header p {
