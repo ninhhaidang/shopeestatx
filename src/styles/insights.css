@@ -356,26 +356,3 @@
   padding: var(--spacing-md);
 }
 
-/* ----- Dark mode overrides ----- */
-[data-theme="dark"] .insight-item {
-  background: #12151e;
-}
-
-[data-theme="dark"] .loyalty-table th {
-  background: #12151e;
-  color: var(--text-secondary);
-  border-bottom-color: var(--border-color);
-}
-
-[data-theme="dark"] .loyalty-table td {
-  border-bottom-color: var(--border-color);
-}
-
-[data-theme="dark"] .btn-budget-settings {
-  background: #21253a;
-}
-
-[data-theme="dark"] #budgetDialog {
-  background: var(--bg-card);
-  border-color: var(--border-color);
-}

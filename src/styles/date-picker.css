@@ -136,22 +136,6 @@
   color: var(--text-primary);
 }
 
-/* Dark mode overrides */
-[data-theme="dark"] .drp-custom-panel {
-  background: #12151e;
-}
-
-[data-theme="dark"] .drp-date-input {
-  background: #21253a;
-  border-color: var(--border-color);
-  color: var(--text-primary);
-  color-scheme: dark;
-}
-
-[data-theme="dark"] .drp-btn-cancel {
-  background: var(--bg-card);
-}
-
 /* ===== LANGUAGE SWITCHER ===== */
 .lang-switcher {
   display: flex;

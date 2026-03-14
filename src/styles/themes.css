@@ -1,8 +1,8 @@
 /* ===== THEMES ===== */
 /* Multi-theme support using data-theme attribute */
 
-/* ===== LIGHT THEME ===== */
-:root[data-theme="light"] {
+/* ===== ORANGE THEME ===== */
+:root[data-theme="orange"] {
   --primary: #ff6b3d;
   --primary-light: #ff8c5a;
   --primary-dark: #ee4d2d;
@@ -96,7 +96,7 @@
 }
 
 /* Light theme active filters */
-:root[data-theme="light"] .active-filters-container,
+:root[data-theme="orange"] .active-filters-container,
 :root[data-theme="forest"] .active-filters-container,
 :root[data-theme="rose"] .active-filters-container,
 :root[data-theme="sky"] .active-filters-container,
@@ -338,7 +338,7 @@
 }
 
 /* ===== FILTER CHIPS - use primary color border for all light themes ===== */
-:root[data-theme="light"] .filter-chip,
+:root[data-theme="orange"] .filter-chip,
 :root[data-theme="forest"] .filter-chip,
 :root[data-theme="rose"] .filter-chip,
 :root[data-theme="sky"] .filter-chip,
@@ -348,7 +348,7 @@
   color: var(--primary);
 }
 
-:root[data-theme="light"] .filter-chip:hover,
+:root[data-theme="orange"] .filter-chip:hover,
 :root[data-theme="forest"] .filter-chip:hover,
 :root[data-theme="rose"] .filter-chip:hover,
 :root[data-theme="sky"] .filter-chip:hover,

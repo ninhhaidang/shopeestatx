@@ -16,29 +16,24 @@ table {
 
 th,
 td {
-  padding: 16px;
+  padding: 14px 16px;
   text-align: left;
 }
 
-thead {
-  background: var(--primary-gradient);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.15);
-}
-
 th {
-  background: transparent;
+  background: var(--primary-gradient);
   color: white;
   font-weight: 700;
   text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   padding: 14px 16px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(238, 77, 45, 0.15);
+  white-space: nowrap;
 }
 
 th.sortable {
@@ -139,17 +134,7 @@ th.sortable.desc .sort-indicator::before {
   color: var(--pending);
 }
 
-[data-theme="dark"] .status-9 {
-  background: var(--pending-bg);
-  color: var(--pending);
-}
-
 .status-12 {
-  background: var(--returned-bg);
-  color: var(--returned);
-}
-
-[data-theme="dark"] .status-12 {
   background: var(--returned-bg);
   color: var(--returned);
 }
@@ -166,16 +151,8 @@ th.sortable.desc .sort-indicator::before {
   transform: scale(1.002);
 }
 
-[data-theme="dark"] .order-row:hover {
-  background: linear-gradient(135deg, #1e1a18 0%, #2a1f1a 100%);
-}
-
 .order-row.expanded {
   background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--bg-card)) 0%, color-mix(in srgb, var(--primary) 15%, var(--bg-card)) 100%);
-}
-
-[data-theme="dark"] .order-row.expanded {
-  background: linear-gradient(135deg, #2a1f1a 0%, #3a2318 100%);
 }
 
 .detail-row {
@@ -243,10 +220,6 @@ th.sortable.desc .sort-indicator::before {
 
 tr:nth-child(even) {
   background: rgba(248, 249, 252, 0.5);
-}
-
-[data-theme="dark"] tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.02);
 }
 
 /* ===== PAGINATION ===== */

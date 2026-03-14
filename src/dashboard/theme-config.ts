@@ -17,14 +17,13 @@ export interface Theme {
   textSecondary: string;
   textMuted: string;
   borderColor: string;
-  isDark: boolean;
 }
 
 export const themes: Theme[] = [
   {
-    id: 'light',
-    name: 'Sáng',
-    nameEn: 'Light',
+    id: 'orange',
+    name: 'Cam',
+    nameEn: 'Orange',
     primaryColor: '#ff6b3d',
     primaryLight: '#ff8c5a',
     primaryDark: '#ee4d2d',
@@ -37,7 +36,6 @@ export const themes: Theme[] = [
     textSecondary: '#495057',
     textMuted: '#6c757d',
     borderColor: '#dee2e6',
-    isDark: false,
   },
   {
     id: 'forest',
@@ -55,7 +53,6 @@ export const themes: Theme[] = [
     textSecondary: '#166534',
     textMuted: '#15803d',
     borderColor: '#bbf7d0',
-    isDark: false,
   },
   {
     id: 'rose',
@@ -73,7 +70,6 @@ export const themes: Theme[] = [
     textSecondary: '#9f1239',
     textMuted: '#be123c',
     borderColor: '#fecdd3',
-    isDark: false,
   },
   {
     id: 'sky',
@@ -91,7 +87,6 @@ export const themes: Theme[] = [
     textSecondary: '#075985',
     textMuted: '#0369a1',
     borderColor: '#bae6fd',
-    isDark: false,
   },
   {
     id: 'lavender',
@@ -109,7 +104,6 @@ export const themes: Theme[] = [
     textSecondary: '#5b21b6',
     textMuted: '#6d28d9',
     borderColor: '#ddd6fe',
-    isDark: false,
   },
 ];
 
@@ -122,6 +116,6 @@ export function getDefaultTheme(): Theme {
   if (stored && getTheme(stored)) {
     return getTheme(stored)!;
   }
-  // Default to light theme
-  return getTheme('light')!;
+  // Default to orange theme
+  return getTheme('orange')!;
 }

@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   const themeDropdown = document.getElementById('themeDropdown');
   if (themeDropdown) {
     const themes = getThemes();
-    const currentId = document.documentElement.dataset.theme || 'light';
+    const currentId = document.documentElement.dataset.theme || 'orange';
     themeDropdown.innerHTML = themes.map(theme => `
       <button class="theme-option ${theme.id === currentId ? 'active' : ''}" data-theme="${theme.id}">
         <span class="theme-color-dot" style="background: ${theme.primaryColor}"></span>
