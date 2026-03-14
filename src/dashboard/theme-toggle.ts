@@ -16,8 +16,8 @@ export function setTheme(themeId: string, onToggle?: () => void): void {
   const theme = getTheme(themeId);
   if (!theme) {
     console.warn(`Theme "${themeId}" not found, using light`);
-    document.documentElement.dataset.theme = 'light';
-    localStorage.setItem(THEME_KEY, 'light');
+    document.documentElement.dataset.theme = 'orange';
+    localStorage.setItem(THEME_KEY, 'orange');
     return;
   }
 
@@ -32,19 +32,13 @@ export function setTheme(themeId: string, onToggle?: () => void): void {
 
 /** Get current theme */
 export function getCurrentTheme(): Theme {
-  const currentId = document.documentElement.dataset.theme || 'light';
-  return getTheme(currentId) || getTheme('light')!;
+  const currentId = document.documentElement.dataset.theme || 'orange';
+  return getTheme(currentId) || getTheme('orange')!;
 }
 
 /** Get current theme ID */
 export function getCurrentThemeId(): string {
-  return document.documentElement.dataset.theme || 'light';
-}
-
-/** Check if current theme is dark mode (legacy support) */
-export function isDarkMode(): boolean {
-  const theme = getCurrentTheme();
-  return theme.isDark;
+  return document.documentElement.dataset.theme || 'orange';
 }
 
 /** Sync theme button with current theme */

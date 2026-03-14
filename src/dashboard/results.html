@@ -12,10 +12,8 @@
       var t = localStorage.getItem('shopeestatx-theme');
       if (t) {
         document.documentElement.dataset.theme = t;
-      } else if (matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.dataset.theme = 'dark-obsidian';
       } else {
-        document.documentElement.dataset.theme = 'light';
+        document.documentElement.dataset.theme = 'orange';
       }
       // Disable CSS transitions during initial paint, re-enable after first frame
       document.documentElement.classList.add('no-transitions');
@@ -241,7 +239,7 @@
               Trạng thái <span class="sort-indicator"></span>
             </th>
             <th>Tên sản phẩm</th>
-            <th width="80">Số lượng</th>
+            <th width="80" style="text-align: center;">Số lượng</th>
             <th width="100" class="sortable" data-sort="subTotal">
               Tổng tiền <span class="sort-indicator"></span>
             </th>
