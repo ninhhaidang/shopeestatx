@@ -20,18 +20,18 @@
 
   --border-color: #dee2e6;
 
-  --success: #28a745;
-  --success-bg: #d4edda;
-  --info: #17a2b8;
-  --info-bg: #d1ecf1;
-  --warning: #ffc107;
-  --warning-bg: #fff3cd;
-  --danger: #dc3545;
-  --danger-bg: #f8d7da;
-  --pending: #7b1fa2;
-  --pending-bg: #f3e5f5;
-  --returned: #ea580c;
-  --returned-bg: #fed7aa;
+  --success: #22c55e;
+  --success-bg: #dcfce7;
+  --info: #0ea5e9;
+  --info-bg: #e0f2fe;
+  --warning: #f59e0b;
+  --warning-bg: #fef3c7;
+  --danger: #ef4444;
+  --danger-bg: #fee2e2;
+  --pending: #8b5cf6;
+  --pending-bg: #ede9fe;
+  --returned: #f97316;
+  --returned-bg: #ffedd5;
 
   /* Heatmap - distinct from background, progressive intensity */
   --heatmap-0: #e9ecef;
