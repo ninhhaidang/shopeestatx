@@ -77,6 +77,10 @@
   --warning-bg: #fef3c7;
   --danger: #ef4444;
   --danger-bg: #fee2e2;
+  --pending: #8b5cf6;
+  --pending-bg: #ede9fe;
+  --returned: #f97316;
+  --returned-bg: #ffedd5;
 
   /* Heatmap - green intensity */
   --heatmap-0: #dcfce7;
@@ -132,6 +136,10 @@
   --warning-bg: #fef3c7;
   --danger: #f43f5e;
   --danger-bg: #ffe4e6;
+  --pending: #8b5cf6;
+  --pending-bg: #ede9fe;
+  --returned: #f97316;
+  --returned-bg: #ffedd5;
 
   /* Heatmap - rose intensity */
   --heatmap-0: #ffe4e6;
@@ -177,6 +185,10 @@
   --warning-bg: #fef3c7;
   --danger: #ef4444;
   --danger-bg: #fee2e2;
+  --pending: #8b5cf6;
+  --pending-bg: #ede9fe;
+  --returned: #f97316;
+  --returned-bg: #ffedd5;
 
   /* Heatmap - sky intensity */
   --heatmap-0: #e0f2fe;
@@ -222,6 +234,10 @@
   --warning-bg: #fef3c7;
   --danger: #ef4444;
   --danger-bg: #fee2e2;
+  --pending: #8b5cf6;
+  --pending-bg: #ede9fe;
+  --returned: #f97316;
+  --returned-bg: #ffedd5;
 
   /* Heatmap - lavender intensity */
   --heatmap-0: #ede9fe;
