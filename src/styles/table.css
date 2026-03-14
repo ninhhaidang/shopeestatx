@@ -94,19 +94,23 @@ th.sortable.desc .sort-indicator::before {
 .status-badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-full);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
+  min-width: 100px;
+  width: 100%;
+  text-align: center;
 }
 
 .status-0 {
-  background: var(--border-color);
-  color: var(--text-muted);
+  background: #e2e8f0;
+  color: #475569;
 }
 
 .status-3 {
