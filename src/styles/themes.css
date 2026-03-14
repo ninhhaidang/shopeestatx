@@ -34,7 +34,7 @@
   --returned-bg: #ffedd5;
 
   /* Heatmap - distinct from background, progressive intensity */
-  --heatmap-0: #e9ecef;
+  --heatmap-0: #ffedd5;
   --heatmap-1: #ffd4b8;
   --heatmap-2: #ffb074;
   --heatmap-3: #ff8a50;
