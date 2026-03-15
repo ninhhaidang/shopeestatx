@@ -74,6 +74,8 @@ th.sortable:hover {
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
+  justify-self: start;
+  display: inline-block;
 }
 
 .detail-content .order-link:hover {
@@ -304,6 +306,7 @@ th.sortable.desc .sort-indicator::before {
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
+  justify-self: start;
 }
 
 .detail-value-clickable:hover {
