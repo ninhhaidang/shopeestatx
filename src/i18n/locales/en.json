@@ -97,6 +97,11 @@
   "table.detail.seller": "Seller",
   "table.detail.deliveryDate": "Delivery Date",
   "table.detail.productDetail": "Product Details",
+  "table.detail.orderInfo": "ORDER INFORMATION",
+  "table.detail.productDetails": "PRODUCT DETAILS",
+  "table.detail.orderDate": "Order Date",
+  "table.detail.daysToDeliver": "Days to Deliver",
+  "table.detail.days": "days",
   "table.noDate": "N/A",
 
   "pagination.showing": "Showing",
