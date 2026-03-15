@@ -152,7 +152,7 @@
 .active-filters-toolbar .btn-clear-filters {
   padding: 6px 12px;
   font-size: 12px;
-  background: transparent;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: var(--primary);
   border: 1px solid var(--primary);
   box-shadow: none;
