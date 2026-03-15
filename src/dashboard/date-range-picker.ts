@@ -78,6 +78,18 @@ function clearYearMonthSelects(): void {
 }
 
 function applyPreset(preset: Preset, container: HTMLElement): void {
+  // Toggle off if clicking already active preset
+  if (activePreset === preset) {
+    activePreset = null;
+    state.dateRange = { start: null, end: null };
+    state.selectedDay = null;
+    clearYearMonthSelects();
+    updateActiveButton(container);
+    state.currentPage = 1;
+    applyFilters();
+    return;
+  }
+
   activePreset = preset;
   updateActiveButton(container);
 
