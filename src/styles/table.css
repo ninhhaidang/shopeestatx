@@ -159,6 +159,20 @@ th.sortable.desc .sort-indicator::before {
   background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, var(--bg-card)) 0%, color-mix(in srgb, var(--primary) 15%, var(--bg-card)) 100%);
 }
 
+.expand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+  color: var(--text-muted);
+}
+
+.order-row.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
 .detail-row {
   display: none;
   background: var(--bg-main);
@@ -220,6 +234,14 @@ th.sortable.desc .sort-indicator::before {
   display: flex;
   gap: 12px;
   align-items: flex-start;
+}
+
+.detail-item .detail-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .detail-item strong {

@@ -8,6 +8,7 @@ import { applyFilters } from './filters.js';
 import {
   ICON_CHECK_CIRCLE, ICON_X_CIRCLE, ICON_CLOCK, ICON_TRUCK,
   ICON_CREDIT_CARD, ICON_ARROW_UTURN_LEFT, ICON_QUESTION_MARK_CIRCLE,
+  ICON_CHEVRON_DOWN,
 } from './icons.js';
 import { getOrderUrl } from '../config.js';
 
@@ -42,7 +43,7 @@ export function renderCurrentPage(): void {
     tr.className = 'order-row';
     const safeOrderId = escapeHtml(String(order.orderId));
     tr.innerHTML = `
-        <td>${globalIndex}</td>
+        <td><span class="expand-icon">${ICON_CHEVRON_DOWN}</span> ${globalIndex}</td>
         <td><a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a></td>
         <td>${escapeHtml(dateStr)}</td>
         <td><span class="status-badge ${statusClass}">${statusIcon} ${escapeHtml(order.status)}</span></td>
