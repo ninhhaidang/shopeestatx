@@ -129,7 +129,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  border-bottom: 1px solid var(--border-color);
   box-shadow: var(--shadow-xs);
   position: sticky;
   top: 0;
