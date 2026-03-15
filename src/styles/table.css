@@ -212,11 +212,12 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .detail-content {
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-md);
   border-left: 4px solid var(--primary);
-  background: transparent;
+  background: var(--bg-card);
   margin: 8px;
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -257,7 +258,6 @@ th.sortable.desc .sort-indicator::before {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-bottom: 12px;
-  border-bottom: 2px solid var(--primary);
   margin-bottom: 4px;
 }
 
@@ -281,9 +281,9 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .detail-item .detail-value {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
   flex: 1;
   min-width: 0;
 }
@@ -304,7 +304,6 @@ th.sortable.desc .sort-indicator::before {
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
-  white-space: nowrap;
 }
 
 .detail-value-clickable:hover {
