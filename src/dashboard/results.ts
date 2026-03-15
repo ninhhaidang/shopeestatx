@@ -158,6 +158,64 @@ document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById('btnExportCsv')!.addEventListener('click', () => { exportToCSV(); setExportOpen(false); });
   document.getElementById('btnExportPdf')!.addEventListener('click', () => { exportToPDF(); setExportOpen(false); });
 
+  // More filters collapsible panel
+  const btnMoreFilters = document.getElementById('btnMoreFilters') as HTMLButtonElement;
+  const moreFiltersPanel = document.getElementById('moreFiltersPanel') as HTMLElement;
+  const filterCountEl = btnMoreFilters?.querySelector('.filter-count') as HTMLElement;
+
+  // Update filter count badge
+  function updateFilterCount(): void {
+    const status = (document.getElementById('filterStatus') as HTMLSelectElement).value;
+    const category = (document.getElementById('filterCategory') as HTMLSelectElement).value;
+    const count = (status ? 1 : 0) + (category ? 1 : 0);
+
+    if (filterCountEl) {
+      filterCountEl.textContent = String(count);
+      filterCountEl.classList.toggle('hidden', count === 0);
+    }
+
+    // Update button text based on filter state
+    const filterLabel = btnMoreFilters?.querySelector('.filter-label');
+    if (filterLabel) {
+      filterLabel.textContent = count > 0 ? `${count} lọc` : 'Lọc';
+    }
+  }
+
+  // Toggle more filters panel
+  btnMoreFilters?.addEventListener('click', () => {
+    const isExpanded = btnMoreFilters.getAttribute('aria-expanded') === 'true';
+    btnMoreFilters.setAttribute('aria-expanded', String(!isExpanded));
+    moreFiltersPanel.hidden = isExpanded;
+  });
+
+  // Close panel when clicking outside
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('#btnMoreFilters') && !target.closest('#moreFiltersPanel')) {
+      btnMoreFilters?.setAttribute('aria-expanded', 'false');
+      moreFiltersPanel.hidden = true;
+    }
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && btnMoreFilters?.getAttribute('aria-expanded') === 'true') {
+      btnMoreFilters.setAttribute('aria-expanded', 'false');
+      moreFiltersPanel.hidden = true;
+      btnMoreFilters.focus();
+    }
+  });
+
+  // Initial filter count
+  updateFilterCount();
+
+  // Update filter count when filters change
+  document.getElementById('filterStatus')?.addEventListener('change', updateFilterCount);
+  document.getElementById('filterCategory')?.addEventListener('change', updateFilterCount);
+
+  // Also update count when filters are applied (e.g., from clear all)
+  document.addEventListener(EVENTS.APPLY_FILTERS, updateFilterCount);
+
   // Filter changes
   filterYear.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
   filterMonth.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });

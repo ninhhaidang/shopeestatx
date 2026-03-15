@@ -150,7 +150,7 @@ plans/                 # Implementation plans
 ```
 
 ### Version
-Current: **3.3.0** (Security fixes: XSS, CSP, Memory leaks)
+Current: **3.3.1** (Collapsible toolbar refactor)
 
 ## Configuration
 

@@ -123,13 +123,11 @@ body {
 }
 
 /* ===== TOOLBAR ===== */
-.toolbar {
+.toolbar-container {
   background: var(--bg-card);
   padding: var(--spacing-lg);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
   box-shadow: var(--shadow-xs);
@@ -138,11 +136,146 @@ body {
   z-index: 90;
 }
 
-.filters {
+/* Toolbar Rows */
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+/* Search Row */
+.search-row {
+  justify-content: space-between;
+}
+
+.search-wrapper {
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.search-wrapper #searchBox {
+  width: 100%;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Filters Row */
+.filters-row {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.date-picker-area {
+  flex: 1;
+}
+
+/* More Filters Toggle Button */
+.btn-more-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--bg-main);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.btn-more-filters:hover {
+  border-color: var(--primary);
+  background: var(--bg-card);
+}
+
+.btn-more-filters[aria-expanded="true"] {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.btn-more-filters[aria-expanded="true"] .filter-icon {
+  transform: rotate(180deg);
+}
+
+.filter-count {
+  background: var(--primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.btn-more-filters[aria-expanded="true"] .filter-count {
+  background: white;
+  color: var(--primary);
+}
+
+.filter-icon {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+/* More Filters Panel */
+.more-filters-panel {
   display: flex;
   gap: var(--spacing-md);
   flex-wrap: wrap;
-  flex: 1;
+  padding: var(--spacing-md);
+  background: var(--bg-main);
+  border-radius: var(--radius-md);
+  animation: slideDown 0.2s ease;
+  width: 100%;
+}
+
+.more-filters-panel[hidden] {
+  display: none;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.more-filters-panel select {
+  padding: 10px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  min-width: 140px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.more-filters-panel select:hover {
+  border-color: var(--primary);
+}
+
+.more-filters-panel select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(238, 77, 45, 0.1);
+}
+
+/* Legacy .toolbar and .filters for backward compatibility */
+.toolbar {
+  display: contents;
+}
+
+.filters {
+  display: contents;
 }
 
 #searchBox {
