@@ -52,41 +52,84 @@ export function renderCurrentPage(): void {
         <td>${escapeHtml(order.subTotalFormatted)}</td>
       `;
 
-    // Left column: Order Information
-    const orderInfoItems: string[] = [];
-    orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.orderId')}:</strong> <a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a></div>`);
-    orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.status')}:</strong> <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${statusIcon} ${escapeHtml(order.status)}</span></div>`);
+    // Build aligned rows: each row has left (order info) and right (product details)
+    const detailRows: string[] = [];
 
-    // Delivery date with clickable filter
+    // Section headers
+    detailRows.push(`
+      <div class="detail-row detail-section-header">
+        <span>${t('table.detail.orderInfo') || 'ORDER INFORMATION'}</span>
+        <span>${t('table.detail.productDetails') || 'PRODUCT DETAILS'}</span>
+      </div>
+    `);
+
+    // Row 1: Order ID | Product Name
+    detailRows.push(`
+      <div class="detail-row">
+        <div class="detail-item">
+          <strong>${t('table.detail.orderId')}:</strong>
+          <a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a>
+        </div>
+        <div class="detail-item">
+          <strong>${t('table.detail.productName')}:</strong>
+          <span class="detail-value">${escapeHtml(order.name)}</span>
+        </div>
+      </div>
+    `);
+
+    // Row 2: Status | Quantity
+    detailRows.push(`
+      <div class="detail-row">
+        <div class="detail-item">
+          <strong>${t('table.detail.status')}:</strong>
+          <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${statusIcon} ${escapeHtml(order.status)}</span>
+        </div>
+        <div class="detail-item">
+          <strong>${t('table.detail.quantity')}:</strong>
+          <span class="detail-value">${order.productCount}</span>
+        </div>
+      </div>
+    `);
+
+    // Row 3: Delivery Date | Total (only if deliveryDate exists)
     if (order.deliveryDate) {
       const fullDate = formatDateTime(new Date(order.deliveryDate));
       const dateObj = new Date(order.deliveryDate);
       const dateData = JSON.stringify({ year: dateObj.getFullYear(), month: dateObj.getMonth() + 1, day: dateObj.getDate() });
-      orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.deliveryDate')}:</strong> <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span></div>`);
+      detailRows.push(`
+        <div class="detail-row">
+          <div class="detail-item">
+            <strong>${t('table.detail.deliveryDate')}:</strong>
+            <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span>
+          </div>
+          <div class="detail-item">
+            <strong>${t('table.detail.total')}:</strong>
+            <span class="detail-value">${escapeHtml(order.subTotalFormatted)}</span>
+          </div>
+        </div>
+      `);
     }
 
-    orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.seller')}:</strong> <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span></div>`);
-
-    // Right column: Product Details
-    const productItems: string[] = [];
-    productItems.push(`<div class="detail-item"><strong>${t('table.detail.productName')}:</strong> ${escapeHtml(order.name)}</div>`);
-    productItems.push(`<div class="detail-item"><strong>${t('table.detail.quantity')}:</strong> ${order.productCount}</div>`);
-    productItems.push(`<div class="detail-item"><strong>${t('table.detail.total')}:</strong> ${escapeHtml(order.subTotalFormatted)}</div>`);
-    productItems.push(`<div class="detail-item"><strong>${t('table.detail.productDetail')}:</strong> ${escapeHtml(order.productSummary)}</div>`);
+    // Row 4: Seller | Product Detail
+    detailRows.push(`
+      <div class="detail-row">
+        <div class="detail-item">
+          <strong>${t('table.detail.seller')}:</strong>
+          <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span>
+        </div>
+        <div class="detail-item">
+          <strong>${t('table.detail.productDetail')}:</strong>
+          <span class="detail-value">${escapeHtml(order.productSummary)}</span>
+        </div>
+      </div>
+    `);
 
     const detailRow = document.createElement('tr');
     detailRow.className = 'detail-row';
     detailRow.innerHTML = `
         <td colspan="7">
           <div class="detail-content">
-            <div class="detail-section">
-              <div class="detail-section-header">${t('table.detail.orderInfo') || 'ORDER INFORMATION'}</div>
-              ${orderInfoItems.join('')}
-            </div>
-            <div class="detail-section">
-              <div class="detail-section-header">${t('table.detail.productDetails') || 'PRODUCT DETAILS'}</div>
-              ${productItems.join('')}
-            </div>
+            ${detailRows.join('')}
           </div>
         </td>
       `;

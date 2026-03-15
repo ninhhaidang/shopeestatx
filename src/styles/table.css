@@ -217,9 +217,9 @@ th.sortable.desc .sort-indicator::before {
   background: var(--bg-card);
   margin: 8px;
   border-radius: var(--radius-md);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 @media (max-width: 768px) {
@@ -228,10 +228,22 @@ th.sortable.desc .sort-indicator::before {
   }
 }
 
-.detail-section {
+/* Each row in detail has 2 columns */
+.detail-content .detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.detail-content .detail-row .detail-item {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-content .detail-row .detail-item strong {
+  min-width: 100px;
+  flex-shrink: 0;
 }
 
 .detail-section-header {
@@ -243,6 +255,7 @@ th.sortable.desc .sort-indicator::before {
   padding-bottom: 12px;
   border-bottom: 2px solid var(--primary);
   margin-bottom: 4px;
+  grid-column: 1 / -1;
 }
 
 .detail-item {
