@@ -302,7 +302,9 @@ th.sortable.desc .sort-indicator::before {
   transition: all 0.2s ease;
   padding: 2px 8px;
   border-radius: var(--radius-sm);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
