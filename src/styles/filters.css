@@ -151,17 +151,18 @@
 .active-filters-toolbar .btn-clear-filters {
   padding: 6px 12px;
   font-size: 12px;
-  background: transparent;
+  background: var(--bg-card);
   color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--primary);
   box-shadow: none;
   border-radius: var(--radius-xl);
+  font-weight: 600;
 }
 
 .active-filters-toolbar .btn-clear-filters:hover {
-  background: var(--error);
+  background: var(--primary);
   color: white;
-  border-color: var(--error);
+  border-color: var(--primary);
   transform: none;
   box-shadow: none;
 }
