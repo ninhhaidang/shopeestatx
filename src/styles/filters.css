@@ -146,6 +146,7 @@
   font-size: 12px;
   border-radius: var(--radius-xl);
   align-items: center;
+  line-height: 1.4;
 }
 
 .active-filters-toolbar .btn-clear-filters {
@@ -153,10 +154,11 @@
   font-size: 12px;
   background: var(--bg-card);
   color: var(--text-secondary);
-  border: 2px solid var(--primary);
+  border: 1px solid var(--primary);
   box-shadow: none;
   border-radius: var(--radius-xl);
   font-weight: 600;
+  height: auto;
 }
 
 .active-filters-toolbar .btn-clear-filters:hover {
