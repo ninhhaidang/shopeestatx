@@ -5,7 +5,7 @@
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  border: 0.5px solid var(--border-color);
 }
 
 table {
@@ -18,6 +18,40 @@ th,
 td {
   padding: 14px 16px;
   text-align: left;
+}
+
+td:first-child {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ===== COLUMN ALIGNMENT ===== */
+/* Cột Tổng tiền - căn phải */
+th.col-amount, td.col-amount {
+  text-align: right;
+  padding-right: 20px;
+}
+
+/* Cột Số lượng - căn giữa */
+th.col-quantity, td.col-quantity {
+  text-align: center;
+}
+
+/* Căn giữa */
+.text-center {
+  text-align: center;
+}
+
+/* Cột STT - căn giữa với flex */
+th.col-stt {
+  text-align: center;
+}
+
+td.col-stt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 th {
@@ -74,8 +108,14 @@ th.sortable:hover {
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
-  justify-self: start;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: max-content;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .detail-content .order-link:hover {
@@ -130,36 +170,43 @@ th.sortable.desc .sort-indicator::before {
 
 .status-0 {
   background: #e2e8f0;
+  border: 0.5px solid #475569;
   color: #475569;
 }
 
 .status-3 {
   background: var(--success-bg);
+  border: 0.5px solid var(--success);
   color: var(--success);
 }
 
 .status-4 {
   background: var(--danger-bg);
+  border: 0.5px solid var(--danger);
   color: var(--danger);
 }
 
 .status-7 {
   background: var(--warning-bg);
+  border: 0.5px solid var(--warning);
   color: var(--warning);
 }
 
 .status-8 {
   background: var(--info-bg);
+  border: 0.5px solid var(--info);
   color: var(--info);
 }
 
 .status-9 {
   background: var(--pending-bg);
+  border: 0.5px solid var(--pending);
   color: var(--pending);
 }
 
 .status-12 {
   background: var(--returned-bg);
+  border: 0.5px solid var(--returned);
   color: var(--returned);
 }
 
@@ -183,13 +230,28 @@ th.sortable.desc .sort-indicator::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  transition: transform 0.2s ease;
+  width: 10px;
+  height: 10px;
+  font-size: 10px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
   color: var(--text-muted);
+  opacity: 0;
 }
 
-.order-row.expanded .expand-icon {
+/* STT column - icon positioned absolute */
+td.col-stt .expand-icon {
+  position: absolute;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+tr:hover td.col-stt .expand-icon {
+  opacity: 1;
+}
+
+.order-row.expanded td.col-stt .expand-icon {
+  opacity: 1;
   transform: rotate(180deg);
 }
 
@@ -263,6 +325,10 @@ th.sortable.desc .sort-indicator::before {
   margin-bottom: 4px;
 }
 
+.detail-section-header span {
+  text-align: left;
+}
+
 .detail-section-header span:first-child {
   border-bottom: 2px solid var(--primary);
   padding-bottom: 12px;
@@ -278,14 +344,16 @@ th.sortable.desc .sort-indicator::before {
   font-size: 13px;
   color: var(--text-secondary);
   display: flex;
-  gap: 12px;
-  align-items: center;
+  align-items: flex-start;
+  text-align: left;
+  gap: 8px;
 }
 
 .detail-item .detail-value {
-  overflow-wrap: break-word;
   word-break: break-word;
+  overflow-wrap: break-word;
   white-space: normal;
+  text-align: left;
   flex: 1;
   min-width: 0;
 }
@@ -293,7 +361,9 @@ th.sortable.desc .sort-indicator::before {
 .detail-item strong {
   color: var(--text-primary);
   font-weight: 700;
-  min-width: 120px;
+  text-align: left;
+  flex: 0 0 160px;
+  width: 160px;
 }
 
 .detail-value-clickable {
@@ -308,7 +378,11 @@ th.sortable.desc .sort-indicator::before {
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
-  justify-self: start;
+  width: max-content;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .detail-value-clickable:hover {
