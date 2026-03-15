@@ -154,7 +154,7 @@
   font-size: 12px;
   background: color-mix(in srgb, var(--primary) 10%, transparent);
   color: color-mix(in srgb, var(--primary) 85%, black);
-  border: 1px solid color-mix(in srgb, var(--primary) 70%, black);
+  border: 1px solid color-mix(in srgb, var(--primary) 85%, black);
   box-shadow: none;
   border-radius: var(--radius-xl);
   font-weight: 600;
