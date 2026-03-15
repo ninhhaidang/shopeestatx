@@ -65,6 +65,24 @@ th.sortable:hover {
   transform: translateX(2px);
 }
 
+/* Order link in detail view - match clickable style */
+.detail-content .order-link {
+  color: var(--primary);
+  font-weight: 400;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.detail-content .order-link:hover {
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
 .sort-indicator {
   display: inline-block;
   margin-left: 6px;
