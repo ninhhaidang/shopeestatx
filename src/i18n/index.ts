@@ -1,29 +1,7 @@
-// Core i18n module — t(), setLocale(), getLocale(), applyTranslations(), initLocale()
+// Core i18n module — simplified to Vietnamese only
 import viLocale from './locales/vi.json';
-import enLocale from './locales/en.json';
-import { STORAGE_KEYS } from '../config.js';
-
-const LOCALES: Record<string, Record<string, string>> = {
-  vi: viLocale,
-  en: enLocale,
-};
 
 let currentLocale: Record<string, string> = viLocale;
-let currentLang = 'vi';
-
-export function getLocale(): string {
-  return currentLang;
-}
-
-/** Switch language, persist to localStorage, re-apply static translations */
-export function setLocale(lang: string): void {
-  const resolved = LOCALES[lang] ? lang : 'vi';
-  currentLocale = LOCALES[resolved];
-  currentLang = resolved;
-  document.documentElement.lang = resolved;
-  localStorage.setItem(STORAGE_KEYS.LANGUAGE, resolved);
-  applyTranslations();
-}
 
 /** Translate a key with optional {param} interpolation. Returns the key if not found. */
 export function t(key: string, params?: Record<string, string | number>): string {
@@ -49,9 +27,9 @@ export function applyTranslations(): void {
   });
 }
 
-/** Initialize locale from localStorage or browser language preference */
+/** Initialize locale — set Vietnamese as default */
 export function initLocale(): void {
-  const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);
-  const browserLang = navigator.language.startsWith('vi') ? 'vi' : 'en';
-  setLocale(stored ?? browserLang);
+  currentLocale = viLocale;
+  document.documentElement.lang = 'vi';
+  applyTranslations();
 }

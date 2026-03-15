@@ -1,15 +1,7 @@
-// Locale-aware number, currency, and date formatting
-import { getLocale } from './index.js';
+// Locale-aware number, currency, and date formatting — Vietnamese only
 
-// Shopee VN always uses VND — locale only affects number formatting style
-const LOCALE_MAP: Record<string, { locale: string; currency: string }> = {
-  vi: { locale: 'vi-VN', currency: 'VND' },
-  en: { locale: 'en-US', currency: 'VND' },
-};
-
-function getLocaleConfig() {
-  return LOCALE_MAP[getLocale()] ?? LOCALE_MAP.vi;
-}
+const LOCALE = 'vi-VN';
+const CURRENCY = 'VND';
 
 export function formatCurrency(amount: number, short = false): string {
   if (short) {
@@ -17,16 +9,13 @@ export function formatCurrency(amount: number, short = false): string {
     if (amount >= 1_000) return `${(amount / 1_000).toFixed(0)}K`;
     return String(amount);
   }
-  const { locale, currency } = getLocaleConfig();
-  return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount);
+  return new Intl.NumberFormat(LOCALE, { style: 'currency', currency: CURRENCY }).format(amount);
 }
 
 export function formatDate(date: Date): string {
-  const { locale } = getLocaleConfig();
-  return date.toLocaleDateString(locale);
+  return date.toLocaleDateString(LOCALE);
 }
 
 export function formatDateTime(date: Date): string {
-  const { locale } = getLocaleConfig();
-  return date.toLocaleString(locale);
+  return date.toLocaleString(LOCALE);
 }

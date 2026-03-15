@@ -7,8 +7,8 @@ import { applyFilters, clearAllFilters, handleSort } from './filters.js';
 import { fetchDataFromShopee, loadDataFromStorage, refreshData, isExtensionContext, loadMockData } from './data.js';
 import { initTheme, setTheme, updateThemeButton, getThemes, toggleThemeDropdown, closeThemeDropdown } from './theme-toggle.js';
 import { loadBudgetConfig, saveBudgetConfig, setCachedBudgetConfig, getCachedBudgetConfig } from './budget.js';
-import { initLocale, setLocale, getLocale } from '../i18n/index.js';
-import { renderDateRangePicker, refreshDateRangePickerLabels, resetDateRangePicker } from './date-range-picker.js';
+import { initLocale } from '../i18n/index.js';
+import { renderDateRangePicker, resetDateRangePicker } from './date-range-picker.js';
 import { EVENTS, getHomeUrl } from '../config.js';
 import './results.css';
 
@@ -55,43 +55,13 @@ document.addEventListener('DOMContentLoaded', async function () {
   const dateRangeContainer = document.getElementById('dateRangePickerContainer')!;
   renderDateRangePicker(dateRangeContainer);
 
-  // Language switcher
-  document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const lang = btn.dataset.lang!;
-      setLocale(lang);
-      // Update active state on lang buttons
-      document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.lang === lang);
-      });
-      // Re-render date picker labels after language switch
-      refreshDateRangePickerLabels(dateRangeContainer);
-      // Re-render charts and table to pick up locale-aware formatting
-      renderCharts(state.filteredOrders);
-      renderCurrentPage();
-    });
-  });
-
-  // Sync lang button active state on init
-  document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.lang === getLocale());
-  });
-
   // Reset date range picker when filters are cleared
   document.addEventListener(EVENTS.DATE_RANGE_CLEARED, () => {
     resetDateRangePicker(dateRangeContainer);
   });
 
-  // URL lang param override
+  // URL params
   const urlParams = new URLSearchParams(window.location.search);
-  const urlLang = urlParams.get('lang');
-  if (urlLang) {
-    setLocale(urlLang);
-    document.querySelectorAll<HTMLButtonElement>('.lang-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.lang === urlLang);
-    });
-  }
-
   const shouldFetch = urlParams.get('fetch') === 'true';
 
   if (!isExtensionContext()) {
@@ -115,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     themeDropdown.innerHTML = themes.map(theme => `
       <button class="theme-option ${theme.id === currentId ? 'active' : ''}" data-theme="${theme.id}">
         <span class="theme-color-dot" style="background: ${theme.primaryColor}"></span>
-        <span>${theme.nameEn}</span>
+        <span>${theme.name}</span>
         <span class="theme-check">✓</span>
       </button>
     `).join('');
