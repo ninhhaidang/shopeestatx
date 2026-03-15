@@ -237,13 +237,14 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .detail-content .detail-row .detail-item {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 130px 1fr;
   gap: 8px;
+  align-items: flex-start;
 }
 
 .detail-content .detail-row .detail-item strong {
-  min-width: 110px;
+  width: 130px;
   flex-shrink: 0;
 }
 
