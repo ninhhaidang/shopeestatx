@@ -142,6 +142,9 @@ export function applyFilters(): void {
   // Shop loyalty — always uses all orders
   const loyaltyEl = document.getElementById('loyaltyContainer');
   if (loyaltyEl) renderShopLoyalty(loyaltyEl, analyzeShopLoyalty(state.allOrdersData!.orders));
+
+  // Notify UI components to update (e.g., filter count badge)
+  document.dispatchEvent(new CustomEvent(EVENTS.APPLY_FILTERS));
 }
 
 export function updateActiveFilters(): void {
