@@ -152,8 +152,8 @@
 .active-filters-toolbar .btn-clear-filters {
   padding: 6px 12px;
   font-size: 12px;
-  background: var(--bg-card);
-  color: var(--text-primary);
+  background: transparent;
+  color: var(--primary);
   border: 1px solid var(--primary);
   box-shadow: none;
   border-radius: var(--radius-xl);
