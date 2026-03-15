@@ -193,7 +193,7 @@ th.sortable.desc .sort-indicator::before {
 
 .detail-row {
   display: none;
-  background: var(--bg-main);
+  background: transparent;
 }
 
 .detail-row.show {
@@ -214,10 +214,9 @@ th.sortable.desc .sort-indicator::before {
 .detail-content {
   padding: var(--spacing-md);
   border-left: 4px solid var(--primary);
-  background: var(--bg-card);
+  background: transparent;
   margin: 8px;
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 0;
