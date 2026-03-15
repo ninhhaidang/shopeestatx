@@ -189,10 +189,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     moreFiltersPanel.hidden = isExpanded;
   });
 
-  // Close panel when clicking outside
+  // Close panel when clicking outside toolbar
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
-    if (!target.closest('#btnMoreFilters') && !target.closest('#moreFiltersPanel')) {
+    // Close if clicking outside: btnMoreFilters, moreFiltersPanel, dateRangePicker, or toolbar itself
+    if (!target.closest('#btnMoreFilters') &&
+        !target.closest('#moreFiltersPanel') &&
+        !target.closest('#dateRangePickerContainer') &&
+        !target.closest('.toolbar-container')) {
       btnMoreFilters?.setAttribute('aria-expanded', 'false');
       moreFiltersPanel.hidden = true;
     }
