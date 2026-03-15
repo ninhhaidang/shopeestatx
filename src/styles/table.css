@@ -233,6 +233,12 @@ th.sortable.desc .sort-indicator::before {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-content .detail-row:last-child {
+  border-bottom: none;
 }
 
 .detail-content .detail-row .detail-item {
@@ -242,11 +248,14 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .detail-content .detail-row .detail-item strong {
-  min-width: 100px;
+  min-width: 110px;
   flex-shrink: 0;
 }
 
 .detail-section-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
   font-weight: 700;
   color: var(--text-primary);
   font-size: 12px;
@@ -255,21 +264,25 @@ th.sortable.desc .sort-indicator::before {
   padding-bottom: 12px;
   border-bottom: 2px solid var(--primary);
   margin-bottom: 4px;
-  grid-column: 1 / -1;
+}
+
+.detail-section-header span:first-child {
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 12px;
+}
+
+.detail-section-header span:last-child {
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 12px;
 }
 
 .detail-item {
-  padding: 6px 0;
+  padding: 0;
   font-size: 13px;
   color: var(--text-secondary);
   display: flex;
   gap: 12px;
   align-items: center;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.detail-item:last-child {
-  border-bottom: none;
 }
 
 .detail-item .detail-value {
