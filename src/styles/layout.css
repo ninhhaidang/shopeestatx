@@ -227,11 +227,10 @@ body {
 /* More Filters Panel */
 .more-filters-panel {
   display: flex;
-  gap: var(--spacing-md);
+  gap: 16px;
   flex-wrap: wrap;
-  padding: var(--spacing-md);
-  background: var(--bg-main);
-  border-radius: var(--radius-md);
+  padding: 12px 0 0 0;
+  background: transparent;
   animation: slideDown 0.2s ease;
   width: 100%;
 }
@@ -247,8 +246,8 @@ body {
 
 .more-filters-panel select {
   padding: 10px 16px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   font-size: 14px;
   background: var(--bg-card);
   color: var(--text-primary);
