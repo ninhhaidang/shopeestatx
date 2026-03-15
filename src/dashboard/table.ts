@@ -43,13 +43,13 @@ export function renderCurrentPage(): void {
     tr.className = 'order-row';
     const safeOrderId = escapeHtml(String(order.orderId));
     tr.innerHTML = `
-        <td><span class="expand-icon">${ICON_CHEVRON_DOWN}</span> ${globalIndex}</td>
+        <td class="col-stt"><span class="expand-icon">${ICON_CHEVRON_DOWN}</span> ${globalIndex}</td>
         <td><a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a></td>
         <td>${escapeHtml(dateStr)}</td>
         <td><span class="status-badge ${statusClass}">${statusIcon} ${escapeHtml(order.status)}</span></td>
         <td title="${escapeHtml(order.name)}">${escapeHtml(order.name)}</td>
-        <td style="text-align: center;">${order.productCount}</td>
-        <td>${escapeHtml(order.subTotalFormatted)}</td>
+        <td class="col-quantity">${order.productCount}</td>
+        <td class="col-amount">${escapeHtml(order.subTotalFormatted)}</td>
       `;
 
     // Build aligned rows: each row has left (order info) and right (product details)
