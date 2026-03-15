@@ -185,6 +185,32 @@ th.sortable.desc .sort-indicator::before {
   background: var(--bg-card);
   margin: 8px;
   border-radius: var(--radius-md);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .detail-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-section-header {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary);
+  margin-bottom: 8px;
 }
 
 .detail-item {

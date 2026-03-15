@@ -51,29 +51,53 @@ export function renderCurrentPage(): void {
         <td>${escapeHtml(order.subTotalFormatted)}</td>
       `;
 
-    const detailItems: string[] = [];
-    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.orderId')}:</strong> ${safeOrderId}</div>`);
-    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.productName')}:</strong> ${escapeHtml(order.name)}</div>`);
-    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.quantity')}:</strong> ${order.productCount}</div>`);
-    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.total')}:</strong> ${escapeHtml(order.subTotalFormatted)}</div>`);
-    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.status')}:</strong> <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${escapeHtml(order.status)}</span></div>`);
-    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.seller')}:</strong> <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span></div>`);
+    // Left column: Order Information
+    const orderInfoItems: string[] = [];
+    orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.orderId')}:</strong> ${safeOrderId}</div>`);
+    orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.status')}:</strong> <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${statusIcon} ${escapeHtml(order.status)}</span></div>`);
 
+    // Order date
+    const orderDateStr = formatOrderDate(order.orderMonth, order.orderYear);
+    if (orderDateStr !== '-') {
+      orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.orderDate') || 'Order Date'}:</strong> ${orderDateStr}</div>`);
+    }
+
+    // Delivery date with clickable filter
     if (order.deliveryDate) {
       const fullDate = formatDateTime(new Date(order.deliveryDate));
       const dateObj = new Date(order.deliveryDate);
       const dateData = JSON.stringify({ year: dateObj.getFullYear(), month: dateObj.getMonth() + 1, day: dateObj.getDate() });
-      detailItems.push(`<div class="detail-item"><strong>${t('table.detail.deliveryDate')}:</strong> <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span></div>`);
+      orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.deliveryDate')}:</strong> <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span></div>`);
+
+      // Days to deliver
+      const daysToDeliver = calculateDaysToDeliver(order.orderMonth, order.orderYear, order.deliveryDate);
+      if (daysToDeliver !== null) {
+        orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.daysToDeliver') || 'Days to Deliver'}:</strong> ${daysToDeliver} ${t('table.detail.days') || 'days'}</div>`);
+      }
     }
 
-    detailItems.push(`<div class="detail-item"><strong>${t('table.detail.productDetail')}:</strong> ${escapeHtml(order.productSummary)}</div>`);
+    orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.seller')}:</strong> <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span></div>`);
+
+    // Right column: Product Details
+    const productItems: string[] = [];
+    productItems.push(`<div class="detail-item"><strong>${t('table.detail.productName')}:</strong> ${escapeHtml(order.name)}</div>`);
+    productItems.push(`<div class="detail-item"><strong>${t('table.detail.quantity')}:</strong> ${order.productCount}</div>`);
+    productItems.push(`<div class="detail-item"><strong>${t('table.detail.total')}:</strong> ${escapeHtml(order.subTotalFormatted)}</div>`);
+    productItems.push(`<div class="detail-item"><strong>${t('table.detail.productDetail')}:</strong> ${escapeHtml(order.productSummary)}</div>`);
 
     const detailRow = document.createElement('tr');
     detailRow.className = 'detail-row';
     detailRow.innerHTML = `
         <td colspan="7">
           <div class="detail-content">
-            ${detailItems.join('')}
+            <div class="detail-section">
+              <div class="detail-section-header">${t('table.detail.orderInfo') || 'ORDER INFORMATION'}</div>
+              ${orderInfoItems.join('')}
+            </div>
+            <div class="detail-section">
+              <div class="detail-section-header">${t('table.detail.productDetails') || 'PRODUCT DETAILS'}</div>
+              ${productItems.join('')}
+            </div>
           </div>
         </td>
       `;
@@ -165,4 +189,27 @@ export function createPageButton(pageNum: number): HTMLButtonElement {
     renderCurrentPage();
   });
   return btn;
+}
+
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+
+export function formatOrderDate(month: number | null, year: number | null): string {
+  if (!month || !year) return '-';
+  return `${MONTH_NAMES[month - 1]} ${year}`;
+}
+
+export function calculateDaysToDeliver(
+  orderMonth: number | null,
+  orderYear: number | null,
+  deliveryDate: string | null
+): number | null {
+  if (!orderMonth || !orderYear || !deliveryDate) return null;
+
+  const orderDate = new Date(orderYear, orderMonth - 1, 1);
+  const delivery = new Date(deliveryDate);
+  const diffTime = delivery.getTime() - orderDate.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  return diffDays > 0 ? diffDays : null;
 }

@@ -130,17 +130,17 @@
 
   --border-color: #dee2e6;
 
-  --success: #22c55e;
+  --success: #166534;
   --success-bg: #dcfce7;
-  --info: #0ea5e9;
+  --info: #0369a1;
   --info-bg: #e0f2fe;
-  --warning: #f59e0b;
+  --warning: #b45309;
   --warning-bg: #fef3c7;
-  --danger: #f43f5e;
-  --danger-bg: #ffe4e6;
-  --pending: #8b5cf6;
+  --danger: #b91c1c;
+  --danger-bg: #fee2e2;
+  --pending: #6d28d9;
   --pending-bg: #ede9fe;
-  --returned: #f97316;
+  --returned: #c2410c;
   --returned-bg: #ffedd5;
 
   /* Heatmap - rose intensity */
