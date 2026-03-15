@@ -78,7 +78,7 @@ th.sortable {
 }
 
 th.sortable:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: color-mix(in srgb, var(--primary-dark) 40%, var(--primary));
 }
 
 .order-link {
