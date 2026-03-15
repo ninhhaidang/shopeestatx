@@ -54,7 +54,7 @@ export function renderCurrentPage(): void {
 
     // Left column: Order Information
     const orderInfoItems: string[] = [];
-    orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.orderId')}:</strong> ${safeOrderId}</div>`);
+    orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.orderId')}:</strong> <a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a></div>`);
     orderInfoItems.push(`<div class="detail-item"><strong>${t('table.detail.status')}:</strong> <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${statusIcon} ${escapeHtml(order.status)}</span></div>`);
 
     // Delivery date with clickable filter
