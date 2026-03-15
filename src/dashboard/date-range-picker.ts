@@ -145,13 +145,15 @@ export function renderDateRangePicker(container: HTMLElement): void {
 
   // Preset button clicks
   container.querySelectorAll<HTMLButtonElement>('.drp-preset').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       applyPreset(btn.dataset.preset as Preset, container);
     });
   });
 
   // Custom apply
-  container.querySelector('#drpApply')?.addEventListener('click', () => {
+  container.querySelector('#drpApply')?.addEventListener('click', (e) => {
+    e.stopPropagation();
     const startInput = container.querySelector('#drpStartDate') as HTMLInputElement;
     const endInput = container.querySelector('#drpEndDate') as HTMLInputElement;
 
@@ -168,7 +170,8 @@ export function renderDateRangePicker(container: HTMLElement): void {
   });
 
   // Custom cancel
-  container.querySelector('#drpCancel')?.addEventListener('click', () => {
+  container.querySelector('#drpCancel')?.addEventListener('click', (e) => {
+    e.stopPropagation();
     activePreset = null;
     updateActiveButton(container);
     (container.querySelector('.drp-custom-panel') as HTMLElement).classList.add('hidden');

@@ -182,7 +182,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // Toggle more filters panel
-  btnMoreFilters?.addEventListener('click', () => {
+  btnMoreFilters?.addEventListener('click', (e) => {
+    e.stopPropagation();
     const isExpanded = btnMoreFilters.getAttribute('aria-expanded') === 'true';
     btnMoreFilters.setAttribute('aria-expanded', String(!isExpanded));
     moreFiltersPanel.hidden = isExpanded;
