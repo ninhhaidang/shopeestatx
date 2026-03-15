@@ -192,28 +192,13 @@ export function renderDateRangePicker(container: HTMLElement): void {
     applyFilters();
   });
 
-  // Sync state if already set (e.g., after language switch re-render)
+  // Sync state if already set
   if (state.dateRange.start || state.dateRange.end) {
     const startInput = container.querySelector('#drpStartDate') as HTMLInputElement;
     const endInput = container.querySelector('#drpEndDate') as HTMLInputElement;
     if (state.dateRange.start) startInput.value = state.dateRange.start.toISOString().slice(0, 10);
     if (state.dateRange.end) endInput.value = state.dateRange.end.toISOString().slice(0, 10);
   }
-}
-
-/** Re-render preset labels after language switch (keeps active state) */
-export function refreshDateRangePickerLabels(container: HTMLElement): void {
-  container.querySelectorAll<HTMLButtonElement>('.drp-preset').forEach(btn => {
-    const preset = PRESETS.find(p => p.key === btn.dataset.preset);
-    if (preset) btn.textContent = t(preset.i18nKey);
-  });
-  const applyBtn = container.querySelector('#drpApply');
-  if (applyBtn) applyBtn.textContent = t('daterange.apply');
-  const cancelBtn = container.querySelector('#drpCancel');
-  if (cancelBtn) cancelBtn.textContent = t('daterange.cancel');
-  container.querySelectorAll('[data-i18n]').forEach(el => {
-    (el as HTMLElement).textContent = t((el as HTMLElement).dataset.i18n!);
-  });
 }
 
 /** Reset active preset state (called from clearAllFilters) */

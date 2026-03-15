@@ -136,43 +136,6 @@
   color: var(--text-primary);
 }
 
-/* ===== LANGUAGE SWITCHER ===== */
-.lang-switcher {
-  display: flex;
-  gap: 2px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-full);
-  padding: 3px;
-}
-
-.lang-btn {
-  padding: 4px 10px;
-  border: none;
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-}
-
-.lang-switcher {
-  flex-shrink: 0;
-}
-
 .user-info {
   flex-shrink: 0;
-}
-
-.lang-btn:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.lang-btn.active {
-  background: white;
-  color: var(--primary-dark);
 }
