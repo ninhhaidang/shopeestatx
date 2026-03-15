@@ -1,6 +1,6 @@
 # Project Roadmap
 
-## Current Version: 3.1.0
+## Current Version: 3.3.1
 
 ## Phase 1: Foundation — Complete (v2.5.0)
 
@@ -93,8 +93,8 @@
 - [x] Core i18n module (`src/i18n/index.ts`) with t(), setLocale(), getLocale()
 - [x] Locale-aware formatting (`src/i18n/format.ts`) for currency, dates
 - [x] Vietnamese locale (`src/i18n/locales/vi.json`) - ~100 translation keys
-- [x] English locale (`src/i18n/locales/en.json`)
-- [x] Language switcher UI in header
+- [x] English locale (`src/i18n/locales/en.json`) - **REMOVED in v3.2.0**
+- [x] Language switcher UI in header - **REMOVED in v3.2.0**
 - [x] Apply i18n to all modules: comparison.ts, table.ts, charts.ts, filters.ts, insights.ts, export.ts
 - [x] i18n for popup.html and welcome.html
 
@@ -108,6 +108,29 @@
 **Testing & Version:**
 - [x] 87 total tests (all passing)
 - [x] Version bump to 3.1.0
+
+## Version 3.3.1: Collapsible Toolbar Refactor — Complete
+
+**Status:** ✅ COMPLETED (2026-03-15)
+
+- [x] Toolbar restructured with semantic `toolbar-container` layout
+- [x] Search box always visible on primary row
+- [x] Date picker always visible (not collapsible)
+- [x] Status/Category filters moved to collapsible "More filters" panel
+- [x] Mobile: Collapsible behavior to save space
+- [x] Version bump to 3.3.1
+
+## Version 3.2.0: Vietnamese-Only i18n — Complete
+
+**Status:** ✅ COMPLETED (2026-03-15)
+
+- [x] Removed English (en.json) locale - Vietnamese-only
+- [x] Simplified i18n/index.ts - removed setLocale(), getLocale()
+- [x] Hardcoded vi-VN locale in format.ts
+- [x] Removed LANGUAGE key from config.ts
+- [x] Removed language switcher UI from results header
+- [x] Theme names now in Vietnamese only (nameVi instead of nameEn)
+- [x] Version bump to 3.2.0
 
 ## Phase 3: Advanced Analytics — Partial (v3.1.0)
 

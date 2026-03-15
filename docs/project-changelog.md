@@ -2,6 +2,22 @@
 
 All notable changes to ShopeeStatX are documented here.
 
+## [3.2.0] - 2026-03-15
+
+### Vietnamese-Only i18n
+
+#### Changed
+
+- Removed English (en.json) locale - Vietnamese-only
+- Simplified i18n/index.ts - removed setLocale(), getLocale()
+- Hardcoded vi-VN locale in format.ts
+- Removed LANGUAGE key from config.ts
+- Removed language switcher UI from results header
+- Theme names now in Vietnamese only (nameVi instead of nameEn)
+- Removed refreshDateRangePickerLabels export
+
+---
+
 ## [3.3.1] - 2026-03-15
 
 ### Collapsible Toolbar Refactor
@@ -227,6 +243,7 @@ All notable changes to ShopeeStatX are documented here.
 
 | Version | Date | Status | Focus |
 |---------|------|--------|-------|
+| 3.2.0 | 2026-03-15 | Stable | i18n VI-only (removed EN) |
 | 3.1.0 | 2026-03-06 | Stable | i18n (VI/EN), date range picker |
 | 2.7.0 | 2026-03-06 | Stable | Chrome Web Store release |
 | 2.6.0 | 2026-03-05 | Stable | Dark mode, incremental fetch, enhanced export |

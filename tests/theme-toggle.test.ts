@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { initTheme, setTheme, getCurrentTheme, getCurrentThemeId, getThemes, isDarkMode, updateThemeButton } from '../src/dashboard/theme-toggle';
+import { initTheme, setTheme, getCurrentTheme, getCurrentThemeId, getThemes, updateThemeButton } from '../src/dashboard/theme-toggle';
 
 const THEME_KEY = 'shopeestatx-theme';
 
@@ -24,7 +24,7 @@ describe('Theme Toggle', () => {
       expect(document.documentElement.dataset.theme).toBe('forest');
     });
 
-    it('applies light theme when no stored theme and no system preference', () => {
+    it('applies orange theme when no stored theme and no system preference', () => {
       // Mock matchMedia for no preference
       vi.spyOn(window, 'matchMedia').mockReturnValueOnce({
         matches: false,
@@ -37,7 +37,7 @@ describe('Theme Toggle', () => {
       } as any);
 
       initTheme();
-      expect(document.documentElement.dataset.theme).toBe('light');
+      expect(document.documentElement.dataset.theme).toBe('orange');
     });
 
     it('does not apply theme when no stored theme and system prefers light', () => {
@@ -53,7 +53,7 @@ describe('Theme Toggle', () => {
       } as any);
 
       initTheme();
-      expect(document.documentElement.dataset.theme).toBe('light');
+      expect(document.documentElement.dataset.theme).toBe('orange');
     });
 
     it('prioritizes stored theme over system preference', () => {
@@ -84,9 +84,9 @@ describe('Theme Toggle', () => {
       expect(localStorage.getItem(THEME_KEY)).toBe('lavender');
     });
 
-    it('falls back to light for unknown theme', () => {
+    it('falls back to orange for unknown theme', () => {
       setTheme('unknown-theme' as any);
-      expect(document.documentElement.dataset.theme).toBe('light');
+      expect(document.documentElement.dataset.theme).toBe('orange');
     });
 
     it('calls onToggle callback if provided', () => {
@@ -104,10 +104,10 @@ describe('Theme Toggle', () => {
       expect(theme.primaryColor).toBe('#0ea5e9');
     });
 
-    it('defaults to light theme for unknown', () => {
+    it('defaults to orange theme for unknown', () => {
       document.documentElement.dataset.theme = '';
       const theme = getCurrentTheme();
-      expect(theme.id).toBe('light');
+      expect(theme.id).toBe('orange');
     });
   });
 
@@ -115,17 +115,11 @@ describe('Theme Toggle', () => {
     it('returns all available themes', () => {
       const themes = getThemes();
       expect(themes.length).toBe(5);
-      expect(themes.map(t => t.id)).toContain('light');
+      expect(themes.map(t => t.id)).toContain('orange');
       expect(themes.map(t => t.id)).toContain('forest');
       expect(themes.map(t => t.id)).toContain('rose');
       expect(themes.map(t => t.id)).toContain('sky');
       expect(themes.map(t => t.id)).toContain('lavender');
-    });
-  });
-
-  describe('isDarkMode', () => {
-    it('returns false for all light themes', () => {
-      expect(isDarkMode()).toBe(false);
     });
   });
 
@@ -140,7 +134,7 @@ describe('Theme Toggle', () => {
       const name = btn.querySelector('.theme-name') as HTMLElement;
 
       expect(dot.style.backgroundColor).toBe('rgb(34, 197, 94)');
-      expect(name.textContent).toBe('Forest');
+      expect(name.textContent).toBe('Rừng');
     });
 
     it('handles missing button gracefully', () => {

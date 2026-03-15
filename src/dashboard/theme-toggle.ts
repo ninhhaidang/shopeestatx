@@ -54,7 +54,7 @@ export function updateThemeButton(): void {
     dot.style.backgroundColor = theme.primaryColor;
   }
   if (name) {
-    name.textContent = theme.nameEn;
+    name.textContent = theme.name;
   }
 }
 

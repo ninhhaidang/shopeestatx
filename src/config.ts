@@ -69,7 +69,6 @@ export const STORAGE_KEYS = {
   STATS: getStorageKey('stats'),
   TAB_ID: getStorageKey('tabId'),
   THEME: getStorageKey('theme'),
-  LANGUAGE: getStorageKey('lang'),
   BUDGET: getStorageKey('budget'),
 } as const;
 

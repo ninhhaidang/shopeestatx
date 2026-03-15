@@ -4,7 +4,6 @@ import { STORAGE_KEYS } from '../config.js';
 export interface Theme {
   id: string;
   name: string;
-  nameEn: string;
   primaryColor: string;
   primaryLight: string;
   primaryDark: string;
@@ -23,7 +22,6 @@ export const themes: Theme[] = [
   {
     id: 'orange',
     name: 'Cam',
-    nameEn: 'Orange',
     primaryColor: '#ff6b3d',
     primaryLight: '#ff8c5a',
     primaryDark: '#ee4d2d',
@@ -40,7 +38,6 @@ export const themes: Theme[] = [
   {
     id: 'forest',
     name: 'Rừng',
-    nameEn: 'Forest',
     primaryColor: '#22c55e',
     primaryLight: '#4ade80',
     primaryDark: '#16a34a',
@@ -57,7 +54,6 @@ export const themes: Theme[] = [
   {
     id: 'rose',
     name: 'Hồng',
-    nameEn: 'Rose',
     primaryColor: '#f43f5e',
     primaryLight: '#fb7185',
     primaryDark: '#e11d48',
@@ -74,7 +70,6 @@ export const themes: Theme[] = [
   {
     id: 'sky',
     name: 'Trời Xanh',
-    nameEn: 'Sky',
     primaryColor: '#0ea5e9',
     primaryLight: '#38bdf8',
     primaryDark: '#0284c7',
@@ -91,7 +86,6 @@ export const themes: Theme[] = [
   {
     id: 'lavender',
     name: 'Oải Hương',
-    nameEn: 'Lavender',
     primaryColor: '#a78bfa',
     primaryLight: '#c4b5fd',
     primaryDark: '#8b5cf6',
