@@ -214,12 +214,12 @@ th.sortable.desc .sort-indicator::before {
 .detail-content {
   padding: var(--spacing-lg) var(--spacing-xl);
   border-left: 4px solid var(--primary);
-  background: var(--bg-card);
+  background: transparent;
   margin: 8px;
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
 }
 
 @media (max-width: 768px) {
@@ -234,11 +234,6 @@ th.sortable.desc .sort-indicator::before {
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   padding: 10px 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.detail-content .detail-row:last-child {
-  border-bottom: none;
 }
 
 .detail-content .detail-row .detail-item {
