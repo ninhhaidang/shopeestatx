@@ -62,16 +62,39 @@
       </div>
     </header>
 
-    <!-- Filter & Actions -->
-    <div class="toolbar">
-      <div class="filters">
-        <label for="searchBox" class="visually-hidden">Tìm kiếm đơn hàng, sản phẩm, shop</label>
-        <input type="text" id="searchBox"
-          data-i18n-placeholder="filter.search.placeholder"
-          placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
+    <!-- Toolbar Container -->
+    <div class="toolbar-container">
+      <!-- Row 1: Search + Actions -->
+      <div class="toolbar-row search-row">
+        <div class="search-wrapper">
+          <label for="searchBox" class="visually-hidden">Tìm kiếm đơn hàng, sản phẩm, shop</label>
+          <input type="text" id="searchBox"
+            data-i18n-placeholder="filter.search.placeholder"
+            placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
+        </div>
+        <div class="toolbar-actions">
+          <span id="lastUpdated" class="last-updated"></span>
+          <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">&#8635;</button>
+          <div class="export-dropdown">
+            <button id="btnExport" class="btn-export" aria-label="Xuất dữ liệu">Xuất dữ liệu &#9662;</button>
+            <div id="exportMenu" class="export-menu">
+              <button id="btnExportXlsx" aria-label="Xuất file Excel">Excel (.xlsx)</button>
+              <button id="btnExportCsv" aria-label="Xuất file CSV">CSV (.csv)</button>
+              <button id="btnExportPdf" aria-label="In hoặc xuất PDF">In / PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <!-- Date range picker (replaces year/month dropdowns in UI) -->
-        <div id="dateRangePickerContainer"></div>
+      <!-- Row 2: Date Picker + Collapsible Filters -->
+      <div class="toolbar-row filters-row">
+        <div id="dateRangePickerContainer" class="date-picker-area"></div>
+
+        <button id="btnMoreFilters" class="btn-more-filters" type="button" aria-expanded="false" aria-controls="moreFiltersPanel">
+          <span class="filter-count hidden">0</span>
+          <span class="filter-label">Lọc</span>
+          <span class="filter-icon">&#9662;</span>
+        </button>
 
         <!-- Hidden year/month selects kept for chart drill-down compatibility -->
         <select id="filterYear" style="display:none">
@@ -85,40 +108,31 @@
           <option value="10">10</option><option value="11">11</option><option value="12">12</option>
         </select>
 
-        <label for="filterStatus" class="visually-hidden">Lọc theo trạng thái đơn hàng</label>
-        <select id="filterStatus" aria-label="Lọc theo trạng thái">
-          <option value="" data-i18n-opt="filter.allStatus">Tất cả trạng thái</option>
-          <option value="3" data-i18n-opt="status.completed">Hoàn thành</option>
-          <option value="4" data-i18n-opt="status.cancelled">Đã hủy</option>
-          <option value="7" data-i18n-opt="status.waitingShipment">Chờ vận chuyển</option>
-          <option value="8" data-i18n-opt="status.delivering">Đang giao</option>
-          <option value="9" data-i18n-opt="status.waitingPayment">Chờ thanh toán</option>
-          <option value="12" data-i18n-opt="status.returned">Trả hàng</option>
-        </select>
-        <label for="filterCategory" class="visually-hidden">Lọc theo danh mục sản phẩm</label>
-        <select id="filterCategory" aria-label="Lọc theo danh mục">
-          <option value="" data-i18n-opt="filter.allCategories">Tất cả danh mục</option>
-          <option value="Điện tử">Điện tử</option>
-          <option value="Thời trang">Thời trang</option>
-          <option value="Sắc đẹp">Sắc đẹp</option>
-          <option value="Thực phẩm">Thực phẩm</option>
-          <option value="Nhà cửa">Nhà cửa</option>
-          <option value="Sức khỏe">Sức khỏe</option>
-          <option value="Thể thao">Thể thao</option>
-          <option value="Sách &amp; Văn phòng">Sách &amp; Văn phòng</option>
-          <option value="Khác">Khác</option>
-        </select>
-      </div>
-      <div class="actions">
-        <span id="lastUpdated" class="last-updated"></span>
-        <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">&#8635;</button>
-        <div class="export-dropdown">
-          <button id="btnExport" class="btn-export" aria-label="Xuất dữ liệu">Xuất dữ liệu ▾</button>
-          <div id="exportMenu" class="export-menu">
-            <button id="btnExportXlsx" aria-label="Xuất file Excel">Excel (.xlsx)</button>
-            <button id="btnExportCsv" aria-label="Xuất file CSV">CSV (.csv)</button>
-            <button id="btnExportPdf" aria-label="In hoặc xuất PDF">In / PDF</button>
-          </div>
+        <!-- Collapsible More Filters Panel -->
+        <div id="moreFiltersPanel" class="more-filters-panel" hidden>
+          <label for="filterStatus" class="visually-hidden">Lọc theo trạng thái đơn hàng</label>
+          <select id="filterStatus" aria-label="Lọc theo trạng thái">
+            <option value="" data-i18n-opt="filter.allStatus">Tất cả trạng thái</option>
+            <option value="3" data-i18n-opt="status.completed">Hoàn thành</option>
+            <option value="4" data-i18n-opt="status.cancelled">Đã hủy</option>
+            <option value="7" data-i18n-opt="status.waitingShipment">Chờ vận chuyển</option>
+            <option value="8" data-i18n-opt="status.delivering">Đang giao</option>
+            <option value="9" data-i18n-opt="status.waitingPayment">Chờ thanh toán</option>
+            <option value="12" data-i18n-opt="status.returned">Trả hàng</option>
+          </select>
+          <label for="filterCategory" class="visually-hidden">Lọc theo danh mục sản phẩm</label>
+          <select id="filterCategory" aria-label="Lọc theo danh mục">
+            <option value="" data-i18n-opt="filter.allCategories">Tất cả danh mục</option>
+            <option value="Điện tử">Điện tử</option>
+            <option value="Thời trang">Thời trang</option>
+            <option value="Sắc đẹp">Sắc đẹp</option>
+            <option value="Thực phẩm">Thực phẩm</option>
+            <option value="Nhà cửa">Nhà cửa</option>
+            <option value="Sức khỏe">Sức khỏe</option>
+            <option value="Thể thao">Thể thao</option>
+            <option value="Sách &amp; Văn phòng">Sách &amp; Văn phòng</option>
+            <option value="Khác">Khác</option>
+          </select>
         </div>
       </div>
     </div>

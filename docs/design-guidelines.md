@@ -51,6 +51,7 @@ All tokens defined as CSS custom properties in `results.css:9-58`.
 | bounce | Empty state illustration |
 | tooltipFade | Tooltip show |
 | expandRow | Table row expand |
+| slideDown | Collapsible panel open |
 
 ## Spacing & Shape
 
@@ -79,6 +80,7 @@ Custom scrollbar styling applied globally (`results.css:1446-1463`):
 - **Table rows**: expandable with chevron, product details in nested list
 - **Charts**: responsive canvas, click-interactive
 - **Pagination**: first/prev/next/last buttons + page info label
+- **Collapsible toolbar**: search + date always visible, secondary filters in expandable panel
 
 ## Popup UI
 

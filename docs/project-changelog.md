@@ -2,6 +2,28 @@
 
 All notable changes to ShopeeStatX are documented here.
 
+## [3.3.1] - 2026-03-15
+
+### Collapsible Toolbar Refactor
+
+#### Changed
+
+- Toolbar restructured with semantic `toolbar-container` layout
+- Search box always visible on primary row
+- Date picker always visible (not collapsible)
+- Status/Category filters moved to collapsible "More filters" panel
+- Mobile: Collapsible behavior to save space
+- New CSS classes: `toolbar-container`, `toolbar-row`, `search-row`, `filters-row`, `more-filters-panel`, `btn-more-filters`
+- Responsive CSS updated for mobile breakpoints
+
+#### Added
+
+- JavaScript toggle logic for collapsible filters panel
+- Filter count badge on "More filters" button
+- Accessibility attributes: `aria-expanded`, `aria-controls`
+
+---
+
 ## [3.3.0] - 2026-03-12
 
 ### Security Fixes
