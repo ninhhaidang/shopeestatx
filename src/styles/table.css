@@ -231,7 +231,7 @@ th.sortable.desc .sort-indicator::before {
 .detail-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 12px;
 }
 
 .detail-section-header {
@@ -240,18 +240,23 @@ th.sortable.desc .sort-indicator::before {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding-bottom: 8px;
+  padding-bottom: 12px;
   border-bottom: 2px solid var(--primary);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .detail-item {
-  padding: 8px 0;
+  padding: 6px 0;
   font-size: 13px;
   color: var(--text-secondary);
   display: flex;
   gap: 12px;
-  align-items: flex-start;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
 }
 
 .detail-item .detail-value {
