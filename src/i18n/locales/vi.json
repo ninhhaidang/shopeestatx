@@ -97,6 +97,11 @@
   "table.detail.seller": "Người bán",
   "table.detail.deliveryDate": "Ngày giao hàng",
   "table.detail.productDetail": "Chi tiết sản phẩm",
+  "table.detail.orderInfo": "THÔNG TIN ĐƠN HÀNG",
+  "table.detail.productDetails": "CHI TIẾT SẢN PHẨM",
+  "table.detail.orderDate": "Ngày đặt hàng",
+  "table.detail.daysToDeliver": "Ngày giao hàng",
+  "table.detail.days": "ngày",
   "table.noDate": "Chưa có",
 
   "pagination.showing": "Hiển thị",
