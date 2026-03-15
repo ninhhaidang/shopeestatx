@@ -122,11 +122,9 @@
   gap: 10px;
   flex-wrap: wrap;
   width: 100%;
-  padding: 10px 12px;
+  padding-top: 10px;
   margin-top: 8px;
   border-top: 1px solid var(--border-color);
-  background: var(--bg-main);
-  border-radius: var(--radius-md);
 }
 
 .active-filters-toolbar .active-filters-label {
@@ -147,7 +145,7 @@
 .active-filters-toolbar .filter-chip {
   padding: 6px 12px;
   font-size: 12px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   align-items: center;
 }
 
@@ -158,7 +156,7 @@
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
   box-shadow: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xl);
 }
 
 .active-filters-toolbar .btn-clear-filters:hover {
