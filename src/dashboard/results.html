@@ -134,6 +134,13 @@
             <option value="Khác">Khác</option>
           </select>
         </div>
+
+        <!-- Active Filters (moved inside toolbar) -->
+        <div id="activeFiltersContainer" class="active-filters-toolbar hidden">
+          <span class="active-filters-label" data-i18n="filter.active">Lọc:</span>
+          <div id="activeFilters" class="active-filters"></div>
+          <button id="btnClearFilters" class="btn-clear-filters" data-i18n="filter.clearAll">Xóa</button>
+        </div>
       </div>
     </div>
 
@@ -151,13 +158,6 @@
         <span class="label" data-i18n="summary.totalSpent">Tổng tiền đã tiêu</span>
         <span id="totalAmount" class="value">0 &#8363;</span>
       </div>
-    </div>
-
-    <!-- Active Filters -->
-    <div id="activeFiltersContainer" class="active-filters-container hidden">
-      <div class="active-filters-label" data-i18n="filter.active">Bộ lọc đang áp dụng:</div>
-      <div id="activeFilters" class="active-filters"></div>
-      <button id="btnClearFilters" class="btn-clear-filters" data-i18n="filter.clearAll">Xóa tất cả</button>
     </div>
 
     <!-- Time Comparison -->

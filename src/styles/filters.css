@@ -114,3 +114,52 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
 }
+
+/* ===== ACTIVE FILTERS IN TOOLBAR (compact) ===== */
+.active-filters-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.active-filters-toolbar .active-filters-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.active-filters-toolbar .active-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.active-filters-toolbar .filter-chip {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+}
+
+.active-filters-toolbar .btn-clear-filters {
+  padding: 4px 10px;
+  font-size: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+.active-filters-toolbar .btn-clear-filters:hover {
+  background: var(--error);
+  color: white;
+  border-color: var(--error);
+  transform: none;
+  box-shadow: none;
+}

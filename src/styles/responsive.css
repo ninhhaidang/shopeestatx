@@ -63,6 +63,16 @@
     width: 100%;
   }
 
+  .active-filters-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .active-filters-toolbar .active-filters {
+    width: 100%;
+  }
+
   .summary {
     grid-template-columns: 1fr;
   }
