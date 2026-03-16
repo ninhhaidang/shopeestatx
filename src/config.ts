@@ -52,6 +52,10 @@ export function getPurchaseUrl(): string {
   return `https://${DOMAINS[activeDomain]}/user/purchase`;
 }
 
+export function getLoginUrl(): string {
+  return `https://${DOMAINS[activeDomain]}/buyer/login`;
+}
+
 export function getHomeUrl(): string {
   return `https://${DOMAINS[activeDomain]}`;
 }
