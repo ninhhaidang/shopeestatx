@@ -6,8 +6,10 @@
   "popup.featureDesc": "Xem chi tiết lịch sử mua hàng, xu hướng chi tiêu và thống kê từng shop",
   "popup.btnStart": "Bắt đầu phân tích",
   "popup.warning": "Vui lòng mở Shopee và đăng nhập trước.",
+  "popup.redirecting": "Đang chuyển hướng đến Shopee để đăng nhập...",
   "popup.help": "Hướng dẫn",
   "popup.privacy": "Chính sách bảo mật",
+  "popup.hello": "Xin chào",
 
   "welcome.title": "Chào mừng đến với ShopeeStatX",
   "welcome.tagline": "Theo dõi và phân tích toàn bộ chi tiêu Shopee của bạn",
