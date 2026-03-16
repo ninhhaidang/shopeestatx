@@ -167,7 +167,7 @@ const RULES: Record<string, string[]> = {
     // Khác
     'hat', 'seeds', 'dried fruit', 'instant food'
   ],
-  // Nhà cửa
+  // Nhà cửa - 'home' must be word boundary to avoid matching 'shop'
   'Nhà cửa': [
     // Đèn
     'den led', 'den ban', 'den treo', 'den ngủ', 'lamp', 'đèn trang trí',
@@ -183,8 +183,8 @@ const RULES: Record<string, string[]> = {
     // Tổ chức & Lưu trữ
     'thung rac', 'storage box', 'hop', 'ke', 'khay',
     'organizer', 'do cung',
-    // Khác
-    'nhà cửa', 'home', 'household', 'vật dụng nhà bếp'
+    // Khác - removed 'home' as too generic (matches 'shop')
+    'nhà cửa', 'household', 'vật dụng nhà bếp'
   ],
   // Sức khỏe
   'Sức khỏe': [
@@ -232,7 +232,15 @@ function normalize(text: string): string {
 export function categorizeOrder(order: Order): string {
   const text = normalize(`${order.productSummary} ${order.name} ${order.shopName}`);
   for (const [cat, keywords] of Object.entries(RULES)) {
-    if (keywords.some(kw => text.includes(kw))) return cat;
+    // Use word boundary matching to avoid substring false positives
+    // e.g., 'home' should NOT match 'shop', 'ca' should NOT match 'keyboard'
+    if (keywords.some(kw => {
+      // Check for exact match with word boundaries
+      // Word boundary: start of string, space, or punctuation before/after keyword
+      const escapedKw = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(^|[\\s\\-.,()])${escapedKw}([\\s\\-.,()]|$)`, 'i');
+      return regex.test(text);
+    })) return cat;
   }
   return 'Khác';
 }
