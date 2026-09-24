@@ -5,7 +5,15 @@ import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
 import { applyFilters, clearAllFilters, handleSort, handleDrillDown } from './filters.js';
 import { fetchDataFromShopee, loadDataFromStorage, refreshData, isExtensionContext, loadMockData } from './data.js';
-import { initTheme, setTheme, updateThemeButton, getThemes, toggleThemeDropdown, closeThemeDropdown } from './theme-toggle.js';
+import {
+  initTheme,
+  setTheme,
+  setMode,
+  updateAppearanceUI,
+  toggleAppearancePopover,
+  closeAppearancePopover
+} from './theme-toggle.js';
+import { ICON_REFRESH, ICON_SEARCH } from './icons.js';
 import { loadBudgetConfig, saveBudgetConfig, setCachedBudgetConfig, getCachedBudgetConfig } from './budget.js';
 import { initLocale } from '../i18n/index.js';
 import { renderDateRangePicker, resetDateRangePicker } from './date-range-picker.js';
@@ -15,7 +23,12 @@ import './results.css';
 document.addEventListener('DOMContentLoaded', async function () {
   // Apply theme immediately (also handled by FOUC inline script)
   initTheme();
-  updateThemeButton();
+  updateAppearanceUI();
+  // Initialize SVG icons from icons.ts
+  const emptyIcon = document.querySelector('#emptyState .empty-icon');
+  if (emptyIcon) {
+    emptyIcon.innerHTML = ICON_SEARCH;
+  }
 
   // Initialize i18n before rendering anything
   initLocale();
@@ -36,6 +49,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   const searchBox = document.getElementById('searchBox') as HTMLInputElement;
   const btnExport = document.getElementById('btnExport')!;
   const btnRefresh = document.getElementById('btnRefresh')!;
+  if (btnRefresh) {
+    btnRefresh.innerHTML = ICON_REFRESH;
+  }
   const btnClearFilters = document.getElementById('btnClearFilters')!;
   const btnResetFilters = document.getElementById('btnResetFilters')!;
 
@@ -72,44 +88,53 @@ document.addEventListener('DOMContentLoaded', async function () {
     loadDataFromStorage();
   }
 
-  // Theme selector
-  document.getElementById('btnTheme')!.addEventListener('click', () => {
-    toggleThemeDropdown();
-  });
-
-  // Render theme dropdown options
-  const themeDropdown = document.getElementById('themeDropdown');
-  if (themeDropdown) {
-    const themes = getThemes();
-    const currentId = document.documentElement.dataset.theme || 'orange';
-    themeDropdown.innerHTML = themes.map(theme => `
-      <button class="theme-option ${theme.id === currentId ? 'active' : ''}" data-theme="${theme.id}">
-        <span class="theme-color-dot" style="background: ${theme.primaryColor}"></span>
-        <span>${theme.name}</span>
-        <span class="theme-check">✓</span>
-      </button>
-    `).join('');
-
-    // Theme selection
-    themeDropdown.querySelectorAll('.theme-option').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const themeId = (btn as HTMLElement).dataset.theme!;
-        setTheme(themeId, () => renderCharts(state.filteredOrders, handleDrillDown));
-        updateThemeButton();
-        closeThemeDropdown();
-
-        // Update active state in dropdown
-        themeDropdown.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      });
+  // Appearance Popover Trigger
+  const btnAppearance = document.getElementById('btnAppearance');
+  if (btnAppearance) {
+    btnAppearance.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAppearancePopover();
     });
   }
 
-  // Close dropdown when clicking outside
+  // Appearance Mode Segment Buttons
+  const btnModeLight = document.getElementById('btnModeLight');
+  if (btnModeLight) {
+    btnModeLight.addEventListener('click', () => {
+      setMode('light', () => renderCharts(state.filteredOrders, handleDrillDown));
+    });
+  }
+
+  const btnModeDark = document.getElementById('btnModeDark');
+  if (btnModeDark) {
+    btnModeDark.addEventListener('click', () => {
+      setMode('dark', () => renderCharts(state.filteredOrders, handleDrillDown));
+    });
+  }
+
+  // Accent Color Swatches
+  const swatches = document.querySelectorAll('.swatch');
+  swatches.forEach(swatch => {
+    swatch.addEventListener('click', () => {
+      const themeId = (swatch as HTMLElement).dataset.theme;
+      if (themeId) {
+        setTheme(themeId, () => renderCharts(state.filteredOrders, handleDrillDown));
+      }
+    });
+  });
+
+  // Close popover when clicking outside
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
-    if (!target.closest('.theme-selector')) {
-      closeThemeDropdown();
+    if (!target.closest('.appearance-selector')) {
+      closeAppearancePopover();
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAppearancePopover();
     }
   });
 

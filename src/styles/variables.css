@@ -1,4 +1,4 @@
-/* ===== MODERN ShopeeStatX DASHBOARD ===== */
+/* ===== MODERN ShopeeStatX DASHBOARD DESIGN TOKENS ===== */
 
 * {
   margin: 0;
@@ -7,63 +7,153 @@
 }
 
 :root {
-  /* Shopee Orange Palette */
-  --primary: #ee4d2d;
-  --primary-light: #ff6b3d;
-  --primary-dark: #d73211;
-  --primary-gradient: linear-gradient(135deg, #ee4d2d 0%, #ff6b3d 100%);
-  --secondary: #ff9671;
-  --secondary-light: #ffc371;
-
-  /* Neutral Colors */
-  --bg-main: #f8f9fc;
-  --bg-card: #ffffff;
-  --bg-sidebar: #ffffff;
-  --text-primary: #1a202c;
-  --text-secondary: #718096;
-  --text-muted: #a0aec0;
-  --border-color: #e2e8f0;
-
-  /* Accent Colors - darker variants for better WCAG contrast */
-  --success: #166534;  /* Darker green for text */
-  --success-bg: #d1fae5;
-  --info: #1d4ed8;    /* Darker blue for text */
-  --info-bg: #dbeafe;
-  --warning: #b45309; /* Darker amber for text */
-  --warning-bg: #fef3c7;
-  --danger: #b91c1c;  /* Darker red for text */
-  --danger-bg: #fee2e2;
-  --pending: #6d28d9;  /* Darker purple for text */
-  --pending-bg: #ede9fe;
-  --returned: #c2410c; /* Darker orange for text */
-  --returned-bg: #ffedd5;
-
-  /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 8px 32px rgba(238, 77, 45, 0.15);
-
-  /* Border Radius */
+  /* Shared Border Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* Spacing */
+  /* Shared Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
 
-  /* Heatmap intensity (light mode) */
-  --heatmap-0: #ebedf0;
-  --heatmap-1: #ffddd2;
-  --heatmap-2: #ffab91;
-  --heatmap-3: #ff6b3d;
-  --heatmap-4: #d73211;
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Semantic Status Colors (Accessible AA) */
+  --status-completed: #10b981;
+  --status-completed-bg: rgba(16, 185, 129, 0.12);
+  --status-shipping: #3b82f6;
+  --status-shipping-bg: rgba(59, 130, 246, 0.12);
+  --status-pending: #8b5cf6;
+  --status-pending-bg: rgba(139, 92, 246, 0.12);
+  --status-cancelled: #ef4444;
+  --status-cancelled-bg: rgba(239, 68, 68, 0.12);
+  --status-returned: #f97316;
+  --status-returned-bg: rgba(249, 115, 22, 0.12);
+
+  /* Status Color Aliases for legacy component compatibility */
+  --success: #166534;
+  --success-bg: #d1fae5;
+  --info: #1d4ed8;
+  --info-bg: #dbeafe;
+  --warning: #b45309;
+  --warning-bg: #fef3c7;
+  --danger: #b91c1c;
+  --danger-bg: #fee2e2;
+  --pending: #6d28d9;
+  --pending-bg: #ede9fe;
+  --returned: #c2410c;
+  --returned-bg: #ffedd5;
+
+  /* Default Theme (Orange) Fallback */
+  --primary: #f97316;
+  --primary-hover: #ea580c;
+  --primary-dark: #ea580c;
+  --primary-light: rgba(249, 115, 22, 0.14);
+  --primary-glow: rgba(249, 115, 22, 0.28);
+  --primary-gradient: linear-gradient(135deg, #f97316 0%, #ff8c42 100%);
+  --secondary: #ff9671;
+  --secondary-light: #ffd08a;
+
+  /* Default Heatmap Ramps (Fallback) */
+  --heatmap-0: var(--border-subtle);
+  --heatmap-1: #fed7aa;
+  --heatmap-2: #fb923c;
+  --heatmap-3: #ea580c;
+  --heatmap-4: #c2410c;
+}
+
+/* ===== LIGHT MODE PALETTES (Default) ===== */
+:root,
+:root[data-mode="light"] {
+  color-scheme: light;
+
+  /* Surfaces & Backgrounds */
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-subtle: #f1f5f9;
+  --bg-surface-elevated: #ffffff;
+
+  /* Borders */
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  /* Text */
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.12);
+  --shadow-drawer: -12px 0 32px rgba(15, 23, 42, 0.15);
+  --shadow-glow: 0 8px 32px var(--primary-glow, rgba(249, 115, 22, 0.15));
+
+  /* Table / Code Elements */
+  --code-bg: #f1f5f9;
+  --table-stripe: #fafbfc;
+  --table-hover: #f1f5f9;
+
+  /* Backwards Compatibility Aliases */
+  --bg-main: var(--bg-page);
+  --bg-card: var(--bg-surface);
+  --bg-sidebar: var(--bg-surface-subtle);
+  --border-color: var(--border-subtle);
+  --text-primary: var(--text-main);
+  --text-secondary: var(--text-muted);
+}
+
+/* ===== DARK MODE PALETTES (Deep Slate & Obsidian) ===== */
+:root[data-mode="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces & Backgrounds */
+  --bg-page: #090d16;
+  --bg-surface: #111827;
+  --bg-surface-subtle: #1f2937;
+  --bg-surface-elevated: #1e293b;
+
+  /* Borders */
+  --border-subtle: #1e293b;
+  --border-strong: #334155;
+
+  /* Text */
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.65);
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.6);
+  --shadow-drawer: -12px 0 40px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 8px 32px var(--primary-glow, rgba(249, 115, 22, 0.25));
+
+  /* Table / Code Elements */
+  --code-bg: #1e293b;
+  --table-stripe: #0f172a;
+  --table-hover: #1e293b;
+
+  /* Backwards Compatibility Aliases */
+  --bg-main: var(--bg-page);
+  --bg-card: var(--bg-surface);
+  --bg-sidebar: var(--bg-surface-subtle);
+  --border-color: var(--border-subtle);
+  --text-primary: var(--text-main);
+  --text-secondary: var(--text-muted);
 }

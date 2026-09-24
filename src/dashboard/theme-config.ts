@@ -22,9 +22,9 @@ export const themes: Theme[] = [
   {
     id: 'orange',
     name: 'Cam',
-    primaryColor: '#ff6b3d',
+    primaryColor: '#f97316',
     primaryLight: '#ff8c5a',
-    primaryDark: '#ee4d2d',
+    primaryDark: '#ea580c',
     primaryGradient: 'linear-gradient(135deg, #ff6b3d 0%, #ff8c5a 100%)',
     secondary: '#ff9671',
     bgMain: '#ffffff',
@@ -86,9 +86,9 @@ export const themes: Theme[] = [
   {
     id: 'lavender',
     name: 'Oải Hương',
-    primaryColor: '#a78bfa',
+    primaryColor: '#8b5cf6',
     primaryLight: '#c4b5fd',
-    primaryDark: '#8b5cf6',
+    primaryDark: '#7c3aed',
     primaryGradient: 'linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%)',
     secondary: '#c4b5fd',
     bgMain: '#ffffff',

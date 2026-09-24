@@ -4,6 +4,12 @@ export type StatusCode = 0 | 3 | 4 | 7 | 8 | 9 | 12;
 export type ShopMetric = 'amount' | 'orders' | 'products';
 export type SortDirection = 'asc' | 'desc';
 
+/** Color mode options for dual-axis theme system */
+export type ColorMode = 'light' | 'dark' | 'system';
+
+/** Resolved active color mode applied to DOM */
+export type ResolvedColorMode = 'light' | 'dark';
+
 export interface UserProfile {
   userId?: number;
   uid?: string;

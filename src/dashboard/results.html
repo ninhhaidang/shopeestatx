@@ -10,11 +10,12 @@
   <script>
     (function () {
       var t = localStorage.getItem('shopeestatx-theme');
-      if (t) {
-        document.documentElement.dataset.theme = t;
-      } else {
-        document.documentElement.dataset.theme = 'orange';
-      }
+      document.documentElement.dataset.theme = t || 'orange';
+
+      var m = localStorage.getItem('shopeestatx-mode');
+      var isDark = m === 'dark' || (m !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.dataset.mode = isDark ? 'dark' : 'light';
+
       // Disable CSS transitions during initial paint, re-enable after first frame
       document.documentElement.classList.add('no-transitions');
       requestAnimationFrame(function () {
@@ -47,12 +48,33 @@
               <path d="M6 9l6 6 6-6"/>
             </svg>
           </div>
-          <div class="theme-selector">
-            <button id="btnTheme" class="btn-theme" data-i18n-title="theme.btn.title" title="Chọn giao diện" aria-label="Chọn giao diện">
-              <span class="theme-color-dot"></span>
-              <span class="theme-name">Dark</span>
+          <div class="appearance-selector">
+            <button id="btnAppearance" class="btn-appearance" data-i18n-title="theme.btn.title" title="Chọn giao diện" aria-label="Chọn giao diện" aria-expanded="false" aria-controls="appearancePopover">
+              <span class="theme-dot"></span>
+              <span id="appearanceLabel">Sáng • Cam</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
-            <div id="themeDropdown" class="theme-dropdown" role="listbox" aria-label="Chọn giao diện"></div>
+            <div id="appearancePopover" class="appearance-popover hidden" role="region" aria-label="Tùy chọn giao diện">
+              <div class="appearance-section-title">Chế độ giao diện</div>
+              <div class="mode-segments" role="radiogroup" aria-label="Chế độ giao diện">
+                <button class="mode-btn" id="btnModeLight" data-mode="light" role="radio" aria-label="Chế độ sáng">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                  <span>Sáng</span>
+                </button>
+                <button class="mode-btn" id="btnModeDark" data-mode="dark" role="radio" aria-label="Chế độ tối">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                  <span>Tối</span>
+                </button>
+              </div>
+              <div class="appearance-section-title">Màu chủ đạo (5 Accent)</div>
+              <div class="color-swatches" role="radiogroup" aria-label="Màu chủ đạo">
+                <button class="swatch" data-theme="orange" title="Cam Shopee" aria-label="Cam Shopee" role="radio"></button>
+                <button class="swatch" data-theme="forest" title="Xanh Rừng" aria-label="Xanh Rừng" role="radio"></button>
+                <button class="swatch" data-theme="rose" title="Hồng Tươi" aria-label="Hồng Tươi" role="radio"></button>
+                <button class="swatch" data-theme="sky" title="Trời Xanh" aria-label="Trời Xanh" role="radio"></button>
+                <button class="swatch" data-theme="lavender" title="Oải Hương" aria-label="Oải Hương" role="radio"></button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -70,9 +92,16 @@
         </div>
         <div class="toolbar-actions">
           <span id="lastUpdated" class="last-updated"></span>
-          <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">&#8635;</button>
+          <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+            </svg>
+          </button>
           <div class="export-dropdown">
-            <button id="btnExport" class="btn-export" aria-label="Xuất dữ liệu">Xuất dữ liệu &#9662;</button>
+            <button id="btnExport" class="btn-export" aria-label="Xuất dữ liệu">
+              <span>Xuất dữ liệu</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
             <div id="exportMenu" class="export-menu">
               <button id="btnExportXlsx" aria-label="Xuất file Excel">Excel (.xlsx)</button>
               <button id="btnExportCsv" aria-label="Xuất file CSV">CSV (.csv)</button>
@@ -89,7 +118,9 @@
         <button id="btnMoreFilters" class="btn-more-filters" type="button" aria-expanded="false" aria-controls="moreFiltersPanel">
           <span class="filter-count hidden">0</span>
           <span class="filter-label">Lọc</span>
-          <span class="filter-icon">&#9662;</span>
+          <span class="filter-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
         </button>
 
         <!-- Hidden year/month selects kept for chart drill-down compatibility -->
@@ -226,7 +257,9 @@
     <!-- Table -->
     <div class="table-container">
       <div id="emptyState" class="empty-state hidden">
-        <div class="empty-icon">&#128269;</div>
+        <div class="empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
         <div class="empty-title" data-i18n="empty.title">Không tìm thấy đơn hàng nào</div>
         <div class="empty-message" data-i18n="empty.message">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</div>
         <button id="btnResetFilters" class="btn-reset" data-i18n="filter.reset">Đặt lại bộ lọc</button>
@@ -304,9 +337,12 @@
               <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
             </svg>
           </a>
-          <a href="https://www.buymeacoffee.com/ninhhaidang" target="_blank"><img
-              src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee"
-              style="height: 40px !important;width: 145px !important;"></a>
+          <a href="https://www.buymeacoffee.com/ninhhaidang" target="_blank" class="bmc-btn" aria-label="Buy Me A Coffee">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/>
+            </svg>
+            <span>Buy Me A Coffee</span>
+          </a>
         </div>
       </div>
     </footer>
