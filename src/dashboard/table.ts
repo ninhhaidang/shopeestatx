@@ -1,17 +1,15 @@
-// Table rendering, pagination, and expandable row details
+/** ShopeeStatX/src/dashboard/table.ts — Order Table Rendering and Pagination */
 import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { escapeHtml } from './utils.js';
 import { t } from '../i18n/index.js';
-import { formatDate, formatDateTime } from '../i18n/format.js';
+import { formatDate } from '../i18n/format.js';
 import { applyFilters, handleDrillDown } from './filters.js';
+import { openDrawer } from './drawer.js';
 import {
   ICON_CHECK_CIRCLE, ICON_X_CIRCLE, ICON_CLOCK, ICON_TRUCK,
   ICON_CREDIT_CARD, ICON_ARROW_UTURN_LEFT, ICON_QUESTION_MARK_CIRCLE,
-  ICON_CHEVRON_DOWN,
 } from './icons.js';
-import { getOrderUrl } from '../config.js';
-
 export function renderCurrentPage(): void {
   const start = (state.currentPage - 1) * state.itemsPerPage;
   const end = state.itemsPerPage === Infinity
@@ -24,154 +22,133 @@ export function renderCurrentPage(): void {
 
   pageOrders.forEach((order: Order, index: number) => {
     const globalIndex = start + index + 1;
-    const dateStr = order.deliveryDate ? formatDate(new Date(order.deliveryDate)) : t('table.noDate');
+    const dateStr = order.deliveryDate
+      ? formatDate(new Date(order.deliveryDate))
+      : (order.orderPlacementDate ? formatDate(new Date(order.orderPlacementDate)) : t('table.noDate'));
 
     let statusIcon = '';
     let statusClass = `status-${order.statusCode}`;
 
     switch (order.statusCode) {
-      case 3: statusIcon = ICON_CHECK_CIRCLE; break;
-      case 4: statusIcon = ICON_X_CIRCLE; statusClass += ' status-cancelled'; break;
-      case 7: statusIcon = ICON_CLOCK; statusClass += ' status-shipping'; break;
-      case 8: statusIcon = ICON_TRUCK; statusClass += ' status-shipping'; break;
-      case 9: statusIcon = ICON_CREDIT_CARD; break;
-      case 12: statusIcon = ICON_ARROW_UTURN_LEFT; statusClass += ' status-return'; break;
-      default: statusIcon = ICON_QUESTION_MARK_CIRCLE;
+      case 3:
+        statusIcon = ICON_CHECK_CIRCLE;
+        statusClass += ' status-completed badge-completed';
+        break;
+      case 4:
+        statusIcon = ICON_X_CIRCLE;
+        statusClass += ' status-cancelled badge-cancelled';
+        break;
+      case 7:
+        statusIcon = ICON_CLOCK;
+        statusClass += ' status-shipping badge-shipping';
+        break;
+      case 8:
+        statusIcon = ICON_TRUCK;
+        statusClass += ' status-shipping badge-shipping';
+        break;
+      case 9:
+        statusIcon = ICON_CREDIT_CARD;
+        statusClass += ' status-pending';
+        break;
+      case 12:
+        statusIcon = ICON_ARROW_UTURN_LEFT;
+        statusClass += ' status-return';
+        break;
+      default:
+        statusIcon = ICON_QUESTION_MARK_CIRCLE;
     }
+
+    // Compute multi-item badge count
+    let extraCount = 0;
+    if (order.productCount > 1) {
+      extraCount = order.productCount - 1;
+    } else if (order.items && order.items.length > 1) {
+      extraCount = order.items.length - 1;
+    }
+    const extraBadge = extraCount > 0 ? `<span class="items-pill">+${extraCount} món</span>` : '';
 
     const tr = document.createElement('tr');
     tr.className = 'order-row';
-    const safeOrderId = escapeHtml(String(order.orderId));
-    tr.innerHTML = `
-        <td class="col-stt"><span class="expand-icon">${ICON_CHEVRON_DOWN}</span> ${globalIndex}</td>
-        <td><a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a></td>
-        <td>${escapeHtml(dateStr)}</td>
-        <td><span class="status-badge ${statusClass}">${statusIcon} ${escapeHtml(order.status)}</span></td>
-        <td title="${escapeHtml(order.name)}">${escapeHtml(order.name)}</td>
-        <td class="col-quantity">${order.productCount}</td>
-        <td class="col-amount">${escapeHtml(order.subTotalFormatted)}</td>
-      `;
+    tr.setAttribute('data-order-id', order.orderId);
 
-    // Build aligned rows: each row has left (order info) and right (product details)
-    const detailRows: string[] = [];
-
-    // Section headers
-    detailRows.push(`
-      <div class="detail-row detail-section-header">
-        <span>${t('table.detail.orderInfo') || 'ORDER INFORMATION'}</span>
-        <span>${t('table.detail.productDetails') || 'PRODUCT DETAILS'}</span>
-      </div>
-    `);
-
-    // Row 1: Order ID | Product Name
-    detailRows.push(`
-      <div class="detail-row">
-        <div class="detail-item">
-          <strong>${t('table.detail.orderId')}:</strong>
-          <a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a>
-        </div>
-        <div class="detail-item">
-          <strong>${t('table.detail.productName')}:</strong>
-          <span class="detail-value">${escapeHtml(order.name)}</span>
-        </div>
-      </div>
-    `);
-
-    // Row 2: Status | Quantity
-    detailRows.push(`
-      <div class="detail-row">
-        <div class="detail-item">
-          <strong>${t('table.detail.status')}:</strong>
-          <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${statusIcon} ${escapeHtml(order.status)}</span>
-        </div>
-        <div class="detail-item">
-          <strong>${t('table.detail.quantity')}:</strong>
-          <span class="detail-value">${order.productCount}</span>
-        </div>
-      </div>
-    `);
-
-    // Row 3: Delivery Date | Total (only if deliveryDate exists)
+    let dateAttrs = '';
+    let dateClass = 'col-date';
     if (order.deliveryDate) {
-      const fullDate = formatDateTime(new Date(order.deliveryDate));
       const dateObj = new Date(order.deliveryDate);
-      const dateData = JSON.stringify({ year: dateObj.getFullYear(), month: dateObj.getMonth() + 1, day: dateObj.getDate() });
-      detailRows.push(`
-        <div class="detail-row">
-          <div class="detail-item">
-            <strong>${t('table.detail.deliveryDate')}:</strong>
-            <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span>
-          </div>
-          <div class="detail-item">
-            <strong>${t('table.detail.total')}:</strong>
-            <span class="detail-value">${escapeHtml(order.subTotalFormatted)}</span>
-          </div>
-        </div>
-      `);
+      const dateData = JSON.stringify({
+        year: dateObj.getFullYear(),
+        month: dateObj.getMonth() + 1,
+        day: dateObj.getDate(),
+      });
+      dateAttrs = `data-filter="date" data-value='${escapeHtml(dateData)}'`;
+      dateClass += ' detail-value-clickable';
     }
 
-    // Row 4: Seller | Product Detail
-    detailRows.push(`
-      <div class="detail-row">
-        <div class="detail-item">
-          <strong>${t('table.detail.seller')}:</strong>
-          <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span>
+    tr.innerHTML = `
+      <td class="col-stt">${globalIndex}</td>
+      <td class="${dateClass}" ${dateAttrs}>${escapeHtml(dateStr)}</td>
+      <td class="col-shop">
+        <div class="shop-cell">
+          <span class="shop-icon" aria-hidden="true">🏪</span>
+          <button type="button" class="shop-link-filter" aria-label="Lọc theo shop ${escapeHtml(order.shopName)}" title="Bấm để lọc theo shop ${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</button>
         </div>
-        <div class="detail-item">
-          <strong>${t('table.detail.productDetail')}:</strong>
-          <span class="detail-value">${escapeHtml(order.productSummary)}</span>
-        </div>
-      </div>
-    `);
+      </td>
+      <td class="col-product" title="${escapeHtml(order.name)}">
+        <span class="product-name">${escapeHtml(order.name)}</span>${extraBadge}
+      </td>
+      <td class="col-status text-center"><span class="status-badge ${statusClass}">${statusIcon} <span>${escapeHtml(order.status)}</span></span></td>
+      <td class="col-amount">${escapeHtml(order.subTotalFormatted)}</td>
+      <td class="col-action text-center">
+        <button type="button" class="btn-inspect" aria-label="Xem chi tiết đơn hàng ${escapeHtml(order.orderId)}" title="Xem chi tiết đơn hàng">Xem ➔</button>
+      </td>
+    `;
 
-    const detailRow = document.createElement('tr');
-    detailRow.className = 'detail-row';
-    detailRow.innerHTML = `
-        <td colspan="7">
-          <div class="detail-content">
-            ${detailRows.join('')}
-          </div>
-        </td>
-      `;
-
-    tr.addEventListener('click', function (e: MouseEvent) {
-      if ((e.target as HTMLElement).classList.contains('detail-value-clickable')) return;
-      tr.classList.toggle('expanded');
-      detailRow.classList.toggle('show');
+    // Row click opens the pro-inspector drawer
+    tr.addEventListener('click', (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('.shop-link-filter') || target.closest('.detail-value-clickable') || target.closest('a')) {
+        return;
+      }
+      openDrawer(order);
     });
 
-    detailRow.querySelectorAll('.detail-value-clickable').forEach(el => {
-      el.addEventListener('click', function (this: HTMLElement, e: Event) {
-        e.stopPropagation();
-        const filterType = this.dataset.filter;
-        const filterValue = this.dataset.value;
+    // Shop click filters by shop name
+    const shopBtn = tr.querySelector('.shop-link-filter');
+    shopBtn?.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      const searchBox = document.getElementById('searchBox') as HTMLInputElement | null;
+      if (searchBox) {
+        searchBox.value = order.shopName;
+      }
+      state.currentPage = 1;
+      applyFilters();
+    });
 
-        if (filterType === 'status') {
-          (document.getElementById('filterStatus') as HTMLSelectElement).value = filterValue!;
-          applyFilters();
-        } else if (filterType === 'shop') {
-          (document.getElementById('searchBox') as HTMLInputElement).value = filterValue!;
-          applyFilters();
-        } else if (filterType === 'date') {
-          try {
-            const dateData = JSON.parse(filterValue!);
-            handleDrillDown({
-              time: {
-                kind: 'day',
-                year: Number(dateData.year),
-                month: Number(dateData.month),
-                day: Number(dateData.day),
-              },
-            });
-          } catch { /* malformed date attribute — ignore click */ }
-        }
+    // Inspect button click opens drawer
+    const inspectBtn = tr.querySelector('.btn-inspect');
+    inspectBtn?.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      openDrawer(order);
+    });
 
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+    // Date click drill-down
+    const dateCell = tr.querySelector('.detail-value-clickable[data-filter="date"]') as HTMLElement | null;
+    dateCell?.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      try {
+        const dateData = JSON.parse(dateCell.dataset.value!);
+        handleDrillDown({
+          time: {
+            kind: 'day',
+            year: Number(dateData.year),
+            month: Number(dateData.month),
+            day: Number(dateData.day),
+          },
+        });
+      } catch { /* malformed date — ignore */ }
     });
 
     tableBody.appendChild(tr);
-    tableBody.appendChild(detailRow);
   });
 
   updatePaginationInfo();

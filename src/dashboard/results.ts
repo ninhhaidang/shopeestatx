@@ -19,12 +19,14 @@ import { initLocale } from '../i18n/index.js';
 import { renderDateRangePicker, resetDateRangePicker } from './date-range-picker.js';
 import { EVENTS, getHomeUrl } from '../config.js';
 import { initTabs, switchTab } from './tabs.js';
+import { initDrawer } from './drawer.js';
 import './results.css';
 
 document.addEventListener('DOMContentLoaded', async function () {
   // Apply theme immediately (also handled by FOUC inline script)
   initTheme();
   updateAppearanceUI();
+  initDrawer();
   // Initialize SVG icons from icons.ts
   const emptyIcon = document.querySelector('#emptyState .empty-icon');
   if (emptyIcon) {

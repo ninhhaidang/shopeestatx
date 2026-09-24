@@ -293,22 +293,22 @@
           <button id="btnResetFilters" class="btn-reset" data-i18n="filter.reset">Đặt lại bộ lọc</button>
         </div>
 
-        <table id="ordersTable">
+        <table id="ordersTable" class="modern-table">
           <thead>
             <tr>
               <th width="50" class="col-stt">STT</th>
-              <th width="140">Mã đơn hàng</th>
               <th width="110" class="sortable" data-sort="deliveryDate">
                 Ngày giao <span class="sort-indicator"></span>
               </th>
+              <th width="180">Shop / Người bán</th>
+              <th>Sản phẩm</th>
               <th width="140" class="sortable text-center" data-sort="status">
                 Trạng thái <span class="sort-indicator"></span>
               </th>
-              <th>Tên sản phẩm</th>
-              <th width="80" class="col-quantity">Số lượng</th>
-              <th width="100" class="sortable col-amount" data-sort="subTotal">
+              <th width="120" class="sortable col-amount" data-sort="subTotal">
                 Tổng tiền <span class="sort-indicator"></span>
               </th>
+              <th width="70" class="text-center">Chi tiết</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -401,6 +401,84 @@
       <button id="btnBudgetSave" class="btn-dialog-save" data-i18n="budget.btn.save">Lưu</button>
     </div>
   </dialog>
+
+  <!-- ========================================================================
+       SLIDE-OVER PRO-INSPECTOR DRAWER (TAB 3)
+       ======================================================================== -->
+  <div id="drawerBackdrop" class="drawer-backdrop"></div>
+  <aside id="orderDrawer" class="drawer-panel" aria-label="Chi tiết đơn hàng" role="dialog" aria-modal="true">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="drawer-order-id" id="drawerOrderId">--</span>
+        <button id="btnDrawerCopyId" class="btn-icon-drawer" title="Sao chép mã đơn" aria-label="Sao chép mã đơn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <a id="drawerShopeeLink" href="https://shopee.vn" target="_blank" class="btn-icon-drawer" title="Mở trang đơn hàng trên Shopee" aria-label="Mở trang đơn hàng trên Shopee">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+      <div class="drawer-controls">
+        <button id="btnDrawerPrev" class="btn-icon-drawer btn-stepper" title="Đơn trước (Phím ↑)" aria-label="Đơn trước">▲ Trước</button>
+        <button id="btnDrawerNext" class="btn-icon-drawer btn-stepper" title="Đơn sau (Phím ↓)" aria-label="Đơn sau">▼ Sau</button>
+        <button id="btnDrawerClose" class="btn-icon-drawer" title="Đóng (Esc)" aria-label="Đóng">✕</button>
+      </div>
+    </div>
+
+    <div class="drawer-body">
+      <!-- Status & Time -->
+      <div class="drawer-status-row">
+        <span id="drawerStatusBadge" class="status-badge">--</span>
+        <span id="drawerDateText" class="drawer-date-text">--</span>
+      </div>
+
+      <!-- Shop Information -->
+      <div class="drawer-card">
+        <div class="drawer-card-title">
+          <span>Thông tin người bán</span>
+          <button type="button" id="btnDrawerFilterShop" class="btn-filter-shop" aria-label="Lọc đơn shop này">Lọc đơn shop này ➔</button>
+        </div>
+        <div class="drawer-shop-info">
+          <div class="drawer-shop-icon">🏪</div>
+          <div>
+            <div id="drawerShopName" class="drawer-shop-name">--</div>
+            <div id="drawerShopSub" class="drawer-shop-sub">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product List Details -->
+      <div class="drawer-card">
+        <div class="drawer-card-title">
+          <span>Danh sách sản phẩm</span>
+          <span id="drawerItemCount" class="drawer-item-count">0 món</span>
+        </div>
+        <div id="drawerItemList" class="drawer-item-list"></div>
+      </div>
+
+      <!-- Payment Breakdown -->
+      <div class="drawer-card">
+        <div class="drawer-card-title">Chi tiết thanh toán</div>
+        <div class="drawer-payment-details">
+          <div class="drawer-payment-row">
+            <span>Tiền hàng</span>
+            <span id="drawerSubtotal" class="drawer-amount-mono">0 ₫</span>
+          </div>
+          <div class="drawer-payment-row">
+            <span>Phí vận chuyển</span>
+            <span id="drawerShipping" class="drawer-amount-mono">0 ₫</span>
+          </div>
+          <div class="drawer-payment-row">
+            <span>Giảm giá voucher</span>
+            <span id="drawerDiscount" class="drawer-amount-mono">0 ₫</span>
+          </div>
+          <div class="drawer-payment-row drawer-payment-total">
+            <span>Tổng thanh toán</span>
+            <span id="drawerTotal" class="drawer-amount-total">0 ₫</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
 
   <script type="module" src="./results.ts"></script>
 </body>

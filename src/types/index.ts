@@ -19,6 +19,14 @@ export interface UserProfile {
   shopId?: number;
 }
 
+export interface OrderItem {
+  name: string;
+  quantity?: number;
+  price?: number;
+  priceFormatted?: string;
+  imageUrl?: string;
+}
+
 export interface Order {
   orderId: string;
   name: string;
@@ -33,6 +41,11 @@ export interface Order {
   orderPlacementDate?: string | null;
   orderMonth: number | null;
   orderYear: number | null;
+  items?: OrderItem[];
+  shippingFee?: number;
+  shippingFeeFormatted?: string;
+  voucherDiscount?: number;
+  voucherDiscountFormatted?: string;
 }
 
 export interface OrderData {
