@@ -174,7 +174,7 @@ export function applyFilters(options?: { syncFromDOM?: boolean }): void {
   // Month-end spending prediction
   const predEl = document.getElementById('predictionInfo');
   if (predEl) {
-    renderPrediction(predEl, predictMonthEnd(state.allOrdersData!.orders), getCachedBudgetConfig());
+    renderPrediction(predEl, predictMonthEnd(filtered), getCachedBudgetConfig());
   }
 
 }

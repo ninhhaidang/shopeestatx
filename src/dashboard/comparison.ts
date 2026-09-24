@@ -85,5 +85,4 @@ export function renderTimeComparison(allOrders: Order[]): void {
   }
 
   document.getElementById('avgComparison')!.textContent = t('comparison.completedOrders', { count: completedOrders.length });
-
 }

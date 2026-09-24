@@ -1,9 +1,8 @@
 // Excel, CSV, and PDF export functions
-import type { Order, TimeCriteria } from '../types/index.js';
 import { state } from './state.js';
-import { FilterEngine } from './filter-engine.js';
 import { t } from '../i18n/index.js';
 import ExcelJS from 'exceljs';
+
 /** Helper: trigger browser file download */
 function downloadFile(content: string, filename: string, mimeType: string): void {
   const blob = new Blob([content], { type: mimeType });
@@ -18,31 +17,18 @@ function downloadFile(content: string, filename: string, mimeType: string): void
 }
 
 /** Get currently-filtered orders for export (respects year/month/status filters) */
-function getExportOrders(): Order[] {
+function getExportOrders() {
   if (!state.allOrdersData) return [];
-  const yearEl = document.getElementById('filterYear') as HTMLSelectElement | null;
-  const monthEl = document.getElementById('filterMonth') as HTMLSelectElement | null;
-  const statusEl = document.getElementById('filterStatus') as HTMLSelectElement | null;
+  const year = (document.getElementById('filterYear') as HTMLSelectElement).value;
+  const month = (document.getElementById('filterMonth') as HTMLSelectElement).value;
+  const status = (document.getElementById('filterStatus') as HTMLSelectElement).value;
 
-  const yearVal = yearEl?.value ? parseInt(yearEl.value, 10) : null;
-  const monthVal = monthEl?.value ? parseInt(monthEl.value, 10) : null;
-
-  let time: TimeCriteria = { kind: 'all' };
-  if (yearVal && monthVal) {
-    time = { kind: 'month', year: yearVal, month: monthVal };
-  } else if (yearVal) {
-    time = { kind: 'year', year: yearVal };
-  } else if (monthVal) {
-    time = { kind: 'month', year: 0, month: monthVal };
-  } else if (state.criteria?.time?.kind === 'range') {
-    time = state.criteria.time;
-  }
-
-  return FilterEngine.evaluate(state.allOrdersData.orders, {
-    time,
-    status: statusEl?.value || null,
-    category: null,
-    searchTerm: null,
+  // NOTE: Intentionally does not filter by selectedDay or searchTerm — pre-existing behavior
+  return state.allOrdersData.orders.filter(order => {
+    if (year && order.orderYear !== Number(year)) return false;
+    if (month && order.orderMonth !== Number(month)) return false;
+    if (status && order.statusCode !== Number(status)) return false;
+    return true;
   });
 }
 

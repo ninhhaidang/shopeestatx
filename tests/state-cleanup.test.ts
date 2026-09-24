@@ -8,8 +8,6 @@ import {
   applyFilters,
 } from '../src/dashboard/filters.js';
 import { getDateRangeSummary } from '../src/dashboard/date-range-picker.js';
-import { renderTimeComparison } from '../src/dashboard/comparison.js';
-import { predictMonthEnd } from '../src/dashboard/predictions.js';
 import { renderCurrentPage } from '../src/dashboard/table.js';
 import type { Order } from '../src/types/index.js';
 
