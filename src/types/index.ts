@@ -46,6 +46,14 @@ export interface OrderData {
 }
 
 
+/**
+ * Numeric index identifying the active view within the tabbed dashboard shell:
+ * 1 = Tổng quan (Financial Overview)
+ * 2 = Phân tích & Thói quen (Analytics & Habits)
+ * 3 = Lịch sử đơn hàng (Order History & Audit)
+ */
+export type TabIndex = 1 | 2 | 3;
+
 export interface AppState {
   allOrdersData: OrderData | null;
   filteredOrders: Order[];
@@ -54,6 +62,7 @@ export interface AppState {
   shopCount: number;
   shopMetric: ShopMetric;
   criteria: FilterCriteria;
+  activeTab: TabIndex;
 }
 
 /**

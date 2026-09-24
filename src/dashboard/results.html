@@ -40,7 +40,16 @@
           <h1 class="header-title">ShopeeStatX</h1>
           <p id="fetchedAt"></p>
         </div>
+        <div class="header-temporal" role="group" aria-label="Bộ lọc thời gian toàn cục">
+          <div id="dateRangePickerContainer" class="date-picker-area"></div>
+          <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+            </svg>
+          </button>
+        </div>
         <div class="header-actions">
+          <span id="lastUpdated" class="last-updated"></span>
           <div id="userInfo" class="user-info hidden">
             <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
             <span id="userName" class="user-name"></span>
@@ -80,237 +89,263 @@
       </div>
     </header>
 
-    <!-- Toolbar Container -->
-    <div class="toolbar-container">
-      <!-- Row 1: Search + Actions -->
-      <div class="toolbar-row search-row">
-        <div class="search-wrapper">
-          <label for="searchBox" class="visually-hidden">Tìm kiếm đơn hàng, sản phẩm, shop</label>
-          <input type="text" id="searchBox"
-            data-i18n-placeholder="filter.search.placeholder"
-            placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
+    <!-- Tab Navigation Shell -->
+    <nav class="tabs-nav" role="tablist" aria-label="Các chế độ xem">
+      <button class="tab-item active" id="tabBtn1" data-tab="1" role="tab" aria-selected="true" aria-controls="tabOverview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>1. Tổng quan</span>
+      </button>
+      <button class="tab-item" id="tabBtn2" data-tab="2" role="tab" aria-selected="false" aria-controls="tabAnalytics">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+        <span>2. Phân tích &amp; Thói quen</span>
+      </button>
+      <button class="tab-item" id="tabBtn3" data-tab="3" role="tab" aria-selected="false" aria-controls="tabOrders">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>3. Lịch sử đơn hàng</span>
+        <span class="tab-badge" id="tabOrderCount">0</span>
+      </button>
+    </nav>
+    <!-- ====================================================================
+         TAB 1: TỔNG QUAN TÀI CHÍNH (FINANCIAL OVERVIEW)
+         ==================================================================== -->
+    <section id="tabOverview" class="tab-panel active" data-tab="1" role="tabpanel" aria-labelledby="tabBtn1">
+      <!-- Summary -->
+      <div class="summary">
+        <div class="summary-item" data-tooltip="Số đơn hàng hiển thị sau khi áp dụng bộ lọc">
+          <span class="label" data-i18n="summary.orders">Đơn hàng</span>
+          <span id="totalOrders" class="value">0</span>
         </div>
-        <div class="toolbar-actions">
-          <span id="lastUpdated" class="last-updated"></span>
-          <button id="btnRefresh" class="btn-refresh" title="Làm mới dữ liệu" aria-label="Làm mới dữ liệu">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
-            </svg>
-          </button>
-          <div class="export-dropdown">
-            <button id="btnExport" class="btn-export" aria-label="Xuất dữ liệu">
-              <span>Xuất dữ liệu</span>
+        <div class="summary-item" data-tooltip="Tổng số sản phẩm trong các đơn hàng đã lọc">
+          <span class="label" data-i18n="summary.products">Tổng sản phẩm</span>
+          <span id="totalProducts" class="value">0</span>
+        </div>
+        <div class="summary-item highlight" data-tooltip="Chỉ tính đơn hoàn thành, không bao gồm đơn huỷ và trả hàng">
+          <span class="label" data-i18n="summary.totalSpent">Tổng tiền đã tiêu</span>
+          <span id="totalAmount" class="value">0 &#8363;</span>
+        </div>
+      </div>
+
+      <!-- Time Comparison -->
+      <div class="comparison-cards">
+        <div class="comparison-card">
+          <div class="card-title" data-i18n="comparison.thisMonth">Tháng này</div>
+          <div id="currentMonthAmount" class="card-value">0 &#8363;</div>
+          <div id="monthComparison" class="card-change"></div>
+          <div id="predictionInfo" class="prediction-info"></div>
+        </div>
+        <div class="comparison-card">
+          <div class="card-title" data-i18n="comparison.thisYear">Năm nay</div>
+          <div id="currentYearAmount" class="card-value">0 &#8363;</div>
+          <div id="yearComparison" class="card-change"></div>
+        </div>
+        <div class="comparison-card">
+          <div class="card-title" data-i18n="comparison.avgOrder">Giá trung bình/đơn</div>
+          <div id="avgOrderValue" class="card-value">0 &#8363;</div>
+          <div id="avgComparison" class="card-change"></div>
+        </div>
+      </div>
+
+      <!-- Monthly Spending Chart -->
+      <div class="charts-container single-chart">
+        <div class="chart-box">
+          <h3 data-i18n="chart.spendingByMonth">Chi tiêu theo tháng</h3>
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 2: PHÂN TÍCH & THÓI QUEN (ANALYTICS & HABITS)
+         ==================================================================== -->
+    <section id="tabAnalytics" class="tab-panel" data-tab="2" role="tabpanel" aria-labelledby="tabBtn2">
+      <!-- Spending Heatmap -->
+      <div class="section-card">
+        <h3 data-i18n="heatmap.title">Chi tiêu theo ngày (12 tháng qua)</h3>
+        <div id="heatmapContainer"></div>
+      </div>
+
+      <!-- Charts: Top Shop & Category Breakdown -->
+      <div class="charts-container">
+        <div class="chart-box">
+          <div class="chart-header">
+            <h3>Top <span id="shopCountDisplay">5</span> Shop</h3>
+            <div class="chart-controls">
+              <div class="control-group">
+                <select id="shopCount" class="chart-select">
+                  <option value="3">3</option>
+                  <option value="5" selected>5</option>
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                </select>
+              </div>
+              <div class="control-group">
+                <select id="shopMetric" class="chart-select">
+                  <option value="amount">Tổng tiền</option>
+                  <option value="orders">Số đơn hàng</option>
+                  <option value="products">Số sản phẩm</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <canvas id="shopChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3 data-i18n="chart.categories">Danh mục chi tiêu</h3>
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Auto-generated Insights -->
+      <div class="section-card">
+        <h3 data-i18n="insights.title">Phân tích chi tiêu</h3>
+        <div id="insightsContainer" class="insights-panel"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         TAB 3: LỊCH SỬ ĐƠN HÀNG (ORDER HISTORY & AUDIT)
+         ==================================================================== -->
+    <section id="tabOrders" class="tab-panel" data-tab="3" role="tabpanel" aria-labelledby="tabBtn3">
+      <!-- Toolbar Container -->
+      <div class="toolbar-container">
+        <!-- Row 1: Search + Actions -->
+        <div class="toolbar-row search-row">
+          <div class="search-wrapper">
+            <label for="searchBox" class="visually-hidden">Tìm kiếm đơn hàng, sản phẩm, shop</label>
+            <input type="text" id="searchBox"
+              data-i18n-placeholder="filter.search.placeholder"
+              placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
+          </div>
+          <div class="toolbar-actions">
+            <div class="export-dropdown">
+              <button id="btnExport" class="btn-export" aria-label="Xuất dữ liệu">
+                <span>Xuất dữ liệu</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div id="exportMenu" class="export-menu">
+                <button id="btnExportXlsx" aria-label="Xuất file Excel">Excel (.xlsx)</button>
+                <button id="btnExportCsv" aria-label="Xuất file CSV">CSV (.csv)</button>
+                <button id="btnExportPdf" aria-label="In hoặc xuất PDF">In / PDF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Collapsible Filters -->
+        <div class="toolbar-row filters-row">
+          <button id="btnMoreFilters" class="btn-more-filters" type="button" aria-expanded="false" aria-controls="moreFiltersPanel">
+            <span class="filter-count hidden">0</span>
+            <span class="filter-label">Lọc</span>
+            <span class="filter-icon">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <div id="exportMenu" class="export-menu">
-              <button id="btnExportXlsx" aria-label="Xuất file Excel">Excel (.xlsx)</button>
-              <button id="btnExportCsv" aria-label="Xuất file CSV">CSV (.csv)</button>
-              <button id="btnExportPdf" aria-label="In hoặc xuất PDF">In / PDF</button>
-            </div>
+            </span>
+          </button>
+
+          <!-- Hidden year/month selects kept for chart drill-down compatibility -->
+          <select id="filterYear" style="display:none">
+            <option value=""></option>
+          </select>
+          <select id="filterMonth" style="display:none">
+            <option value=""></option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+          </select>
+
+          <!-- Collapsible More Filters Panel -->
+          <div id="moreFiltersPanel" class="more-filters-panel" hidden>
+            <label for="filterStatus" class="visually-hidden">Lọc theo trạng thái đơn hàng</label>
+            <select id="filterStatus" aria-label="Lọc theo trạng thái">
+              <option value="" data-i18n-opt="filter.allStatus">Tất cả trạng thái</option>
+              <option value="3" data-i18n-opt="status.completed">Hoàn thành</option>
+              <option value="4" data-i18n-opt="status.cancelled">Đã hủy</option>
+              <option value="7" data-i18n-opt="status.waitingShipment">Chờ vận chuyển</option>
+              <option value="8" data-i18n-opt="status.delivering">Đang giao</option>
+              <option value="9" data-i18n-opt="status.waitingPayment">Chờ thanh toán</option>
+              <option value="12" data-i18n-opt="status.returned">Trả hàng</option>
+            </select>
+            <label for="filterCategory" class="visually-hidden">Lọc theo danh mục sản phẩm</label>
+            <select id="filterCategory" aria-label="Lọc theo danh mục">
+              <option value="" data-i18n-opt="filter.allCategories">Tất cả danh mục</option>
+              <option value="Điện tử">Điện tử</option>
+              <option value="Thời trang">Thời trang</option>
+              <option value="Sắc đẹp">Sắc đẹp</option>
+              <option value="Thực phẩm">Thực phẩm</option>
+              <option value="Nhà cửa">Nhà cửa</option>
+              <option value="Sức khỏe">Sức khỏe</option>
+              <option value="Thể thao">Thể thao</option>
+              <option value="Sách &amp; Văn phòng">Sách &amp; Văn phòng</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+
+          <!-- Active Filters (moved inside toolbar) -->
+          <div id="activeFiltersContainer" class="active-filters-toolbar hidden">
+            <span class="active-filters-label" data-i18n="filter.active">Lọc:</span>
+            <div id="activeFilters" class="active-filters"></div>
+            <button id="btnClearFilters" class="btn-clear-filters" data-i18n="filter.clearAll">Xóa</button>
           </div>
         </div>
       </div>
 
-      <!-- Row 2: Date Picker + Collapsible Filters -->
-      <div class="toolbar-row filters-row">
-        <div id="dateRangePickerContainer" class="date-picker-area"></div>
-
-        <button id="btnMoreFilters" class="btn-more-filters" type="button" aria-expanded="false" aria-controls="moreFiltersPanel">
-          <span class="filter-count hidden">0</span>
-          <span class="filter-label">Lọc</span>
-          <span class="filter-icon">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </span>
-        </button>
-
-        <!-- Hidden year/month selects kept for chart drill-down compatibility -->
-        <select id="filterYear" style="display:none">
-          <option value=""></option>
-        </select>
-        <select id="filterMonth" style="display:none">
-          <option value=""></option>
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-          <option value="10">10</option><option value="11">11</option><option value="12">12</option>
-        </select>
-
-        <!-- Collapsible More Filters Panel -->
-        <div id="moreFiltersPanel" class="more-filters-panel" hidden>
-          <label for="filterStatus" class="visually-hidden">Lọc theo trạng thái đơn hàng</label>
-          <select id="filterStatus" aria-label="Lọc theo trạng thái">
-            <option value="" data-i18n-opt="filter.allStatus">Tất cả trạng thái</option>
-            <option value="3" data-i18n-opt="status.completed">Hoàn thành</option>
-            <option value="4" data-i18n-opt="status.cancelled">Đã hủy</option>
-            <option value="7" data-i18n-opt="status.waitingShipment">Chờ vận chuyển</option>
-            <option value="8" data-i18n-opt="status.delivering">Đang giao</option>
-            <option value="9" data-i18n-opt="status.waitingPayment">Chờ thanh toán</option>
-            <option value="12" data-i18n-opt="status.returned">Trả hàng</option>
-          </select>
-          <label for="filterCategory" class="visually-hidden">Lọc theo danh mục sản phẩm</label>
-          <select id="filterCategory" aria-label="Lọc theo danh mục">
-            <option value="" data-i18n-opt="filter.allCategories">Tất cả danh mục</option>
-            <option value="Điện tử">Điện tử</option>
-            <option value="Thời trang">Thời trang</option>
-            <option value="Sắc đẹp">Sắc đẹp</option>
-            <option value="Thực phẩm">Thực phẩm</option>
-            <option value="Nhà cửa">Nhà cửa</option>
-            <option value="Sức khỏe">Sức khỏe</option>
-            <option value="Thể thao">Thể thao</option>
-            <option value="Sách &amp; Văn phòng">Sách &amp; Văn phòng</option>
-            <option value="Khác">Khác</option>
-          </select>
+      <!-- Table Container -->
+      <div class="table-container">
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </div>
+          <div class="empty-title" data-i18n="empty.title">Không tìm thấy đơn hàng nào</div>
+          <div class="empty-message" data-i18n="empty.message">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</div>
+          <button id="btnResetFilters" class="btn-reset" data-i18n="filter.reset">Đặt lại bộ lọc</button>
         </div>
 
-        <!-- Active Filters (moved inside toolbar) -->
-        <div id="activeFiltersContainer" class="active-filters-toolbar hidden">
-          <span class="active-filters-label" data-i18n="filter.active">Lọc:</span>
-          <div id="activeFilters" class="active-filters"></div>
-          <button id="btnClearFilters" class="btn-clear-filters" data-i18n="filter.clearAll">Xóa</button>
-        </div>
-      </div>
-    </div>
+        <table id="ordersTable">
+          <thead>
+            <tr>
+              <th width="50" class="col-stt">STT</th>
+              <th width="140">Mã đơn hàng</th>
+              <th width="110" class="sortable" data-sort="deliveryDate">
+                Ngày giao <span class="sort-indicator"></span>
+              </th>
+              <th width="140" class="sortable text-center" data-sort="status">
+                Trạng thái <span class="sort-indicator"></span>
+              </th>
+              <th>Tên sản phẩm</th>
+              <th width="80" class="col-quantity">Số lượng</th>
+              <th width="100" class="sortable col-amount" data-sort="subTotal">
+                Tổng tiền <span class="sort-indicator"></span>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+          </tbody>
+        </table>
 
-    <!-- Summary -->
-    <div class="summary">
-      <div class="summary-item" data-tooltip="Số đơn hàng hiển thị sau khi áp dụng bộ lọc">
-        <span class="label" data-i18n="summary.orders">Đơn hàng</span>
-        <span id="totalOrders" class="value">0</span>
-      </div>
-      <div class="summary-item" data-tooltip="Tổng số sản phẩm trong các đơn hàng đã lọc">
-        <span class="label" data-i18n="summary.products">Tổng sản phẩm</span>
-        <span id="totalProducts" class="value">0</span>
-      </div>
-      <div class="summary-item highlight" data-tooltip="Chỉ tính đơn hoàn thành, không bao gồm đơn huỷ và trả hàng">
-        <span class="label" data-i18n="summary.totalSpent">Tổng tiền đã tiêu</span>
-        <span id="totalAmount" class="value">0 &#8363;</span>
-      </div>
-    </div>
-
-    <!-- Time Comparison -->
-    <div class="comparison-cards">
-      <div class="comparison-card">
-        <div class="card-title" data-i18n="comparison.thisMonth">Tháng này</div>
-        <div id="currentMonthAmount" class="card-value">0 &#8363;</div>
-        <div id="monthComparison" class="card-change"></div>
-        <div id="predictionInfo" class="prediction-info"></div>
-      </div>
-      <div class="comparison-card">
-        <div class="card-title" data-i18n="comparison.thisYear">Năm nay</div>
-        <div id="currentYearAmount" class="card-value">0 &#8363;</div>
-        <div id="yearComparison" class="card-change"></div>
-      </div>
-      <div class="comparison-card">
-        <div class="card-title" data-i18n="comparison.avgOrder">Giá trung bình/đơn</div>
-        <div id="avgOrderValue" class="card-value">0 &#8363;</div>
-        <div id="avgComparison" class="card-change"></div>
-      </div>
-    </div>
-
-    <!-- Spending Heatmap -->
-    <div class="section-card">
-      <h3 data-i18n="heatmap.title">Chi tiêu theo ngày (12 tháng qua)</h3>
-      <div id="heatmapContainer"></div>
-    </div>
-
-    <!-- Auto-generated Insights -->
-    <div class="section-card">
-      <h3 data-i18n="insights.title">Phân tích chi tiêu</h3>
-      <div id="insightsContainer" class="insights-panel"></div>
-    </div>
-
-    <!-- Charts -->
-    <div class="charts-container">
-      <div class="chart-box">
-        <h3 data-i18n="chart.spendingByMonth">Chi tiêu theo tháng</h3>
-        <canvas id="monthlyChart"></canvas>
-      </div>
-      <div class="chart-box">
-        <div class="chart-header">
-          <h3>Top <span id="shopCountDisplay">5</span> Shop</h3>
-          <div class="chart-controls">
-            <div class="control-group">
-              <select id="shopCount" class="chart-select">
-                <option value="3">3</option>
-                <option value="5" selected>5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-              </select>
-            </div>
-            <div class="control-group">
-              <select id="shopMetric" class="chart-select">
-                <option value="amount">Tổng tiền</option>
-                <option value="orders">Số đơn hàng</option>
-                <option value="products">Số sản phẩm</option>
-              </select>
-            </div>
+        <!-- Pagination -->
+        <div id="paginationContainer" class="pagination-container">
+          <div class="pagination-info">
+            Hiển thị <span id="pageStart">0</span> - <span id="pageEnd">0</span> trong tổng số <span
+              id="pageTotal">0</span> đơn
+          </div>
+          <div class="pagination-controls">
+            <button id="btnFirstPage" class="btn-page" title="Trang đầu">&laquo;</button>
+            <button id="btnPrevPage" class="btn-page" title="Trang trước">&lsaquo;</button>
+            <span id="pageNumbers" class="page-numbers"></span>
+            <button id="btnNextPage" class="btn-page" title="Trang sau">&rsaquo;</button>
+            <button id="btnLastPage" class="btn-page" title="Trang cuối">&raquo;</button>
+          </div>
+          <div class="pagination-size">
+            <select id="pageSize">
+              <option value="20">20/trang</option>
+              <option value="50">50/trang</option>
+              <option value="100">100/trang</option>
+              <option value="all">Tất cả</option>
+            </select>
           </div>
         </div>
-        <canvas id="shopChart"></canvas>
       </div>
-      <div class="chart-box">
-        <h3 data-i18n="chart.categories">Danh mục chi tiêu</h3>
-        <canvas id="categoryChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Table -->
-    <div class="table-container">
-      <div id="emptyState" class="empty-state hidden">
-        <div class="empty-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        </div>
-        <div class="empty-title" data-i18n="empty.title">Không tìm thấy đơn hàng nào</div>
-        <div class="empty-message" data-i18n="empty.message">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</div>
-        <button id="btnResetFilters" class="btn-reset" data-i18n="filter.reset">Đặt lại bộ lọc</button>
-      </div>
-
-      <table id="ordersTable">
-        <thead>
-          <tr>
-            <th width="50" class="col-stt">STT</th>
-            <th width="140">Mã đơn hàng</th>
-            <th width="110" class="sortable" data-sort="deliveryDate">
-              Ngày giao <span class="sort-indicator"></span>
-            </th>
-            <th width="140" class="sortable text-center" data-sort="status">
-              Trạng thái <span class="sort-indicator"></span>
-            </th>
-            <th>Tên sản phẩm</th>
-            <th width="80" class="col-quantity">Số lượng</th>
-            <th width="100" class="sortable col-amount" data-sort="subTotal">
-              Tổng tiền <span class="sort-indicator"></span>
-            </th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-        </tbody>
-      </table>
-
-      <!-- Pagination -->
-      <div id="paginationContainer" class="pagination-container">
-        <div class="pagination-info">
-          Hiển thị <span id="pageStart">0</span> - <span id="pageEnd">0</span> trong tổng số <span
-            id="pageTotal">0</span> đơn
-        </div>
-        <div class="pagination-controls">
-          <button id="btnFirstPage" class="btn-page" title="Trang đầu">&laquo;</button>
-          <button id="btnPrevPage" class="btn-page" title="Trang trước">&lsaquo;</button>
-          <span id="pageNumbers" class="page-numbers"></span>
-          <button id="btnNextPage" class="btn-page" title="Trang sau">&rsaquo;</button>
-          <button id="btnLastPage" class="btn-page" title="Trang cuối">&raquo;</button>
-        </div>
-        <div class="pagination-size">
-          <select id="pageSize">
-            <option value="20">20/trang</option>
-            <option value="50">50/trang</option>
-            <option value="100">100/trang</option>
-            <option value="all">Tất cả</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
+    </section>
     <!-- Footer -->
     <footer class="page-footer">
       <div class="footer-content">

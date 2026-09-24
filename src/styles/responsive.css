@@ -19,6 +19,30 @@
     font-size: 24px;
   }
 
+  .header-controls {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .header-temporal {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+  }
+
+  .tabs-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 var(--spacing-md, 16px);
+  }
+
+  .tab-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
   /* Toolbar - collapsible behavior on mobile */
   .toolbar-container {
     position: relative;

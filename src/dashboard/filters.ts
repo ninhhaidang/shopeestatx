@@ -15,7 +15,7 @@ import { predictMonthEnd, renderPrediction } from './predictions.js';
 import { getCachedBudgetConfig } from './budget.js';
 import { EVENTS } from '../config.js';
 import { escapeHtml } from './utils.js';
-
+import { updateTabOrderBadge } from './tabs.js';
 
 /**
  * Reads current toolbar DOM elements and synchronizes their values into state.criteria.
@@ -130,6 +130,8 @@ export function applyFilters(options?: { syncFromDOM?: boolean }): void {
 
   state.filteredOrders = filtered;
   state.currentPage = 1;
+
+  updateTabOrderBadge(filtered.length);
 
   updateActiveFilters();
 

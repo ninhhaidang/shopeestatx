@@ -15,4 +15,5 @@ export const state: AppState = {
     searchTerm: null,
     sort: { field: null, direction: 'asc' },
   },
+  activeTab: 1,
 };

@@ -18,6 +18,7 @@ import { loadBudgetConfig, saveBudgetConfig, setCachedBudgetConfig, getCachedBud
 import { initLocale } from '../i18n/index.js';
 import { renderDateRangePicker, resetDateRangePicker } from './date-range-picker.js';
 import { EVENTS, getHomeUrl } from '../config.js';
+import { initTabs, switchTab } from './tabs.js';
 import './results.css';
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -33,7 +34,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   // Initialize i18n before rendering anything
   initLocale();
 
-  // Set dynamic shopee home link
+  // Initialize tab navigation shell
+  initTabs();
+
   const shopeeHomeLink = document.getElementById('shopee-home-link') as HTMLAnchorElement;
   if (shopeeHomeLink) {
     shopeeHomeLink.href = getHomeUrl();
@@ -263,14 +266,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   });
 
-  // Shop loyalty: filter by shop name
+  // Shop loyalty: filter by shop name and switch to Tab 3
   document.addEventListener(EVENTS.FILTER_BY_SHOP, (e) => {
     searchBox.value = (e as CustomEvent<string>).detail;
     state.currentPage = 1;
+    switchTab(3);
     applyFilters();
     document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
   });
-
   // Budget dialog wiring (event delegation for dynamically rendered buttons)
   const budgetDialog = document.getElementById('budgetDialog') as HTMLDialogElement;
   const budgetLimitInput = document.getElementById('budgetLimit') as HTMLInputElement;

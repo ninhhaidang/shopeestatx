@@ -68,6 +68,70 @@ body {
   gap: 10px;
   align-items: center;
 }
+/* Header Global Temporal Bar */
+.header-temporal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-temporal .drp-presets {
+  margin: 0;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.header-temporal .drp-preset {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms);
+}
+
+.header-temporal .drp-preset:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+  border-color: var(--border-color);
+}
+
+.header-temporal .drp-preset.active {
+  background: var(--primary);
+  color: var(--text-white, #ffffff);
+  border-color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.header-temporal .btn-refresh {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms);
+}
+
+.header-temporal .btn-refresh:hover {
+  background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+  color: var(--primary);
+  border-color: var(--border-color);
+}
+
 
 /* User Info - Floating Avatar Style (Option 2) */
 .user-info {
@@ -120,6 +184,92 @@ body {
   font-weight: 500;
   position: relative;
   z-index: 1;
+}
+
+/* ===== TAB NAVIGATION SHELL ===== */
+.tabs-nav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 var(--spacing-lg);
+  background: var(--bg-card);
+  margin-bottom: var(--spacing-lg);
+  position: relative;
+  z-index: 10;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition-fast, 150ms);
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1px;
+}
+
+.tab-item:hover {
+  color: var(--text-primary);
+}
+
+.tab-item.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.tab-badge {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  background: var(--bg-hover, rgba(0, 0, 0, 0.06));
+  color: var(--text-secondary);
+}
+
+.tab-item.active .tab-badge {
+  background: var(--primary-light, rgba(249, 115, 22, 0.14));
+  color: var(--primary);
+}
+
+/* TAB PANELS */
+.tab-panel {
+  display: none;
+  opacity: 0;
+  animation: tabFadeIn 150ms ease-out forwards;
+}
+
+.tab-panel.active {
+  display: block;
+  opacity: 1;
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.charts-container.single-chart {
+  grid-template-columns: 1fr;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-panel {
+    animation: none !important;
+    transition: none !important;
+  }
+  .tab-item {
+    transition: none !important;
+  }
 }
 
 /* ===== TOOLBAR ===== */
