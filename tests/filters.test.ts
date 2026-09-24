@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   sortOrders,
-  filterOrders,
   syncToolbarToCriteria,
   syncCriteriaToToolbar,
   updateActiveFilters,
   clearAllFilters,
   removeFilter,
+  applyFilters,
 } from '../src/dashboard/filters.js';
 import { state } from '../src/dashboard/state.js';
 import type { Order, FilterCriteria } from '../src/types/index.js';
@@ -123,9 +123,6 @@ describe('Unified Filter Toolbar & Derived Active Chips Integration', () => {
     `;
 
     // Reset state
-    state.selectedDay = null;
-    state.dateRange = { start: null, end: null };
-    state.currentSort = { field: null, direction: 'asc' };
     state.criteria = {
       time: { kind: 'all' },
       status: null,
@@ -134,28 +131,40 @@ describe('Unified Filter Toolbar & Derived Active Chips Integration', () => {
       sort: null,
     };
     state.allOrdersData = {
-      count: 0,
-      totalSpent: 0,
       orders: [],
+      totalCount: 0,
+      totalAmount: 0,
+      totalAmountFormatted: '0 ₫',
+      fetchedAt: new Date().toISOString(),
     };
   });
 
-  it('filterOrders evaluates against FilterEngine correctly', () => {
+  it('evaluates orders against state.criteria without legacy helper functions', () => {
     const sampleOrders: Order[] = [
       makeOrder({ orderId: '1', deliveryDate: '2024-05-15T00:00:00.000Z', orderYear: 2024, orderMonth: 5, statusCode: 3, name: 'Áo polo' }),
       makeOrder({ orderId: '2', deliveryDate: '2024-06-15T00:00:00.000Z', orderYear: 2024, orderMonth: 6, statusCode: 4, name: 'Tai nghe' }),
       makeOrder({ orderId: '3', deliveryDate: '2025-01-15T00:00:00.000Z', orderYear: 2025, orderMonth: 1, statusCode: 3, name: 'Áo khoác' }),
     ];
 
-    const result = filterOrders(sampleOrders, {
-      year: '2024',
-      month: '5',
+    state.allOrdersData = {
+      orders: sampleOrders,
+      totalCount: 3,
+      totalAmount: 300000,
+      totalAmountFormatted: '300.000 ₫',
+      fetchedAt: new Date().toISOString(),
+    };
+    state.criteria = {
+      time: { kind: 'month', year: 2024, month: 5 },
       status: '3',
+      category: null,
       searchTerm: 'polo',
-    });
+      sort: null,
+    };
 
-    expect(result).toHaveLength(1);
-    expect(result[0].orderId).toBe('1');
+    applyFilters({ syncFromDOM: false });
+
+    expect(state.filteredOrders).toHaveLength(1);
+    expect(state.filteredOrders[0].orderId).toBe('1');
   });
 
   it('syncToolbarToCriteria reads DOM inputs into state.criteria', () => {
@@ -293,6 +302,5 @@ describe('Unified Filter Toolbar & Derived Active Chips Integration', () => {
     expect(state.criteria.time).toEqual({ kind: 'all' });
     expect((document.getElementById('filterYear') as HTMLSelectElement).value).toBe('');
     expect((document.getElementById('filterMonth') as HTMLSelectElement).value).toBe('');
-    expect(state.dateRange).toEqual({ start: null, end: null });
   });
 });

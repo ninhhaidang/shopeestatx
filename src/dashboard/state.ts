@@ -6,11 +6,8 @@ export const state: AppState = {
   filteredOrders: [],
   currentPage: 1,
   itemsPerPage: 20,
-  selectedDay: null,
   shopCount: 5,
   shopMetric: 'amount',
-  currentSort: { field: null, direction: 'asc' },
-  dateRange: { start: null, end: null },
   criteria: {
     time: { kind: 'all' },
     status: null,

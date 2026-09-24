@@ -1,5 +1,5 @@
 /** ShopeeStatX/filters.ts — Filter logic, sorting, active filter chips, and search */
-import type { Order, FilterCriteria, TimeCriteria, SortDirection } from '../types/index.js';
+import type { FilterCriteria, TimeCriteria, SortDirection } from '../types/index.js';
 import { FilterEngine, deriveFilterChips, sortOrders } from './filter-engine.js';
 import { syncDateRangePickerToCriteria } from './date-range-picker.js';
 export { sortOrders };
@@ -14,28 +14,6 @@ import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
 import { EVENTS } from '../config.js';
 import { escapeHtml } from './utils.js';
 
-/** Filter orders by year/month/status/search (excludes selectedDay). Reused by charts. */
-export function filterOrders(
-  orders: Order[],
-  opts: { year: string; month: string; status: string; searchTerm: string },
-): Order[] {
-  let time: TimeCriteria = { kind: 'all' };
-  const { start, end } = state.dateRange;
-  const useDateRange = !opts.year && !opts.month && (start !== null || end !== null);
-  if (useDateRange && start && end) {
-    time = { kind: 'range', start, end };
-  } else if (opts.year && opts.month) {
-    time = { kind: 'month', year: Number(opts.year), month: Number(opts.month) };
-  } else if (opts.year) {
-    time = { kind: 'year', year: Number(opts.year) };
-  }
-
-  return FilterEngine.evaluate(orders, {
-    time,
-    status: opts.status || null,
-    searchTerm: opts.searchTerm || null,
-  });
-}
 
 /**
  * Reads current toolbar DOM elements and synchronizes their values into state.criteria.
@@ -50,21 +28,26 @@ export function syncToolbarToCriteria(): void {
   const yearVal = yearEl?.value ? parseInt(yearEl.value, 10) : null;
   const monthVal = monthEl?.value ? parseInt(monthEl.value, 10) : null;
 
-  let time: TimeCriteria = state.criteria?.time ?? { kind: 'all' };
+  const currentCriteriaTime = state.criteria?.time;
+  let time: TimeCriteria = { kind: 'all' };
 
-  if (state.selectedDay !== null && monthVal && yearVal) {
-    time = { kind: 'day', year: yearVal, month: monthVal, day: state.selectedDay };
-  } else if (monthVal && yearVal) {
-    time = { kind: 'month', year: yearVal, month: monthVal };
+  if (yearVal && monthVal) {
+    if (
+      currentCriteriaTime?.kind === 'day' &&
+      currentCriteriaTime.year === yearVal &&
+      currentCriteriaTime.month === monthVal
+    ) {
+      time = currentCriteriaTime;
+    } else {
+      time = { kind: 'month', year: yearVal, month: monthVal };
+    }
   } else if (monthVal) {
     time = { kind: 'month', year: 0, month: monthVal };
   } else if (yearVal) {
     time = { kind: 'year', year: yearVal };
-  } else if (state.dateRange.start || state.dateRange.end) {
-    if (state.dateRange.start && state.dateRange.end) {
-      time = { kind: 'range', start: state.dateRange.start, end: state.dateRange.end };
-    }
-  } else if (time.kind !== 'range' && time.kind !== 'day') {
+  } else if (currentCriteriaTime?.kind === 'range') {
+    time = currentCriteriaTime;
+  } else {
     time = { kind: 'all' };
   }
 
@@ -73,14 +56,12 @@ export function syncToolbarToCriteria(): void {
     status: statusEl?.value || null,
     category: categoryEl?.value || null,
     searchTerm: searchEl?.value?.trim() || null,
-    sort: state.currentSort.field
-      ? { field: state.currentSort.field, direction: state.currentSort.direction }
-      : null,
+    sort: state.criteria?.sort ?? null,
   };
 }
 
 /**
- * Synchronizes state.criteria back into the toolbar DOM input elements and legacy state fields.
+ * Synchronizes state.criteria back into the toolbar DOM input elements.
  */
 export function syncCriteriaToToolbar(criteria: FilterCriteria): void {
   const yearEl = document.getElementById('filterYear') as HTMLSelectElement | null;
@@ -92,38 +73,24 @@ export function syncCriteriaToToolbar(criteria: FilterCriteria): void {
   if (criteria.time.kind === 'year') {
     if (yearEl) yearEl.value = String(criteria.time.year);
     if (monthEl) monthEl.value = '';
-    state.selectedDay = null;
-    state.dateRange = { start: null, end: null };
   } else if (criteria.time.kind === 'month') {
     if (yearEl) yearEl.value = criteria.time.year ? String(criteria.time.year) : '';
     if (monthEl) monthEl.value = String(criteria.time.month);
-    state.selectedDay = null;
-    state.dateRange = { start: null, end: null };
   } else if (criteria.time.kind === 'day') {
     if (yearEl) yearEl.value = String(criteria.time.year);
     if (monthEl) monthEl.value = String(criteria.time.month);
-    state.selectedDay = criteria.time.day;
-    state.dateRange = { start: null, end: null };
   } else if (criteria.time.kind === 'range') {
     if (yearEl) yearEl.value = '';
     if (monthEl) monthEl.value = '';
-    state.selectedDay = null;
-    state.dateRange = { start: criteria.time.start, end: criteria.time.end };
   } else {
     if (yearEl) yearEl.value = '';
     if (monthEl) monthEl.value = '';
-    state.selectedDay = null;
-    state.dateRange = { start: null, end: null };
     document.dispatchEvent(new CustomEvent(EVENTS.DATE_RANGE_CLEARED));
   }
 
   if (statusEl) statusEl.value = criteria.status || '';
   if (categoryEl) categoryEl.value = criteria.category || '';
   if (searchEl) searchEl.value = criteria.searchTerm || '';
-
-  if (criteria.sort && criteria.sort.field) {
-    state.currentSort = { field: criteria.sort.field, direction: criteria.sort.direction };
-  }
 
   const drpContainer = document.getElementById('dateRangePickerContainer');
   if (drpContainer) {
@@ -287,11 +254,10 @@ export function removeFilter(type: string): void {
 export function handleSort(field: string): void {
   const currentDirection = state.criteria?.sort?.field === field
     ? state.criteria.sort.direction
-    : (state.currentSort.field === field ? state.currentSort.direction : null);
+    : null;
 
   const direction: SortDirection = currentDirection === 'asc' ? 'desc' : 'asc';
 
-  state.currentSort = { field, direction };
   state.criteria = {
     ...state.criteria,
     sort: { field, direction },

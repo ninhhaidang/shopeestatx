@@ -3,6 +3,8 @@ import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { formatVND } from './utils.js';
 import { t } from '../i18n/index.js';
+import { predictMonthEnd, renderPrediction } from './predictions.js';
+import { getCachedBudgetConfig } from './budget.js';
 
 export function renderData(orders: Order[]): void {
   let totalProducts = 0;
@@ -85,4 +87,10 @@ export function renderTimeComparison(allOrders: Order[]): void {
   }
 
   document.getElementById('avgComparison')!.textContent = t('comparison.completedOrders', { count: completedOrders.length });
+
+  const predictionEl = document.getElementById('predictionInfo');
+  if (predictionEl) {
+    const prediction = predictMonthEnd(allOrders);
+    renderPrediction(predictionEl, prediction, getCachedBudgetConfig());
+  }
 }

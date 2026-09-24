@@ -4,7 +4,7 @@ import { state } from './state.js';
 import { escapeHtml } from './utils.js';
 import { t } from '../i18n/index.js';
 import { formatDate, formatDateTime } from '../i18n/format.js';
-import { applyFilters } from './filters.js';
+import { applyFilters, handleDrillDown } from './filters.js';
 import {
   ICON_CHECK_CIRCLE, ICON_X_CIRCLE, ICON_CLOCK, ICON_TRUCK,
   ICON_CREDIT_CARD, ICON_ARROW_UTURN_LEFT, ICON_QUESTION_MARK_CIRCLE,
@@ -155,10 +155,14 @@ export function renderCurrentPage(): void {
         } else if (filterType === 'date') {
           try {
             const dateData = JSON.parse(filterValue!);
-            (document.getElementById('filterYear') as HTMLSelectElement).value = dateData.year;
-            (document.getElementById('filterMonth') as HTMLSelectElement).value = dateData.month;
-            state.selectedDay = dateData.day;
-            applyFilters();
+            handleDrillDown({
+              time: {
+                kind: 'day',
+                year: Number(dateData.year),
+                month: Number(dateData.month),
+                day: Number(dateData.day),
+              },
+            });
           } catch { /* malformed date attribute — ignore click */ }
         }
 

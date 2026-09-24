@@ -39,21 +39,14 @@ export interface OrderData {
   cachedAt?: string;
 }
 
-export interface DateRange {
-  start: Date | null;
-  end: Date | null;
-}
 
 export interface AppState {
   allOrdersData: OrderData | null;
   filteredOrders: Order[];
   currentPage: number;
   itemsPerPage: number;
-  selectedDay: number | null;
   shopCount: number;
   shopMetric: ShopMetric;
-  currentSort: { field: string | null; direction: SortDirection };
-  dateRange: DateRange;
   criteria: FilterCriteria;
 }
 

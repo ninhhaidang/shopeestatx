@@ -176,9 +176,6 @@ describe('DateRangePicker - Component Seam Integration', () => {
 
     container = document.getElementById('dateRangePickerContainer')!;
 
-    state.selectedDay = null;
-    state.dateRange = { start: null, end: null };
-    state.currentSort = { field: null, direction: 'asc' };
     state.criteria = {
       time: { kind: 'all' },
       status: null,

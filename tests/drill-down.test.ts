@@ -112,9 +112,6 @@ describe('Decoupled Visual Drill-Down & Circular Event Elimination', () => {
     HTMLCanvasElement.prototype.getContext = vi.fn(() => mockContext) as unknown as typeof HTMLCanvasElement.prototype.getContext;
 
     // Reset state
-    state.selectedDay = null;
-    state.dateRange = { start: null, end: null };
-    state.currentSort = { field: null, direction: 'asc' };
     state.currentPage = 1;
     state.criteria = {
       time: { kind: 'all' },
@@ -171,7 +168,7 @@ describe('Decoupled Visual Drill-Down & Circular Event Elimination', () => {
 
       // Seam check: DOM inputs remain untouched by heatmap component itself
       expect((document.getElementById('filterMonth') as HTMLSelectElement).value).toBe('');
-      expect(state.selectedDay).toBeNull();
+      expect(state.criteria.time).toEqual({ kind: 'all' });
 
       document.removeEventListener(EVENTS.APPLY_FILTERS, eventSpy);
     });
@@ -343,7 +340,6 @@ describe('Decoupled Visual Drill-Down & Circular Event Elimination', () => {
       expect(state.criteria.time).toEqual({ kind: 'day', year: 2024, month: 5, day: 15 });
       expect((document.getElementById('filterYear') as HTMLSelectElement).value).toBe('2024');
       expect((document.getElementById('filterMonth') as HTMLSelectElement).value).toBe('5');
-      expect(state.selectedDay).toBe(15);
       expect(state.filteredOrders).toHaveLength(1);
       expect(state.filteredOrders[0].orderId).toBe('1');
     });

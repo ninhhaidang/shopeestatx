@@ -178,8 +178,6 @@ function applyPreset(preset: Preset, container: HTMLElement): void {
       ...state.criteria,
       time: { kind: 'all' },
     };
-    state.dateRange = { start: null, end: null };
-    state.selectedDay = null;
     state.currentPage = 1;
     syncCriteriaToToolbar(state.criteria);
     applyFilters({ syncFromDOM: false });
@@ -199,12 +197,6 @@ function applyPreset(preset: Preset, container: HTMLElement): void {
   const timeCriteria = computePresetTimeCriteria(preset);
   if (!timeCriteria) return;
 
-  state.selectedDay = null;
-  if (timeCriteria.kind === 'range') {
-    state.dateRange = { start: timeCriteria.start, end: timeCriteria.end };
-  } else {
-    state.dateRange = { start: null, end: null };
-  }
 
   state.criteria = {
     ...state.criteria,
@@ -274,8 +266,6 @@ export function renderDateRangePicker(container: HTMLElement): void {
       ...state.criteria,
       time,
     };
-    state.dateRange = { start, end };
-    state.selectedDay = null;
     state.currentPage = 1;
     syncCriteriaToToolbar(state.criteria);
     applyFilters({ syncFromDOM: false });
@@ -287,7 +277,6 @@ export function renderDateRangePicker(container: HTMLElement): void {
     (container.querySelector('.drp-custom-panel') as HTMLElement)?.classList.add('hidden');
     if (state.criteria?.time?.kind === 'range' && matchActivePreset(state.criteria.time) === 'custom') {
       state.criteria = { ...state.criteria, time: { kind: 'all' } };
-      state.dateRange = { start: null, end: null };
       state.currentPage = 1;
       syncCriteriaToToolbar(state.criteria);
       applyFilters({ syncFromDOM: false });
@@ -323,7 +312,7 @@ export function resetDateRangePicker(container: HTMLElement): void {
 
 /** Get a human-readable summary of the current date range for display */
 export function getDateRangeSummary(): string {
-  const range = state.criteria?.time?.kind === 'range' ? state.criteria.time : state.dateRange;
+  const range = state.criteria?.time?.kind === 'range' ? state.criteria.time : null;
   if (!range?.start || !range?.end) return '';
   const startStr = formatDate(range.start);
   const endStr = formatDate(range.end);

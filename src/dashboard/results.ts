@@ -189,8 +189,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById('filterCategory')?.addEventListener('change', updateFilterCount);
 
   // Filter changes
-  filterYear.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
-  filterMonth.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
+  filterYear.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
+  filterMonth.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
   filterStatus.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
   filterCategory.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
   btnRefresh.addEventListener('click', refreshData);
