@@ -278,4 +278,21 @@ describe('Unified Filter Toolbar & Derived Active Chips Integration', () => {
     expect(state.criteria.status).toBe('3');
     expect((document.getElementById('filterStatus') as HTMLSelectElement).value).toBe('3');
   });
+
+  it('removeFilter cleanly clears dateRange constraint without leaving ghost state', () => {
+    state.criteria = {
+      time: { kind: 'range', start: new Date(2024, 0, 1), end: new Date(2024, 0, 15) },
+      status: null,
+      category: null,
+      searchTerm: null,
+    };
+    syncCriteriaToToolbar(state.criteria);
+
+    removeFilter('dateRange');
+
+    expect(state.criteria.time).toEqual({ kind: 'all' });
+    expect((document.getElementById('filterYear') as HTMLSelectElement).value).toBe('');
+    expect((document.getElementById('filterMonth') as HTMLSelectElement).value).toBe('');
+    expect(state.dateRange).toEqual({ start: null, end: null });
+  });
 });

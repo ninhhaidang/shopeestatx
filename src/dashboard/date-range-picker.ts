@@ -1,10 +1,14 @@
-// Date range picker component — preset buttons + custom date input panel
+/** ShopeeStatX/date-range-picker.ts — Preset buttons and custom date input component */
+import type { TimeCriteria, DatePreset } from '../types/index.js';
 import { t } from '../i18n/index.js';
 import { state } from './state.js';
-import { applyFilters } from './filters.js';
+import { applyFilters, syncCriteriaToToolbar } from './filters.js';
 import { formatDate } from '../i18n/format.js';
 
-type Preset = 'last7' | 'thisMonth' | 'lastMonth' | 'last3months' | 'thisYear' | 'custom';
+/**
+ * Identifier for relative date interval presets supported by the DateRangePicker.
+ */
+export type Preset = DatePreset;
 
 const PRESETS: { key: Preset; i18nKey: string }[] = [
   { key: 'last7', i18nKey: 'daterange.last7days' },
@@ -15,128 +19,217 @@ const PRESETS: { key: Preset; i18nKey: string }[] = [
   { key: 'custom', i18nKey: 'daterange.custom' },
 ];
 
-let activePreset: Preset | null = null;
+function formatDateForInput(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 
-/** Compute start/end dates for a preset */
-function computePresetRange(preset: Preset): { start: Date; end: Date } | null {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0-based
+/** Compute TimeCriteria representation directly for a preset */
+export function computePresetTimeCriteria(
+  preset: Preset,
+  refDate: Date = new Date(),
+): TimeCriteria | null {
+  const year = refDate.getFullYear();
+  const month = refDate.getMonth(); // 0-based
 
   switch (preset) {
     case 'last7': {
-      const end = new Date(now);
+      const end = new Date(refDate);
       end.setHours(23, 59, 59, 999);
-      const start = new Date(now);
-      start.setDate(now.getDate() - 6);
+      const start = new Date(refDate);
+      start.setDate(refDate.getDate() - 6);
       start.setHours(0, 0, 0, 0);
-      return { start, end };
+      return { kind: 'range', start, end };
     }
     case 'thisMonth': {
-      const start = new Date(year, month, 1);
-      const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
-      return { start, end };
+      return { kind: 'month', year, month: month + 1 };
     }
     case 'lastMonth': {
-      const lastMonth = month === 0 ? 11 : month - 1;
+      const lastMonth = month === 0 ? 12 : month;
       const lastMonthYear = month === 0 ? year - 1 : year;
-      const start = new Date(lastMonthYear, lastMonth, 1);
-      const end = new Date(lastMonthYear, lastMonth + 1, 0, 23, 59, 59, 999);
-      return { start, end };
+      return { kind: 'month', year: lastMonthYear, month: lastMonth };
     }
     case 'last3months': {
       const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
-      // BUG-4: explicit year rollback instead of relying on JS Date negative-month overflow
       const startMonthOffset = month - 2;
       const startYear = startMonthOffset < 0 ? year - 1 : year;
       const startMonth = ((startMonthOffset % 12) + 12) % 12;
-      const start = new Date(startYear, startMonth, 1);
-      return { start, end };
+      const start = new Date(startYear, startMonth, 1, 0, 0, 0, 0);
+      return { kind: 'range', start, end };
     }
     case 'thisYear': {
-      const start = new Date(year, 0, 1);
-      const end = new Date(year, 11, 31, 23, 59, 59, 999);
-      return { start, end };
+      return { kind: 'year', year };
     }
     default:
       return null;
   }
 }
 
-/** Set the hidden year/month selects to match a single-month preset for chart compatibility */
-function syncYearMonthSelects(start: Date): void {
-  const yearEl = document.getElementById('filterYear') as HTMLSelectElement;
-  const monthEl = document.getElementById('filterMonth') as HTMLSelectElement;
-  yearEl.value = String(start.getFullYear());
-  monthEl.value = String(start.getMonth() + 1);
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
 
-/** Clear the hidden year/month selects (for multi-month ranges) */
-function clearYearMonthSelects(): void {
-  (document.getElementById('filterYear') as HTMLSelectElement).value = '';
-  (document.getElementById('filterMonth') as HTMLSelectElement).value = '';
+/** Match an active TimeCriteria against known presets */
+export function matchActivePreset(
+  time: TimeCriteria | undefined | null,
+  refDate: Date = new Date(),
+): Preset | null {
+  if (!time || time.kind === 'all' || time.kind === 'day') {
+    return null;
+  }
+
+  if (time.kind === 'year') {
+    const thisYear = computePresetTimeCriteria('thisYear', refDate);
+    return thisYear?.kind === 'year' && time.year === thisYear.year ? 'thisYear' : null;
+  }
+
+  if (time.kind === 'month') {
+    const thisMonth = computePresetTimeCriteria('thisMonth', refDate);
+    if (
+      thisMonth?.kind === 'month' &&
+      time.year === thisMonth.year &&
+      time.month === thisMonth.month
+    ) {
+      return 'thisMonth';
+    }
+    const lastMonth = computePresetTimeCriteria('lastMonth', refDate);
+    if (
+      lastMonth?.kind === 'month' &&
+      time.year === lastMonth.year &&
+      time.month === lastMonth.month
+    ) {
+      return 'lastMonth';
+    }
+    return null;
+  }
+
+  if (time.kind === 'range') {
+    const last7 = computePresetTimeCriteria('last7', refDate) as {
+      kind: 'range';
+      start: Date;
+      end: Date;
+    };
+    if (isSameDay(time.start, last7.start) && isSameDay(time.end, last7.end)) {
+      return 'last7';
+    }
+    const last3 = computePresetTimeCriteria('last3months', refDate) as {
+      kind: 'range';
+      start: Date;
+      end: Date;
+    };
+    if (isSameDay(time.start, last3.start) && isSameDay(time.end, last3.end)) {
+      return 'last3months';
+    }
+    return 'custom';
+  }
+
+  return null;
+}
+
+/**
+ * Synchronize the date range picker UI with current FilterCriteria time.
+ */
+export function syncDateRangePickerToCriteria(
+  container: HTMLElement,
+  refDate: Date = new Date(),
+): void {
+  const active = matchActivePreset(state.criteria?.time, refDate);
+
+  container.querySelectorAll<HTMLButtonElement>('.drp-preset').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === active);
+  });
+
+  const customPanel = container.querySelector('.drp-custom-panel') as HTMLElement | null;
+  const startInput = container.querySelector('#drpStartDate') as HTMLInputElement | null;
+  const endInput = container.querySelector('#drpEndDate') as HTMLInputElement | null;
+
+  if (active === 'custom' && state.criteria?.time?.kind === 'range') {
+    customPanel?.classList.remove('hidden');
+    const { start, end } = state.criteria.time;
+    if (startInput && start) {
+      startInput.value = formatDateForInput(start);
+    }
+    if (endInput && end) {
+      endInput.value = formatDateForInput(end);
+    }
+  } else if (!active) {
+    customPanel?.classList.add('hidden');
+    if (startInput) startInput.value = '';
+    if (endInput) endInput.value = '';
+  } else {
+    customPanel?.classList.add('hidden');
+  }
 }
 
 function applyPreset(preset: Preset, container: HTMLElement): void {
-  // Toggle off if clicking already active preset
-  if (activePreset === preset) {
-    activePreset = null;
+  const currentActive = matchActivePreset(state.criteria?.time);
+  const customPanel = container.querySelector('.drp-custom-panel') as HTMLElement | null;
+  const isCustomPanelOpen = customPanel ? !customPanel.classList.contains('hidden') : false;
+
+  // Toggle off if clicking already active preset, or toggling off custom panel
+  if (currentActive === preset || (preset === 'custom' && isCustomPanelOpen)) {
+    state.criteria = {
+      ...state.criteria,
+      time: { kind: 'all' },
+    };
     state.dateRange = { start: null, end: null };
     state.selectedDay = null;
-    clearYearMonthSelects();
-    updateActiveButton(container);
     state.currentPage = 1;
-    applyFilters();
+    syncCriteriaToToolbar(state.criteria);
+    applyFilters({ syncFromDOM: false });
     return;
   }
 
-  activePreset = preset;
-  updateActiveButton(container);
-
-  const customPanel = container.querySelector('.drp-custom-panel') as HTMLElement;
   if (preset === 'custom') {
-    customPanel.classList.remove('hidden');
+    customPanel?.classList.remove('hidden');
+    container.querySelectorAll<HTMLButtonElement>('.drp-preset').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.preset === 'custom');
+    });
     return;
   }
-  customPanel.classList.add('hidden');
 
-  const range = computePresetRange(preset);
-  if (!range) return;
+  customPanel?.classList.add('hidden');
+
+  const timeCriteria = computePresetTimeCriteria(preset);
+  if (!timeCriteria) return;
 
   state.selectedDay = null;
-
-  // ISSUE-1: for single-month presets, use year/month selects only — don't set dateRange
-  // to avoid ghost-dateRange reactivation when chips are removed later
-  if (preset === 'thisMonth' || preset === 'lastMonth') {
-    state.dateRange = { start: null, end: null };
-    syncYearMonthSelects(range.start);
+  if (timeCriteria.kind === 'range') {
+    state.dateRange = { start: timeCriteria.start, end: timeCriteria.end };
   } else {
-    state.dateRange = range;
-    clearYearMonthSelects();
+    state.dateRange = { start: null, end: null };
   }
 
-  state.currentPage = 1;
-  applyFilters();
-}
+  state.criteria = {
+    ...state.criteria,
+    time: timeCriteria,
+  };
 
-function updateActiveButton(container: HTMLElement): void {
-  container.querySelectorAll<HTMLButtonElement>('.drp-preset').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.preset === activePreset);
-  });
+  state.currentPage = 1;
+  syncCriteriaToToolbar(state.criteria);
+  applyFilters({ syncFromDOM: false });
 }
 
 /** Render the picker into the given container element */
 export function renderDateRangePicker(container: HTMLElement): void {
+  const active = matchActivePreset(state.criteria?.time);
+
   container.innerHTML = `
     <div class="date-range-picker">
       <div class="drp-presets">
         ${PRESETS.map(p => `
-          <button class="drp-preset${activePreset === p.key ? ' active' : ''}" data-preset="${p.key}">
+          <button class="drp-preset${active === p.key ? ' active' : ''}" data-preset="${p.key}">
             ${t(p.i18nKey)}
           </button>
         `).join('')}
       </div>
-      <div class="drp-custom-panel hidden">
+      <div class="drp-custom-panel${active === 'custom' ? '' : ' hidden'}">
         <div class="drp-custom-inputs">
           <label>
             <span class="drp-label" data-i18n="daterange.from">${t('daterange.from')}</span>
@@ -169,42 +262,58 @@ export function renderDateRangePicker(container: HTMLElement): void {
     const startInput = container.querySelector('#drpStartDate') as HTMLInputElement;
     const endInput = container.querySelector('#drpEndDate') as HTMLInputElement;
 
-    if (!startInput.value && !endInput.value) return;
+    if (!startInput?.value || !endInput?.value) return;
 
-    const start = startInput.value ? new Date(startInput.value + 'T00:00:00') : null;
-    const end = endInput.value ? new Date(endInput.value + 'T23:59:59') : null;
+    const start = new Date(startInput.value + 'T00:00:00');
+    const end = new Date(endInput.value + 'T23:59:59.999');
 
+    if (start.getTime() > end.getTime()) return;
+
+    const time: TimeCriteria = { kind: 'range', start, end };
+    state.criteria = {
+      ...state.criteria,
+      time,
+    };
     state.dateRange = { start, end };
     state.selectedDay = null;
-    clearYearMonthSelects();
     state.currentPage = 1;
-    applyFilters();
+    syncCriteriaToToolbar(state.criteria);
+    applyFilters({ syncFromDOM: false });
   });
 
   // Custom cancel
   container.querySelector('#drpCancel')?.addEventListener('click', (e) => {
     e.stopPropagation();
-    activePreset = null;
-    updateActiveButton(container);
-    (container.querySelector('.drp-custom-panel') as HTMLElement).classList.add('hidden');
-    state.dateRange = { start: null, end: null };
-    state.currentPage = 1;
-    applyFilters();
+    (container.querySelector('.drp-custom-panel') as HTMLElement)?.classList.add('hidden');
+    if (state.criteria?.time?.kind === 'range' && matchActivePreset(state.criteria.time) === 'custom') {
+      state.criteria = { ...state.criteria, time: { kind: 'all' } };
+      state.dateRange = { start: null, end: null };
+      state.currentPage = 1;
+      syncCriteriaToToolbar(state.criteria);
+      applyFilters({ syncFromDOM: false });
+    } else {
+      syncDateRangePickerToCriteria(container);
+    }
   });
 
   // Sync state if already set
-  if (state.dateRange.start || state.dateRange.end) {
-    const startInput = container.querySelector('#drpStartDate') as HTMLInputElement;
-    const endInput = container.querySelector('#drpEndDate') as HTMLInputElement;
-    if (state.dateRange.start) startInput.value = state.dateRange.start.toISOString().slice(0, 10);
-    if (state.dateRange.end) endInput.value = state.dateRange.end.toISOString().slice(0, 10);
+  if (state.criteria?.time?.kind === 'range') {
+    const startInput = container.querySelector('#drpStartDate') as HTMLInputElement | null;
+    const endInput = container.querySelector('#drpEndDate') as HTMLInputElement | null;
+    if (startInput && state.criteria.time.start) {
+      startInput.value = formatDateForInput(state.criteria.time.start);
+    }
+    if (endInput && state.criteria.time.end) {
+      endInput.value = formatDateForInput(state.criteria.time.end);
+    }
   }
 }
 
 /** Reset active preset state (called from clearAllFilters) */
 export function resetDateRangePicker(container: HTMLElement): void {
-  activePreset = null;
-  updateActiveButton(container);
+  container.querySelectorAll<HTMLButtonElement>('.drp-preset').forEach(btn => {
+    btn.classList.remove('active');
+  });
   (container.querySelector('.drp-custom-panel') as HTMLElement)?.classList.add('hidden');
   const startInput = container.querySelector('#drpStartDate') as HTMLInputElement | null;
   const endInput = container.querySelector('#drpEndDate') as HTMLInputElement | null;
@@ -214,9 +323,9 @@ export function resetDateRangePicker(container: HTMLElement): void {
 
 /** Get a human-readable summary of the current date range for display */
 export function getDateRangeSummary(): string {
-  const { start, end } = state.dateRange;
-  if (!start && !end) return '';
-  const startStr = start ? formatDate(start) : '…';
-  const endStr = end ? formatDate(end) : '…';
+  const range = state.criteria?.time?.kind === 'range' ? state.criteria.time : state.dateRange;
+  if (!range?.start || !range?.end) return '';
+  const startStr = formatDate(range.start);
+  const endStr = formatDate(range.end);
   return t('filter.chip.dateRange', { start: startStr, end: endStr });
 }

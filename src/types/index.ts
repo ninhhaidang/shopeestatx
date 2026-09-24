@@ -107,3 +107,8 @@ export interface FilterChip {
   label: string;
   remove: (criteria?: FilterCriteria) => FilterCriteria;
 }
+
+/**
+ * Identifier for relative date interval presets supported by the DateRangePicker.
+ */
+export type DatePreset = 'last7' | 'thisMonth' | 'lastMonth' | 'last3months' | 'thisYear' | 'custom';

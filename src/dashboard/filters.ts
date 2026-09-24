@@ -1,6 +1,7 @@
 /** ShopeeStatX/filters.ts — Filter logic, sorting, active filter chips, and search */
 import type { Order, FilterCriteria, TimeCriteria, SortDirection } from '../types/index.js';
 import { FilterEngine, deriveFilterChips, sortOrders } from './filter-engine.js';
+import { syncDateRangePickerToCriteria } from './date-range-picker.js';
 export { sortOrders };
 import { state } from './state.js';
 import { renderData } from './comparison.js';
@@ -122,6 +123,11 @@ export function syncCriteriaToToolbar(criteria: FilterCriteria): void {
 
   if (criteria.sort && criteria.sort.field) {
     state.currentSort = { field: criteria.sort.field, direction: criteria.sort.direction };
+  }
+
+  const drpContainer = document.getElementById('dateRangePickerContainer');
+  if (drpContainer) {
+    syncDateRangePickerToCriteria(drpContainer);
   }
 }
 /**
