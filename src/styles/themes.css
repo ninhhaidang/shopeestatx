@@ -497,3 +497,19 @@
 .skeleton-row.short { width: 40%; }
 .skeleton-row.medium { width: 70%; }
 .skeleton-row.full { width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.toast-fade-out {
+    animation: none !important;
+    transition: none !important;
+  }
+  .appearance-popover,
+  .user-profile-popover {
+    animation: none !important;
+    transition: none !important;
+  }
+  .skeleton-line {
+    animation: none !important;
+  }
+}

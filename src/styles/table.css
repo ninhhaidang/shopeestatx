@@ -814,8 +814,14 @@ td.col-select {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .drawer-panel {
+    transition: none !important;
+  }
+  .drawer-backdrop {
+    transition: none !important;
+  }
   .floating-bulk-bar {
-    transition: opacity 0.1s ease;
+    transition: none !important;
   }
 }
 

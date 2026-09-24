@@ -136,21 +136,7 @@ export function applyFilters(options?: { syncFromDOM?: boolean }): void {
 
   updateActiveFilters();
 
-  const emptyState = document.getElementById('emptyState');
-  const ordersTable = document.getElementById('ordersTable');
-  const paginationContainer = document.getElementById('paginationContainer');
-
-  if (emptyState && ordersTable && paginationContainer) {
-    if (filtered.length === 0) {
-      emptyState.classList.remove('hidden');
-      ordersTable.classList.add('hidden');
-      paginationContainer.classList.add('hidden');
-    } else {
-      emptyState.classList.add('hidden');
-      ordersTable.classList.remove('hidden');
-      paginationContainer.classList.remove('hidden');
-    }
-  }
+  updateEmptyState(filtered.length, state.criteria);
   if (document.getElementById('kpiStrip') || document.getElementById('financialHealthCard')) {
     renderOverview({
       filteredOrders: filtered,
@@ -249,6 +235,51 @@ export function updateActiveFilters(): void {
   } else {
     activeFiltersContainer.classList.add('hidden');
     activeFiltersDiv.innerHTML = '';
+  }
+}
+
+/**
+ * Contextualizes and updates the empty state display based on active criteria
+ * and filtered order results count.
+ */
+export function updateEmptyState(filteredCount: number, criteria: FilterCriteria = state.criteria): void {
+  const emptyState = document.getElementById('emptyState');
+  const ordersTable = document.getElementById('ordersTable');
+  const paginationContainer = document.getElementById('paginationContainer');
+
+  if (!emptyState) return;
+
+  if (filteredCount === 0) {
+    emptyState.classList.remove('hidden');
+    if (ordersTable) ordersTable.classList.add('hidden');
+    if (paginationContainer) paginationContainer.classList.add('hidden');
+
+    const emptyTitle = emptyState.querySelector('.empty-title');
+    const emptyMessage = emptyState.querySelector('.empty-message');
+    const btnReset = emptyState.querySelector('#btnResetFilters');
+
+    const chips = deriveFilterChips(criteria);
+
+    if (chips.length > 0) {
+      if (emptyTitle) emptyTitle.textContent = 'Không tìm thấy đơn hàng nào phù hợp';
+      if (emptyMessage) {
+        const labels = chips.map(c => c.label).join(', ');
+        emptyMessage.textContent = `Không có đơn hàng nào khớp với các tiêu chí đang chọn (${labels}). Bấm đặt lại bộ lọc để xem toàn bộ đơn hàng.`;
+      }
+    } else {
+      if (emptyTitle) emptyTitle.textContent = 'Không tìm thấy đơn hàng nào';
+      if (emptyMessage) {
+        emptyMessage.textContent = 'Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm';
+      }
+    }
+
+    if (btnReset) {
+      btnReset.textContent = 'Đặt lại bộ lọc';
+    }
+  } else {
+    emptyState.classList.add('hidden');
+    if (ordersTable) ordersTable.classList.remove('hidden');
+    if (paginationContainer) paginationContainer.classList.remove('hidden');
   }
 }
 

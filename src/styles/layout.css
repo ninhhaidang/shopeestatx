@@ -173,11 +173,258 @@ body {
   transition: transform 0.2s ease;
 }
 
-.user-info:hover .user-dropdown-icon {
+.user-info:hover .user-dropdown-icon,
+.user-info[aria-expanded="true"] .user-dropdown-icon {
   color: var(--text-secondary);
   transform: rotate(180deg);
 }
 
+.user-profile-container {
+  position: relative;
+  display: inline-flex;
+}
+
+.user-info[aria-expanded="true"] {
+  background: var(--bg-card);
+}
+
+.user-profile-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 290px;
+  background: var(--bg-surface-elevated, var(--bg-card));
+  border: 1px solid var(--border-strong, var(--border-color));
+  border-radius: var(--radius-lg, 12px);
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-profile-popover.hidden {
+  display: none !important;
+}
+
+.popover-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.popover-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+  box-shadow: var(--shadow-xs);
+}
+
+.popover-user-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.popover-username {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popover-domain-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.popover-domain-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.popover-domain-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--primary-light, rgba(238, 77, 45, 0.1));
+  color: var(--primary);
+}
+
+.popover-divider {
+  height: 1px;
+  background: var(--border-subtle, var(--border-color));
+  margin: 0 -4px;
+}
+
+.popover-cache-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.popover-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cache-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.cache-info-label {
+  color: var(--text-secondary);
+}
+
+.cache-info-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.popover-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-popover-resync,
+.btn-popover-purge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms);
+  border: 1px solid transparent;
+}
+
+.btn-popover-resync {
+  background: var(--primary-light, rgba(238, 77, 45, 0.1));
+  color: var(--primary);
+  border-color: transparent;
+}
+
+.btn-popover-resync:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-popover-purge {
+  background: transparent;
+  color: var(--danger, #ef4444);
+  border: 1px solid var(--border-color);
+}
+
+.btn-popover-purge:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger, #ef4444);
+}
+
+/* Purge Confirmation Dialog */
+.purge-dialog {
+  border: 1px solid var(--border-strong, var(--border-color));
+  border-radius: var(--radius-xl, 16px);
+  background: var(--bg-surface-elevated, var(--bg-card));
+  box-shadow: var(--shadow-xl);
+  padding: 24px;
+  max-width: 420px;
+  width: 90vw;
+  color: var(--text-primary);
+  margin: auto;
+}
+
+.purge-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.purge-dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.purge-dialog-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger, #ef4444);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.purge-dialog-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.purge-dialog-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.purge-dialog-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-dialog-cancel,
+.btn-dialog-confirm {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast, 150ms);
+}
+
+.btn-dialog-cancel {
+  background: var(--bg-surface-subtle, #f1f5f9);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-dialog-cancel:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-dialog-confirm {
+  background: var(--danger, #ef4444);
+  color: white;
+  border: none;
+}
+
+.btn-dialog-confirm:hover {
+  background: #dc2626;
+}
 .header p {
   font-size: 14px;
   opacity: 0.95;
@@ -268,6 +515,12 @@ body {
     transition: none !important;
   }
   .tab-item {
+    transition: none !important;
+  }
+  .more-filters-panel {
+    animation: none !important;
+  }
+  .user-info .user-dropdown-icon {
     transition: none !important;
   }
 }

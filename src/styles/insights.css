@@ -556,3 +556,19 @@
   letter-spacing: normal;
   margin-top: 3px;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  dialog,
+  #budgetDialog,
+  #purgeConfirmDialog {
+    animation: none !important;
+    transition: none !important;
+  }
+  .insight-card,
+  .heatmap-cell,
+  .loyalty-row,
+  .category-legend-item {
+    transition: none !important;
+    transform: none !important;
+  }
+}

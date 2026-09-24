@@ -21,6 +21,7 @@ import { EVENTS, getHomeUrl } from '../config.js';
 import { initTabs, switchTab } from './tabs.js';
 import { initDrawer } from './drawer.js';
 import { initBulkBar } from './bulk-actions.js';
+import { initProfilePopover } from './profile-popover.js';
 import './results.css';
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   updateAppearanceUI();
   initDrawer();
   initBulkBar();
+  initProfilePopover();
   // Initialize SVG icons from icons.ts
   const emptyIcon = document.querySelector('#emptyState .empty-icon');
   if (emptyIcon) {

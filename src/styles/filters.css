@@ -168,3 +168,13 @@
   transform: none;
   box-shadow: none;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .active-filters {
+    animation: none !important;
+  }
+  .filter-chip {
+    animation: none !important;
+    transition: none !important;
+  }
+}

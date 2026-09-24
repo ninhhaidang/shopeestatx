@@ -139,3 +139,14 @@
 .user-info {
   flex-shrink: 0;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .drp-popover {
+    animation: none !important;
+    transition: none !important;
+  }
+  .drp-custom-panel {
+    animation: none !important;
+    transition: none !important;
+  }
+}

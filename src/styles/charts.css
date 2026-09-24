@@ -237,3 +237,14 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-box,
+  .chart-header select,
+  .btn-toggle-stats,
+  .shop-stats-table tbody tr,
+  .btn-view-shop {
+    transition: none !important;
+    transform: none !important;
+  }
+}
