@@ -1,58 +1,95 @@
 # Project Changelog
 
-All notable changes to ShopeeStatX are documented here.
+All notable changes to ShopeeStatX are documented here. Source of truth for current version: `package.json` (3.4.0). The `src/manifest.json` version is kept in sync.
 
-## [3.2.0] - 2026-03-15
-
-### Vietnamese-Only i18n
-
-#### Changed
-
-- Removed English (en.json) locale - Vietnamese-only
-- Simplified i18n/index.ts - removed setLocale(), getLocale()
-- Hardcoded vi-VN locale in format.ts
-- Removed LANGUAGE key from config.ts
-- Removed language switcher UI from results header
-- Theme names now in Vietnamese only (nameVi instead of nameEn)
-- Removed refreshDateRangePickerLabels export
+> **Versioning note:** v3.4.0 consolidates work that was previously tracked as 3.1.x patches + 3.2.0 (i18n-vi-only) + 3.3.0 (security) + 3.3.1 (collapsible toolbar) into a single release. Prior to 3.4.0, the source-of-truth `package.json` was 3.1.0; the intervening work was unreleased. All entries below are grouped under v3.4.0 for traceability.
 
 ---
 
-## [3.3.1] - 2026-03-15
+## [3.4.0] - 2026-06-01
 
-### Collapsible Toolbar Refactor
+Consolidated release covering all work from 2026-03-12 through 2026-05-04.
 
-#### Changed
+### Added
 
+**Centralized Config (`src/config.ts`)** — closes the prior `[3.2.0] - TBD` hardcode-detection entry
+- `DOMAINS` map (vn / id / th / ph / my / sg / tw) for multi-market support
+- `STORAGE_KEYS` with consistent `shopeestatx-*` prefix
+- `EVENTS` with consistent `shopeestatx:*` prefix
+- URL helpers: `getApiBaseUrl()`, `getOrderUrl()`, `getPurchaseUrl()`, `getLoginUrl()`, `getHomeUrl()`
+- `setActiveDomain()` / `getActiveDomain()` for runtime domain switching
+- `manifest.json` `host_permissions` updated for all 7 supported domains
+
+**5-Theme System** (`src/dashboard/theme-config.ts` + `src/styles/themes.css`)
+- Themes: `orange` (Cam), `forest` (Rừng), `rose` (Hồng), `sky` (Trời Xanh), `lavender` (Oải Hương)
+- 15 tokens per theme (primary ramp, secondary, bg, text, border, heatmap 0–4, 6 shadow tokens)
+- Dropdown selector (`src/dashboard/theme-toggle.ts`) with FOUC-safe init
+- Persisted via `localStorage` under `STORAGE_KEYS.THEME`
+
+**Vietnamese-Only i18n**
+- Removed `src/i18n/locales/en.json` — Vietnamese-only
+- Simplified `src/i18n/index.ts` — removed `setLocale()` / `getLocale()` exports
+- Hardcoded `vi-VN` locale in `src/i18n/format.ts`
+- Removed `LANGUAGE` key from `src/config.ts`
+- Removed language switcher UI from results header
+- Theme names now Vietnamese only (`nameVi` instead of `nameEn`)
+- Removed `refreshDateRangePickerLabels` export
+- Refactor: removed dead code from language switcher removal
+
+**Collapsible Toolbar** (`src/dashboard/results.ts` + `src/styles/filters.css`)
 - Toolbar restructured with semantic `toolbar-container` layout
 - Search box always visible on primary row
 - Date picker always visible (not collapsible)
 - Status/Category filters moved to collapsible "More filters" panel
-- Mobile: Collapsible behavior to save space
+- Mobile: collapsible behavior to save space
 - New CSS classes: `toolbar-container`, `toolbar-row`, `search-row`, `filters-row`, `more-filters-panel`, `btn-more-filters`
 - Responsive CSS updated for mobile breakpoints
-
-#### Added
-
 - JavaScript toggle logic for collapsible filters panel
 - Filter count badge on "More filters" button
 - Accessibility attributes: `aria-expanded`, `aria-controls`
+- Active filter chips moved into toolbar for visibility
+- Multiple toolbar polish fixes (clear button styling, flat panel, `EVENTS.APPLY_FILTERS` dispatch, etc.)
 
----
+**Popup User Greeting** (`src/popup/popup.{html,css,ts}`)
+- Avatar + name welcome message
+- Improved UX: domain check + "Bắt đầu" button clearer enable/disable states
 
-## [3.3.0] - 2026-03-12
+**Order Detail Polish**
+- Clickable order ID link (opens Shopee order page in new tab)
+- Order detail expand icon (chevron) for clearer affordance
+- Order detail two-column layout (info + product details aligned)
+- Aligned order info and product details in same rows
+- Removed duplicate header line, added card style, fixed text wrap
+- Refactor: removed `orderDate` and `daysToDeliver` from order detail
 
-### Security Fixes
+**Date Range Picker** (also covered in v3.1.0)
+- Toggle date preset on click (single-click preset selection)
 
-#### Added
+**Categories Enhancement**
+- Expanded categories and keywords for product classification
+- Word-boundary regex fix in `categorizeOrder` (replaced substring matching to prevent false matches, e.g. "fashion" inside "fashionable")
+
+**Theme Polish**
+- User avatar display with floating style
+- Status badge accessibility and consistency fixes
+- Orange theme heatmap-0 updated to match theme color
+- All themes unified to neutral gray background colors
+- Pending and returned colors added to all themes
+
+**Documentation**
+- README rewritten to reflect current TypeScript + Vite stack
+- Replaced stale "xlsx" references with "exceljs"
+- Updated setup/build instructions to match `package.json` scripts
+
+### Security (rolled in)
 
 **XSS Prevention**
 - `escapeHtml()` utility in `src/dashboard/utils.ts`
-- Applied to: filters.ts, insights.ts, budget.ts, shop-loyalty.ts, table.ts
+- Applied to: `filters.ts`, `insights.ts`, `budget.ts`, `shop-loyalty.ts`, `table.ts`
 - All user-generated content sanitized before DOM insertion
 
 **Content Security Policy**
-- `content_security_policy` added to manifest.json
+- `content_security_policy` added to `manifest.json`
 - Strict CSP headers enforced by Chrome
 
 **Memory Leak Prevention**
@@ -61,31 +98,26 @@ All notable changes to ShopeeStatX are documented here.
 - Prevents Chart.js instance leaks
 
 **Accessibility**
-- aria-labels added to all dropdown elements
+- `aria-label`s added to all dropdown elements
+- `prefers-reduced-motion` rules added to `src/popup/popup.css:590` and `src/styles/states.css:32` (partial coverage)
 
 **Error Handling**
-- try-catch blocks added to data.ts, budget.ts
+- try-catch blocks added to `data.ts`, `budget.ts`
 - Graceful error handling with user feedback
 
----
+### Changed
+- `package.json` version: 3.1.0 → **3.4.0**
+- `src/manifest.json` version: 3.1.0 → **3.4.0**
+- All hardcoded values moved to `src/config.ts`
+- Multi-domain support: 7 Shopee marketplaces
+- `event_names` and storage keys unified with `shopeestatx-*` prefix
+- Theme names Vietnamese-only (`nameVi`)
+- Removed `LANGUAGE` config key
 
-## [3.2.0] - TBD
-
-### Hardcode Detection & Removal
-
-#### Changed
-
-- Refactored all hardcoded values to centralized `src/config.ts` module
-- Added multi-domain support (vn, id, th, ph, my, sg, tw)
-- Unified storage keys with consistent prefix (`shopeestatx-*`)
-- Unified event names with consistent prefix (`shopeestatx:*`)
-- Updated manifest.json host_permissions for all supported domains
-
-#### Added
-
-- `src/config.ts` with DOMAINS, STORAGE_KEYS, EVENTS constants
-- Helper functions: `getApiBaseUrl()`, `getOrderUrl()`, `getPurchaseUrl()`, `getHomeUrl()`
-- Runtime domain switching via `setActiveDomain()`
+### Notes
+- v3.4.0 is the first release published with the consolidated 3.1.x + 3.2.0 + 3.3.x work; no intermediate Chrome Web Store release was made.
+- The `_legacy-shopeestatx/icons/` folder is still referenced by `vite.config.ts` for icon assets — documented as tech debt to clean up pre-Phase 5.
+- `prefers-reduced-motion` has partial coverage (2 files); full coverage is a Phase 5/6 roadmap item.
 
 ---
 
@@ -95,9 +127,9 @@ All notable changes to ShopeeStatX are documented here.
 
 #### Added
 
-**i18n (Internationalization)**
-- Core i18n module with t(), setLocale(), getLocale() functions
-- Locale-aware currency/date formatting via Intl.NumberFormat
+**i18n (Internationalization)** — original Vietnamese + English
+- Core i18n module with `t()`, `setLocale()`, `getLocale()` functions
+- Locale-aware currency/date formatting via `Intl.NumberFormat`
 - Vietnamese (vi) and English (en) locale files (~100 keys each)
 - Language switcher in header — instant switch, no reload
 - Full i18n coverage: dashboard, popup, welcome pages
@@ -106,6 +138,15 @@ All notable changes to ShopeeStatX are documented here.
 - Custom component with preset buttons: Last 7 days, This month, Last month, 3 months, This year
 - Custom date range input (from/to)
 - Integration with existing filter logic
+
+**Phase 3 Advanced Analytics** (grouped under 3.1.0 release):
+- Heatmap (52-week calendar, `heatmap.ts`)
+- Categories (12-bucket classifier, `categories.ts`)
+- Predictions (linear extrapolation, `predictions.ts`)
+- Shop loyalty (repeat rate, `shop-loyalty.ts`)
+- Auto insights (max 5 cards, `insights.ts`)
+- Budget tracking (progress ring + toast, `budget.ts`)
+- Incremental fetch (cache merge, `incremental-fetch.ts`)
 
 #### Changed
 
@@ -138,13 +179,13 @@ All notable changes to ShopeeStatX are documented here.
 
 #### Added
 
-**Dark Mode Support**
-- CSS custom properties for theming (light/dark)
-- data-theme attribute with localStorage persistence
+**Theme System (1-theme → 5-theme foundation)**
+- CSS custom properties for theming
+- `data-theme` attribute with `localStorage` persistence
 - FOUC (flash of unstyled content) prevention
-- Dark mode colors for Chart.js charts via cssVar helper
+- Theme-aware colors for Chart.js charts via `cssVar` helper
 - New module: `src/dashboard/theme-toggle.ts`
-- New stylesheet: `src/styles/dark-theme.css`
+- New stylesheet: `src/styles/dark-theme.css` (later superseded by `themes.css`)
 
 **Incremental Data Fetch**
 - In-place data refresh without page reload
@@ -154,23 +195,23 @@ All notable changes to ShopeeStatX are documented here.
 
 **Enhanced Export**
 - CSV export with UTF-8 BOM encoding
-- PDF export via window.print() integration
+- PDF export via `window.print()` integration
 - Export format dropdown UI selector
 - Updated `export.ts` module
 
 **Utilities**
-- showToast() notification utility for user feedback
+- `showToast()` notification utility for user feedback
 
 #### Changed
 
-- export.ts: Extended to support CSV + PDF formats (was Excel only)
-- utils.ts: Added showToast() function
-- Test suite: 33 new tests for Phase 2 features (64 total)
+- `export.ts`: extended to support CSV + PDF formats (was Excel only)
+- `utils.ts`: added `showToast()` function
+- Test suite: 33 new tests for Phase 2 features
 
 #### Testing
 
 - Total: 64 tests (Phase 1: 31, Phase 2: 33)
-- Coverage: Unit + integration tests for dark mode, incremental fetch, export formats
+- Coverage: unit + integration tests for theme, incremental fetch, export formats
 
 ---
 
@@ -183,24 +224,24 @@ All notable changes to ShopeeStatX are documented here.
 **Build System & Tooling**
 - Vite 6.0 build system with multi-entry configuration
 - TypeScript strict mode (zero `any` types)
-- GitHub Actions CI pipeline (build, typecheck, test)
 - Pre-build type validation
+- `tsc --noEmit` in `npm run build`
 
 **Code Quality**
-- Modular src/ directory structure
-- CSS modules (8 separate files via @import)
+- Modular `src/` directory structure
+- CSS modules (later grew from 4 to 11 separate files via `@import`)
 - TypeScript strict type checking across all modules
 
 **Dependencies**
-- Moved chart.js from vendored (chart.min.js) → npm package (4.4.7)
-- Moved xlsx from vendored (xlsx.min.js) → npm package (0.18.5)
-- Kept content.js as IIFE JavaScript (Chrome MAIN world requirement)
+- Moved `chart.js` from vendored (`chart.min.js`) → npm package (4.4.7)
+- Moved `xlsx` from vendored (`xlsx.min.js`) → npm package (later replaced by `exceljs` 4.4.0)
+- Kept `content.js` as IIFE JavaScript (Chrome MAIN world requirement)
 
 **Testing**
 - Vitest 3.0 unit + integration testing framework
 - jsdom for browser simulation
 - 31 tests covering dashboard, filters, data, charts
-- Coverage reporting via @vitest/coverage-v8
+- Coverage reporting via `@vitest/coverage-v8`
 
 #### Preserved Features
 
@@ -208,7 +249,7 @@ All notable changes to ShopeeStatX are documented here.
 - Dual-world injection (MAIN + ISOLATED) for cookie-enabled API access
 - Full order history fetch with pagination
 - New Shopee API (2024+) support + fallback
-- chrome.storage.local caching
+- `chrome.storage.local` caching
 - Summary cards: total orders, total spend, avg per order
 - Month/year time comparison
 - Bar chart: monthly/daily with switchable metrics
@@ -230,12 +271,12 @@ All notable changes to ShopeeStatX are documented here.
 
 - Extension from vanilla JS (17 files) → TypeScript + Vite
 - CSS management: inline styles → modular files
-- content.js: Kept as IIFE, not bundled by Vite
+- `content.js`: kept as IIFE, not bundled by Vite
 
 #### Testing
 
 - Total: 31 tests
-- Coverage: Dashboard initialization, filter logic, data processing, chart rendering
+- Coverage: dashboard initialization, filter logic, data processing, chart rendering
 
 ---
 
@@ -243,8 +284,8 @@ All notable changes to ShopeeStatX are documented here.
 
 | Version | Date | Status | Focus |
 |---------|------|--------|-------|
-| 3.2.0 | 2026-03-15 | Stable | i18n VI-only (removed EN) |
-| 3.1.0 | 2026-03-06 | Stable | i18n (VI/EN), date range picker |
+| 3.4.0 | 2026-06-01 | Stable | Consolidated: centralized config, 5 themes, vi-only i18n, collapsible toolbar, popup greeting, security hardening, order detail polish, theme unification, docs sync |
+| 3.1.0 | 2026-03-06 | Stable | i18n (VI/EN), date range picker, Phase 3 advanced analytics (heatmap/categories/predictions/loyalty/insights/budget/incremental-fetch) |
 | 2.7.0 | 2026-03-06 | Stable | Chrome Web Store release |
-| 2.6.0 | 2026-03-05 | Stable | Dark mode, incremental fetch, enhanced export |
+| 2.6.0 | 2026-03-05 | Stable | Theme foundation, incremental fetch, enhanced export |
 | 2.5.0 | 2026-03-01 | Stable | Build system & TypeScript migration |

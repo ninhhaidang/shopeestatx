@@ -4,15 +4,17 @@
 
 - **YAGNI / KISS / DRY** — no over-engineering, no speculative code
 - **TypeScript strict mode** — zero `any` types, full type safety
-- **File size limit** — keep source files under 200 LOC; split when exceeded
-- **Dependencies via npm** — chart.js, xlsx (no vendored files)
+- **200 LOC target** — aspirational for new modules; current exceptions listed below
+- **Dependencies via npm** — chart.js, exceljs (no vendored files)
 - **Testing-first approach** — Vitest for all logic, aim for >80% coverage
 
 ## TypeScript
 
 ### Type Safety
-- **Strict mode enabled** in `tsconfig.json` (no implicit `any`)
-- Define interfaces in `src/types/index.ts` (Order, ShopeeData, Filter, Sort, etc.)
+- **Strict mode** in `tsconfig.json` (`strict`, `noUnusedLocals`, `noUnusedParameters`, `isolatedModules`)
+- Define interfaces in `src/types/index.ts`:
+  - **Types**: `StatusCode`, `ShopMetric`, `SortDirection`
+  - **Interfaces**: `UserProfile`, `Order`, `OrderData`, `DateRange`, `AppState`
 - Use types for state mutations: `const state: AppState = {...}`
 - Avoid `unknown` or `as any` — use discriminated unions for complex types
 
@@ -23,15 +25,15 @@
 - Named exports preferred; default exports only for singletons (state, config)
 
 ### Naming
-- Files: kebab-case with descriptive names (`mock-data.ts`, `background.ts`)
-- Functions: camelCase (`applyFilters`, `renderCurrentPage`)
-- Types/Interfaces: PascalCase (`Order`, `Filter`, `AppState`)
-- Constants: UPPER_SNAKE_CASE (`API_ENDPOINT`, `PAGINATION_SIZE`)
+- Files: kebab-case with descriptive names (`mock-data.ts`, `background.ts`, `date-range-picker.ts`)
+- Functions: camelCase (`applyFilters`, `renderCurrentPage`, `categorizeOrder`)
+- Types/Interfaces: PascalCase (`Order`, `AppState`, `DateRange`, `StatusCode`)
+- Constants: UPPER_SNAKE_CASE (`API_ENDPOINT`, `PAGINATION_SIZE`, `STORAGE_KEYS`)
 - DOM IDs: camelCase (`filterYear`, `btnExport`, `loadingText`)
 
 ### State
 - All mutable shared state lives in `state.ts` as a single exported object
-- State type defined in `types/index.ts` (AppState interface)
+- State type defined in `types/index.ts` (`AppState` interface)
 - Modules import `state` and mutate fields directly — no getter/setter indirection
 - `results.ts` may hold ephemeral orchestrator-only state (e.g. `searchTimeout`)
 
@@ -72,20 +74,24 @@
 
 ## CSS
 
-- All design tokens as CSS custom properties on `:root` (e.g., `results.css`)
-- Primary color: `#ee4d2d` (Shopee orange)
+- All design tokens as CSS custom properties (see `docs/design-guidelines.md`)
+- Base tokens in `src/styles/variables.css:5-69`
+- 5 theme overrides in `src/styles/themes.css:5-261` (`:root[data-theme="orange"|"forest"|"rose"|"sky"|"lavender"]`)
+- Aggregator: `src/dashboard/results.css` `@import`s all 11 style modules
 - Class naming: lowercase kebab (`.filter-chips`, `.summary-card`)
 - Animations defined as `@keyframes`, applied via class
 - Responsive: 3 breakpoints — `768px` (tablet), `1024px` (desktop)
-- Modularized: import via `@import` in main stylesheet
+- Modularized: each concern in its own file (`cards.css`, `charts.css`, `table.css`, …)
 
 ## Testing
 
 ### Unit Tests
-- File naming: `*.test.ts` or `*.spec.ts` (colocated with source)
+- Spec location: `tests/` at project root (not colocated with source)
+- File naming: `*.test.ts` (e.g., `categories.test.ts`, `filters.test.ts`)
 - Test functions using `describe()` and `it()`
 - Mock external dependencies (chrome API, fetch) via `vi.mock()`
 - Aim for >80% coverage
+- Current test files: `categories`, `content-parser`, `export`, `filters`, `predictions`, `theme-toggle`, `utils` + `setup.ts`
 
 ### Integration Tests
 - Test data flows (fetch → state → UI)
@@ -104,8 +110,8 @@ npm run test:coverage # Generate coverage report
 
 - Manifest V3 only — no MV2 patterns
 - Minimum permissions: `activeTab`, `storage`, `scripting`
-- Host permission scoped to `https://shopee.vn/*`
-- Service worker (`background.ts`) kept minimal
+- Host permissions: 7 Shopee domains from `manifest.json` (vn/id/th/ph/my/sg/tw)
+- Service worker (`background.ts`) kept minimal — handles `chrome.runtime.onInstalled` only
 - No `eval()`, no remote code execution
 
 ## Data Integrity
@@ -114,15 +120,16 @@ npm run test:coverage # Generate coverage report
 - Order date uses `shipping.tracking_info.ctime` → fallback `status.update_time` → fallback order_id timestamp
 - Future timestamps from order_id fallback are rejected
 - Orders without `infoCard` or `orderCard` are skipped silently
+- StatusCode type lists `{0, 3, 4, 7, 8, 9, 12}` — real Shopee data may include other codes; unknown codes default to neutral badge
 
 ## Build & Dev Workflow
 
 ### Development
 ```bash
-npm run dev           # Vite dev server on localhost:5173
-npm run typecheck     # TypeScript validation
+npm run dev           # Vite dev server on localhost:5173 (root: 'src')
+npm run typecheck     # TypeScript validation (strict + noUnusedLocals + noUnusedParameters)
 npm test              # Vitest
-npm run build         # Production build to dist/
+npm run build         # Production build to dist/ (tsc --noEmit && vite build)
 ```
 
 ### Pre-Commit
@@ -130,27 +137,51 @@ npm run build         # Production build to dist/
 - Run `npm test` to ensure all tests pass
 - No lint step (prioritize functionality over formatting)
 
-### File Organization
+## File Organization
 
 ```
-src/                   # TypeScript source
-├── dashboard/        # Dashboard UI modules
-├── types/            # Type definitions
-├── popup/            # Extension popup
-├── welcome/          # Onboarding page
-├── background.ts     # Service worker
-├── content/          # MAIN world API fetcher (IIFE JS)
-├── bridge/           # Message relay
-└── styles/           # CSS modules
+shopeestatx/                      # Project root
+├── vite.config.ts                 # Vite config (root: 'src', copy-extension-files plugin)
+├── tsconfig.json                  # strict + noUnusedLocals + noUnusedParameters
+├── vitest.config.ts               # Test runner config
+├── package.json                   # v3.4.0
+├── tests/                         # Vitest spec files (NOT colocated)
+└── src/                           # TypeScript source
+    ├── dashboard/                 # 22 .ts UI modules + results.html + results.css
+    ├── types/                     # Shared type definitions
+    ├── i18n/                      # Vietnamese-only translation
+    ├── popup/                     # Extension popup (html/css/ts)
+    ├── welcome/                   # Onboarding page (html/css/ts)
+    ├── background.ts              # MV3 service worker
+    ├── content/content.js         # MAIN world API fetcher (IIFE)
+    ├── bridge/                    # ISOLATED world message relay
+    ├── styles/                    # 11 modular CSS files
+    ├── config.ts                  # Centralized config (DOMAINS, STORAGE_KEYS, EVENTS)
+    ├── manifest.json              # MV3 config
+    └── privacy.html               # In-extension privacy policy
 
-dist/                  # Vite build output (git-ignored)
-public/                # Static assets (manifest.json, HTML)
-docs/                  # Developer documentation
-plans/                 # Implementation plans
+dist/                              # Vite build output (git-ignored)
+docs/                              # Developer documentation
+plans/                             # Implementation plans
 ```
 
-### Version
-Current: **3.3.1** (Collapsible toolbar refactor)
+### 200 LOC Target — Current Exceptions
+
+The 200 LOC guideline is **aspirational** for new modules. Current dashboard modules that exceed it (refactor deferred):
+
+| File | LOC | Reason |
+|------|-----|--------|
+| `categories.ts` | 316 | 12-bucket keyword classifier with VI/EN keyword sets |
+| `results.ts` | 311 | Orchestrator + DOM wiring (all event listeners in one place) |
+| `charts.ts` | 253 | Chart.js wrappers + 2 chart types + drill-down |
+| `filters.ts` | 252 | Year/month/status/search/chips filter pipeline |
+| `table.ts` | 225 | Render + sort + expand + clickable filter cells |
+| `date-range-picker.ts` | 222 | Custom date range + presets + state management |
+| `cards.css` / `layout.css` / `table.css` / `themes.css` | 193/493/503/485 | CSS aggregate (not subject to 200 LOC rule) |
+
+## Version
+
+Current: **3.4.0** (per `package.json` + `src/manifest.json`)
 
 ## Configuration
 
@@ -165,15 +196,16 @@ import {
   getActiveDomain,
   getApiBaseUrl,
   getOrderUrl,
+  getPurchaseUrl,
   STORAGE_KEYS,
   EVENTS,
-  getEventName,
 } from './config';
 ```
 
 ### Rules
 
 - **Domain**: Use `getApiBaseUrl()`, `getOrderUrl()`, `getPurchaseUrl()`, `getHomeUrl()` — never hardcode URLs
-- **Storage**: Use `STORAGE_KEYS.STATS`, `STORAGE_KEYS.THEME`, etc. — never hardcode keys
-- **Events**: Use `EVENTS.APPLY_FILTERS` or `getEventName('custom-event')` — never hardcode event names
-- **Adding new domains**: Add to `DOMAINS` object, update manifest.json host_permissions
+- **Storage**: Use `STORAGE_KEYS.STATS`, `STORAGE_KEYS.THEME`, `STORAGE_KEYS.BUDGET` — never hardcode keys
+- **Events**: Use `EVENTS.APPLY_FILTERS` or prefixed `shopeestatx:*` events — never hardcode event names
+- **Adding new domains**: Add to `DOMAINS` object, update `manifest.json` host_permissions
+- **7 supported Shopee sites**: `vn`, `id`, `th`, `ph`, `my`, `sg`, `tw`

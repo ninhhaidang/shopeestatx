@@ -72,11 +72,11 @@ To update:
 
 ## Chrome Web Store
 
-**Status: Submitted for review** (v2.1.0, submitted 2026-03-05)
+**Status: Current release v3.4.0** (submitted via `package.json` + `src/manifest.json` version sync)
 
 Submission package:
 ```bash
-cd ShopeeStatX && zip -r ../shopeestatx-v2.1.0.zip . --exclude "*.DS_Store" --exclude "*.map"
+cd dist && zip -r ../shopeestatx-v3.4.0.zip . --exclude "*.DS_Store" --exclude "*.map"
 ```
 
 For future releases:
@@ -89,12 +89,11 @@ See `store-assets/submission-checklist.md` for permissions justification and sto
 
 ## Version Bumping
 
-Update version in `ShopeeStatX/manifest.json`:
-```json
-{ "version": "1.0.0" }
-```
+Update version in **both** files (must stay in sync):
+- `package.json` → `"version": "X.Y.Z"`
+- `src/manifest.json` → `"version": "X.Y.Z"`
 
-Note: `package.json` version is separate and only used for dev tooling.
+Chrome Web Store reads the version from `manifest.json`. `package.json` is used for dev tooling (npm scripts, IDEs). The two are kept in sync; `package.json` is the source of truth and `manifest.json` should be updated alongside.
 
 ## Permissions Justification (for Store Review)
 
