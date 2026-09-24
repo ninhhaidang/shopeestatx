@@ -1,5 +1,7 @@
 // Filter logic, sorting, active filter chips, and search
-import type { Order, SortDirection } from '../types/index.js';
+import type { Order } from '../types/index.js';
+import { sortOrders } from './filter-engine.js';
+export { sortOrders };
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
 import { formatDate } from '../i18n/format.js';
@@ -13,31 +15,6 @@ import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
 import { EVENTS } from '../config.js';
 import { escapeHtml } from './utils.js';
 
-export function sortOrders(orders: Order[], field: string, direction: SortDirection): Order[] {
-  return [...orders].sort((a, b) => {
-    let aVal: number;
-    let bVal: number;
-
-    switch (field) {
-      case 'deliveryDate':
-        aVal = a.deliveryDate ? new Date(a.deliveryDate).getTime() : 0;
-        bVal = b.deliveryDate ? new Date(b.deliveryDate).getTime() : 0;
-        break;
-      case 'subTotal':
-        aVal = a.subTotal || 0;
-        bVal = b.subTotal || 0;
-        break;
-      case 'status':
-        aVal = a.statusCode || 0;
-        bVal = b.statusCode || 0;
-        break;
-      default:
-        return 0;
-    }
-
-    return direction === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
-  });
-}
 
 /** Filter orders by year/month/status/search (excludes selectedDay). Reused by charts. */
 export function filterOrders(

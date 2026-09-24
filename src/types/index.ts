@@ -24,6 +24,7 @@ export interface Order {
   shopName: string;
   productSummary: string;
   deliveryDate: string | null;
+  orderPlacementDate?: string | null;
   orderMonth: number | null;
   orderYear: number | null;
 }
@@ -53,4 +54,33 @@ export interface AppState {
   shopMetric: ShopMetric;
   currentSort: { field: string | null; direction: SortDirection };
   dateRange: DateRange;
+}
+
+/**
+ * Temporal criteria specification expressing user filtering intent across:
+ * all-time, a calendar year, a specific month, an exact day, or a custom date range.
+ */
+export type TimeCriteria =
+  | { kind: 'all' }
+  | { kind: 'year'; year: number }
+  | { kind: 'month'; year: number; month: number }
+  | { kind: 'day'; year: number; month: number; day: number }
+  | { kind: 'range'; start: Date; end: Date };
+
+/** Sort specification defining field and sort direction */
+export interface FilterSort {
+  field: string | null;
+  direction: SortDirection;
+}
+
+/**
+ * Complete filter criteria value object containing temporal, categorical,
+ * status, keyword search, and sorting constraints.
+ */
+export interface FilterCriteria {
+  time: TimeCriteria;
+  status?: string | null;
+  category?: string | null;
+  searchTerm?: string | null;
+  sort?: FilterSort | null;
 }
