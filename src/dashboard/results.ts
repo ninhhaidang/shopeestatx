@@ -269,10 +269,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   // Shop loyalty: filter by shop name and switch to Tab 3
   document.addEventListener(EVENTS.FILTER_BY_SHOP, (e) => {
-    searchBox.value = (e as CustomEvent<string>).detail;
+    const shopName = (e as CustomEvent<string>).detail;
+    if (searchBox) searchBox.value = shopName;
     state.currentPage = 1;
-    switchTab(3);
-    applyFilters();
+    switchTab(3, { searchTerm: shopName });
     document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
   });
   // Budget dialog wiring (event delegation for dynamically rendered buttons)
@@ -327,9 +327,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   });
 
   // Shop chart controls
-  shopCountSelect.addEventListener('change', function () {
+  shopCountSelect?.addEventListener('change', function () {
     state.shopCount = parseInt(this.value);
-    shopCountDisplay.textContent = String(state.shopCount);
+    if (shopCountDisplay) shopCountDisplay.textContent = String(state.shopCount);
     if (searchBox.value.trim()) {
       searchBox.value = '';
       applyFilters();
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   });
 
-  shopMetricSelect.addEventListener('change', function () {
+  shopMetricSelect?.addEventListener('change', function () {
     state.shopMetric = this.value as 'amount' | 'orders' | 'products';
     if (searchBox.value.trim()) {
       searchBox.value = '';

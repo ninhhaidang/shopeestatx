@@ -90,7 +90,9 @@ export function switchTab(tabIndex: TabIndex, filterPreset?: Partial<FilterCrite
       if (tabIndex === 2) {
         const catCanvas = document.getElementById('categoryChart') as HTMLCanvasElement | null;
         if (catCanvas) {
-          renderCategoryChart(catCanvas, getCategoryBreakdown(state.filteredOrders));
+          renderCategoryChart(catCanvas, getCategoryBreakdown(state.filteredOrders), (cat) => {
+            switchTab(3, { category: cat });
+          });
         }
       }
     } catch (err) {

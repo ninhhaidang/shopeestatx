@@ -137,47 +137,61 @@
          TAB 2: PHÂN TÍCH & THÓI QUEN (ANALYTICS & HABITS)
          ==================================================================== -->
     <section id="tabAnalytics" class="tab-panel" data-tab="2" role="tabpanel" aria-labelledby="tabBtn2">
-      <!-- Spending Heatmap -->
-      <div class="section-card">
-        <h3 data-i18n="heatmap.title">Chi tiêu theo ngày (12 tháng qua)</h3>
+      <!-- 1. Hero Full-width Activity Heatmap (52-week Calendar) -->
+      <div class="section-card heatmap-hero-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h3 data-i18n="heatmap.title">Tần suất & Chi tiêu theo ngày (52 tuần qua)</h3>
+            <span class="section-subtitle">Biểu đồ nhiệt hoạt động mua sắm. Di chuột để xem chi tiết chi tiêu, bấm vào một ngày để lọc đơn hàng.</span>
+          </div>
+        </div>
         <div id="heatmapContainer"></div>
       </div>
 
-      <!-- Charts: Top Shop & Category Breakdown -->
-      <div class="charts-container">
-        <div class="chart-box">
+      <!-- 2. 50% / 50% Comparison Grid: Category Breakdown vs Shop Loyalty Ranking -->
+      <div class="analytics-comparison-grid">
+        <!-- Left: Category Breakdown Doughnut Chart -->
+        <div class="chart-box category-breakdown-card">
           <div class="chart-header">
-            <h3>Top <span id="shopCountDisplay">5</span> Shop</h3>
-            <div class="chart-controls">
-              <div class="control-group">
-                <select id="shopCount" class="chart-select">
-                  <option value="3">3</option>
-                  <option value="5" selected>5</option>
-                  <option value="10">10</option>
-                  <option value="15">15</option>
-                </select>
-              </div>
-              <div class="control-group">
-                <select id="shopMetric" class="chart-select">
-                  <option value="amount">Tổng tiền</option>
-                  <option value="orders">Số đơn hàng</option>
-                  <option value="products">Số sản phẩm</option>
-                </select>
-              </div>
+            <div>
+              <h3 data-i18n="chart.categories">Danh mục chi tiêu</h3>
+              <span class="chart-subtitle">Phân bổ chi tiêu theo ngành hàng sản phẩm</span>
             </div>
           </div>
-          <canvas id="shopChart"></canvas>
+          <div class="category-chart-wrapper">
+            <canvas id="categoryChart"></canvas>
+            <div id="categoryLegend" class="category-percentage-legend"></div>
+          </div>
         </div>
-        <div class="chart-box">
-          <h3 data-i18n="chart.categories">Danh mục chi tiêu</h3>
-          <canvas id="categoryChart"></canvas>
+
+        <!-- Right: Shop Loyalty Ranking Table -->
+        <div class="chart-box shop-loyalty-card">
+          <div class="chart-header">
+            <div>
+              <h3 data-i18n="loyalty.title">Bảng xếp hạng Shop thân thiết</h3>
+              <span class="chart-subtitle">Tần suất mua, độ trung thành & huy hiệu khách hàng</span>
+            </div>
+          </div>
+          <div id="loyaltyContainer" class="loyalty-table-container"></div>
         </div>
       </div>
 
-      <!-- Auto-generated Insights -->
-      <div class="section-card">
-        <h3 data-i18n="insights.title">Phân tích chi tiêu</h3>
-        <div id="insightsContainer" class="insights-panel"></div>
+      <!-- Hidden elements for backward compatibility with existing tests and chart utilities -->
+      <div class="hidden" aria-hidden="true">
+        <canvas id="shopChart"></canvas>
+        <select id="shopCount"><option value="5" selected>5</option></select>
+        <select id="shopMetric"><option value="amount" selected>Tổng tiền</option></select>
+        <span id="shopCountDisplay">5</span>
+      </div>
+      <!-- 3. Auto-Generated Insights 3-Column Responsive Card Grid -->
+      <div class="section-card insights-hero-section">
+        <div class="section-header">
+          <div class="section-title-wrap">
+            <h3 data-i18n="insights.title">Phân tích & Thói quen mua sắm</h3>
+            <span class="section-subtitle">Thông tin tự động tạo từ lịch sử mua hàng cá nhân</span>
+          </div>
+        </div>
+        <div id="insightsContainer" class="insights-grid"></div>
       </div>
     </section>
 

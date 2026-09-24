@@ -8,7 +8,7 @@ import { renderData } from './comparison.js';
 import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
 import { getCategoryBreakdown, renderCategoryChart } from './categories.js';
-import { generateInsights, renderInsights } from './insights.js';
+import { generateStructuredInsights, renderInsights } from './insights.js';
 import { renderHeatmap } from './heatmap.js';
 import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
 import { predictMonthEnd, renderPrediction } from './predictions.js';
@@ -172,18 +172,32 @@ export function applyFilters(options?: { syncFromDOM?: boolean }): void {
   }
   // Category chart — filtered orders breakdown
   const catCanvas = document.getElementById('categoryChart') as HTMLCanvasElement | null;
-  if (catCanvas) renderCategoryChart(catCanvas, getCategoryBreakdown(filtered));
+  if (catCanvas) {
+    renderCategoryChart(catCanvas, getCategoryBreakdown(filtered), (cat) => {
+      switchTab(3, { category: cat });
+    });
+  }
 
   // Insights panel — updates on every filter change
   const insightsEl = document.getElementById('insightsContainer');
-  if (insightsEl) renderInsights(insightsEl, generateInsights(filtered, state.allOrdersData!.orders));
+  if (insightsEl) {
+    renderInsights(insightsEl, generateStructuredInsights(filtered, state.allOrdersData!.orders));
+  }
 
   // Heatmap — always uses all orders (past year), re-renders on filter changes
   const heatmapEl = document.getElementById('heatmapContainer');
-  if (heatmapEl) renderHeatmap(heatmapEl, state.allOrdersData!.orders, handleDrillDown);
+  if (heatmapEl) {
+    renderHeatmap(heatmapEl, state.allOrdersData!.orders, (preset) => {
+      switchTab(3, preset);
+    });
+  }
   // Shop loyalty — always uses all orders
   const loyaltyEl = document.getElementById('loyaltyContainer');
-  if (loyaltyEl) renderShopLoyalty(loyaltyEl, analyzeShopLoyalty(state.allOrdersData!.orders));
+  if (loyaltyEl) {
+    renderShopLoyalty(loyaltyEl, analyzeShopLoyalty(state.allOrdersData!.orders), (shop) => {
+      switchTab(3, { searchTerm: shop });
+    });
+  }
   // Month-end spending prediction
   const predEl = document.getElementById('predictionInfo');
   if (predEl) {

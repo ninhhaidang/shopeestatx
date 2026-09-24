@@ -127,14 +127,14 @@
   "chart.tooltip.orders": "{value} đơn",
   "chart.tooltip.products": "{value} sản phẩm",
 
-  "heatmap.title": "Chi tiêu theo ngày (12 tháng qua)",
+  "heatmap.title": "Tần suất & Chi tiêu theo ngày (52 tuần qua)",
   "heatmap.tooltip.orders": "đơn",
   "heatmap.day.mon": "T2",
   "heatmap.day.wed": "T4",
   "heatmap.day.fri": "T6",
-  "insights.title": "Phân tích chi tiêu",
+  "insights.title": "Phân tích & Thói quen mua sắm",
   "insights.empty": "Chưa đủ dữ liệu để phân tích.",
-  "loyalty.title": "Shop thân thiết",
+  "loyalty.title": "Bảng xếp hạng Shop thân thiết",
 
   "export.button": "Xuất dữ liệu ▾",
   "export.excel": "Excel (.xlsx)",

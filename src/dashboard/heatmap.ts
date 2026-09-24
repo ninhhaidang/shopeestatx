@@ -1,16 +1,18 @@
-// Calendar heatmap — GitHub-style 52-week order count visualization
+// Calendar heatmap — GitHub-style 52-week activity visualization
 import type { Order, DrillDownCallback, TimeCriteria } from '../types/index.js';
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
+import { formatVND } from './utils.js';
+import { switchTab } from './tabs.js';
 
 export interface HeatmapDay {
   date: string;       // YYYY-MM-DD
   orderCount: number;
+  totalSpent: number;
   intensity: 0 | 1 | 2 | 3 | 4;
 }
-
 function buildDayIndex(orders: Order[], startDate: Date, endDate: Date): Record<string, HeatmapDay> {
-  const dayMap: Record<string, number> = {};
+  const dayMap: Record<string, { count: number; spend: number }> = {};
 
   orders.forEach(order => {
     if (order.statusCode === 4 || order.statusCode === 12) return;
@@ -18,11 +20,15 @@ function buildDayIndex(orders: Order[], startDate: Date, endDate: Date): Record<
     const dateStr = order.deliveryDate.substring(0, 10);
     const d = new Date(dateStr);
     if (isNaN(d.getTime()) || d < startDate || d > endDate) return;
-    dayMap[dateStr] = (dayMap[dateStr] || 0) + 1;
+    if (!dayMap[dateStr]) {
+      dayMap[dateStr] = { count: 0, spend: 0 };
+    }
+    dayMap[dateStr].count += 1;
+    dayMap[dateStr].spend += order.subTotal;
   });
 
   // Use order count quartiles for intensity instead of amount
-  const counts = Object.values(dayMap).sort((a, b) => a - b);
+  const counts = Object.values(dayMap).map(v => v.count).sort((a, b) => a - b);
   const q = (p: number) => counts[Math.floor(counts.length * p)] ?? 0;
   const [q1, q2, q3] = [q(0.25), q(0.5), q(0.75)];
 
@@ -35,8 +41,13 @@ function buildDayIndex(orders: Order[], startDate: Date, endDate: Date): Record<
   };
 
   const index: Record<string, HeatmapDay> = {};
-  Object.entries(dayMap).forEach(([date, count]) => {
-    index[date] = { date, orderCount: count, intensity: toIntensity(count) };
+  Object.entries(dayMap).forEach(([date, data]) => {
+    index[date] = {
+      date,
+      orderCount: data.count,
+      totalSpent: data.spend,
+      intensity: toIntensity(data.count),
+    };
   });
   return index;
 }
@@ -134,10 +145,10 @@ export function renderHeatmap(
       const lvl = day?.intensity ?? 0;
       const x = col * step + 24; // +24 for day labels on left
       const y = row * step + 20;
-      // Show only order count in tooltip (not amount)
-      const tooltipText = day
-        ? `${dateStr}: ${day.orderCount} ${t('heatmap.tooltip.orders', { value: String(day.orderCount) })}`
-        : dateStr;
+      // Show day spend details and order count in tooltip
+      const tooltipText = day && day.orderCount > 0
+        ? `${dateStr}: ${day.orderCount} ${t('heatmap.tooltip.orders', { value: String(day.orderCount) })} • ${formatVND(day.totalSpent)}`
+        : `${dateStr}: 0 ${t('heatmap.tooltip.orders', { value: '0' })} • ${formatVND(0)}`;
 
       cells += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" class="heatmap-cell heatmap-${lvl}" data-date="${dateStr}" data-tip="${tooltipText}" />`;
     }
@@ -196,12 +207,16 @@ export function renderHeatmap(
       const targetTime: TimeCriteria = selectedYear ? { kind: 'year', year: selectedYear } : { kind: 'all' };
       if (onDrillDown) {
         onDrillDown({ time: targetTime });
+      } else {
+        switchTab(3, { time: targetTime });
       }
       return;
     }
 
     if (onDrillDown) {
       onDrillDown({ time: { kind: 'day', year, month, day } });
+    } else {
+      switchTab(3, { time: { kind: 'day', year, month, day } });
     }
   });
 }

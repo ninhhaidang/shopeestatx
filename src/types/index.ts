@@ -146,3 +146,41 @@ export interface OverviewMetrics {
   currentYear: number;
   currentMonth: number;
 }
+/**
+ * Loyalty tier classification badge for merchant ranking table.
+ */
+export type LoyaltyTier = 'VIP' | 'Regular' | 'New';
+
+/**
+ * Data item representing a category slice in the percentage legend.
+ */
+export interface CategoryLegendItem {
+  category: string;
+  amount: number;
+  percentage: number;
+  color: string;
+  count: number;
+}
+
+/**
+ * Discriminator identifying the spending pattern category of an insight card.
+ */
+export type InsightPattern =
+  | 'peak-day'
+  | 'merchant-share'
+  | 'category-trends'
+  | 'spending-trend'
+  | 'frequency'
+  | 'savings';
+
+/**
+ * Auto-generated insight card highlighting key spending patterns.
+ */
+export interface InsightCard {
+  id: string;
+  pattern: InsightPattern;
+  icon: string;
+  title: string;
+  value: string;
+  description: string;
+}

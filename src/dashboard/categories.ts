@@ -1,7 +1,10 @@
 // Product categorization engine — keyword-based classifier + doughnut chart
-import type { Order } from '../types/index.js';
-import { formatVND } from './utils.js';
+import type { Order, CategoryLegendItem } from '../types/index.js';
+import { formatVND, escapeHtml } from './utils.js';
+import { switchTab } from './tabs.js';
 import { Chart } from 'chart.js';
+
+export type { CategoryLegendItem };
 
 // Vietnamese + English keyword rules per category
 // IMPORTANT: keep keywords specific enough to avoid substring false positives
@@ -281,13 +284,91 @@ function getChartColors(): string[] {
 
 let categoryChart: Chart | null = null;
 
-export function renderCategoryChart(canvas: HTMLCanvasElement, data: CategoryBreakdown): void {
+function selectCategoryAndNavigate(cat: string, onCategoryClick?: (category: string) => void): void {
+  if (onCategoryClick) {
+    onCategoryClick(cat);
+  } else {
+    const filterCategory = document.getElementById('filterCategory') as HTMLSelectElement | null;
+    if (filterCategory) {
+      filterCategory.value = cat;
+    }
+    switchTab(3, { category: cat });
+  }
+}
+
+/**
+ * Computes sorted category percentage breakdown and colors.
+ */
+export function computeCategoryPercentages(data: CategoryBreakdown): CategoryLegendItem[] {
+  const entries = Object.entries(data).sort((a, b) => b[1].amount - a[1].amount);
+  const total = entries.reduce((s, [, v]) => s + v.amount, 0);
+  const chartColors = getChartColors();
+  return entries.map(([category, info], i) => ({
+    category,
+    amount: info.amount,
+    count: info.count,
+    percentage: total > 0 ? parseFloat(((info.amount / total) * 100).toFixed(1)) : 0,
+    color: chartColors[i % chartColors.length],
+  }));
+}
+
+/**
+ * Renders an interactive percentage legend into the container.
+ */
+export function renderCategoryLegend(
+  container: HTMLElement,
+  items: CategoryLegendItem[],
+  onCategoryClick?: (category: string) => void
+): void {
+  if (items.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="category-legend-list">
+      ${items.map(item => `
+        <button type="button" class="category-legend-item" data-category="${escapeHtml(item.category)}" title="Lọc theo ${escapeHtml(item.category)}">
+          <span class="category-legend-color" style="background-color: ${item.color};"></span>
+          <span class="category-legend-name">${escapeHtml(item.category)}</span>
+          <span class="category-legend-pct">${item.percentage}%</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  container.querySelectorAll<HTMLElement>('.category-legend-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.category;
+      if (cat) selectCategoryAndNavigate(cat, onCategoryClick);
+    });
+  });
+}
+
+/**
+ * Renders Category Breakdown Doughnut Chart with interactive slices and percentage legend.
+ */
+export function renderCategoryChart(
+  canvas: HTMLCanvasElement,
+  data: CategoryBreakdown,
+  onCategoryClick?: (category: string) => void
+): void {
   const entries = Object.entries(data).sort((a, b) => b[1].amount - a[1].amount);
   if (entries.length === 0) return;
 
   const chartColors = getChartColors();
+  const totalAmount = entries.reduce((s, [, v]) => s + v.amount, 0);
+
+  // Render or update percentage legend if container exists
+  const legendContainer = document.getElementById('categoryLegend');
+  if (legendContainer) {
+    const items = computeCategoryPercentages(data);
+    renderCategoryLegend(legendContainer, items, onCategoryClick);
+  }
 
   if (categoryChart) { categoryChart.destroy(); categoryChart = null; }
+
+  // Extracted to selectCategoryAndNavigate
 
   categoryChart = new Chart(canvas, {
     type: 'doughnut',
@@ -302,14 +383,52 @@ export function renderCategoryChart(canvas: HTMLCanvasElement, data: CategoryBre
     options: {
       responsive: true,
       plugins: {
+        legend: {
+          display: !legendContainer,
+          position: 'bottom',
+          labels: {
+            generateLabels: (chart) => {
+              if (chart.data.labels && chart.data.datasets.length) {
+                return chart.data.labels.map((label, i) => {
+                  const val = entries[i] ? entries[i][1].amount : 0;
+                  const pct = totalAmount > 0 ? ((val / totalAmount) * 100).toFixed(1) : '0';
+                  return {
+                    text: `${label} (${pct}%)`,
+                    fillStyle: chartColors[i % chartColors.length],
+                    strokeStyle: chartColors[i % chartColors.length],
+                    lineWidth: 1,
+                    hidden: false,
+                    index: i,
+                  };
+                });
+              }
+              return [];
+            },
+          },
+          onClick: (_event, legendItem) => {
+            const index = legendItem.index;
+            if (index !== undefined && entries[index]) {
+              selectCategoryAndNavigate(entries[index][0], onCategoryClick);
+            }
+          },
+        },
         tooltip: {
           callbacks: {
             label: ctx => {
               const label = ctx.label as string;
-              return `${label}: ${formatVND(ctx.raw as number)} (${data[label]?.count ?? 0} đơn)`;
+              const val = ctx.raw as number;
+              const pct = totalAmount > 0 ? ((val / totalAmount) * 100).toFixed(1) : '0';
+              return `${label}: ${formatVND(val)} (${pct}% - ${data[label]?.count ?? 0} đơn)`;
             },
           },
         },
+      },
+      onClick: (_event, activeElements) => {
+        if (activeElements.length > 0) {
+          const index = activeElements[0].index;
+          const cat = entries[index][0];
+          selectCategoryAndNavigate(cat, onCategoryClick);
+        }
       },
     },
   });
