@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Order } from '../src/types/index.js';
-import { FilterEngine, resolveAuthoritativeDate } from '../src/dashboard/filter-engine.js';
-import type { FilterCriteria } from '../src/types/index.js';
+import { FilterEngine, resolveAuthoritativeDate, deriveFilterChips } from '../src/dashboard/filter-engine.js';
+import type { FilterCriteria, FilterChip } from '../src/types/index.js';
 
 function makeOrder(overrides: Partial<Order> = {}): Order {
   return {
@@ -405,5 +405,142 @@ describe('FilterEngine - Encapsulated Sorting', () => {
     });
     // Undated orders sort to the beginning in asc
     expect(result.map(o => o.orderId)).toEqual(['NO-DATE', 'HAS-DATE']);
+  });
+});
+
+describe('deriveFilterChips - Pure Filter Chip Derivation', () => {
+  it('returns empty array when criteria has no active filters', () => {
+    const criteria: FilterCriteria = { time: { kind: 'all' } };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toEqual([]);
+  });
+
+  it('derives year chip and allows pure removal', () => {
+    const criteria: FilterCriteria = {
+      time: { kind: 'year', year: 2024 },
+    };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toHaveLength(1);
+    expect(chips[0].type).toBe('year');
+    expect(chips[0].label).toBe('Năm 2024');
+
+    const updated = chips[0].remove();
+    expect(updated.time).toEqual({ kind: 'all' });
+  });
+
+  it('derives year and month chips for month criteria with fallback removal', () => {
+    const criteria: FilterCriteria = {
+      time: { kind: 'month', year: 2024, month: 5 },
+    };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toHaveLength(2);
+    expect(chips[0].type).toBe('year');
+    expect(chips[0].label).toBe('Năm 2024');
+    expect(chips[1].type).toBe('month');
+    expect(chips[1].label).toBe('Tháng 5');
+
+    // Removing month chip keeps year
+    const withoutMonth = chips[1].remove();
+    expect(withoutMonth.time).toEqual({ kind: 'year', year: 2024 });
+
+    // Removing year chip keeps month constraint across all years
+    const withoutYear = chips[0].remove();
+    expect(withoutYear.time).toEqual({ kind: 'month', year: 0, month: 5 });
+  });
+
+  it('derives year, month, and day chips for day criteria with step-down removal', () => {
+    const criteria: FilterCriteria = {
+      time: { kind: 'day', year: 2024, month: 5, day: 15 },
+    };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toHaveLength(3);
+    expect(chips[0].type).toBe('year');
+    expect(chips[1].type).toBe('month');
+    expect(chips[2].type).toBe('day');
+    expect(chips[2].label).toBe('Ngày 15/5');
+
+    // Removing day chip steps down to month criteria
+    const withoutDay = chips[2].remove();
+    expect(withoutDay.time).toEqual({ kind: 'month', year: 2024, month: 5 });
+  });
+
+  it('derives dateRange chip for range criteria and resets to all upon removal', () => {
+    const start = new Date(2024, 4, 1); // 1 May 2024
+    const end = new Date(2024, 4, 15); // 15 May 2024
+    const criteria: FilterCriteria = {
+      time: { kind: 'range', start, end },
+    };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toHaveLength(1);
+    expect(chips[0].type).toBe('dateRange');
+    expect(chips[0].label).toContain('1/5/2024');
+    expect(chips[0].label).toContain('15/5/2024');
+
+    const withoutRange = chips[0].remove();
+    expect(withoutRange.time).toEqual({ kind: 'all' });
+  });
+
+  it('derives status chip with human-readable label and resets status upon removal', () => {
+    const criteria: FilterCriteria = {
+      time: { kind: 'all' },
+      status: '3',
+    };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toHaveLength(1);
+    expect(chips[0].type).toBe('status');
+    expect(chips[0].label).toBe('Hoàn thành');
+
+    const withoutStatus = chips[0].remove();
+    expect(withoutStatus.status).toBeNull();
+    expect(withoutStatus.time).toEqual({ kind: 'all' });
+  });
+
+  it('derives category chip and resets category upon removal', () => {
+    const criteria: FilterCriteria = {
+      time: { kind: 'all' },
+      category: 'Điện tử',
+    };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toHaveLength(1);
+    expect(chips[0].type).toBe('category');
+    expect(chips[0].label).toBe('Danh mục: Điện tử');
+
+    const withoutCategory = chips[0].remove();
+    expect(withoutCategory.category).toBeNull();
+  });
+
+  it('derives search chip with quoted query and resets searchTerm upon removal', () => {
+    const criteria: FilterCriteria = {
+      time: { kind: 'all' },
+      searchTerm: 'áo polo',
+    };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toHaveLength(1);
+    expect(chips[0].type).toBe('search');
+    expect(chips[0].label).toBe('Tìm: "áo polo"');
+
+    const withoutSearch = chips[0].remove();
+    expect(withoutSearch.searchTerm).toBeNull();
+  });
+
+  it('correctly handles multi-filter combinations and independent removal', () => {
+    const criteria: FilterCriteria = {
+      time: { kind: 'year', year: 2024 },
+      status: '4', // Đã hủy
+      category: 'Thời trang',
+      searchTerm: 'polo',
+    };
+    const chips = deriveFilterChips(criteria);
+    expect(chips).toHaveLength(4);
+    expect(chips.map(c => c.type)).toEqual(['year', 'status', 'category', 'search']);
+
+    const statusChip = chips.find(c => c.type === 'status')!;
+    const nextCriteria = statusChip.remove();
+
+    // Only status is cleared, other criteria unchanged
+    expect(nextCriteria.status).toBeNull();
+    expect(nextCriteria.time).toEqual({ kind: 'year', year: 2024 });
+    expect(nextCriteria.category).toBe('Thời trang');
+    expect(nextCriteria.searchTerm).toBe('polo');
   });
 });

@@ -11,4 +11,11 @@ export const state: AppState = {
   shopMetric: 'amount',
   currentSort: { field: null, direction: 'asc' },
   dateRange: { start: null, end: null },
+  criteria: {
+    time: { kind: 'all' },
+    status: null,
+    category: null,
+    searchTerm: null,
+    sort: { field: null, direction: 'asc' },
+  },
 };

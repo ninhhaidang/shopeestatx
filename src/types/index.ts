@@ -54,6 +54,7 @@ export interface AppState {
   shopMetric: ShopMetric;
   currentSort: { field: string | null; direction: SortDirection };
   dateRange: DateRange;
+  criteria: FilterCriteria;
 }
 
 /**
@@ -83,4 +84,26 @@ export interface FilterCriteria {
   category?: string | null;
   searchTerm?: string | null;
   sort?: FilterSort | null;
+}
+
+/**
+ * Discriminator representing the category of an active filter constraint token.
+ */
+export type FilterChipType =
+  | 'year'
+  | 'month'
+  | 'day'
+  | 'dateRange'
+  | 'status'
+  | 'category'
+  | 'search';
+
+/**
+ * A visible token representing an active constraint within the current FilterCriteria,
+ * providing a clear action to remove it.
+ */
+export interface FilterChip {
+  type: FilterChipType;
+  label: string;
+  remove: (criteria?: FilterCriteria) => FilterCriteria;
 }

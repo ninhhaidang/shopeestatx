@@ -1,7 +1,8 @@
 /** ShopeeStatX/filter-engine.ts — Pure FilterEngine and Authoritative Date Evaluation */
-import type { Order, FilterCriteria, TimeCriteria, SortDirection } from '../types/index.js';
+import type { Order, FilterCriteria, TimeCriteria, SortDirection, FilterChip } from '../types/index.js';
 import { categorizeOrder } from './categories.js';
-
+import { t } from '../i18n/index.js';
+import { formatDate } from '../i18n/format.js';
 /** Extract valid Unix timestamp in seconds from orderId if within 2020..now */
 function extractOrderIdTimestamp(orderId: string | null | undefined): Date | null {
   if (!orderId) return null;
@@ -75,7 +76,8 @@ function matchesTime(order: Order, time: TimeCriteria): boolean {
   if (time.kind === 'month') {
     const authDate = resolveAuthoritativeDate(order);
     if (!authDate) return false;
-    return authDate.getFullYear() === time.year && authDate.getMonth() + 1 === time.month;
+    const matchesYear = time.year ? authDate.getFullYear() === time.year : true;
+    return matchesYear && authDate.getMonth() + 1 === time.month;
   }
 
   if (time.kind === 'day') {
@@ -85,8 +87,9 @@ function matchesTime(order: Order, time: TimeCriteria): boolean {
     if (!hasExactDate) return false;
     const authDate = resolveAuthoritativeDate(order);
     if (!authDate) return false;
+    const matchesYear = time.year ? authDate.getFullYear() === time.year : true;
     return (
-      authDate.getFullYear() === time.year &&
+      matchesYear &&
       authDate.getMonth() + 1 === time.month &&
       authDate.getDate() === time.day
     );
@@ -169,6 +172,122 @@ export function sortOrders(
   });
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  '3': 'status.completed',
+  '4': 'status.cancelled',
+  '7': 'status.waitingShipment',
+  '8': 'status.delivering',
+  '9': 'status.waitingPayment',
+  '12': 'status.returned',
+};
+
+function buildYearChip(year: number, criteria: FilterCriteria): FilterChip {
+  return {
+    type: 'year',
+    label: t('filter.chip.year', { value: year }),
+    remove: (c = criteria) => {
+      if (c.time.kind === 'month') {
+        return { ...c, time: { kind: 'month', year: 0, month: c.time.month } };
+      }
+      if (c.time.kind === 'day') {
+        return { ...c, time: { kind: 'day', year: 0, month: c.time.month, day: c.time.day } };
+      }
+      return { ...c, time: { kind: 'all' } };
+    },
+  };
+}
+
+function buildMonthChip(year: number, month: number, criteria: FilterCriteria): FilterChip {
+  return {
+    type: 'month',
+    label: t('filter.chip.month', { value: month }),
+    remove: (c = criteria) => ({
+      ...c,
+      time: year ? { kind: 'year', year } : { kind: 'all' },
+    }),
+  };
+}
+
+function buildDayChip(year: number, month: number, day: number, criteria: FilterCriteria): FilterChip {
+  return {
+    type: 'day',
+    label: t('filter.chip.day', { value: `${day}/${month}` }),
+    remove: (c = criteria) => ({
+      ...c,
+      time: { kind: 'month', year, month },
+    }),
+  };
+}
+
+/**
+ * Purely derives visible FilterChips and their explicit removal actions from FilterCriteria.
+ * Contains zero DOM scraping or browser dependencies.
+ */
+export function deriveFilterChips(criteria: FilterCriteria): FilterChip[] {
+  const chips: FilterChip[] = [];
+
+  if (criteria.time) {
+    if (criteria.time.kind === 'year') {
+      chips.push(buildYearChip(criteria.time.year, criteria));
+    } else if (criteria.time.kind === 'month') {
+      const { year, month } = criteria.time;
+      if (year) {
+        chips.push(buildYearChip(year, criteria));
+      }
+      chips.push(buildMonthChip(year, month, criteria));
+    } else if (criteria.time.kind === 'day') {
+      const { year, month, day } = criteria.time;
+      if (year) {
+        chips.push(buildYearChip(year, criteria));
+      }
+      if (month) {
+        chips.push(buildMonthChip(year, month, criteria));
+      }
+      chips.push(buildDayChip(year, month, day, criteria));
+    } else if (criteria.time.kind === 'range') {
+      const { start, end } = criteria.time;
+      const startStr = start ? formatDate(start) : '…';
+      const endStr = end ? formatDate(end) : '…';
+      chips.push({
+        type: 'dateRange',
+        label: t('filter.chip.dateRange', { start: startStr, end: endStr }),
+        remove: (c = criteria) => ({ ...c, time: { kind: 'all' } }),
+      });
+    }
+  }
+
+  if (criteria.status && criteria.status.trim() !== '') {
+    const statusCode = criteria.status.trim();
+    const translationKey = STATUS_LABELS[statusCode];
+    const label = translationKey ? t(translationKey) : statusCode;
+    chips.push({
+      type: 'status',
+      label,
+      remove: (c = criteria) => ({ ...c, status: null }),
+    });
+  }
+
+  if (criteria.category && criteria.category.trim() !== '') {
+    const category = criteria.category.trim();
+    chips.push({
+      type: 'category',
+      label: t('filter.chip.category', { value: category }),
+      remove: (c = criteria) => ({ ...c, category: null }),
+    });
+  }
+
+  if (criteria.searchTerm && criteria.searchTerm.trim() !== '') {
+    const searchTerm = criteria.searchTerm.trim();
+    chips.push({
+      type: 'search',
+      label: t('filter.chip.search', { value: searchTerm }),
+      remove: (c = criteria) => ({ ...c, searchTerm: null }),
+    });
+  }
+
+  return chips;
+}
+
 /**
  * Pure in-process FilterEngine evaluating orders against a unified FilterCriteria value object.
  * Contains zero DOM dependencies, window references, or global mutable state.
@@ -194,6 +313,7 @@ export const FilterEngine = {
 
     return filtered;
   },
+  deriveFilterChips,
 };
 
 /** Direct export of FilterEngine.evaluate */
