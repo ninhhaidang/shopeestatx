@@ -1,4 +1,5 @@
 // Excel, CSV, and PDF export functions
+import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
 import ExcelJS from 'exceljs';
@@ -17,11 +18,14 @@ function downloadFile(content: string, filename: string, mimeType: string): void
 }
 
 /** Get currently-filtered orders for export (respects year/month/status filters) */
-function getExportOrders() {
+function getExportOrders(): Order[] {
   if (!state.allOrdersData) return [];
-  const year = (document.getElementById('filterYear') as HTMLSelectElement).value;
-  const month = (document.getElementById('filterMonth') as HTMLSelectElement).value;
-  const status = (document.getElementById('filterStatus') as HTMLSelectElement).value;
+  const yearEl = document.getElementById('filterYear') as HTMLSelectElement | null;
+  const monthEl = document.getElementById('filterMonth') as HTMLSelectElement | null;
+  const statusEl = document.getElementById('filterStatus') as HTMLSelectElement | null;
+  const year = yearEl?.value || '';
+  const month = monthEl?.value || '';
+  const status = statusEl?.value || '';
 
   // NOTE: Intentionally does not filter by selectedDay or searchTerm — pre-existing behavior
   return state.allOrdersData.orders.filter(order => {
@@ -32,8 +36,8 @@ function getExportOrders() {
   });
 }
 
-export function exportToExcel(): void {
-  const filtered = getExportOrders();
+export function exportToExcel(orders?: Order[]): void {
+  const filtered = orders !== undefined ? orders : getExportOrders();
 
   if (filtered.length === 0) {
     alert(t('export.noData') || 'No data to export');
@@ -88,8 +92,8 @@ export function exportToExcel(): void {
     });
 }
 
-export function exportToCSV(): void {
-  const filtered = getExportOrders();
+export function exportToCSV(orders?: Order[]): void {
+  const filtered = orders !== undefined ? orders : getExportOrders();
   const BOM = '\uFEFF'; // UTF-8 BOM for Excel compatibility
   const headers = [
     t('export.col.index'),

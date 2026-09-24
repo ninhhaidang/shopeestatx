@@ -6,10 +6,12 @@ import { t } from '../i18n/index.js';
 import { formatDate } from '../i18n/format.js';
 import { applyFilters, handleDrillDown } from './filters.js';
 import { openDrawer } from './drawer.js';
+import { isSelected, toggleSelectOrder, updateBulkBar } from './bulk-actions.js';
 import {
   ICON_CHECK_CIRCLE, ICON_X_CIRCLE, ICON_CLOCK, ICON_TRUCK,
   ICON_CREDIT_CARD, ICON_ARROW_UTURN_LEFT, ICON_QUESTION_MARK_CIRCLE,
 } from './icons.js';
+
 export function renderCurrentPage(): void {
   const start = (state.currentPage - 1) * state.itemsPerPage;
   const end = state.itemsPerPage === Infinity
@@ -22,6 +24,7 @@ export function renderCurrentPage(): void {
 
   pageOrders.forEach((order: Order, index: number) => {
     const globalIndex = start + index + 1;
+    const isChecked = isSelected(order.orderId);
     const dateStr = order.deliveryDate
       ? formatDate(new Date(order.deliveryDate))
       : (order.orderPlacementDate ? formatDate(new Date(order.orderPlacementDate)) : t('table.noDate'));
@@ -85,6 +88,9 @@ export function renderCurrentPage(): void {
     }
 
     tr.innerHTML = `
+      <td class="col-select">
+        <input type="checkbox" class="table-checkbox" data-order-id="${escapeHtml(order.orderId)}" ${isChecked ? 'checked' : ''} aria-label="Chọn đơn hàng ${escapeHtml(order.orderId)}">
+      </td>
       <td class="col-stt">${globalIndex}</td>
       <td class="${dateClass}" ${dateAttrs}>${escapeHtml(dateStr)}</td>
       <td class="col-shop">
@@ -106,10 +112,28 @@ export function renderCurrentPage(): void {
     // Row click opens the pro-inspector drawer
     tr.addEventListener('click', (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest('.shop-link-filter') || target.closest('.detail-value-clickable') || target.closest('a')) {
+      if (
+        target.closest('.shop-link-filter') ||
+        target.closest('.detail-value-clickable') ||
+        target.closest('a') ||
+        target.closest('.col-select') ||
+        target.closest('input[type="checkbox"]')
+      ) {
         return;
       }
       openDrawer(order);
+    });
+
+    // Checkbox change toggles selection
+    const checkbox = tr.querySelector<HTMLInputElement>('.table-checkbox');
+    checkbox?.addEventListener('click', (e: MouseEvent) => {
+      e.stopPropagation();
+    });
+    checkbox?.addEventListener('change', (e: Event) => {
+      e.stopPropagation();
+      const checked = (e.target as HTMLInputElement).checked;
+      toggleSelectOrder(order.orderId, checked);
+      updateBulkBar();
     });
 
     // Shop click filters by shop name
@@ -152,6 +176,7 @@ export function renderCurrentPage(): void {
   });
 
   updatePaginationInfo();
+  updateBulkBar();
 }
 
 export function updatePaginationInfo(): void {
@@ -203,4 +228,3 @@ export function createPageButton(pageNum: number): HTMLButtonElement {
   });
   return btn;
 }
-

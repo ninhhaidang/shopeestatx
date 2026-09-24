@@ -20,6 +20,7 @@ import { renderDateRangePicker, resetDateRangePicker } from './date-range-picker
 import { EVENTS, getHomeUrl } from '../config.js';
 import { initTabs, switchTab } from './tabs.js';
 import { initDrawer } from './drawer.js';
+import { initBulkBar } from './bulk-actions.js';
 import './results.css';
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   initTheme();
   updateAppearanceUI();
   initDrawer();
+  initBulkBar();
   // Initialize SVG icons from icons.ts
   const emptyIcon = document.querySelector('#emptyState .empty-icon');
   if (emptyIcon) {

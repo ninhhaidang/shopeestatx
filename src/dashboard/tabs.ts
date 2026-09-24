@@ -12,6 +12,7 @@ import { state } from './state.js';
 import { applyFilters, syncCriteriaToToolbar, handleDrillDown } from './filters.js';
 import { renderCharts } from './charts.js';
 import { getCategoryBreakdown, renderCategoryChart } from './categories.js';
+import { updateBulkBar } from './bulk-actions.js';
 
 /** Canonical DOM element IDs for tab panels */
 const PANEL_IDS: Record<TabIndex, [string, string]> = {
@@ -63,11 +64,14 @@ export function switchTab(tabIndex: TabIndex, filterPreset?: Partial<FilterCrite
     const [primaryId, fallbackId] = PANEL_IDS[i];
     const panel = document.getElementById(primaryId) || document.getElementById(fallbackId);
     if (panel) {
-      panel.classList.toggle('active', i === tabIndex);
+      const isActive = i === tabIndex;
+      panel.classList.toggle('active', isActive);
+      panel.hidden = !isActive;
+      panel.setAttribute('aria-hidden', String(!isActive));
     }
   });
 
-  // 3. Apply filter preset if provided (e.g. drill-down from KPI card to Tab 3)
+  // 3. Handle optional filter preset (e.g. clicking a category in chart drill-down)
   if (filterPreset) {
     state.criteria = {
       ...state.criteria,
@@ -78,8 +82,9 @@ export function switchTab(tabIndex: TabIndex, filterPreset?: Partial<FilterCrite
     applyFilters({ syncFromDOM: false });
   }
 
-  // 4. Update tab badge
+  // 4. Update tab badge and floating bulk bar visibility
   updateTabOrderBadge();
+  updateBulkBar();
 
   // 5. Redraw charts if switching to a tab containing Chart.js canvases (fixes 0x0 hidden canvas dimensions)
   if (state.filteredOrders.length > 0) {
