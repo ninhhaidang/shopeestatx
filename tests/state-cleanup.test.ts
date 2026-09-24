@@ -209,9 +209,9 @@ describe('Issue #6: State Cleanup and Legacy Code Deletion', () => {
       expect((document.getElementById('filterStatus') as HTMLSelectElement).value).toBe('3');
       expect((document.getElementById('filterCategory') as HTMLSelectElement).value).toBe('Thời trang');
       expect((document.getElementById('searchBox') as HTMLInputElement).value).toBe('áo');
-      expect((state as Record<string, unknown>).selectedDay).toBeUndefined();
-      expect((state as Record<string, unknown>).dateRange).toBeUndefined();
-      expect((state as Record<string, unknown>).currentSort).toBeUndefined();
+      expect('selectedDay' in state).toBe(false);
+      expect('dateRange' in state).toBe(false);
+      expect('currentSort' in state).toBe(false);
     });
   });
 

@@ -11,6 +11,8 @@ import { getCategoryBreakdown, renderCategoryChart } from './categories.js';
 import { generateInsights, renderInsights } from './insights.js';
 import { renderHeatmap } from './heatmap.js';
 import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
+import { predictMonthEnd, renderPrediction } from './predictions.js';
+import { getCachedBudgetConfig } from './budget.js';
 import { EVENTS } from '../config.js';
 import { escapeHtml } from './utils.js';
 
@@ -169,6 +171,11 @@ export function applyFilters(options?: { syncFromDOM?: boolean }): void {
   // Shop loyalty — always uses all orders
   const loyaltyEl = document.getElementById('loyaltyContainer');
   if (loyaltyEl) renderShopLoyalty(loyaltyEl, analyzeShopLoyalty(state.allOrdersData!.orders));
+  // Month-end spending prediction
+  const predEl = document.getElementById('predictionInfo');
+  if (predEl) {
+    renderPrediction(predEl, predictMonthEnd(state.allOrdersData!.orders), getCachedBudgetConfig());
+  }
 
 }
 /**
