@@ -15,7 +15,8 @@ import { predictMonthEnd, renderPrediction } from './predictions.js';
 import { getCachedBudgetConfig } from './budget.js';
 import { EVENTS } from '../config.js';
 import { escapeHtml } from './utils.js';
-import { updateTabOrderBadge } from './tabs.js';
+import { updateTabOrderBadge, switchTab } from './tabs.js';
+import { renderOverview } from './overview.js';
 
 /**
  * Reads current toolbar DOM elements and synchronizes their values into state.criteria.
@@ -149,6 +150,16 @@ export function applyFilters(options?: { syncFromDOM?: boolean }): void {
       ordersTable.classList.remove('hidden');
       paginationContainer.classList.remove('hidden');
     }
+  }
+  if (document.getElementById('kpiStrip') || document.getElementById('financialHealthCard')) {
+    renderOverview({
+      filteredOrders: filtered,
+      allOrders: state.allOrdersData?.orders ?? [],
+      budgetConfig: getCachedBudgetConfig(),
+      onDrillDown: (preset) => {
+        switchTab(3, preset);
+      },
+    });
   }
   if (document.getElementById('totalOrders')) {
     renderData(filtered);

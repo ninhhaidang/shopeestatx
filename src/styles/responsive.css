@@ -7,6 +7,14 @@
   .comparison-cards {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
+
+  .kpi-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tab1-hero {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -102,6 +110,9 @@
   }
 
   .comparison-cards {
+    grid-template-columns: 1fr;
+  }
+  .kpi-strip {
     grid-template-columns: 1fr;
   }
 

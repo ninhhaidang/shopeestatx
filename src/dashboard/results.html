@@ -109,48 +109,27 @@
          TAB 1: TỔNG QUAN TÀI CHÍNH (FINANCIAL OVERVIEW)
          ==================================================================== -->
     <section id="tabOverview" class="tab-panel active" data-tab="1" role="tabpanel" aria-labelledby="tabBtn1">
-      <!-- Summary -->
-      <div class="summary">
-        <div class="summary-item" data-tooltip="Số đơn hàng hiển thị sau khi áp dụng bộ lọc">
-          <span class="label" data-i18n="summary.orders">Đơn hàng</span>
-          <span id="totalOrders" class="value">0</span>
-        </div>
-        <div class="summary-item" data-tooltip="Tổng số sản phẩm trong các đơn hàng đã lọc">
-          <span class="label" data-i18n="summary.products">Tổng sản phẩm</span>
-          <span id="totalProducts" class="value">0</span>
-        </div>
-        <div class="summary-item highlight" data-tooltip="Chỉ tính đơn hoàn thành, không bao gồm đơn huỷ và trả hàng">
-          <span class="label" data-i18n="summary.totalSpent">Tổng tiền đã tiêu</span>
-          <span id="totalAmount" class="value">0 &#8363;</span>
-        </div>
-      </div>
+      <!-- Executive KPI Strip (Clickable to Tab 3) -->
+      <div id="kpiStrip" class="kpi-strip"></div>
 
-      <!-- Time Comparison -->
-      <div class="comparison-cards">
-        <div class="comparison-card">
-          <div class="card-title" data-i18n="comparison.thisMonth">Tháng này</div>
-          <div id="currentMonthAmount" class="card-value">0 &#8363;</div>
-          <div id="monthComparison" class="card-change"></div>
-          <div id="predictionInfo" class="prediction-info"></div>
+      <!-- Split-View Hero (65% Chart - 35% Health) -->
+      <div class="tab1-hero">
+        <!-- Left: Monthly Chart with Budget dashed line (65%) -->
+        <div class="chart-container-card">
+          <div class="card-title-row">
+            <div>
+              <h3 class="card-heading" data-i18n="chart.spendingByMonth">Biến động chi tiêu 12 tháng qua</h3>
+              <small class="chart-subtitle" id="monthlyChartSub">Đường kẻ đứt màu đỏ: Hạn mức ngân sách hàng tháng</small>
+            </div>
+            <span class="badge badge-completed">● Click cột để lọc đơn tháng</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="monthlyChart"></canvas>
+          </div>
         </div>
-        <div class="comparison-card">
-          <div class="card-title" data-i18n="comparison.thisYear">Năm nay</div>
-          <div id="currentYearAmount" class="card-value">0 &#8363;</div>
-          <div id="yearComparison" class="card-change"></div>
-        </div>
-        <div class="comparison-card">
-          <div class="card-title" data-i18n="comparison.avgOrder">Giá trung bình/đơn</div>
-          <div id="avgOrderValue" class="card-value">0 &#8363;</div>
-          <div id="avgComparison" class="card-change"></div>
-        </div>
-      </div>
 
-      <!-- Monthly Spending Chart -->
-      <div class="charts-container single-chart">
-        <div class="chart-box">
-          <h3 data-i18n="chart.spendingByMonth">Chi tiêu theo tháng</h3>
-          <canvas id="monthlyChart"></canvas>
-        </div>
+        <!-- Right: Financial Health & Burn Rate (35%) -->
+        <div id="financialHealthCard" class="health-card"></div>
       </div>
     </section>
 

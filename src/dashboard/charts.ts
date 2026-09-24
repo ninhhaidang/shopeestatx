@@ -6,7 +6,8 @@ import { t } from '../i18n/index.js';
 import { applyFilters } from './filters.js';
 import { FilterEngine } from './filter-engine.js';
 import { getCurrentTheme } from './theme-toggle.js';
-import { Chart, registerables } from 'chart.js';
+import { getCachedBudgetConfig } from './budget.js';
+import { Chart, registerables, type Plugin } from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -97,8 +98,53 @@ export function renderCharts(orders: Order[], onDrillDown?: DrillDownCallback): 
     chartTitle.textContent = t('chart.spendingByMonth');
   }
 
+  const budgetConfig = getCachedBudgetConfig();
+  const showBudgetLine = budgetConfig.enabled && budgetConfig.monthlyLimit > 0;
+  const budgetLimit = budgetConfig.monthlyLimit;
+
+  const chartSub = document.getElementById('monthlyChartSub');
+  if (chartSub) {
+    if (showBudgetLine) {
+      chartSub.textContent = `Đường kẻ đứt màu đỏ: Hạn mức ngân sách (${formatVND(budgetLimit)}/tháng)`;
+    } else {
+      chartSub.textContent = 'Biến động chi tiêu 12 tháng qua';
+    }
+  }
+
+  const plugins: Plugin<'bar'>[] = [];
+  if (showBudgetLine) {
+    plugins.push({
+      id: 'budgetGuideline',
+      afterDatasetsDraw(chart) {
+        const { ctx, chartArea, scales } = chart;
+        if (!chartArea || !scales.y) return;
+        const yPos = scales.y.getPixelForValue(budgetLimit);
+        if (yPos < chartArea.top - 20 || yPos > chartArea.bottom + 20) return;
+
+        ctx.save();
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, yPos);
+        ctx.lineTo(chartArea.right, yPos);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(`Hạn mức: ${formatVND(budgetLimit, true)}`, chartArea.right - 8, yPos - 3);
+        ctx.restore();
+      },
+    });
+  }
+
   if (monthlyChart) monthlyChart.destroy();
-  monthlyChart = new Chart(document.getElementById('monthlyChart') as HTMLCanvasElement, {
+  const monthlyCanvas = document.getElementById('monthlyChart') as HTMLCanvasElement | null;
+  if (monthlyCanvas) {
+    monthlyChart = new Chart(monthlyCanvas, {
     type: 'bar',
     data: {
       labels: chartLabels,
@@ -123,6 +169,9 @@ export function renderCharts(orders: Order[], onDrillDown?: DrillDownCallback): 
       scales: {
         y: {
           beginAtZero: true,
+          suggestedMax: showBudgetLine
+            ? Math.max(...(monthlyValues.length ? monthlyValues : [0]), budgetLimit) * 1.15
+            : undefined,
           ticks: {
             color: cssVar('--text-secondary', '#718096'),
             callback: value => formatVND(value as number, true),
@@ -160,7 +209,9 @@ export function renderCharts(orders: Order[], onDrillDown?: DrillDownCallback): 
         }
       },
     },
-  });
+      plugins,
+    });
+  }
 
   // Top shops doughnut chart
   const shopData: Record<string, { amount: number; orders: number; products: number }> = {};
@@ -214,34 +265,37 @@ export function renderCharts(orders: Order[], onDrillDown?: DrillDownCallback): 
 
   const shopChartColors = generateGradientColors(primaryColor, Math.min(topShops.length, 10));
 
-  shopChart = new Chart(document.getElementById('shopChart') as HTMLCanvasElement, {
-    type: 'doughnut',
-    data: {
-      labels: topShops.map(s => s[0].substring(0, 20)),
-      datasets: [{
-        data: topShops.map(s => s[1][state.shopMetric]),
-        backgroundColor: shopChartColors,
-        hoverOffset: 10,
-      }],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: tooltipFormatter,
+  const shopCanvas = document.getElementById('shopChart') as HTMLCanvasElement | null;
+  if (shopCanvas) {
+    shopChart = new Chart(shopCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: topShops.map(s => s[0].substring(0, 20)),
+        datasets: [{
+          data: topShops.map(s => s[1][state.shopMetric]),
+          backgroundColor: shopChartColors,
+          hoverOffset: 10,
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: tooltipFormatter,
+            },
           },
         },
+        onClick: (_event, activeElements) => {
+          if (activeElements.length > 0) {
+            const index = activeElements[0].index;
+            const shopName = topShops[index][0];
+            (document.getElementById('searchBox') as HTMLInputElement).value = shopName;
+            applyFilters();
+            document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
+          }
+        },
       },
-      onClick: (_event, activeElements) => {
-        if (activeElements.length > 0) {
-          const index = activeElements[0].index;
-          const shopName = topShops[index][0];
-          (document.getElementById('searchBox') as HTMLInputElement).value = shopName;
-          applyFilters();
-          document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
-        }
-      },
-    },
-  });
+    });
+  }
 }

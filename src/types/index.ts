@@ -125,3 +125,24 @@ export type DatePreset = 'last7' | 'thisMonth' | 'lastMonth' | 'last3months' | '
  * Callback seam invoked when a visual drill-down interaction occurs in charts or heatmap.
  */
 export type DrillDownCallback = (criteriaUpdate: Partial<FilterCriteria>) => void;
+
+/**
+ * Aggregated financial metrics for Tab 1 Executive KPI Strip & Split-View Hero.
+ */
+export interface OverviewMetrics {
+  totalSpend: number;
+  thisMonthSpend: number;
+  totalOrders: number;
+  completedOrdersCount: number;
+  avgOrderValue: number;
+  yearChange: number | null;
+  monthChange: number | null;
+  avgOrderChange: number | null;
+  burnRate: number;
+  monthEndForecast: number;
+  daysRemaining: number;
+  budgetPct: number;
+  budgetRemaining: number;
+  currentYear: number;
+  currentMonth: number;
+}

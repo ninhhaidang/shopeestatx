@@ -43,7 +43,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // Pre-load budget config so it's ready before first render
-  loadBudgetConfig().then(cfg => setCachedBudgetConfig(cfg));
+  const initialBudgetCfg = await loadBudgetConfig();
+  setCachedBudgetConfig(initialBudgetCfg);
 
   const filterYear = document.getElementById('filterYear') as HTMLSelectElement;
   const filterMonth = document.getElementById('filterMonth') as HTMLSelectElement;
@@ -284,11 +285,15 @@ document.addEventListener('DOMContentLoaded', async function () {
   document.addEventListener('click', (e) => {
     if ((e.target as HTMLElement).closest('.btn-budget-settings')) {
       const cfg = getCachedBudgetConfig();
-      budgetLimitInput.value = String(cfg.monthlyLimit);
-      budgetThresholdInput.value = String(Math.round(cfg.alertThreshold * 100));
+      budgetLimitInput.value = String(cfg.monthlyLimit || 5000000);
+      budgetThresholdInput.value = String(Math.round((cfg.alertThreshold || 0.8) * 100));
       budgetThresholdValue.textContent = budgetThresholdInput.value + '%';
       budgetEnabledCheck.checked = cfg.enabled;
-      budgetDialog.showModal();
+      if (typeof budgetDialog.showModal === 'function') {
+        budgetDialog.showModal();
+      } else {
+        budgetDialog.setAttribute('open', 'true');
+      }
     }
   });
 
@@ -297,17 +302,29 @@ document.addEventListener('DOMContentLoaded', async function () {
   });
 
   document.getElementById('btnBudgetSave')!.addEventListener('click', async () => {
+    const limit = Number(budgetLimitInput.value);
+    const thresholdPct = Number(budgetThresholdInput.value) || 80;
     const cfg = {
-      monthlyLimit: Number(budgetLimitInput.value),
-      alertThreshold: Number(budgetThresholdInput.value) / 100,
-      enabled: budgetEnabledCheck.checked,
+      monthlyLimit: !isNaN(limit) && limit >= 0 ? limit : 5000000,
+      alertThreshold: thresholdPct / 100,
+      enabled: budgetEnabledCheck ? budgetEnabledCheck.checked : true,
     };
     await saveBudgetConfig(cfg);
-    budgetDialog.close();
-    applyFilters(); // re-render budget widget + prediction
+    if (typeof budgetDialog.close === 'function') {
+      budgetDialog.close();
+    } else {
+      budgetDialog.removeAttribute('open');
+    }
+    applyFilters(); // re-render overview, kpi-strip, financial health card, and monthly chart guideline
   });
 
-  document.getElementById('btnBudgetClose')!.addEventListener('click', () => budgetDialog.close());
+  document.getElementById('btnBudgetClose')!.addEventListener('click', () => {
+    if (typeof budgetDialog.close === 'function') {
+      budgetDialog.close();
+    } else {
+      budgetDialog.removeAttribute('open');
+    }
+  });
 
   // Shop chart controls
   shopCountSelect.addEventListener('change', function () {

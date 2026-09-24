@@ -224,8 +224,9 @@ describe('Tab Orchestration Module (src/dashboard/tabs.ts)', () => {
       // Tab 1 (Overview)
       const tab1 = doc.querySelector('#tabOverview');
       expect(tab1).not.toBeNull();
-      expect(tab1?.querySelector('.summary')).not.toBeNull();
-      expect(tab1?.querySelector('.comparison-cards')).not.toBeNull();
+      expect(tab1?.querySelector('#kpiStrip')).not.toBeNull();
+      expect(tab1?.querySelector('.tab1-hero')).not.toBeNull();
+      expect(tab1?.querySelector('#financialHealthCard')).not.toBeNull();
       expect(tab1?.querySelector('#monthlyChart')).not.toBeNull();
 
       // Tab 2 (Analytics)
