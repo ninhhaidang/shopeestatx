@@ -1,12 +1,12 @@
 // Chart rendering — monthly/daily spending bar chart + top shops doughnut
-import type { Order } from '../types/index.js';
+import type { Order, DrillDownCallback, TimeCriteria } from '../types/index.js';
 import { state } from './state.js';
 import { formatVND } from './utils.js';
 import { t } from '../i18n/index.js';
-import { applyFilters, filterOrders } from './filters.js';
+import { applyFilters } from './filters.js';
+import { FilterEngine } from './filter-engine.js';
 import { getCurrentTheme } from './theme-toggle.js';
 import { Chart, registerables } from 'chart.js';
-import { EVENTS } from '../config.js';
 
 Chart.register(...registerables);
 
@@ -32,78 +32,69 @@ export function destroyAllCharts(): void {
   }
 }
 
-/** Initialize cleanup on page unload - prevent duplicate listeners */
 if (typeof window !== 'undefined' && !_beforeunloadRegistered) {
   window.addEventListener('beforeunload', destroyAllCharts);
   _beforeunloadRegistered = true;
 }
 
-export function renderCharts(orders: Order[]): void {
+/**
+ * Renders monthly spending bar chart and top shops doughnut chart.
+ *
+ * @param orders Filtered orders to display in charts
+ * @param onDrillDown Optional callback invoked when a month bar is clicked for visual drill-down
+ */
+export function renderCharts(orders: Order[], onDrillDown?: DrillDownCallback): void {
   const chartData: Record<string, number> = {};
-  const hasMonthFilter = (document.getElementById('filterMonth') as HTMLSelectElement).value !== '';
   const theme = getCurrentTheme();
   const primaryColor = theme.primaryColor;
   const primaryDarkColor = theme.primaryDark;
 
-  // For chart display, show ALL days in the month even when a specific day is selected
-  const chartOrders = hasMonthFilter && state.selectedDay !== null
-    ? filterOrders(state.allOrdersData!.orders, {
-      year: (document.getElementById('filterYear') as HTMLSelectElement).value,
-      month: (document.getElementById('filterMonth') as HTMLSelectElement).value,
-      status: (document.getElementById('filterStatus') as HTMLSelectElement).value,
-      searchTerm: (document.getElementById('searchBox') as HTMLInputElement).value.toLowerCase().trim(),
-    })
-    : orders;
+  const time = state.criteria?.time;
+  const filterYearVal = (document.getElementById('filterYear') as HTMLSelectElement | null)?.value;
+  const selectedYear = filterYearVal ? parseInt(filterYearVal, 10) : null;
+  const activeMonth = (time?.kind === 'month' || time?.kind === 'day') ? time.month : null;
+  const activeYear = (time && 'year' in time && time.year > 0) ? time.year : null;
+  // For chart display, show all months in the year (or all-time) even when a specific month/day is selected
+  const chartOrders =
+    state.allOrdersData && (state.criteria?.time.kind === 'month' || state.criteria?.time.kind === 'day')
+      ? FilterEngine.evaluate(state.allOrdersData.orders, {
+          ...state.criteria,
+          time: activeYear && activeYear > 0
+            ? { kind: 'year', year: activeYear }
+            : { kind: 'all' },
+        })
+      : orders;
 
   chartOrders.forEach(order => {
     if (order.statusCode === 4 || order.statusCode === 12) return;
-
-    let key: string;
-    if (hasMonthFilter && order.deliveryDate) {
-      const date = new Date(order.deliveryDate);
-      const day = date.getDate();
-      key = `${day}/${order.orderMonth}/${order.orderYear}`;
-    } else {
-      if (!order.orderMonth || !order.orderYear) return;
-      key = `${order.orderMonth}/${order.orderYear}`;
-    }
-
+    if (!order.orderMonth || !order.orderYear) return;
+    const key = `${order.orderMonth}/${order.orderYear}`;
     chartData[key] = (chartData[key] || 0) + order.subTotal;
   });
 
   const sortedKeys = Object.keys(chartData).sort((a, b) => {
-    const parts1 = a.split('/').map(Number);
-    const parts2 = b.split('/').map(Number);
-
-    if (hasMonthFilter) {
-      const [d1, m1, y1] = parts1;
-      const [d2, m2, y2] = parts2;
-      return (y1 - y2) || (m1 - m2) || (d1 - d2);
-    } else {
-      const [m1, y1] = parts1;
-      const [m2, y2] = parts2;
-      return (y1 - y2) || (m1 - m2);
-    }
+    const [m1, y1] = a.split('/').map(Number);
+    const [m2, y2] = b.split('/').map(Number);
+    return (y1 - y2) || (m1 - m2);
   });
 
-  const chartLabels = hasMonthFilter
-    ? sortedKeys.map(k => { const [day, month] = k.split('/'); return `${day}/${month}`; })
-    : sortedKeys;
-
+  const chartLabels = sortedKeys;
   const monthlyValues = sortedKeys.map(k => chartData[k]);
 
   const backgroundColors = monthlyValues.map((_value, index) => {
-    if (hasMonthFilter && state.selectedDay !== null) {
+    if (activeMonth !== null) {
       const key = sortedKeys[index];
-      const [day] = key.split('/').map(Number);
-      return day === state.selectedDay ? primaryColor : primaryDarkColor;
+      const [m, y] = key.split('/').map(Number);
+      if (m === activeMonth && (!activeYear || y === activeYear)) {
+        return primaryColor;
+      }
     }
     return primaryDarkColor;
   });
 
   const chartTitle = document.querySelector('.chart-box h3');
   if (chartTitle) {
-    chartTitle.textContent = hasMonthFilter ? t('chart.spendingByDay') : t('chart.spendingByMonth');
+    chartTitle.textContent = t('chart.spendingByMonth');
   }
 
   if (monthlyChart) monthlyChart.destroy();
@@ -145,24 +136,27 @@ export function renderCharts(orders: Order[]): void {
       },
       onClick: (_event, activeElements) => {
         if (activeElements.length > 0) {
+          if (!onDrillDown) return;
           const index = activeElements[0].index;
 
-          if (hasMonthFilter) {
-            const dayLabel = sortedKeys[index];
-            const [day] = dayLabel.split('/').map(Number);
-            state.selectedDay = state.selectedDay === day ? null : day;
-            applyFilters();
-          } else {
-            const monthLabel = sortedKeys[index];
-            const [monthNum, year] = monthLabel.split('/');
-            (document.getElementById('filterYear') as HTMLSelectElement).value = year;
-            (document.getElementById('filterMonth') as HTMLSelectElement).value = monthNum;
-            // BUG-2: clear ghost dateRange so it doesn't silently reactivate on chip removal
-            state.dateRange = { start: null, end: null };
-            document.dispatchEvent(new CustomEvent(EVENTS.DATE_RANGE_CLEARED));
-            applyFilters();
-            document.getElementById('ordersTable')!.scrollIntoView({ behavior: 'smooth' });
+          const monthLabel = sortedKeys[index];
+          const [monthNum, year] = monthLabel.split('/').map(Number);
+
+          const time = state.criteria?.time;
+          const isAlreadyActiveMonth =
+            time?.kind === 'month' &&
+            time.month === monthNum &&
+            (time.year === year || !time.year);
+
+          if (isAlreadyActiveMonth) {
+            // Re-clicking active month bar toggles off back to year or all-time
+            const targetYear = selectedYear ?? (activeYear && activeYear > 0 ? activeYear : 0);
+            const targetTime: TimeCriteria = targetYear ? { kind: 'year', year: targetYear } : { kind: 'all' };
+            onDrillDown({ time: targetTime });
+            return;
           }
+
+          onDrillDown({ time: { kind: 'month', year, month: monthNum } });
         }
       },
     },
@@ -245,7 +239,7 @@ export function renderCharts(orders: Order[]): void {
           const shopName = topShops[index][0];
           (document.getElementById('searchBox') as HTMLInputElement).value = shopName;
           applyFilters();
-          document.getElementById('ordersTable')!.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
         }
       },
     },

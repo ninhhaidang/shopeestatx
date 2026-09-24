@@ -112,3 +112,8 @@ export interface FilterChip {
  * Identifier for relative date interval presets supported by the DateRangePicker.
  */
 export type DatePreset = 'last7' | 'thisMonth' | 'lastMonth' | 'last3months' | 'thisYear' | 'custom';
+
+/**
+ * Callback seam invoked when a visual drill-down interaction occurs in charts or heatmap.
+ */
+export type DrillDownCallback = (criteriaUpdate: Partial<FilterCriteria>) => void;

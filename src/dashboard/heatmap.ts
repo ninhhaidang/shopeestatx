@@ -1,8 +1,7 @@
 // Calendar heatmap — GitHub-style 52-week order count visualization
-import type { Order } from '../types/index.js';
+import type { Order, DrillDownCallback, TimeCriteria } from '../types/index.js';
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
-import { EVENTS } from '../config.js';
 
 export interface HeatmapDay {
   date: string;       // YYYY-MM-DD
@@ -41,11 +40,21 @@ function buildDayIndex(orders: Order[], startDate: Date, endDate: Date): Record<
   });
   return index;
 }
-
-export function renderHeatmap(container: HTMLElement, orders: Order[]): void {
-  // Get selected year from filter
-  const filterYear = (document.getElementById('filterYear') as HTMLSelectElement).value;
-  const selectedYear = filterYear ? parseInt(filterYear) : null;
+/**
+ * Renders the 52-week calendar heatmap and attaches visual drill-down click handlers.
+ *
+ * @param container DOM element where the heatmap SVG is mounted
+ * @param orders Historical orders used to calculate daily order counts
+ * @param onDrillDown Optional callback invoked when a day cell is clicked for visual drill-down
+ */
+export function renderHeatmap(
+  container: HTMLElement,
+  orders: Order[],
+  onDrillDown?: DrillDownCallback,
+): void {
+  // Determine selected year from filter input
+  const filterYear = (document.getElementById('filterYear') as HTMLSelectElement | null)?.value;
+  const selectedYear = filterYear ? parseInt(filterYear, 10) : null;
 
   // Determine date range based on selected year
   let startDate: Date, endDate: Date;
@@ -169,15 +178,30 @@ export function renderHeatmap(container: HTMLElement, orders: Order[]): void {
   });
   svg.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
 
-  // Click cell → filter table to that day (via custom event to avoid circular dep)
+  // Click cell → visual drill-down via onDrillDown callback seam
   svg.addEventListener('click', (e) => {
     const cell = (e.target as Element).closest('.heatmap-cell') as SVGElement | null;
     if (!cell?.dataset.date) return;
     const [year, month, day] = cell.dataset.date.split('-').map(Number);
-    (document.getElementById('filterYear') as HTMLSelectElement).value = String(year);
-    (document.getElementById('filterMonth') as HTMLSelectElement).value = String(month);
-    state.selectedDay = day;
-    document.dispatchEvent(new CustomEvent(EVENTS.APPLY_FILTERS));
-    document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
+
+    const time = state.criteria?.time;
+    const isAlreadyActive =
+      time?.kind === 'day' &&
+      time.day === day &&
+      time.month === month &&
+      (time.year === year || !time.year);
+
+    if (isAlreadyActive) {
+      // Re-clicking an active heatmap day toggles the selection off cleanly back to year or all-time
+      const targetTime: TimeCriteria = selectedYear ? { kind: 'year', year: selectedYear } : { kind: 'all' };
+      if (onDrillDown) {
+        onDrillDown({ time: targetTime });
+      }
+      return;
+    }
+
+    if (onDrillDown) {
+      onDrillDown({ time: { kind: 'day', year, month, day } });
+    }
   });
 }

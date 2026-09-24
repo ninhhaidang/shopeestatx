@@ -129,6 +129,22 @@ export function syncCriteriaToToolbar(criteria: FilterCriteria): void {
   if (drpContainer) {
     syncDateRangePickerToCriteria(drpContainer);
   }
+
+  // Update filter count badge if element exists
+  const filterCountEl = document.querySelector('#btnMoreFilters .filter-count');
+  const filterLabel = document.querySelector('#btnMoreFilters .filter-label');
+  if (filterCountEl || filterLabel) {
+    const statusVal = statusEl?.value || '';
+    const catVal = categoryEl?.value || '';
+    const count = (statusVal ? 1 : 0) + (catVal ? 1 : 0);
+    if (filterCountEl) {
+      filterCountEl.textContent = String(count);
+      filterCountEl.classList.toggle('hidden', count === 0);
+    }
+    if (filterLabel) {
+      filterLabel.textContent = count > 0 ? `${count} lọc` : 'Lọc';
+    }
+  }
 }
 /**
  * Evaluates state.criteria against order data using FilterEngine and updates all UI views.
@@ -167,7 +183,7 @@ export function applyFilters(options?: { syncFromDOM?: boolean }): void {
     renderData(filtered);
   }
   if (document.getElementById('monthlyChart')) {
-    renderCharts(filtered);
+    renderCharts(filtered, handleDrillDown);
   }
   if (document.getElementById('tableBody')) {
     renderCurrentPage();
@@ -182,14 +198,11 @@ export function applyFilters(options?: { syncFromDOM?: boolean }): void {
 
   // Heatmap — always uses all orders (past year), re-renders on filter changes
   const heatmapEl = document.getElementById('heatmapContainer');
-  if (heatmapEl) renderHeatmap(heatmapEl, state.allOrdersData!.orders);
-
+  if (heatmapEl) renderHeatmap(heatmapEl, state.allOrdersData!.orders, handleDrillDown);
   // Shop loyalty — always uses all orders
   const loyaltyEl = document.getElementById('loyaltyContainer');
   if (loyaltyEl) renderShopLoyalty(loyaltyEl, analyzeShopLoyalty(state.allOrdersData!.orders));
 
-  // Notify UI components to update (e.g., filter count badge)
-  document.dispatchEvent(new CustomEvent(EVENTS.APPLY_FILTERS));
 }
 /**
  * Renders active filter chips derived purely from state.criteria and binds removal handlers.
@@ -294,4 +307,20 @@ export function handleSort(field: string): void {
   }
 
   applyFilters();
+}
+
+/**
+ * Handles visual drill-down interactions from charts and heatmap.
+ * Updates state.criteria, synchronizes toolbar UI and active chips,
+ * and re-evaluates filtered orders synchronously.
+ */
+export function handleDrillDown(criteriaUpdate: Partial<FilterCriteria>): void {
+  state.criteria = {
+    ...state.criteria,
+    ...criteriaUpdate,
+  };
+  state.currentPage = 1;
+  syncCriteriaToToolbar(state.criteria);
+  applyFilters({ syncFromDOM: false });
+  document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
 }

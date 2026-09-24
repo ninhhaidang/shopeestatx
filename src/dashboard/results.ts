@@ -3,7 +3,7 @@ import { state } from './state.js';
 import { exportToExcel, exportToCSV, exportToPDF } from './export.js';
 import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
-import { applyFilters, clearAllFilters, handleSort } from './filters.js';
+import { applyFilters, clearAllFilters, handleSort, handleDrillDown } from './filters.js';
 import { fetchDataFromShopee, loadDataFromStorage, refreshData, isExtensionContext, loadMockData } from './data.js';
 import { initTheme, setTheme, updateThemeButton, getThemes, toggleThemeDropdown, closeThemeDropdown } from './theme-toggle.js';
 import { loadBudgetConfig, saveBudgetConfig, setCachedBudgetConfig, getCachedBudgetConfig } from './budget.js';
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     themeDropdown.querySelectorAll('.theme-option').forEach(btn => {
       btn.addEventListener('click', () => {
         const themeId = (btn as HTMLElement).dataset.theme!;
-        setTheme(themeId, () => renderCharts(state.filteredOrders));
+        setTheme(themeId, () => renderCharts(state.filteredOrders, handleDrillDown));
         updateThemeButton();
         closeThemeDropdown();
 
@@ -188,9 +188,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   document.getElementById('filterStatus')?.addEventListener('change', updateFilterCount);
   document.getElementById('filterCategory')?.addEventListener('change', updateFilterCount);
 
-  // Also update count when filters are applied (e.g., from clear all)
-  document.addEventListener(EVENTS.APPLY_FILTERS, updateFilterCount);
-
   // Filter changes
   filterYear.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
   filterMonth.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
@@ -240,9 +237,6 @@ document.addEventListener('DOMContentLoaded', async function () {
       handleSort(this.dataset.sort!);
     });
   });
-
-  // Heatmap click → applyFilters (dispatched via custom event to avoid circular dep)
-  document.addEventListener(EVENTS.APPLY_FILTERS, () => applyFilters());
 
   // Shop loyalty: filter by shop name
   document.addEventListener(EVENTS.FILTER_BY_SHOP, (e) => {
@@ -295,7 +289,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       searchBox.value = '';
       applyFilters();
     } else {
-      renderCharts(state.filteredOrders);
+      renderCharts(state.filteredOrders, handleDrillDown);
     }
   });
 
@@ -305,7 +299,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       searchBox.value = '';
       applyFilters();
     } else {
-      renderCharts(state.filteredOrders);
+      renderCharts(state.filteredOrders, handleDrillDown);
     }
   });
 });
