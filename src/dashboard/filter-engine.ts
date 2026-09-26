@@ -289,6 +289,19 @@ export function deriveFilterChips(criteria: FilterCriteria): FilterChip[] {
 }
 
 /**
+ * Pure check whether any filter constraints are currently active in FilterCriteria.
+ */
+export function hasActiveFilters(criteria?: FilterCriteria | null): boolean {
+  if (!criteria) return false;
+  return (
+    (criteria.time != null && criteria.time.kind !== 'all') ||
+    Boolean(criteria.status?.trim()) ||
+    Boolean(criteria.category?.trim()) ||
+    Boolean(criteria.searchTerm?.trim())
+  );
+}
+
+/**
  * Pure in-process FilterEngine evaluating orders against a unified FilterCriteria value object.
  * Contains zero DOM dependencies, window references, or global mutable state.
  */
@@ -314,6 +327,7 @@ export const FilterEngine = {
     return filtered;
   },
   deriveFilterChips,
+  hasActiveFilters,
 };
 
 /** Direct export of FilterEngine.evaluate */

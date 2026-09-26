@@ -1,7 +1,8 @@
-// Excel, CSV, and PDF export functions
+/** ShopeeStatX/export.ts — Excel, CSV, and PDF export functions */
 import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
+import { hasActiveFilters } from './filter-engine.js';
 import ExcelJS from 'exceljs';
 
 /** Helper: trigger browser file download */
@@ -17,23 +18,22 @@ function downloadFile(content: string, filename: string, mimeType: string): void
   URL.revokeObjectURL(url);
 }
 
-/** Get currently-filtered orders for export (respects year/month/status filters) */
-function getExportOrders(): Order[] {
-  if (!state.allOrdersData) return [];
-  const yearEl = document.getElementById('filterYear') as HTMLSelectElement | null;
-  const monthEl = document.getElementById('filterMonth') as HTMLSelectElement | null;
-  const statusEl = document.getElementById('filterStatus') as HTMLSelectElement | null;
-  const year = yearEl?.value || '';
-  const month = monthEl?.value || '';
-  const status = statusEl?.value || '';
+/** Get currently evaluated filtered orders for export without legacy DOM scraping */
+export function getExportOrders(): Order[] {
+  // ponytail: reuse state.filteredOrders directly rather than re-evaluating FilterEngine.
+  // upgrade path: re-evaluate full dataset if lazy table windowing/virtualization is introduced.
+  if (hasActiveFilters(state.criteria)) {
+    return state.filteredOrders ?? [];
+  }
+  if (state.filteredOrders && state.filteredOrders.length > 0) {
+    return state.filteredOrders;
+  }
+  return state.allOrdersData?.orders ?? [];
+}
 
-  // NOTE: Intentionally does not filter by selectedDay or searchTerm — pre-existing behavior
-  return state.allOrdersData.orders.filter(order => {
-    if (year && order.orderYear !== Number(year)) return false;
-    if (month && order.orderMonth !== Number(month)) return false;
-    if (status && order.statusCode !== Number(status)) return false;
-    return true;
-  });
+/** Helper: escape string for CSV field */
+function escapeCsv(val: string | null | undefined): string {
+  return `"${(val || '').replace(/"/g, '""')}"`;
 }
 
 export function exportToExcel(orders?: Order[]): void {
@@ -52,8 +52,8 @@ export function exportToExcel(orders?: Order[]): void {
     [t('export.col.product')]: order.name,
     [t('export.col.quantity')]: order.productCount,
     [t('export.col.total')]: order.subTotal,
-    'Seller': order.shopName,
-    'Details': order.productSummary,
+    [t('export.col.seller')]: order.shopName,
+    [t('export.col.details')]: order.productSummary,
   }));
 
   const workbook = new ExcelJS.Workbook();
@@ -88,7 +88,7 @@ export function exportToExcel(orders?: Order[]): void {
     })
     .catch(err => {
       console.error('Export failed:', err);
-      alert('Failed to export Excel. Please try again.');
+      alert(t('export.failed') || 'Failed to export Excel. Please try again.');
     });
 }
 
@@ -103,17 +103,17 @@ export function exportToCSV(orders?: Order[]): void {
     t('export.col.product'),
     t('export.col.quantity'),
     t('export.col.total'),
-    'Seller'
+    t('export.col.seller'),
   ];
   const rows = filtered.map((o, i) => [
     i + 1,
     o.orderId,
     o.deliveryDate ? new Date(o.deliveryDate).toLocaleDateString('vi-VN') : '',
-    `"${o.status.replace(/"/g, '""')}"`,
-    `"${o.name.replace(/"/g, '""')}"`,
+    escapeCsv(o.status),
+    escapeCsv(o.name),
     o.productCount,
     o.subTotal,
-    `"${o.shopName.replace(/"/g, '""')}"`,
+    escapeCsv(o.shopName),
   ].join(','));
 
   const csv = BOM + [headers.join(','), ...rows].join('\n');

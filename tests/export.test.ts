@@ -1,80 +1,204 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { exportToCSV, exportToPDF } from '../src/dashboard/export';
+import { getExportOrders, exportToExcel, exportToCSV, exportToPDF } from '../src/dashboard/export';
 import { state } from '../src/dashboard/state';
-import type { Order, OrderData } from '../src/types/index';
+import { t } from '../i18n/index';
+import type { Order } from '../src/types/index';
+import ExcelJS from 'exceljs';
 
-describe('Export Functions', () => {
+describe('FilterCriteria-Aware Scoped Data Export (Ticket #20)', () => {
+  const mockOrders: Order[] = [
+    {
+      orderId: 'ORD-001',
+      name: 'Bàn phím cơ không dây',
+      productCount: 1,
+      subTotal: 500000,
+      subTotalFormatted: '500.000 ₫',
+      status: 'Đã giao hàng',
+      statusCode: 3,
+      shopName: 'Keychron Official',
+      productSummary: 'Switch Red, Bluetooth 5.1',
+      deliveryDate: '2024-03-15T10:00:00.000Z',
+      orderPlacementDate: '2024-03-10T08:00:00.000Z',
+      orderMonth: 3,
+      orderYear: 2024,
+    },
+    {
+      orderId: 'ORD-002',
+      name: 'Áo thun polo nam',
+      productCount: 2,
+      subTotal: 300000,
+      subTotalFormatted: '300.000 ₫',
+      status: 'Đã giao hàng',
+      statusCode: 3,
+      shopName: 'Coolmate Store',
+      productSummary: 'Màu đen, size L',
+      deliveryDate: '2024-04-20T14:30:00.000Z',
+      orderPlacementDate: '2024-04-18T12:00:00.000Z',
+      orderMonth: 4,
+      orderYear: 2024,
+    },
+    {
+      orderId: 'ORD-003',
+      name: 'Chuột công thái học',
+      productCount: 1,
+      subTotal: 850000,
+      subTotalFormatted: '850.000 ₫',
+      status: 'Đã hủy',
+      statusCode: 4,
+      shopName: 'Logitech Flagship',
+      productSummary: 'MX Master 3S',
+      deliveryDate: null,
+      orderPlacementDate: '2023-11-05T09:00:00.000Z',
+      orderMonth: 11,
+      orderYear: 2023,
+    },
+  ];
+
   beforeEach(() => {
-    // Reset DOM and state
-    document.body.innerHTML = `
-      <select id="filterYear"></select>
-      <select id="filterMonth"></select>
-      <select id="filterStatus"></select>
-    `;
-
-    // Reset filter values
-    const yearSelect = document.getElementById('filterYear') as HTMLSelectElement;
-    const monthSelect = document.getElementById('filterMonth') as HTMLSelectElement;
-    const statusSelect = document.getElementById('filterStatus') as HTMLSelectElement;
-
-    if (yearSelect) yearSelect.value = '';
-    if (monthSelect) monthSelect.value = '';
-    if (statusSelect) statusSelect.value = '';
-
-    // Mock state data
+    // Reset state
     state.allOrdersData = {
-      orders: [],
-      totalCount: 0,
-      totalAmount: 0,
-      totalAmountFormatted: '0 ₫',
+      orders: [...mockOrders],
+      totalCount: 3,
+      totalAmount: 1650000,
+      totalAmountFormatted: '1.650.000 ₫',
       fetchedAt: new Date().toISOString(),
     };
+    state.filteredOrders = [...mockOrders];
+    state.criteria = {
+      time: { kind: 'all' },
+      status: null,
+      category: null,
+      searchTerm: null,
+      sort: { field: null, direction: 'asc' },
+    };
 
-    // Mock URL.createObjectURL and URL.revokeObjectURL
-    global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    // Reset DOM
+    document.body.innerHTML = '';
+
+    // Mock URL & Anchor download APIs
+    global.URL.createObjectURL = vi.fn((blob: Blob) => 'blob:mock-url');
     global.URL.revokeObjectURL = vi.fn();
-
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
-  describe('exportToCSV', () => {
-    it('creates CSV element and triggers download', () => {
-      const mockOrders: Order[] = [
-        {
-          orderId: 'ORD001',
-          name: 'Test Product',
-          productCount: 1,
-          subTotal: 100000,
-          subTotalFormatted: '100.000 ₫',
-          status: 'Đã giao hàng',
-          statusCode: 3,
-          shopName: 'Test Shop',
-          productSummary: 'Test summary',
-          deliveryDate: '2024-01-15',
-          orderMonth: 1,
-          orderYear: 2024,
-        },
-      ];
-
-      state.allOrdersData = {
-        orders: mockOrders,
-        totalCount: 1,
-        totalAmount: 100000,
-        totalAmountFormatted: '100.000 ₫',
-        fetchedAt: new Date().toISOString(),
+  describe('Seam 1: getExportOrders Data Resolution & DOM Scraping Elimination', () => {
+    it('returns all available historical orders when no FilterCriteria constraints are active', () => {
+      state.criteria = {
+        time: { kind: 'all' },
+        status: null,
+        category: null,
+        searchTerm: null,
+        sort: null,
       };
+      state.filteredOrders = [...mockOrders];
+
+      const result = getExportOrders();
+      expect(result).toHaveLength(3);
+      expect(result).toEqual(mockOrders);
+    });
+
+    it('falls back to state.allOrdersData.orders if state.filteredOrders is uninitialized when no filters active', () => {
+      state.criteria = {
+        time: { kind: 'all' },
+        status: null,
+        category: null,
+        searchTerm: null,
+      };
+      state.filteredOrders = [];
+
+      const result = getExportOrders();
+      expect(result).toHaveLength(3);
+      expect(result).toEqual(mockOrders);
+    });
+
+    it('returns evaluated state.filteredOrders when search keyword filter is active', () => {
+      state.criteria = {
+        time: { kind: 'all' },
+        status: null,
+        category: null,
+        searchTerm: 'Keychron',
+      };
+      state.filteredOrders = [mockOrders[0]];
+
+      const result = getExportOrders();
+      expect(result).toHaveLength(1);
+      expect(result[0].orderId).toBe('ORD-001');
+    });
+
+    it('returns evaluated state.filteredOrders when temporal TimeCriteria boundary is active', () => {
+      state.criteria = {
+        time: { kind: 'year', year: 2024 },
+        status: null,
+        category: null,
+        searchTerm: null,
+      };
+      state.filteredOrders = [mockOrders[0], mockOrders[1]];
+
+      const result = getExportOrders();
+      expect(result).toHaveLength(2);
+      expect(result.map(o => o.orderId)).toEqual(['ORD-001', 'ORD-002']);
+    });
+
+    it('returns empty array when active FilterCriteria constraints match 0 orders', () => {
+      state.criteria = {
+        time: { kind: 'all' },
+        status: null,
+        category: null,
+        searchTerm: 'NonExistentProductXYZ',
+      };
+      state.filteredOrders = [];
+
+      const result = getExportOrders();
+      expect(result).toEqual([]);
+    });
+
+    it('strictly ignores legacy DOM select elements and accesses state directly', () => {
+      // Create legacy DOM selects with conflicting values
+      document.body.innerHTML = `
+        <select id="filterYear"><option value="2023" selected>2023</option></select>
+        <select id="filterMonth"><option value="11" selected>11</option></select>
+        <select id="filterStatus"><option value="4" selected>4</option></select>
+      `;
+
+      // State represents 2024 orders evaluated from FilterEngine
+      state.criteria = {
+        time: { kind: 'year', year: 2024 },
+        status: null,
+        category: null,
+        searchTerm: null,
+      };
+      state.filteredOrders = [mockOrders[0], mockOrders[1]];
+
+      const result = getExportOrders();
+      // Must return state.filteredOrders (2024 orders), NOT legacy DOM filtered (2023 status 4 order)
+      expect(result).toHaveLength(2);
+      expect(result.map(o => o.orderId)).toEqual(['ORD-001', 'ORD-002']);
+    });
+  });
+
+  describe('Seam 2: Global CSV Export with Scoped Data & Localized Headers', () => {
+    it('exports matching filtered orders with localized Vietnamese headers including Người bán', async () => {
+      state.criteria = {
+        time: { kind: 'year', year: 2024 },
+        status: null,
+        category: null,
+        searchTerm: null,
+      };
+      state.filteredOrders = [mockOrders[0]];
+
+      let capturedBlob: Blob | null = null;
+      vi.spyOn(global.URL, 'createObjectURL').mockImplementation((blob: Blob) => {
+        capturedBlob = blob;
+        return 'blob:mock-url';
+      });
 
       const clickSpy = vi.fn();
-      const removeSpy = vi.spyOn(document.body, 'removeChild');
-
-      // Mock createElement to track anchor creation
       const originalCreateElement = document.createElement.bind(document);
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      createElementSpy.mockImplementation((tag: string) => {
+      vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
         const el = originalCreateElement(tag);
         if (tag === 'a') {
           el.click = clickSpy;
@@ -84,268 +208,163 @@ describe('Export Functions', () => {
 
       exportToCSV();
 
-      // Verify anchor was created and clicked
-      expect(createElementSpy).toHaveBeenCalledWith('a');
       expect(clickSpy).toHaveBeenCalled();
+      expect(capturedBlob).not.toBeNull();
+
+      const buf = await capturedBlob!.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      // Verify UTF-8 BOM bytes (EF BB BF) for Excel UTF-8 compatibility
+      expect(bytes[0]).toBe(0xef);
+      expect(bytes[1]).toBe(0xbb);
+      expect(bytes[2]).toBe(0xbf);
+      const text = await capturedBlob!.text();
+      // Verify localized Vietnamese headers
+      const lines = text.trim().split('\n');
+      const headerLine = lines[0].replace('\uFEFF', '');
+      expect(headerLine).toBe('STT,Mã đơn hàng,Ngày giao,Trạng thái,Tên sản phẩm,Số lượng,Tổng tiền,Người bán');
+
+      // Verify scoped data rows: only ORD-001
+      expect(lines).toHaveLength(2);
+      expect(lines[1]).toContain('ORD-001');
+      expect(lines[1]).toContain('Keychron Official');
+      expect(lines[1]).not.toContain('ORD-002');
     });
 
-    it('filters orders by year when year filter is set', () => {
-      const yearSelect = document.getElementById('filterYear') as HTMLSelectElement;
-      yearSelect.value = '2024';
-
-      const mockOrders: Order[] = [
-        {
-          orderId: 'ORD001',
-          name: 'Product 1',
-          productCount: 1,
-          subTotal: 100000,
-          subTotalFormatted: '100.000 ₫',
-          status: 'Đã giao hàng',
-          statusCode: 3,
-          shopName: 'Shop A',
-          productSummary: 'Summary 1',
-          deliveryDate: '2024-01-15',
-          orderMonth: 1,
-          orderYear: 2024,
-        },
-        {
-          orderId: 'ORD002',
-          name: 'Product 2',
-          productCount: 1,
-          subTotal: 150000,
-          subTotalFormatted: '150.000 ₫',
-          status: 'Đã giao hàng',
-          statusCode: 3,
-          shopName: 'Shop B',
-          productSummary: 'Summary 2',
-          deliveryDate: '2023-12-15',
-          orderMonth: 12,
-          orderYear: 2023,
-        },
-      ];
-
-      state.allOrdersData = {
-        orders: mockOrders,
-        totalCount: 2,
-        totalAmount: 250000,
-        totalAmountFormatted: '250.000 ₫',
-        fetchedAt: new Date().toISOString(),
+    it('exports empty CSV with headers when no orders match active filters', async () => {
+      state.criteria = {
+        time: { kind: 'all' },
+        status: null,
+        category: null,
+        searchTerm: 'NonExistent',
       };
+      state.filteredOrders = [];
 
-      let capturedHref = '';
-      const originalCreateElement = document.createElement.bind(document);
-      vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        const el = originalCreateElement(tag);
-        if (tag === 'a') {
-          Object.defineProperty(el, 'href', {
-            set(value: string) {
-              capturedHref = value;
-            },
-            get() {
-              return capturedHref;
-            },
-          });
-          el.click = vi.fn();
-        }
-        return el;
+      let capturedBlob: Blob | null = null;
+      vi.spyOn(global.URL, 'createObjectURL').mockImplementation((blob: Blob) => {
+        capturedBlob = blob;
+        return 'blob:mock-url';
       });
 
       exportToCSV();
 
-      // Verify year filtering by checking CSV was created with limited data
-      expect(document.body.appendChild).toBeDefined();
+      expect(capturedBlob).not.toBeNull();
+      const text = await capturedBlob!.text();
+      const lines = text.trim().split('\n');
+      expect(lines).toHaveLength(1);
+      expect(lines[0]).toContain('Mã đơn hàng');
     });
 
-    it('filters orders by status when status filter is set', () => {
-      const statusSelect = document.getElementById('filterStatus') as HTMLSelectElement;
-      statusSelect.value = '3';
-
-      const mockOrders: Order[] = [
-        {
-          orderId: 'ORD001',
-          name: 'Product 1',
-          productCount: 1,
-          subTotal: 100000,
-          subTotalFormatted: '100.000 ₫',
-          status: 'Đã giao hàng',
-          statusCode: 3,
-          shopName: 'Shop A',
-          productSummary: 'Summary 1',
-          deliveryDate: '2024-01-15',
-          orderMonth: 1,
-          orderYear: 2024,
-        },
-        {
-          orderId: 'ORD002',
-          name: 'Product 2',
-          productCount: 1,
-          subTotal: 150000,
-          subTotalFormatted: '150.000 ₫',
-          status: 'Chờ xác nhận',
-          statusCode: 0,
-          shopName: 'Shop B',
-          productSummary: 'Summary 2',
-          deliveryDate: null,
-          orderMonth: 1,
-          orderYear: 2024,
-        },
-      ];
-
-      state.allOrdersData = {
-        orders: mockOrders,
-        totalCount: 2,
-        totalAmount: 250000,
-        totalAmountFormatted: '250.000 ₫',
-        fetchedAt: new Date().toISOString(),
+    it('properly escapes quotes and special characters in CSV fields', async () => {
+      const orderWithQuotes: Order = {
+        ...mockOrders[0],
+        name: 'Sản phẩm có dấu "ngoặc kép" và dấu , phẩy',
+        shopName: 'Cửa hàng "Uy tín"',
       };
+      state.filteredOrders = [orderWithQuotes];
 
-      const originalCreateElement = document.createElement.bind(document);
-      vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        const el = originalCreateElement(tag);
-        if (tag === 'a') {
-          el.click = vi.fn();
-        }
-        return el;
+      let capturedBlob: Blob | null = null;
+      vi.spyOn(global.URL, 'createObjectURL').mockImplementation((blob: Blob) => {
+        capturedBlob = blob;
+        return 'blob:mock-url';
       });
 
       exportToCSV();
 
-      // Verify status filtering works by checking no error is thrown
-      expect(state.allOrdersData?.orders.length).toBe(2);
-    });
-
-    it('escapes quotes in CSV fields properly', () => {
-      const mockOrders: Order[] = [
-        {
-          orderId: 'ORD001',
-          name: 'Product with "quotes"',
-          productCount: 1,
-          subTotal: 100000,
-          subTotalFormatted: '100.000 ₫',
-          status: 'Đã giao hàng',
-          statusCode: 3,
-          shopName: 'Shop "A" Store',
-          productSummary: 'Test',
-          deliveryDate: '2024-01-15',
-          orderMonth: 1,
-          orderYear: 2024,
-        },
-      ];
-
-      state.allOrdersData = {
-        orders: mockOrders,
-        totalCount: 1,
-        totalAmount: 100000,
-        totalAmountFormatted: '100.000 ₫',
-        fetchedAt: new Date().toISOString(),
-      };
-
-      const originalCreateElement = document.createElement.bind(document);
-      vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        const el = originalCreateElement(tag);
-        if (tag === 'a') {
-          el.click = vi.fn();
-        }
-        return el;
-      });
-
-      exportToCSV();
-
-      // Verify call succeeds with quoted data
-      expect(state.allOrdersData?.orders[0]?.name).toContain('"');
-    });
-
-    it('exports empty CSV when no orders match filters', () => {
-      const yearSelect = document.getElementById('filterYear') as HTMLSelectElement;
-      yearSelect.value = '2025'; // No orders from 2025
-
-      const mockOrders: Order[] = [
-        {
-          orderId: 'ORD001',
-          name: 'Product 1',
-          productCount: 1,
-          subTotal: 100000,
-          subTotalFormatted: '100.000 ₫',
-          status: 'Đã giao hàng',
-          statusCode: 3,
-          shopName: 'Shop A',
-          productSummary: 'Summary 1',
-          deliveryDate: '2024-01-15',
-          orderMonth: 1,
-          orderYear: 2024,
-        },
-      ];
-
-      state.allOrdersData = {
-        orders: mockOrders,
-        totalCount: 1,
-        totalAmount: 100000,
-        totalAmountFormatted: '100.000 ₫',
-        fetchedAt: new Date().toISOString(),
-      };
-
-      const originalCreateElement = document.createElement.bind(document);
-      vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        const el = originalCreateElement(tag);
-        if (tag === 'a') {
-          el.click = vi.fn();
-        }
-        return el;
-      });
-
-      exportToCSV();
-
-      // Should not throw error with filtered empty result
-      expect(state.allOrdersData?.orders.length).toBe(1);
-    });
-
-    it('includes correct CSV headers in Vietnamese', () => {
-      state.allOrdersData = {
-        orders: [],
-        totalCount: 0,
-        totalAmount: 0,
-        totalAmountFormatted: '0 ₫',
-        fetchedAt: new Date().toISOString(),
-      };
-
-      const originalCreateElement = document.createElement.bind(document);
-      vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        const el = originalCreateElement(tag);
-        if (tag === 'a') {
-          el.click = vi.fn();
-        }
-        return el;
-      });
-
-      // Should not throw error and headers should be created
-      expect(() => exportToCSV()).not.toThrow();
+      const text = await capturedBlob!.text();
+      expect(text).toContain('""ngoặc kép""');
+      expect(text).toContain('""Uy tín""');
     });
   });
 
-  describe('exportToPDF', () => {
-    it('calls window.print() to open print dialog', () => {
-      const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
+  describe('Seam 3: Global Excel Export with Scoped Data & Localized Headers', () => {
+    it('exports matching filtered orders to Excel worksheet with localized column headers', async () => {
+      state.criteria = {
+        time: { kind: 'year', year: 2024 },
+        status: null,
+        category: null,
+        searchTerm: 'Coolmate',
+      };
+      state.filteredOrders = [mockOrders[1]];
 
-      exportToPDF();
+      let capturedRows: any[] = [];
+      const originalAddWorksheet = ExcelJS.Workbook.prototype.addWorksheet;
+      vi.spyOn(ExcelJS.Workbook.prototype, 'addWorksheet').mockImplementation(function (name: string) {
+        const sheet = originalAddWorksheet.call(this, name);
+        const originalGetCell = sheet.getCell.bind(sheet);
+        vi.spyOn(sheet, 'getCell').mockImplementation((row: number, col: number) => {
+          const cell = originalGetCell(row, col);
+          return cell;
+        });
+        return sheet;
+      });
 
-      expect(printSpy).toHaveBeenCalled();
+      const writeBufferSpy = vi.spyOn(ExcelJS.Workbook.prototype.xlsx, 'writeBuffer').mockResolvedValue(new ArrayBuffer(16) as unknown as ExcelJS.Buffer);
+
+      exportToExcel();
+
+      expect(writeBufferSpy).toHaveBeenCalled();
     });
 
-    it('does not require any parameters', () => {
-      const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
+    it('shows alert feedback when exporting empty filtered orders collection', () => {
+      state.criteria = {
+        time: { kind: 'all' },
+        status: null,
+        category: null,
+        searchTerm: 'NothingMatches',
+      };
+      state.filteredOrders = [];
 
-      expect(() => exportToPDF()).not.toThrow();
-      expect(printSpy).toHaveBeenCalled();
+      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+      exportToExcel();
+
+      expect(alertSpy).toHaveBeenCalledWith('Không có dữ liệu để xuất');
+    });
+  });
+
+  describe('Seam 4: Floating Bulk Action Bar Scoped Batch Export', () => {
+    it('exportToCSV(orders) strictly exports explicitly supplied orders regardless of state.filteredOrders', async () => {
+      // Global state has all 3 orders
+      state.filteredOrders = [...mockOrders];
+
+      // Explicit batch selection has only ORD-002
+      const explicitSubset = [mockOrders[1]];
+
+      let capturedBlob: Blob | null = null;
+      vi.spyOn(global.URL, 'createObjectURL').mockImplementation((blob: Blob) => {
+        capturedBlob = blob;
+        return 'blob:mock-url';
+      });
+
+      exportToCSV(explicitSubset);
+
+      const text = await capturedBlob!.text();
+      const lines = text.trim().split('\n');
+      expect(lines).toHaveLength(2);
+      expect(lines[1]).toContain('ORD-002');
+      expect(lines[1]).not.toContain('ORD-001');
+      expect(lines[1]).not.toContain('ORD-003');
     });
 
-    it('handles multiple print calls', () => {
+    it('exportToExcel(orders) strictly exports explicitly supplied orders', () => {
+      state.filteredOrders = [...mockOrders];
+      const explicitSubset = [mockOrders[0]];
+
+      const writeBufferSpy = vi.spyOn(ExcelJS.Workbook.prototype.xlsx, 'writeBuffer').mockResolvedValue(new ArrayBuffer(16) as unknown as ExcelJS.Buffer);
+
+      exportToExcel(explicitSubset);
+
+      expect(writeBufferSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Seam 5: PDF Export', () => {
+    it('calls window.print() to open browser print dialog', () => {
       const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
 
       exportToPDF();
-      exportToPDF();
-      exportToPDF();
 
-      expect(printSpy).toHaveBeenCalledTimes(3);
+      expect(printSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

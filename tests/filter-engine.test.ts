@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { Order } from '../src/types/index.js';
-import { FilterEngine, resolveAuthoritativeDate, deriveFilterChips } from '../src/dashboard/filter-engine.js';
+import { FilterEngine, resolveAuthoritativeDate, deriveFilterChips, hasActiveFilters } from '../src/dashboard/filter-engine.js';
 import type { FilterCriteria, FilterChip } from '../src/types/index.js';
 
 function makeOrder(overrides: Partial<Order> = {}): Order {
@@ -542,5 +542,28 @@ describe('deriveFilterChips - Pure Filter Chip Derivation', () => {
     expect(nextCriteria.time).toEqual({ kind: 'year', year: 2024 });
     expect(nextCriteria.category).toBe('Thời trang');
     expect(nextCriteria.searchTerm).toBe('polo');
+  });
+});
+
+describe('hasActiveFilters - Filter Constraint Predicate', () => {
+  it('returns false when no filter constraints are active', () => {
+    expect(hasActiveFilters(null)).toBe(false);
+    expect(hasActiveFilters(undefined)).toBe(false);
+    expect(hasActiveFilters({ time: { kind: 'all' } })).toBe(false);
+    expect(hasActiveFilters({ time: { kind: 'all' }, status: null, category: null, searchTerm: null })).toBe(false);
+    expect(hasActiveFilters({ time: { kind: 'all' }, status: '', category: '  ', searchTerm: '' })).toBe(false);
+  });
+
+  it('returns true when temporal TimeCriteria is active', () => {
+    expect(hasActiveFilters({ time: { kind: 'year', year: 2024 } })).toBe(true);
+    expect(hasActiveFilters({ time: { kind: 'month', year: 2024, month: 5 } })).toBe(true);
+    expect(hasActiveFilters({ time: { kind: 'day', year: 2024, month: 5, day: 10 } })).toBe(true);
+    expect(hasActiveFilters({ time: { kind: 'range', start: new Date('2024-01-01'), end: new Date('2024-02-01') } })).toBe(true);
+  });
+
+  it('returns true when status, category, or searchTerm constraint is active', () => {
+    expect(hasActiveFilters({ time: { kind: 'all' }, status: '3' })).toBe(true);
+    expect(hasActiveFilters({ time: { kind: 'all' }, category: 'Thời trang' })).toBe(true);
+    expect(hasActiveFilters({ time: { kind: 'all' }, searchTerm: 'Keychron' })).toBe(true);
   });
 });

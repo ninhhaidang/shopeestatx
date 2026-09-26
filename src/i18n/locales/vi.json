@@ -147,6 +147,10 @@
   "export.col.product": "Tên sản phẩm",
   "export.col.quantity": "Số lượng",
   "export.col.total": "Tổng tiền",
+  "export.col.seller": "Người bán",
+  "export.col.details": "Chi tiết",
+  "export.noData": "Không có dữ liệu để xuất",
+  "export.failed": "Xuất Excel thất bại. Vui lòng thử lại.",
 
   "budget.title": "Cài đặt ngân sách",
   "budget.limit.label": "Hạn mức hàng tháng (VND)",
