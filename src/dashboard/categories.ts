@@ -284,6 +284,18 @@ function getChartColors(): string[] {
 
 let categoryChart: Chart | null = null;
 
+/** Hide active category doughnut chart tooltip without destroying the chart */
+export function hideCategoryChartTooltip(): void {
+  if (categoryChart?.tooltip?.setActiveElements) {
+    try {
+      categoryChart.tooltip.setActiveElements([], { x: 0, y: 0 });
+      categoryChart.update('none');
+    } catch (err) {
+      console.warn('Could not clear categoryChart tooltip:', err);
+    }
+  }
+}
+
 function selectCategoryAndNavigate(cat: string, onCategoryClick?: (category: string) => void): void {
   if (onCategoryClick) {
     onCategoryClick(cat);
@@ -366,8 +378,9 @@ export function renderCategoryChart(
     renderCategoryLegend(legendContainer, items, onCategoryClick);
   }
 
+  const existingChart = Chart.getChart(canvas);
+  if (existingChart) existingChart.destroy();
   if (categoryChart) { categoryChart.destroy(); categoryChart = null; }
-
   // Extracted to selectCategoryAndNavigate
 
   categoryChart = new Chart(canvas, {

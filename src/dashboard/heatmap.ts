@@ -52,6 +52,17 @@ function buildDayIndex(orders: Order[], startDate: Date, endDate: Date): Record<
   return index;
 }
 /**
+ * Dismiss any floating heatmap tooltip currently present in the DOM.
+ */
+export function hideHeatmapTooltip(): void {
+  if (typeof document === 'undefined') return;
+  const tips = document.querySelectorAll<HTMLElement>('.heatmap-tooltip');
+  tips.forEach((tip) => {
+    tip.style.display = 'none';
+  });
+}
+
+/**
  * Renders the 52-week calendar heatmap and attaches visual drill-down click handlers.
  *
  * @param container DOM element where the heatmap SVG is mounted
@@ -192,6 +203,9 @@ export function renderHeatmap(
   // Click cell → visual drill-down via onDrillDown callback seam
   svg.addEventListener('click', (e) => {
     const cell = (e.target as Element).closest('.heatmap-cell') as SVGElement | null;
+    if (cell) {
+      hideHeatmapTooltip();
+    }
     if (!cell?.dataset.date) return;
     const [year, month, day] = cell.dataset.date.split('-').map(Number);
 

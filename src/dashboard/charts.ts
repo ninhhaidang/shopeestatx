@@ -36,20 +36,20 @@ export function destroyAllCharts(): void {
 
 /** Hide active tooltips on chart instances without destroying them */
 export function hideChartTooltips(): void {
-  if (monthlyChart?.tooltip) {
+  if (monthlyChart?.tooltip?.setActiveElements) {
     try {
       monthlyChart.tooltip.setActiveElements([], { x: 0, y: 0 });
       monthlyChart.update('none');
-    } catch {
-      // Non-fatal
+    } catch (err) {
+      console.warn('Could not clear monthlyChart tooltip:', err);
     }
   }
-  if (shopChart?.tooltip) {
+  if (shopChart?.tooltip?.setActiveElements) {
     try {
       shopChart.tooltip.setActiveElements([], { x: 0, y: 0 });
       shopChart.update('none');
-    } catch {
-      // Non-fatal
+    } catch (err) {
+      console.warn('Could not clear shopChart tooltip:', err);
     }
   }
 }

@@ -10,8 +10,9 @@
 import type { TabIndex, FilterCriteria } from '../types/index.js';
 import { state } from './state.js';
 import { applyFilters, syncCriteriaToToolbar, handleDrillDown } from './filters.js';
-import { renderCharts } from './charts.js';
-import { getCategoryBreakdown, renderCategoryChart } from './categories.js';
+import { renderCharts, hideChartTooltips } from './charts.js';
+import { getCategoryBreakdown, renderCategoryChart, hideCategoryChartTooltip } from './categories.js';
+import { hideHeatmapTooltip } from './heatmap.js';
 import { updateBulkBar } from './bulk-actions.js';
 
 /** Canonical DOM element IDs for tab panels */
@@ -41,14 +42,38 @@ export function updateTabOrderBadge(count?: number): void {
 }
 
 /**
+ * Dismiss all active chart and heatmap floating tooltips synchronously.
+ */
+export function dismissAllTooltips(): void {
+  // 1. Dismiss heatmap floating tooltip element
+  hideHeatmapTooltip();
+
+  // 2. Hide any floating/lingering tooltip elements in the DOM
+  if (typeof document !== 'undefined') {
+    const tooltips = document.querySelectorAll<HTMLElement>(
+      '.chartjs-tooltip, [role="tooltip"], .tooltip'
+    );
+    tooltips.forEach((el) => {
+      el.style.display = 'none';
+    });
+  }
+
+  // 3. Clear Chart.js active tooltip state
+  hideChartTooltips();
+  hideCategoryChartTooltip();
+}
+
+/**
  * Orchestrate tab visibility and transition state across all 3 dashboard views.
  *
  * @param tabIndex 1 | 2 | 3 view index
  * @param filterPreset Optional filter criteria updates to merge and evaluate
  */
 export function switchTab(tabIndex: TabIndex, filterPreset?: Partial<FilterCriteria>): void {
-  state.activeTab = tabIndex;
+  // Synchronously dismiss any active chart or heatmap floating tooltips
+  dismissAllTooltips();
 
+  state.activeTab = tabIndex;
   // 1. Update tab navigation buttons
   ([1, 2, 3] as TabIndex[]).forEach(i => {
     const btn = getTabButton(i);
