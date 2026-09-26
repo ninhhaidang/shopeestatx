@@ -358,7 +358,7 @@
 .loyalty-shop-btn {
   background: none;
   border: none;
-  color: var(--primary);
+  color: var(--link-primary, #c2410c);
   cursor: pointer;
   font-size: 13px;
   text-align: left;

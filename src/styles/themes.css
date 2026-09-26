@@ -11,7 +11,8 @@
   --primary-gradient: linear-gradient(135deg, #f97316 0%, #ff8c42 100%);
   --secondary: #ff9671;
   --secondary-light: #ffd08a;
-
+  --link-primary: #c2410c;
+  --link-primary-hover: #9a3412;
   /* Heatmap Ramp */
   --heatmap-0: var(--border-subtle);
   --heatmap-1: #fed7aa;
@@ -30,7 +31,8 @@
   --primary-gradient: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
   --secondary: #4ade80;
   --secondary-light: #86efac;
-
+  --link-primary: #15803d;
+  --link-primary-hover: #166534;
   /* Heatmap Ramp */
   --heatmap-0: var(--border-subtle);
   --heatmap-1: #a7f3d0;
@@ -49,7 +51,8 @@
   --primary-gradient: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
   --secondary: #fb7185;
   --secondary-light: #fecdd3;
-
+  --link-primary: #be123c;
+  --link-primary-hover: #9f1239;
   /* Heatmap Ramp */
   --heatmap-0: var(--border-subtle);
   --heatmap-1: #fecdd3;
@@ -68,7 +71,8 @@
   --primary-gradient: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
   --secondary: #38bdf8;
   --secondary-light: #bae6fd;
-
+  --link-primary: #0369a1;
+  --link-primary-hover: #075985;
   /* Heatmap Ramp */
   --heatmap-0: var(--border-subtle);
   --heatmap-1: #bae6fd;
@@ -87,7 +91,8 @@
   --primary-gradient: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
   --secondary: #a78bfa;
   --secondary-light: #ddd6fe;
-
+  --link-primary: #6d28d9;
+  --link-primary-hover: #5b21b6;
   /* Heatmap Ramp */
   --heatmap-0: var(--border-subtle);
   --heatmap-1: #ddd6fe;

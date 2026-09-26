@@ -2,6 +2,7 @@
 import type { OrderData } from '../types/index.js';
 import { state } from './state.js';
 import { applyFilters } from './filters.js';
+import { setupAvatarFallback } from './utils.js';
 import { STORAGE_KEYS, MESSAGE_SOURCE } from '../config.js';
 
 export function isExtensionContext(): boolean {
@@ -151,9 +152,7 @@ export function initializeUI(data: OrderData): void {
     const userNameEl = document.getElementById('userName');
 
     if (userInfoEl && userAvatarEl && userNameEl) {
-      if (data.user.avatar) {
-        userAvatarEl.src = data.user.avatar;
-      }
+      setupAvatarFallback(userAvatarEl, data.user.avatar);
       userNameEl.textContent = data.user.username || data.user.name || '';
       userInfoEl.classList.remove('hidden');
     }

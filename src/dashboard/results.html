@@ -52,7 +52,7 @@
           <span id="lastUpdated" class="last-updated"></span>
           <div class="user-profile-container">
             <div id="userInfo" class="user-info hidden" role="button" tabindex="0" aria-expanded="false" aria-controls="userProfilePopover" aria-haspopup="dialog" aria-label="Thông tin tài khoản và bộ nhớ tạm" title="Tài khoản và bộ nhớ tạm">
-              <img id="userAvatar" src="" alt="Avatar" class="user-avatar">
+              <img id="userAvatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none'><rect width='32' height='32' rx='16' fill='%23e2e8f0'/><circle cx='16' cy='11' r='5' fill='%2394a3b8'/><path d='M7 26c0-4.418 4.03-8 9-8s9 3.582 9 8' fill='%2394a3b8'/></svg>" alt="Avatar" class="user-avatar">
               <span id="userName" class="user-name"></span>
               <svg class="user-dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M6 9l6 6 6-6"/>
@@ -61,7 +61,7 @@
             <div id="userProfilePopover" class="user-profile-popover hidden" role="dialog" aria-label="Thông tin tài khoản và bộ nhớ tạm">
               <div class="popover-arrow"></div>
               <div class="popover-header">
-                <img id="popoverUserAvatar" class="popover-avatar" src="" alt="Avatar" />
+                <img id="popoverUserAvatar" class="popover-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none'><rect width='32' height='32' rx='16' fill='%23e2e8f0'/><circle cx='16' cy='11' r='5' fill='%2394a3b8'/><path d='M7 26c0-4.418 4.03-8 9-8s9 3.582 9 8' fill='%2394a3b8'/></svg>" alt="Avatar" />
                 <div class="popover-user-meta">
                   <div id="popoverUserName" class="popover-username">--</div>
                   <div class="popover-domain-row">
@@ -218,11 +218,11 @@
         </div>
       </div>
 
-      <!-- Hidden elements for backward compatibility with existing tests and chart utilities -->
-      <div class="hidden" aria-hidden="true">
+      <!-- Standalone elements kept accessible for assistive technologies and backward compatibility -->
+      <div class="visually-hidden">
         <canvas id="shopChart"></canvas>
-        <select id="shopCount"><option value="5" selected>5</option></select>
-        <select id="shopMetric"><option value="amount" selected>Tổng tiền</option></select>
+        <select id="shopCount" aria-label="Số shop hiển thị"><option value="5" selected>5</option></select>
+        <select id="shopMetric" aria-label="Chỉ số hiển thị"><option value="amount" selected>Tổng tiền</option></select>
         <span id="shopCountDisplay">5</span>
       </div>
       <!-- 3. Auto-Generated Insights 3-Column Responsive Card Grid -->
@@ -249,6 +249,7 @@
             <label for="searchBox" class="visually-hidden">Tìm kiếm đơn hàng, sản phẩm, shop</label>
             <input type="text" id="searchBox"
               data-i18n-placeholder="filter.search.placeholder"
+              aria-label="Tìm kiếm đơn hàng, sản phẩm, shop"
               placeholder="Tìm kiếm đơn hàng, sản phẩm, shop..." />
           </div>
           <div class="toolbar-actions">
@@ -276,11 +277,11 @@
             </span>
           </button>
 
-          <!-- Hidden year/month selects kept for chart drill-down compatibility -->
-          <select id="filterYear" style="display:none">
+          <!-- Year/month selects kept accessible for screen readers and chart drill-down -->
+          <select id="filterYear" class="visually-hidden" aria-label="Lọc theo năm">
             <option value=""></option>
           </select>
-          <select id="filterMonth" style="display:none">
+          <select id="filterMonth" class="visually-hidden" aria-label="Lọc theo tháng">
             <option value=""></option>
             <option value="1">1</option><option value="2">2</option><option value="3">3</option>
             <option value="4">4</option><option value="5">5</option><option value="6">6</option>
@@ -372,7 +373,7 @@
             <button id="btnLastPage" class="btn-page" title="Trang cuối">&raquo;</button>
           </div>
           <div class="pagination-size">
-            <select id="pageSize">
+            <select id="pageSize" aria-label="Số dòng mỗi trang">
               <option value="20">20/trang</option>
               <option value="50">50/trang</option>
               <option value="100">100/trang</option>
@@ -436,7 +437,7 @@
       <input type="range" id="budgetThreshold" min="50" max="95" value="80" />
     </div>
     <label class="dialog-checkbox-row">
-      <input type="checkbox" id="budgetEnabled" />
+      <input type="checkbox" id="budgetEnabled" aria-label="Bật theo dõi ngân sách" />
       <span data-i18n="budget.enabled.label">Bật theo dõi ngân sách</span>
     </label>
     <div class="dialog-actions">

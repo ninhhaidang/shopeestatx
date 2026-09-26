@@ -1,6 +1,7 @@
 // Popup script — domain check and start analysis trigger
 import { initLocale } from '../i18n/index.js';
 import { getActiveDomainUrl, getPurchaseUrl, getLoginUrl, STORAGE_KEYS } from '../config.js';
+import { setupAvatarFallback } from '../dashboard/utils.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
   await initLocale();
@@ -17,9 +18,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (statsData?.user && userAvatarEl && userNameEl) {
       const { user } = statsData;
-      if (user.avatar) {
-        userAvatarEl.src = user.avatar;
-      }
+      setupAvatarFallback(userAvatarEl, user.avatar);
       const displayName = user.username || user.name || '';
       userNameEl.textContent = displayName;
       userGreetingEl?.classList.remove('hidden');

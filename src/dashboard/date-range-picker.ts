@@ -225,11 +225,11 @@ export function renderDateRangePicker(container: HTMLElement): void {
         <div class="drp-custom-inputs">
           <label>
             <span class="drp-label" data-i18n="daterange.from">${t('daterange.from')}</span>
-            <input type="date" id="drpStartDate" class="drp-date-input" />
+            <input type="date" id="drpStartDate" class="drp-date-input" aria-label="${t('daterange.from') || 'Từ ngày'}" />
           </label>
           <label>
             <span class="drp-label" data-i18n="daterange.to">${t('daterange.to')}</span>
-            <input type="date" id="drpEndDate" class="drp-date-input" />
+            <input type="date" id="drpEndDate" class="drp-date-input" aria-label="${t('daterange.to') || 'Đến ngày'}" />
           </label>
         </div>
         <div class="drp-custom-actions">

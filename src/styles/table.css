@@ -101,7 +101,7 @@ th.sortable:hover {
 
 /* Order link in detail view - match clickable style */
 .detail-content .order-link {
-  color: var(--primary);
+  color: var(--link-primary, #c2410c);
   font-weight: 400;
   font-family: inherit;
   font-size: inherit;
@@ -257,7 +257,7 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .shop-link-filter:hover {
-  color: var(--primary);
+  color: var(--link-primary-hover, var(--link-primary, #c2410c));
   text-decoration: underline;
 }
 
@@ -296,7 +296,7 @@ th.sortable.desc .sort-indicator::before {
 
 /* Detail Clickable Link (Date & Shop) */
 .detail-value-clickable {
-  color: var(--primary);
+  color: var(--link-primary, #c2410c);
   cursor: pointer;
   transition: all var(--transition-fast, 0.15s ease);
   text-decoration: underline;
@@ -305,7 +305,7 @@ th.sortable.desc .sort-indicator::before {
 }
 
 .detail-value-clickable:hover {
-  color: var(--primary-dark, var(--primary));
+  color: var(--link-primary-hover, var(--primary-dark, #9a3412));
   text-decoration: underline;
 }
 

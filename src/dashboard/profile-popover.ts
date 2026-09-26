@@ -7,7 +7,7 @@
 import { state } from './state.js';
 import { STORAGE_KEYS, getActiveDomainUrl } from '../config.js';
 import { formatDateTime } from '../i18n/format.js';
-import { showToast, escapeHtml } from './utils.js';
+import { showToast, escapeHtml, setupAvatarFallback } from './utils.js';
 import { refreshData, fetchDataFromShopee, isExtensionContext } from './data.js';
 
 export interface ProfilePopoverOptions {
@@ -147,12 +147,8 @@ export function updateProfilePopoverUI(): void {
   const ordersCountEl = document.getElementById('popoverCacheOrdersCount');
 
   if (avatarEl) {
-    if (user?.avatar) {
-      avatarEl.src = user.avatar;
-      avatarEl.classList.remove('hidden');
-    } else {
-      avatarEl.classList.add('hidden');
-    }
+    setupAvatarFallback(avatarEl, user?.avatar);
+    avatarEl.classList.remove('hidden');
   }
 
   if (userNameEl) {
@@ -259,7 +255,7 @@ export async function purgeLocalCache(): Promise<boolean> {
     if (lastUpdated) lastUpdated.textContent = '';
     if (fetchedAt) fetchedAt.textContent = '';
     if (userInfo) userInfo.classList.add('hidden');
-    if (userAvatar) userAvatar.src = '';
+    if (userAvatar) setupAvatarFallback(userAvatar, null);
     if (userName) userName.textContent = '';
 
     closeProfilePopover();

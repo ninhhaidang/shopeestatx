@@ -29,18 +29,17 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: 250ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Semantic Status Colors (Accessible AA) */
-  --status-completed: #10b981;
-  --status-completed-bg: rgba(16, 185, 129, 0.12);
-  --status-shipping: #3b82f6;
-  --status-shipping-bg: rgba(59, 130, 246, 0.12);
-  --status-pending: #8b5cf6;
-  --status-pending-bg: rgba(139, 92, 246, 0.12);
-  --status-cancelled: #ef4444;
-  --status-cancelled-bg: rgba(239, 68, 68, 0.12);
-  --status-returned: #f97316;
-  --status-returned-bg: rgba(249, 115, 22, 0.12);
-
+  /* Semantic Status Colors (Accessible AA >= 4.5:1 on light backgrounds) */
+  --status-completed: #166534;
+  --status-completed-bg: #d1fae5;
+  --status-shipping: #1d4ed8;
+  --status-shipping-bg: #dbeafe;
+  --status-pending: #6d28d9;
+  --status-pending-bg: #ede9fe;
+  --status-cancelled: #b91c1c;
+  --status-cancelled-bg: #fee2e2;
+  --status-returned: #c2410c;
+  --status-returned-bg: #ffedd5;
   /* Status Color Aliases for legacy component compatibility */
   --success: #166534;
   --success-bg: #d1fae5;
@@ -65,6 +64,9 @@
   --secondary: #ff9671;
   --secondary-light: #ffd08a;
 
+  /* Interactive High-Contrast Link Color (Accessible AA >= 4.5:1 on light backgrounds) */
+  --link-primary: #c2410c;
+  --link-primary-hover: #9a3412;
   /* Default Heatmap Ramps (Fallback) */
   --heatmap-0: var(--border-subtle);
   --heatmap-1: #fed7aa;
@@ -163,6 +165,21 @@
   --returned: #fb923c;
   --returned-bg: rgba(249, 115, 22, 0.2);
 
+  /* Interactive Link Color in Dark Mode */
+  --link-primary: var(--primary);
+  --link-primary-hover: var(--primary-hover);
+
+  /* Semantic Status Colors in Dark Mode */
+  --status-completed: #34d399;
+  --status-completed-bg: rgba(16, 185, 129, 0.2);
+  --status-shipping: #60a5fa;
+  --status-shipping-bg: rgba(59, 130, 246, 0.2);
+  --status-pending: #a78bfa;
+  --status-pending-bg: rgba(139, 92, 246, 0.2);
+  --status-cancelled: #f87171;
+  --status-cancelled-bg: rgba(239, 68, 68, 0.2);
+  --status-returned: #fb923c;
+  --status-returned-bg: rgba(249, 115, 22, 0.2);
   /* Backwards Compatibility Aliases */
   --bg-main: var(--bg-page);
   --bg-card: var(--bg-surface);
