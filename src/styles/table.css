@@ -430,11 +430,22 @@ th.sortable.desc .sort-indicator::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--spacing-md, 12px);
+}
+
+.drawer-status-row .status-badge {
+  width: auto;
+  min-width: auto;
+  max-width: fit-content;
+  flex-shrink: 0;
 }
 
 .drawer-date-text {
   font-size: 12px;
   color: var(--text-muted, var(--text-secondary));
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
 }
 
 .drawer-card {

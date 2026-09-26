@@ -337,6 +337,11 @@ body {
   border-color: var(--danger, #ef4444);
 }
 
+/* Base Dialog Centering — overrides global reset * { margin: 0 } */
+dialog {
+  margin: auto;
+}
+
 /* Purge Confirmation Dialog */
 .purge-dialog {
   border: 1px solid var(--border-strong, var(--border-color));

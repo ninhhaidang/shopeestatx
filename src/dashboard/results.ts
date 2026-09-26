@@ -295,10 +295,12 @@ document.addEventListener('DOMContentLoaded', async function () {
       budgetThresholdInput.value = String(Math.round((cfg.alertThreshold || 0.8) * 100));
       budgetThresholdValue.textContent = budgetThresholdInput.value + '%';
       budgetEnabledCheck.checked = cfg.enabled;
-      if (typeof budgetDialog.showModal === 'function') {
-        budgetDialog.showModal();
-      } else {
-        budgetDialog.setAttribute('open', 'true');
+      if (!budgetDialog.open) {
+        if (typeof budgetDialog.showModal === 'function') {
+          budgetDialog.showModal();
+        } else {
+          budgetDialog.setAttribute('open', 'true');
+        }
       }
     }
   });
