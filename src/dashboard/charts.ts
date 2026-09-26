@@ -3,6 +3,7 @@ import type { Order, DrillDownCallback, TimeCriteria } from '../types/index.js';
 import { state } from './state.js';
 import { formatVND } from './utils.js';
 import { t } from '../i18n/index.js';
+import { formatDate } from '../i18n/format.js';
 import { applyFilters } from './filters.js';
 import { FilterEngine } from './filter-engine.js';
 import { getCurrentTheme } from './theme-toggle.js';
@@ -33,9 +34,79 @@ export function destroyAllCharts(): void {
   }
 }
 
+/** Hide active tooltips on chart instances without destroying them */
+export function hideChartTooltips(): void {
+  if (monthlyChart?.tooltip) {
+    try {
+      monthlyChart.tooltip.setActiveElements([], { x: 0, y: 0 });
+      monthlyChart.update('none');
+    } catch {
+      // Non-fatal
+    }
+  }
+  if (shopChart?.tooltip) {
+    try {
+      shopChart.tooltip.setActiveElements([], { x: 0, y: 0 });
+      shopChart.update('none');
+    } catch {
+      // Non-fatal
+    }
+  }
+}
+
 if (typeof window !== 'undefined' && !_beforeunloadRegistered) {
   window.addEventListener('beforeunload', destroyAllCharts);
   _beforeunloadRegistered = true;
+}
+
+/**
+ * Computes an accurate temporal subtitle for the spending chart,
+ * reflecting full historical duration or specific filter boundaries,
+ * with budget limit integration when active.
+ */
+export function formatSpendingSubtitle(
+  time?: TimeCriteria | null,
+  selectedYear?: number | null,
+  budgetConfig?: { enabled: boolean; monthlyLimit: number } | null
+): string {
+  // ponytail: support custom locale strings if multi-language becomes required; vi-VN hardcoded for now
+  let temporalText = 'Toàn bộ lịch sử';
+
+  if (time) {
+    switch (time.kind) {
+      case 'year':
+        temporalText = `Năm ${time.year}`;
+        break;
+      case 'month':
+        temporalText = time.year > 0 ? `Tháng ${time.month}/${time.year}` : `Tháng ${time.month}`;
+        break;
+      case 'day':
+        temporalText = `Ngày ${time.day}/${time.month}/${time.year}`;
+        break;
+      case 'range': {
+        const startStr = time.start ? formatDate(time.start) : '…';
+        const endStr = time.end ? formatDate(time.end) : '…';
+        temporalText = `Từ ${startStr} đến ${endStr}`;
+        break;
+      }
+      case 'all':
+        temporalText = 'Toàn bộ lịch sử';
+        break;
+      default:
+        temporalText = 'Toàn bộ lịch sử';
+        break;
+    }
+  } else if (selectedYear && selectedYear > 0) {
+    temporalText = `Năm ${selectedYear}`;
+  }
+
+  const showBudget = budgetConfig?.enabled && (budgetConfig?.monthlyLimit ?? 0) > 0;
+  if (showBudget) {
+    const budgetLimit = budgetConfig!.monthlyLimit;
+    return `${temporalText} • Đường kẻ đứt màu đỏ: Hạn mức ngân sách (${formatVND(budgetLimit)}/tháng)`;
+  }
+
+  return temporalText;
 }
 
 /**
@@ -93,7 +164,7 @@ export function renderCharts(orders: Order[], onDrillDown?: DrillDownCallback): 
     return primaryDarkColor;
   });
 
-  const chartTitle = document.querySelector('.chart-box h3');
+  const chartTitle = document.getElementById('monthlyChartTitle');
   if (chartTitle) {
     chartTitle.textContent = t('chart.spendingByMonth');
   }
@@ -104,11 +175,7 @@ export function renderCharts(orders: Order[], onDrillDown?: DrillDownCallback): 
 
   const chartSub = document.getElementById('monthlyChartSub');
   if (chartSub) {
-    if (showBudgetLine) {
-      chartSub.textContent = `Đường kẻ đứt màu đỏ: Hạn mức ngân sách (${formatVND(budgetLimit)}/tháng)`;
-    } else {
-      chartSub.textContent = 'Biến động chi tiêu 12 tháng qua';
-    }
+    chartSub.textContent = formatSpendingSubtitle(time, selectedYear, budgetConfig);
   }
 
   const plugins: Plugin<'bar'>[] = [];

@@ -433,7 +433,7 @@ describe('Tab 1 Financial Overview Module (src/dashboard/overview.ts)', () => {
 
       renderCharts(sampleOrders);
 
-      expect(subtitle.textContent).toBe('Biến động chi tiêu 12 tháng qua');
+      expect(subtitle.textContent).toBe('Toàn bộ lịch sử');
     });
   });
 
