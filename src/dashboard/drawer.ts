@@ -42,6 +42,7 @@ export function ensureDrawerInDOM(): void {
     drawer.setAttribute('aria-label', 'Chi tiết đơn hàng');
     drawer.setAttribute('role', 'dialog');
     drawer.setAttribute('aria-modal', 'true');
+    drawer.setAttribute('aria-hidden', 'true');
     drawer.innerHTML = `
       <div class="drawer-header">
         <div class="drawer-title-group">

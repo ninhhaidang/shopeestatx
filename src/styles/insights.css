@@ -78,7 +78,7 @@
 
 .insights-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: var(--spacing-md, 16px);
 }
 
@@ -330,6 +330,7 @@
 /* ----- Shop Loyalty Table ----- */
 .loyalty-table {
   width: 100%;
+  min-width: 500px;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -369,7 +370,9 @@
 
 .loyalty-table-container {
   overflow-x: auto;
+  max-width: 100%;
   flex: 1;
+  -webkit-overflow-scrolling: touch;
 }
 
 .loyalty-row {
@@ -480,6 +483,7 @@
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
+  min-width: 0;
 }
 
 .category-chart-wrapper {

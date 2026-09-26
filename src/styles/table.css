@@ -339,15 +339,19 @@ th.sortable.desc .sort-indicator::before {
   box-shadow: var(--shadow-drawer, -12px 0 32px rgba(15, 23, 42, 0.15));
   z-index: 6001;
   transform: translateX(100%);
-  transition: transform var(--transition-smooth, 0.25s cubic-bezier(0.16, 1, 0.3, 1));
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform var(--transition-smooth, 0.25s cubic-bezier(0.16, 1, 0.3, 1)),
+              visibility var(--transition-smooth, 0.25s);
   display: flex;
   flex-direction: column;
 }
 
 .drawer-panel.open {
   transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
 }
-
 .drawer-header {
   padding: 16px 20px;
   border-bottom: 1px solid var(--border-subtle, var(--border-color));
@@ -838,6 +842,7 @@ td.col-select {
 }
 
 @media (max-width: 768px) {
+
   .floating-bulk-bar {
     bottom: 16px;
     width: calc(100% - 32px);
