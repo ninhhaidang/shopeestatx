@@ -149,6 +149,20 @@
   --table-stripe: #0f172a;
   --table-hover: #1e293b;
 
+  /* Status Color Aliases (Dark Mode Accessible AA) */
+  --success: #34d399;
+  --success-bg: rgba(16, 185, 129, 0.2);
+  --info: #60a5fa;
+  --info-bg: rgba(59, 130, 246, 0.2);
+  --warning: #fbbf24;
+  --warning-bg: rgba(245, 158, 11, 0.2);
+  --danger: #f87171;
+  --danger-bg: rgba(239, 68, 68, 0.2);
+  --pending: #a78bfa;
+  --pending-bg: rgba(139, 92, 246, 0.2);
+  --returned: #fb923c;
+  --returned-bg: rgba(249, 115, 22, 0.2);
+
   /* Backwards Compatibility Aliases */
   --bg-main: var(--bg-page);
   --bg-card: var(--bg-surface);

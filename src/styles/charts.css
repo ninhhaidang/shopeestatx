@@ -8,7 +8,7 @@
 }
 
 .chart-box {
-  background: white;
+  background: var(--bg-card);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-sm);
@@ -70,7 +70,7 @@
   padding: 6px 12px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  background: white;
+  background: var(--bg-card);
   color: var(--text-primary);
   font-size: 13px;
   font-weight: 500;
@@ -123,7 +123,7 @@
 
 .btn-toggle-section {
   padding: 8px 16px;
-  background: white;
+  background: var(--bg-card);
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -168,7 +168,7 @@
 }
 
 .shop-stats-container {
-  background: white;
+  background: var(--bg-card);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
   overflow: hidden;

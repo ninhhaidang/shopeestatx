@@ -332,7 +332,7 @@
 }
 
 .loyalty-table th {
-  background: var(--bg-main);
+  background: var(--bg-surface-subtle, var(--bg-main));
   color: var(--text-secondary);
   font-weight: 600;
   padding: 8px 12px;
@@ -375,7 +375,7 @@
 }
 
 .loyalty-row:hover {
-  background-color: var(--bg-hover, rgba(0, 0, 0, 0.04));
+  background-color: var(--table-hover, rgba(0, 0, 0, 0.04));
 }
 
 .loyalty-row:focus-visible {
@@ -476,6 +476,7 @@
 .shop-loyalty-card {
   display: flex;
   flex-direction: column;
+  background: var(--bg-card);
 }
 
 .category-chart-wrapper {

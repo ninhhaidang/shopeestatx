@@ -569,8 +569,9 @@ th.sortable.desc .sort-indicator::before {
   color: var(--primary);
   font-size: 15px;
 }
+.order-row:nth-child(even),
 tr:nth-child(even) {
-  background: rgba(248, 249, 252, 0.5);
+  background: var(--table-stripe);
 }
 
 /* ===== PAGINATION ===== */
@@ -740,19 +741,19 @@ td.col-select {
 .bulk-info {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-color, #1e293b);
+  color: var(--text-primary);
   white-space: nowrap;
 }
 
 .bulk-info .bulk-count {
-  color: var(--primary, #f97316);
+  color: var(--text-primary);
   font-weight: 800;
 }
 
 .bulk-info .bulk-sum {
   font-family: var(--font-mono, monospace);
   font-weight: 700;
-  color: var(--text-color, #1e293b);
+  color: var(--text-primary);
 }
 
 .bulk-actions {
@@ -793,8 +794,8 @@ td.col-select {
 }
 
 .btn-bulk-subtle {
-  background: var(--bg-hover, #f1f5f9);
-  color: var(--text-color, #1e293b);
+  background: var(--bg-surface-subtle, var(--bg-hover, #f1f5f9));
+  color: var(--text-primary);
   border: 1px solid var(--border-color, #cbd5e1);
 }
 
@@ -809,8 +810,8 @@ td.col-select {
 }
 
 .btn-bulk-cancel:hover {
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--text-color, #1e293b);
+  background: var(--bg-surface-subtle, rgba(0, 0, 0, 0.06));
+  color: var(--text-primary);
 }
 
 @media (prefers-reduced-motion: reduce) {
