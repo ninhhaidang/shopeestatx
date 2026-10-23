@@ -58,6 +58,20 @@ describe('content script re-injection into the same page', () => {
   });
 });
 
+// Captured from the live endpoint, then scrubbed (strings -> "x", ids/amounts -> 100000),
+// so the parser is exercised against the real response shape, not a hand-built one.
+const livePage = JSON.parse(readFileSync(resolve(process.cwd(), 'tests/fixtures/shopee-order-page.json'), 'utf8'));
+const liveFinalPage = { error: 0, error_msg: 'success', new_data: { next_offset: -1, translation_status: 0 } };
+
+describe('content script against live response shapes', () => {
+  it('parses a real order page followed by the real final page', async () => {
+    const { result } = await collect([livePage, liveFinalPage]);
+    expect(result.success).toBe(true);
+    expect(result.data.orders).toHaveLength(1);
+    expect(result.data.orders[0]).toMatchObject({ statusCode: 3, productCount: 1, subTotal: 1 });
+  });
+});
+
 const end = { new_data: { order_or_checkout_data: [] } };
 
 describe('content script order collection', () => {

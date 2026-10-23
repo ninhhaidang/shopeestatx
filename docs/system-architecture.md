@@ -70,7 +70,7 @@ User clicks "Bat dau phan tich"
   → opens results.html?fetch=true
     → results.ts initializes UI
     → data.ts::fetchDataFromShopee()
-      → chrome.scripting.executeScript(bridge.ts, ISOLATED)
+      → chrome.scripting.executeScript(bridge.js, ISOLATED)   (classic script: see code-standards.md "Injected scripts")
       → chrome.scripting.executeScript(content.js, MAIN)
         → loops GET /api/v4/order/get_all_order_and_checkout_list?offset=N&limit=20
         → postMessage progress updates (MAIN → ISOLATED → runtime)
