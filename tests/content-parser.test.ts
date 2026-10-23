@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { runInNewContext } from 'node:vm';
+import { createContext, runInContext, runInNewContext } from 'node:vm';
 import { describe, it, expect, vi } from 'vitest';
 
 const contentScript = readFileSync(resolve(process.cwd(), 'src/content/content.js'), 'utf8');
@@ -37,6 +37,26 @@ async function collect(pages: unknown[], httpStatus = 200) {
   });
   return { result, fetch, postMessage };
 }
+
+// executeScript injects content.js as a classic script into the tab's shared global,
+// so a second injection (retry/refresh without reloading the tab) re-runs in the same scope.
+describe('content script re-injection into the same page', () => {
+  it('returns data on a second run in the same global, not undefined', async () => {
+    const page = { new_data: { order_or_checkout_data: [makeOrder()] } };
+    const fetch = vi.fn()
+      .mockResolvedValue({ ok: true, status: 200, json: async () => ({ new_data: { next_offset: -1 } }) });
+    const globalScope = createContext({
+      fetch, window: { postMessage: vi.fn() }, localStorage: { getItem: () => null }, console: { error: vi.fn() },
+    });
+    fetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => page });
+    const first = await runInContext(contentScript, globalScope);
+    expect(first.success).toBe(true);
+
+    fetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => page });
+    const second = await runInContext(contentScript, globalScope);
+    expect(second?.success).toBe(true);
+  });
+});
 
 const end = { new_data: { order_or_checkout_data: [] } };
 

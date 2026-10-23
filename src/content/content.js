@@ -1,6 +1,9 @@
 // This script runs in MAIN world (page context)
 // Returns the fetched data directly
 
+// Everything lives inside the IIFE: executeScript injects this file into the tab's shared
+// global, and a top-level const/let redeclared on a second injection fails silently.
+(async function () {
 // Configuration - Domain setup
 // This will be replaced by the actual domain at build time
 const SHOPEE_DOMAIN = 'shopee.vn';
@@ -40,7 +43,6 @@ function getUserProfile() {
   return null;
 }
 
-(async function () {
   function sendProgress(count) {
     window.postMessage({
       source: MESSAGE_SOURCE,
