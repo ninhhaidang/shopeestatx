@@ -35,6 +35,7 @@ export function sortOrders(orders: Order[], field: string, direction: SortDirect
         return 0;
     }
 
+    if (aVal === bVal) return 0;
     return direction === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
   });
 }
@@ -75,6 +76,11 @@ export function filterOrders(
     return true;
   });
 }
+
+// History-only widgets share data, but the heatmap also depends on the year/month window.
+let renderedHeatmapHistory: Order[] | null = null;
+let renderedHeatmapPeriod = '';
+let renderedLoyaltyHistory: Order[] | null = null;
 
 export function applyFilters(): void {
   if (!state.allOrdersData) return;
@@ -127,21 +133,30 @@ export function applyFilters(): void {
   renderCharts(filtered);
   renderCurrentPage();
 
-  // Category chart — filtered orders breakdown
+  // Classify each filtered order once for the chart and the insights panel.
   const catCanvas = document.getElementById('categoryChart') as HTMLCanvasElement | null;
-  if (catCanvas) renderCategoryChart(catCanvas, getCategoryBreakdown(filtered));
-
-  // Insights panel — updates on every filter change
   const insightsEl = document.getElementById('insightsContainer');
-  if (insightsEl) renderInsights(insightsEl, generateInsights(filtered, state.allOrdersData!.orders));
+  if (catCanvas || insightsEl) {
+    const breakdown = getCategoryBreakdown(filtered);
+    if (catCanvas) renderCategoryChart(catCanvas, breakdown);
+    if (insightsEl) renderInsights(insightsEl, generateInsights(filtered, state.allOrdersData!.orders, breakdown));
+  }
 
-  // Heatmap — always uses all orders (past year), re-renders on filter changes
+  const history = state.allOrdersData!.orders;
+  const now = new Date();
+  const heatmapPeriod = year ? `year:${year}` : `rolling:${now.getFullYear()}-${now.getMonth()}`;
   const heatmapEl = document.getElementById('heatmapContainer');
-  if (heatmapEl) renderHeatmap(heatmapEl, state.allOrdersData!.orders);
+  if (heatmapEl && (renderedHeatmapHistory !== history || renderedHeatmapPeriod !== heatmapPeriod)) {
+    renderHeatmap(heatmapEl, history);
+    renderedHeatmapHistory = history;
+    renderedHeatmapPeriod = heatmapPeriod;
+  }
 
-  // Shop loyalty — always uses all orders
   const loyaltyEl = document.getElementById('loyaltyContainer');
-  if (loyaltyEl) renderShopLoyalty(loyaltyEl, analyzeShopLoyalty(state.allOrdersData!.orders));
+  if (loyaltyEl && renderedLoyaltyHistory !== history) {
+    renderShopLoyalty(loyaltyEl, analyzeShopLoyalty(history));
+    renderedLoyaltyHistory = history;
+  }
 
   // Notify UI components to update (e.g., filter count badge)
   document.dispatchEvent(new CustomEvent(EVENTS.APPLY_FILTERS));

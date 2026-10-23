@@ -1,89 +1,16 @@
 # Design Guidelines
 
-## Design System
+## Direction
 
-All tokens defined as CSS custom properties in `results.css:9-58`.
+ShopeeStatX is an information-dense spending tool, not a marketing landing page. Use flat warm-neutral surfaces, thin separators, clear typography, and Shopee orange only for actions and significant totals. Avoid gradients, glass, glow, decorative emoji, animated hover lifts, and purely ornamental illustrations.
 
-## Color Palette
+## Implementation
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--primary` | `#ee4d2d` | Shopee orange — CTAs, active states, highlights |
-| `--primary-dark` | `#d73211` | Hover states on primary |
-| `--primary-light` | `#fff3f0` | Backgrounds, soft highlights |
-| `--success` | `#00b14f` | Completed status badge |
-| `--warning` | `#f59e0b` | Pending/in-transit status |
-| `--danger` | `#ef4444` | Cancelled, error states |
-| `--info` | `#3b82f6` | Info badges |
-| `--text-primary` | `#1a1a2e` | Main body text |
-| `--text-secondary` | `#666` | Labels, secondary info |
-| `--border` | `#e8e8e8` | Card/table borders |
-| `--bg` | `#f5f5f5` | Page background |
-
-## Typography
-
-- System font stack: `-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
-- No web fonts (performance + offline reliability)
-- Vietnamese text renders correctly on all major OS
-
-## Status Badges
-
-| Status | Color |
-|--------|-------|
-| Hoan thanh (3) | Green `--success` |
-| Da huy (4) | Red `--danger` |
-| Cho van chuyen (7) | Orange `--warning` |
-| Dang giao (8) | Blue `--info` |
-| Cho thanh toan (9) | Yellow |
-| Tra hang (12) | Purple |
-| Khong ro (0) | Gray |
-
-## Animations (9 keyframes)
-
-| Name | Usage |
-|------|-------|
-| spin | Loading spinner |
-| pulse | Loading skeleton |
-| slideIn | Page entry |
-| slideDown | Dropdown open |
-| chipIn | Filter chip appear |
-| fadeIn | Content reveal |
-| bounce | Empty state illustration |
-| tooltipFade | Tooltip show |
-| expandRow | Table row expand |
-| slideDown | Collapsible panel open |
-
-## Spacing & Shape
-
-- Border radius: `--radius` (cards), `--radius-sm` (badges/chips), `--radius-lg` (modals)
-- Shadow scale: `--shadow-sm`, `--shadow`, `--shadow-lg`
-- Consistent padding via CSS variables — never hardcoded values
-
-## Responsive Breakpoints
-
-| Breakpoint | Width | Behavior |
-|------------|-------|---------|
-| Desktop | > 1024px | Full layout, all columns visible |
-| Tablet | 768–1024px | Compressed layout |
-| Mobile | < 768px | Hidden non-essential columns, stacked controls, full-width inputs |
-
-## Scrollbar
-
-Custom scrollbar styling applied globally (`results.css:1446-1463`):
-- Thin track, rounded thumb
-- Primary color on hover
-
-## Component Patterns
-
-- **Summary cards**: icon + label + value + tooltip on hover
-- **Filter chips**: animated entry, X button to remove individually
-- **Table rows**: expandable with chevron, product details in nested list
-- **Charts**: responsive canvas, click-interactive
-- **Pagination**: first/prev/next/last buttons + page info label
-- **Collapsible toolbar**: search + date always visible, secondary filters in expandable panel
-
-## Popup UI
-
-- Minimal: logo, version, start button, domain warning
-- Matches Shopee orange branding
-- Disabled state clearly communicated when not on shopee.vn
+- Dashboard tokens originate in `src/styles/variables.css`; theme accents and status palettes live in `src/styles/themes.css`. `src/styles/editorial.css`, imported last by `src/dashboard/results.css`, sets the shared quiet surface and compact dashboard hierarchy.
+- Popup and onboarding have standalone styles in `src/popup/popup.css` and `src/welcome/welcome.css`. Keep their shape and hierarchy consistent with the dashboard, without relying on dashboard CSS.
+- System font stack only; Vietnamese content must remain readable without network access.
+- Surfaces: warm gray page, plain cards, 1px boundaries, 4–8px radii. Summary values carry hierarchy through weight and size, not color effects. Keep status colors semantic; do not use status hues as decoration.
+- Layout: dashboard summary forms one three-column ledger on desktop and stacked rows on narrow screens. Search/date controls stay visible; secondary filters are expandable. Analytics panels, table, popup links and onboarding permissions use restrained separators.
+- Browser width 390px must not horizontally overflow; wide order tables and heatmaps scroll inside their own containers. Check desktop and narrow viewports after changing layout.
+- Focus-visible outline is mandatory for buttons, inputs, selects, and links; preserve labels and keyboard actions. Honor `prefers-reduced-motion`.
+- Existing chart and status data remain interactive. Visual simplification must never hide totals, statuses, filtering, pagination, export choices, or error states.

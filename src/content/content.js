@@ -54,20 +54,23 @@ function getUserProfile() {
   }
 
   async function getOrders(offset, limit) {
-    let url = "https://" + SHOPEE_DOMAIN + "/api/v4/order/get_all_order_and_checkout_list?limit=" + limit + "&offset=" + offset;
-    let json = await (await fetch(url)).json();
-
-    // NEW API structure (2024+): data is in new_data.order_or_checkout_data
-    if (json.new_data?.order_or_checkout_data) {
-      return json.new_data.order_or_checkout_data;
+    const url = "https://" + SHOPEE_DOMAIN + "/api/v4/order/get_all_order_and_checkout_list?limit=" + limit + "&offset=" + offset;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch orders (HTTP ${response.status})`);
+    }
+    const json = await response.json();
+    if (json?.error) {
+      throw new Error(json.error_msg || `Shopee API error: ${json.error}`);
     }
 
-    // OLD API structure (fallback): data is in data.order_data.details_list
-    if (json.data?.order_data?.details_list) {
-      return json.data.order_data.details_list;
+    // An empty list ends pagination; a missing list is not a successful fetch.
+    const orders = json?.new_data?.order_or_checkout_data
+      ?? json?.data?.order_data?.details_list;
+    if (!Array.isArray(orders)) {
+      throw new Error('Invalid order response from Shopee');
     }
-
-    return [];
+    return orders;
   }
 
   // Map status label string to status code and Vietnamese text
@@ -152,27 +155,25 @@ function getUserProfile() {
           statusText = "Không rõ";
         }
 
+        const orderCard = infoCard.order_list_cards?.[0];
+        if (!orderCard) continue; // Skip if no order card
+
         const productCount = infoCard.product_count || 0;
         count += productCount;
 
-        let subTotal = (infoCard.subtotal || infoCard.final_total || 0) / 100000;
+        let subTotal = (infoCard.subtotal ?? infoCard.final_total ?? 0) / 100000;
         if (statusCode !== 4 && statusCode !== 12) {
           sum += subTotal;
         } else {
           subTotal = 0;
         }
-
-        const orderCard = infoCard.order_list_cards?.[0];
-        if (!orderCard) continue; // Skip if no order card
-
         const shopInfo = orderCard.shop_info || {};
         const shopName = (shopInfo.username || '') + " - " + (shopInfo.shop_name || 'Unknown');
 
-        // NEW API: products are in parcel_cards[0].product_info.item_groups
-        // OLD API: products are in product_info.item_groups
-        const products = orderCard.parcel_cards?.[0]?.product_info?.item_groups
-          || orderCard.product_info?.item_groups
-          || [];
+        // Include every parcel in split shipments, or the legacy product list.
+        const products = orderCard.parcel_cards?.length
+          ? orderCard.parcel_cards.flatMap(parcel => parcel.product_info?.item_groups || [])
+          : (orderCard.product_info?.item_groups || []);
 
         // Get shipping and status info
         const shipping = orderDetail.shipping || item.shipping;

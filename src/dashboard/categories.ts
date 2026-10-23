@@ -228,19 +228,22 @@ function normalize(text: string): string {
     .replace(/đ/g, 'd');
 }
 
+// Normalize keywords once and match each category with a single word-boundary pattern.
+const CATEGORY_PATTERNS = Object.entries(RULES).map(([category, keywords]) => {
+  const alternatives = keywords.map(keyword =>
+    normalize(keyword).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+  ).join('|');
+  return {
+    category,
+    pattern: new RegExp(`(^|[\\s\\-.,()])(?:${alternatives})([\\s\\-.,()]|$)`),
+  };
+});
+
 /** Categorize a single order by matching product/shop text against keyword rules */
 export function categorizeOrder(order: Order): string {
   const text = normalize(`${order.productSummary} ${order.name} ${order.shopName}`);
-  for (const [cat, keywords] of Object.entries(RULES)) {
-    // Use word boundary matching to avoid substring false positives
-    // e.g., 'home' should NOT match 'shop', 'ca' should NOT match 'keyboard'
-    if (keywords.some(kw => {
-      // Check for exact match with word boundaries
-      // Word boundary: start of string, space, or punctuation before/after keyword
-      const escapedKw = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`(^|[\\s\\-.,()])${escapedKw}([\\s\\-.,()]|$)`, 'i');
-      return regex.test(text);
-    })) return cat;
+  for (const { category, pattern } of CATEGORY_PATTERNS) {
+    if (pattern.test(text)) return category;
   }
   return 'Khác';
 }

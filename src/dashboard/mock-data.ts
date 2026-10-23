@@ -132,7 +132,7 @@ export const mockData: OrderData = {
     uid: '0-123456789',
     username: 'demo_user',
     name: 'Demo User',
-    avatar: 'https://cf.shopee.vn/file/demo-avatar-image',
+    avatar: '',
     shopId: 123456780
   },
   orders,

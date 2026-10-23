@@ -12,8 +12,118 @@ import {
 } from './icons.js';
 import { getOrderUrl } from '../config.js';
 
+function createDetailRow(order: Order, safeOrderId: string, statusIcon: string): HTMLTableRowElement {
+  // Build aligned rows: each row has left (order info) and right (product details)
+  const detailRows: string[] = [];
+
+  // Section headers
+  detailRows.push(`
+    <div class="detail-row detail-section-header">
+      <span>${t('table.detail.orderInfo') || 'ORDER INFORMATION'}</span>
+      <span>${t('table.detail.productDetails') || 'PRODUCT DETAILS'}</span>
+    </div>
+  `);
+
+  // Row 1: Order ID | Product Name
+  detailRows.push(`
+    <div class="detail-row">
+      <div class="detail-item">
+        <strong>${t('table.detail.orderId')}:</strong>
+        <a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a>
+      </div>
+      <div class="detail-item">
+        <strong>${t('table.detail.productName')}:</strong>
+        <span class="detail-value">${escapeHtml(order.name)}</span>
+      </div>
+    </div>
+  `);
+
+  // Row 2: Status | Quantity
+  detailRows.push(`
+    <div class="detail-row">
+      <div class="detail-item">
+        <strong>${t('table.detail.status')}:</strong>
+        <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${statusIcon} ${escapeHtml(order.status)}</span>
+      </div>
+      <div class="detail-item">
+        <strong>${t('table.detail.quantity')}:</strong>
+        <span class="detail-value">${order.productCount}</span>
+      </div>
+    </div>
+  `);
+
+  // Row 3: Delivery Date | Total (only if deliveryDate exists)
+  if (order.deliveryDate) {
+    const fullDate = formatDateTime(new Date(order.deliveryDate));
+    const dateObj = new Date(order.deliveryDate);
+    const dateData = JSON.stringify({ year: dateObj.getFullYear(), month: dateObj.getMonth() + 1, day: dateObj.getDate() });
+    detailRows.push(`
+      <div class="detail-row">
+        <div class="detail-item">
+          <strong>${t('table.detail.deliveryDate')}:</strong>
+          <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span>
+        </div>
+        <div class="detail-item">
+          <strong>${t('table.detail.total')}:</strong>
+          <span class="detail-value">${escapeHtml(order.subTotalFormatted)}</span>
+        </div>
+      </div>
+    `);
+  }
+
+  // Row 4: Seller | Product Detail
+  detailRows.push(`
+    <div class="detail-row">
+      <div class="detail-item">
+        <strong>${t('table.detail.seller')}:</strong>
+        <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span>
+      </div>
+      <div class="detail-item">
+        <strong>${t('table.detail.productDetail')}:</strong>
+        <span class="detail-value">${escapeHtml(order.productSummary)}</span>
+      </div>
+    </div>
+  `);
+
+  const detailRow = document.createElement('tr');
+  detailRow.className = 'detail-row';
+  detailRow.innerHTML = `
+      <td colspan="7">
+        <div class="detail-content">
+          ${detailRows.join('')}
+        </div>
+      </td>
+    `;
+  detailRow.querySelectorAll('.detail-value-clickable').forEach(el => {
+    el.addEventListener('click', function (this: HTMLElement, e: Event) {
+      e.stopPropagation();
+      const filterType = this.dataset.filter;
+      const filterValue = this.dataset.value;
+
+      if (filterType === 'status') {
+        (document.getElementById('filterStatus') as HTMLSelectElement).value = filterValue!;
+        applyFilters();
+      } else if (filterType === 'shop') {
+        (document.getElementById('searchBox') as HTMLInputElement).value = filterValue!;
+        applyFilters();
+      } else if (filterType === 'date') {
+        try {
+          const dateData = JSON.parse(filterValue!);
+          (document.getElementById('filterYear') as HTMLSelectElement).value = dateData.year;
+          (document.getElementById('filterMonth') as HTMLSelectElement).value = dateData.month;
+          state.selectedDay = dateData.day;
+          applyFilters();
+        } catch { /* malformed date attribute — ignore click */ }
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+  return detailRow;
+}
+
 export function renderCurrentPage(): void {
-  const start = (state.currentPage - 1) * state.itemsPerPage;
+  const start = state.itemsPerPage === Infinity ? 0 : (state.currentPage - 1) * state.itemsPerPage;
   const end = state.itemsPerPage === Infinity
     ? state.filteredOrders.length
     : Math.min(start + state.itemsPerPage, state.filteredOrders.length);
@@ -21,6 +131,7 @@ export function renderCurrentPage(): void {
 
   const tableBody = document.getElementById('tableBody')!;
   tableBody.innerHTML = '';
+  const rows = document.createDocumentFragment();
 
   pageOrders.forEach((order: Order, index: number) => {
     const globalIndex = start + index + 1;
@@ -52,131 +163,28 @@ export function renderCurrentPage(): void {
         <td class="col-amount">${escapeHtml(order.subTotalFormatted)}</td>
       `;
 
-    // Build aligned rows: each row has left (order info) and right (product details)
-    const detailRows: string[] = [];
-
-    // Section headers
-    detailRows.push(`
-      <div class="detail-row detail-section-header">
-        <span>${t('table.detail.orderInfo') || 'ORDER INFORMATION'}</span>
-        <span>${t('table.detail.productDetails') || 'PRODUCT DETAILS'}</span>
-      </div>
-    `);
-
-    // Row 1: Order ID | Product Name
-    detailRows.push(`
-      <div class="detail-row">
-        <div class="detail-item">
-          <strong>${t('table.detail.orderId')}:</strong>
-          <a href="${getOrderUrl(safeOrderId)}" class="order-link" target="_blank" onclick="event.stopPropagation()">${safeOrderId}</a>
-        </div>
-        <div class="detail-item">
-          <strong>${t('table.detail.productName')}:</strong>
-          <span class="detail-value">${escapeHtml(order.name)}</span>
-        </div>
-      </div>
-    `);
-
-    // Row 2: Status | Quantity
-    detailRows.push(`
-      <div class="detail-row">
-        <div class="detail-item">
-          <strong>${t('table.detail.status')}:</strong>
-          <span class="detail-value-clickable" data-filter="status" data-value="${order.statusCode}">${statusIcon} ${escapeHtml(order.status)}</span>
-        </div>
-        <div class="detail-item">
-          <strong>${t('table.detail.quantity')}:</strong>
-          <span class="detail-value">${order.productCount}</span>
-        </div>
-      </div>
-    `);
-
-    // Row 3: Delivery Date | Total (only if deliveryDate exists)
-    if (order.deliveryDate) {
-      const fullDate = formatDateTime(new Date(order.deliveryDate));
-      const dateObj = new Date(order.deliveryDate);
-      const dateData = JSON.stringify({ year: dateObj.getFullYear(), month: dateObj.getMonth() + 1, day: dateObj.getDate() });
-      detailRows.push(`
-        <div class="detail-row">
-          <div class="detail-item">
-            <strong>${t('table.detail.deliveryDate')}:</strong>
-            <span class="detail-value-clickable" data-filter="date" data-value='${dateData}'>${fullDate}</span>
-          </div>
-          <div class="detail-item">
-            <strong>${t('table.detail.total')}:</strong>
-            <span class="detail-value">${escapeHtml(order.subTotalFormatted)}</span>
-          </div>
-        </div>
-      `);
-    }
-
-    // Row 4: Seller | Product Detail
-    detailRows.push(`
-      <div class="detail-row">
-        <div class="detail-item">
-          <strong>${t('table.detail.seller')}:</strong>
-          <span class="detail-value-clickable" data-filter="shop" data-value="${escapeHtml(order.shopName)}">${escapeHtml(order.shopName)}</span>
-        </div>
-        <div class="detail-item">
-          <strong>${t('table.detail.productDetail')}:</strong>
-          <span class="detail-value">${escapeHtml(order.productSummary)}</span>
-        </div>
-      </div>
-    `);
-
-    const detailRow = document.createElement('tr');
-    detailRow.className = 'detail-row';
-    detailRow.innerHTML = `
-        <td colspan="7">
-          <div class="detail-content">
-            ${detailRows.join('')}
-          </div>
-        </td>
-      `;
-
+    let detailRow: HTMLTableRowElement | undefined;
     tr.addEventListener('click', function (e: MouseEvent) {
-      if ((e.target as HTMLElement).classList.contains('detail-value-clickable')) return;
+      if ((e.target as HTMLElement).closest('a, .detail-value-clickable')) return;
+      if (!detailRow) {
+        detailRow = createDetailRow(order, safeOrderId, statusIcon);
+        tr.after(detailRow);
+      }
       tr.classList.toggle('expanded');
       detailRow.classList.toggle('show');
     });
 
-    detailRow.querySelectorAll('.detail-value-clickable').forEach(el => {
-      el.addEventListener('click', function (this: HTMLElement, e: Event) {
-        e.stopPropagation();
-        const filterType = this.dataset.filter;
-        const filterValue = this.dataset.value;
-
-        if (filterType === 'status') {
-          (document.getElementById('filterStatus') as HTMLSelectElement).value = filterValue!;
-          applyFilters();
-        } else if (filterType === 'shop') {
-          (document.getElementById('searchBox') as HTMLInputElement).value = filterValue!;
-          applyFilters();
-        } else if (filterType === 'date') {
-          try {
-            const dateData = JSON.parse(filterValue!);
-            (document.getElementById('filterYear') as HTMLSelectElement).value = dateData.year;
-            (document.getElementById('filterMonth') as HTMLSelectElement).value = dateData.month;
-            state.selectedDay = dateData.day;
-            applyFilters();
-          } catch { /* malformed date attribute — ignore click */ }
-        }
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
-
-    tableBody.appendChild(tr);
-    tableBody.appendChild(detailRow);
+    rows.appendChild(tr);
   });
 
+  tableBody.appendChild(rows);
   updatePaginationInfo();
 }
 
 export function updatePaginationInfo(): void {
   const totalItems = state.filteredOrders.length;
   const totalPages = state.itemsPerPage === Infinity ? 1 : Math.ceil(totalItems / state.itemsPerPage);
-  const start = totalItems === 0 ? 0 : (state.currentPage - 1) * state.itemsPerPage + 1;
+  const start = totalItems === 0 ? 0 : state.itemsPerPage === Infinity ? 1 : (state.currentPage - 1) * state.itemsPerPage + 1;
   const end = state.itemsPerPage === Infinity ? totalItems : Math.min(state.currentPage * state.itemsPerPage, totalItems);
 
   document.getElementById('pageStart')!.textContent = String(start);

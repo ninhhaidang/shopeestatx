@@ -95,13 +95,6 @@
     padding: 12px 8px;
   }
 
-  /* Hide less important columns on mobile */
-  td:nth-child(7),
-  th:nth-child(7),
-  td:nth-child(8),
-  th:nth-child(8) {
-    display: none;
-  }
 
   .pagination-container {
     flex-direction: column;

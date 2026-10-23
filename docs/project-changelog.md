@@ -2,6 +2,31 @@
 
 All notable changes to ShopeeStatX are documented here.
 
+## Unreleased — 2026-10-23
+
+### Fixed
+
+- All-page pagination now renders finite row numbers; equal sort keys retain their original order.
+- Category matching recognizes accented Vietnamese keywords; custom date ranges retain local dates and include the end of the final second.
+- Refresh preserves the selected year and clears stale error states after a successful load.
+- Restored reliable theme and export regression tests; CSV and Excel exports follow the visible filtered results.
+- API failures and malformed responses no longer masquerade as successful empty order histories, preventing cache loss.
+- CSV cells beginning with spreadsheet formula characters are escaped.
+- Order parsing keeps true zero subtotals, excludes skipped cards from totals, and includes all parcels in split shipments.
+- The page-to-extension relay rejects commands and forwards only validated progress messages.
+- Mobile orders retain access to amount and other columns through horizontal table scrolling; dashboard release label matches package version.
+- Missing or failed avatar images are hidden rather than showing broken-image placeholders, including in demo data.
+- Filter changes no longer recursively dispatch themselves; heatmap requests and post-filter UI notifications now use distinct events.
+
+### Changed
+
+- Dashboard, popup, and onboarding now use restrained typography, warm neutral surfaces, and quiet separators instead of gradients, glass effects, decorative icons, and hover lifts.
+- Dashboard summary, analytics, tables, and filter controls remain usable at narrow widths; focus indicators and reduced-motion support are preserved.
+- Reuse category breakdown between the category chart and insights; update history-only analytics when orders change, and refresh the heatmap when the selected year or rolling month changes.
+- ExcelJS loads only when exporting Excel, shrinking the initial dashboard JavaScript transfer; collapsed order details render on first expansion instead of for every order.
+
+---
+
 ## [3.2.0] - 2026-03-15
 
 ### Vietnamese-Only i18n

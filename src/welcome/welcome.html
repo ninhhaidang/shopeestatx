@@ -11,7 +11,6 @@
 
     <header class="hero">
       <div class="hero-inner">
-        <img src="../icons/icon128.png" alt="ShopeeStatX" class="hero-logo">
         <h1 class="hero-title" data-i18n="app.title">ShopeeStatX</h1>
         <p class="hero-tagline" data-i18n="welcome.tagline">Theo dõi và phân tích toàn bộ chi tiêu Shopee của bạn</p>
         <span class="hero-version">v3.1</span>
@@ -24,17 +23,14 @@
         <h2 class="section-title" data-i18n="welcome.sectionWhatDoes">Extension này làm gì?</h2>
         <div class="feature-grid">
           <div class="feature-item">
-            <div class="feature-icon">&#128202;</div>
             <h3 data-i18n="welcome.featureGetHistory">Lấy toàn bộ lịch sử</h3>
             <p data-i18n="welcome.featureGetHistoryDesc">Tự động lấy tất cả đơn hàng Shopee của bạn — không giới hạn thời gian</p>
           </div>
           <div class="feature-item">
-            <div class="feature-icon">&#128200;</div>
             <h3 data-i18n="welcome.featureAnalytics">Phân tích trực quan</h3>
             <p data-i18n="welcome.featureAnalyticsDesc">Biểu đồ chi tiêu theo tháng, top shop, drill-down từng ngày</p>
           </div>
           <div class="feature-item">
-            <div class="feature-icon">&#128229;</div>
             <h3 data-i18n="welcome.featureExport">Xuất dữ liệu</h3>
             <p data-i18n="welcome.featureExportDesc">Export toàn bộ lịch sử đơn hàng ra file Excel (.xlsx)</p>
           </div>
@@ -61,9 +57,10 @@
             <span class="permission-desc" data-i18n="welcome.permission.host">Extension chỉ hoạt động trên shopee.vn — không truy cập trang web khác</span>
           </div>
         </div>
-        <p class="privacy-note" data-i18n="welcome.privacyNote">
-          Dữ liệu của bạn <strong>không rời khỏi máy</strong>. Không có server, không có tài khoản, không thu thập thông tin cá nhân.
-          <a id="privacyLink" href="#" data-i18n="popup.privacy">Xem chính sách bảo mật &#8594;</a>
+        <p class="privacy-note">
+          <span data-i18n="welcome.privacyNote">Dữ liệu của bạn không rời khỏi máy. Không có server, không có tài khoản, không thu thập thông tin cá nhân.</span>
+          <br>
+          <a id="privacyLink" href="#" data-i18n="popup.privacy">Xem chính sách bảo mật</a>
         </p>
       </section>
 
@@ -71,28 +68,28 @@
         <h2 class="section-title" data-i18n="welcome.sectionHowToUse">Cách sử dụng</h2>
         <ol class="steps-list">
           <li class="step-item">
-            <span class="step-number">1</span>
+            <span class="step-number" aria-hidden="true">01</span>
             <div class="step-content">
               <strong data-i18n="welcome.step1Title">Đăng nhập Shopee</strong>
               <p data-i18n="welcome.step1Desc">Mở shopee.vn và đăng nhập tài khoản của bạn</p>
             </div>
           </li>
           <li class="step-item">
-            <span class="step-number">2</span>
+            <span class="step-number" aria-hidden="true">02</span>
             <div class="step-content">
               <strong data-i18n="welcome.step2Title">Mở extension</strong>
               <p data-i18n="welcome.step2Desc">Click vào icon ShopeeStatX trên thanh công cụ Chrome</p>
             </div>
           </li>
           <li class="step-item">
-            <span class="step-number">3</span>
+            <span class="step-number" aria-hidden="true">03</span>
             <div class="step-content">
               <strong data-i18n="welcome.step3Title">Bắt đầu phân tích</strong>
               <p data-i18n="welcome.step3Desc">Click Bắt đầu phân tích — extension sẽ lấy toàn bộ lịch sử đơn hàng</p>
             </div>
           </li>
           <li class="step-item">
-            <span class="step-number">4</span>
+            <span class="step-number" aria-hidden="true">04</span>
             <div class="step-content">
               <strong data-i18n="welcome.step4Title">Khám phá dữ liệu</strong>
               <p data-i18n="welcome.step4Desc">Dùng bộ lọc, biểu đồ, click drill-down, xuất Excel tùy ý</p>
@@ -102,16 +99,16 @@
       </section>
 
       <div class="cta-section">
-        <button id="btnOpenShopee" class="btn-primary" data-i18n="welcome.ctaButton">Mở Shopee ngay &#8594;</button>
+        <button id="btnOpenShopee" class="btn-primary" type="button" data-i18n="welcome.ctaButton">Mở Shopee ngay &#8594;</button>
         <p class="cta-note" data-i18n="welcome.ctaNote">Extension chỉ hoạt động khi bạn đang ở shopee.vn và đã đăng nhập</p>
       </div>
 
     </main>
 
     <footer class="welcome-footer">
-      <p><span data-i18n="welcome.footerDisclaimer">ShopeeStatX không liên kết với Shopee chính thức</span> &nbsp;&bull;&nbsp;
-        <a id="footerPrivacy" href="#" data-i18n="popup.privacy">Chính sách bảo mật</a> &nbsp;&bull;&nbsp;
-        <a href="https://github.com/ninhhaidang/shopeestatx" target="_blank">GitHub</a>
+      <p><span data-i18n="welcome.footerDisclaimer">ShopeeStatX không liên kết với Shopee chính thức</span>
+        <a id="footerPrivacy" href="#" data-i18n="popup.privacy">Chính sách bảo mật</a>
+        <a href="https://github.com/ninhhaidang/shopeestatx" target="_blank" rel="noopener noreferrer">GitHub</a>
       </p>
     </footer>
 
