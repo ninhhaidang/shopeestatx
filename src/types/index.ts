@@ -13,6 +13,14 @@ export interface UserProfile {
   shopId?: number;
 }
 
+export interface OrderItem {
+  itemId: number | null;
+  name: string;
+  variation: string;
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface Order {
   orderId: string;
   name: string;
@@ -23,6 +31,10 @@ export interface Order {
   statusCode: StatusCode;
   shopName: string;
   productSummary: string;
+  // Added in schema v2; absent on orders cached by older versions.
+  items?: OrderItem[];
+  shopId?: number | null;
+  parcelCount?: number | null;
   deliveryDate: string | null;
   orderMonth: number | null;
   orderYear: number | null;
@@ -36,6 +48,8 @@ export interface OrderData {
   totalAmountFormatted: string;
   fetchedAt: string;
   cachedAt?: string;
+  /** Layout of the cached orders; a cache older than SCHEMA_VERSION is rebuilt by a full fetch. */
+  schemaVersion?: number;
 }
 
 export interface DateRange {
