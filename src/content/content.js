@@ -67,6 +67,10 @@ function getUserProfile() {
     // An empty list ends pagination; a missing list is not a successful fetch.
     const orders = json?.new_data?.order_or_checkout_data
       ?? json?.data?.order_data?.details_list;
+    // The final page omits the list and reports next_offset: -1.
+    if (orders === undefined && json?.new_data?.next_offset === -1) {
+      return [];
+    }
     if (!Array.isArray(orders)) {
       throw new Error('Invalid order response from Shopee');
     }

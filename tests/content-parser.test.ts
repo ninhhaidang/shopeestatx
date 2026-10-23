@@ -115,6 +115,15 @@ describe('content script order collection', () => {
     },
   );
 
+  it('treats the final page (no list, next_offset -1) as end of history', async () => {
+    const { result } = await collect([
+      { error: 0, new_data: { order_or_checkout_data: [makeOrder()], next_offset: 20 } },
+      { error: 0, new_data: { next_offset: -1, translation_status: 0 } },
+    ]);
+    expect(result.success).toBe(true);
+    expect(result.data.orders).toHaveLength(1);
+  });
+
   it('accepts an explicit empty list as an empty history', async () => {
     const { result } = await collect([end]);
     expect(result.success).toBe(true);
