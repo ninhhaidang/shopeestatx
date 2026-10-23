@@ -2,9 +2,7 @@
 import type { OrderData } from '../types/index.js';
 import { state } from './state.js';
 import { applyFilters } from './filters.js';
-import { STORAGE_KEYS, MESSAGE_SOURCE } from '../config.js';
-
-const STALL_WARNING_MS = 30_000;
+import { STORAGE_KEYS } from '../config.js';
 
 export function isExtensionContext(): boolean {
   return typeof chrome !== 'undefined' && !!chrome.storage && !!chrome.scripting;
@@ -22,86 +20,6 @@ export async function loadMockData(): Promise<void> {
     const noData = document.getElementById('noData')!;
     noData.classList.remove('hidden');
     noData.querySelector('p')!.textContent = 'Không thể tải dữ liệu demo: ' + (error as Error).message;
-  }
-}
-
-export async function fetchDataFromShopee(): Promise<void> {
-  const btnRefresh = document.getElementById('btnRefresh') as HTMLButtonElement | null;
-  if (btnRefresh) { btnRefresh.disabled = true; btnRefresh.style.opacity = '0.6'; }
-
-  let stallTimer: ReturnType<typeof setTimeout> | undefined;
-  let onProgress: ((message: { source: string; type: string; count: number }) => void) | undefined;
-
-  try {
-    const storage = await chrome.storage.local.get([STORAGE_KEYS.TAB_ID]);
-    const tabId = storage[STORAGE_KEYS.TAB_ID];
-
-    if (!tabId) {
-      throw new Error('Không tìm thấy tab Shopee');
-    }
-
-    document.getElementById('loadingText')!.textContent = 'Đang kết nối với Shopee...';
-
-    const hintEl = document.getElementById('loadingHint');
-    const defaultHint = hintEl?.textContent ?? '';
-    const armStallWarning = () => {
-      clearTimeout(stallTimer);
-      stallTimer = setTimeout(() => {
-        if (hintEl) hintEl.textContent = 'Vẫn đang chờ Shopee phản hồi. Nếu quá lâu, hãy tải lại trang Shopee rồi thử lại.';
-      }, STALL_WARNING_MS);
-    };
-    armStallWarning();
-
-    onProgress = (message: { source: string; type: string; count: number }) => {
-      if (message.source === MESSAGE_SOURCE && message.type === 'progress') {
-        document.getElementById('loadingText')!.textContent = `Đã tải ${message.count} đơn hàng...`;
-        if (hintEl) hintEl.textContent = defaultHint;
-        armStallWarning();
-      }
-    };
-    chrome.runtime.onMessage.addListener(onProgress);
-
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['bridge.js'],
-      world: 'ISOLATED' as chrome.scripting.ExecutionWorld,
-    });
-
-    const results = await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['content.js'],
-      world: 'MAIN' as chrome.scripting.ExecutionWorld,
-    });
-
-    const result = results[0]?.result as { success: boolean; data?: OrderData; error?: string } | undefined;
-
-    if (!result) {
-      throw new Error('Không nhận được dữ liệu từ Shopee');
-    }
-
-    if (!result.success) {
-      throw new Error(result.error || 'Có lỗi xảy ra khi lấy dữ liệu');
-    }
-
-    const cacheData: OrderData = {
-      ...result.data!,
-      cachedAt: new Date().toISOString(),
-    };
-    await chrome.storage.local.set({ [STORAGE_KEYS.STATS]: cacheData });
-    state.allOrdersData = result.data!;
-    initializeUI(result.data!);
-    updateLastUpdatedTime(cacheData.cachedAt);
-
-  } catch (error) {
-    console.error('Fetch error:', error);
-    document.getElementById('loading')!.classList.add('hidden');
-    const noData = document.getElementById('noData')!;
-    noData.classList.remove('hidden');
-    noData.querySelector('p')!.textContent = (error as Error).message;
-  } finally {
-    clearTimeout(stallTimer);
-    if (onProgress) chrome.runtime.onMessage.removeListener(onProgress);
-    if (btnRefresh) { btnRefresh.disabled = false; btnRefresh.style.opacity = ''; }
   }
 }
 
@@ -135,8 +53,11 @@ export function loadDataFromStorage(): void {
 }
 
 export function refreshData(): void {
-  // Delegates to incremental-fetch.ts to keep data.ts under 200 lines
-  import('./incremental-fetch.js').then(m => m.incrementalFetch());
+  import('./fetch-orders.js').then(m => m.fetchOrders('incremental'));
+}
+
+export function reloadAllData(): void {
+  import('./fetch-orders.js').then(m => m.fetchOrders('full'));
 }
 
 export function updateLastUpdatedTime(timestamp: string | undefined): void {
