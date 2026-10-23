@@ -177,7 +177,7 @@ export function renderHeatmap(container: HTMLElement, orders: Order[]): void {
     (document.getElementById('filterYear') as HTMLSelectElement).value = String(year);
     (document.getElementById('filterMonth') as HTMLSelectElement).value = String(month);
     state.selectedDay = day;
-    document.dispatchEvent(new CustomEvent(EVENTS.APPLY_FILTERS));
+    document.dispatchEvent(new CustomEvent(EVENTS.FILTERS_REQUESTED));
     document.getElementById('ordersTable')?.scrollIntoView({ behavior: 'smooth' });
   });
 }

@@ -142,6 +142,7 @@ export function updateLastUpdatedTime(timestamp: string | undefined): void {
 
 export function initializeUI(data: OrderData): void {
   document.getElementById('loading')!.classList.add('hidden');
+  document.getElementById('noData')!.classList.add('hidden');
   document.getElementById('content')!.classList.remove('hidden');
 
   // Render user info in header
@@ -151,9 +152,9 @@ export function initializeUI(data: OrderData): void {
     const userNameEl = document.getElementById('userName');
 
     if (userInfoEl && userAvatarEl && userNameEl) {
-      if (data.user.avatar) {
-        userAvatarEl.src = data.user.avatar;
-      }
+      userAvatarEl.hidden = !data.user.avatar;
+      userAvatarEl.onerror = () => { userAvatarEl.hidden = true; };
+      if (data.user.avatar) userAvatarEl.src = data.user.avatar;
       userNameEl.textContent = data.user.username || data.user.name || '';
       userInfoEl.classList.remove('hidden');
     }
@@ -161,6 +162,7 @@ export function initializeUI(data: OrderData): void {
 
   const years = [...new Set(data.orders.map(o => o.orderYear).filter((y): y is number => y !== null))].sort((a, b) => b - a);
   const filterYear = document.getElementById('filterYear') as HTMLSelectElement;
+  const selectedYear = filterYear.value;
   // Clear existing options (keep the "Tất cả năm" default), then repopulate
   while (filterYear.options.length > 1) filterYear.remove(1);
   years.forEach(year => {
@@ -169,6 +171,7 @@ export function initializeUI(data: OrderData): void {
     option.textContent = String(year);
     filterYear.appendChild(option);
   });
+  filterYear.value = years.some(year => String(year) === selectedYear) ? selectedYear : '';
 
   if (data.fetchedAt) {
     const date = new Date(data.fetchedAt);

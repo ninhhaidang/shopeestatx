@@ -21,6 +21,14 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
 }
 
 describe('sortOrders', () => {
+  it.each(['deliveryDate', 'subTotal', 'status'])('preserves equal %s rows in either direction', field => {
+    const equalOrders = ['first', 'second', 'third'].map(orderId => makeOrder({ orderId }));
+    for (const direction of ['asc', 'desc'] as const) {
+      expect(sortOrders(equalOrders, field, direction).map(order => order.orderId))
+        .toEqual(['first', 'second', 'third']);
+    }
+  });
+
   const orders: Order[] = [
     makeOrder({ subTotal: 300000, deliveryDate: '2025-03-01T00:00:00.000Z', statusCode: 3 }),
     makeOrder({ subTotal: 100000, deliveryDate: '2025-01-01T00:00:00.000Z', statusCode: 7 }),

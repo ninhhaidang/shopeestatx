@@ -1,64 +1,149 @@
-import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { runInNewContext } from 'node:vm';
+import { describe, it, expect, vi } from 'vitest';
 
-// Extract parseStatusLabel logic from content.js for testing
-// NOTE: This mirrors the function in src/content/content.js — keep in sync!
-// content.js is an IIFE (MAIN world) so we can't import from it directly.
-function parseStatusLabel(statusLabel: string | null): { code: number; text: string } {
-  const label = (statusLabel || '').toLowerCase();
+const contentScript = readFileSync(resolve(process.cwd(), 'src/content/content.js'), 'utf8');
 
-  if (label.includes('completed')) return { code: 3, text: 'Hoàn thành' };
-  if (label.includes('cancelled') || label.includes('cancel')) return { code: 4, text: 'Đã hủy' };
-  if (label.includes('to_ship') || label.includes('preparing') || label.includes('process')) return { code: 7, text: 'Chờ vận chuyển' };
-  if (label.includes('to_receive') || label.includes('shipping') || label.includes('transit') || label.includes('delivery')) return { code: 8, text: 'Đang giao' };
-  if (label.includes('pay') || label.includes('unpaid')) return { code: 9, text: 'Chờ thanh toán' };
-  if (label.includes('return') || label.includes('refund')) return { code: 12, text: 'Trả hàng' };
-
-  return { code: 0, text: 'Không rõ' };
+function makeOrder(label: string | null = 'label_completed') {
+  return {
+    order_list_detail: {
+      info_card: {
+        order_id: 'ORDER-1',
+        product_count: 2,
+        subtotal: 10000000000,
+        final_total: 20000000000,
+        order_list_cards: [{
+          shop_info: { username: 'seller', shop_name: 'Shop' },
+          parcel_cards: [{ product_info: { item_groups: [{ items: [{ name: 'Product A', amount: 2, item_price: 5000000000 }] }] } }],
+        }],
+      },
+      status: { list_view_status_label: { text: label }, update_time: 1705320000 },
+    },
+  };
 }
 
-describe('parseStatusLabel', () => {
-  it('parses completed status', () => {
-    expect(parseStatusLabel('label_completed')).toEqual({ code: 3, text: 'Hoàn thành' });
+async function collect(pages: unknown[], httpStatus = 200) {
+  const fetch = vi.fn();
+  for (const page of pages) {
+    fetch.mockResolvedValueOnce({ ok: httpStatus < 400, status: httpStatus, json: async () => page });
+  }
+  const postMessage = vi.fn();
+  const result = await runInNewContext(contentScript, {
+    fetch,
+    window: { postMessage },
+    localStorage: { getItem: () => null },
+    console: { error: vi.fn() },
+  });
+  return { result, fetch, postMessage };
+}
+
+const end = { new_data: { order_or_checkout_data: [] } };
+
+describe('content script order collection', () => {
+  it.each([
+    ['label_completed', 3, 'Hoàn thành'],
+    ['LABEL_COMPLETED', 3, 'Hoàn thành'],
+    ['label_cancelled', 4, 'Đã hủy'],
+    ['cancel', 4, 'Đã hủy'],
+    ['label_to_ship', 7, 'Chờ vận chuyển'],
+    ['preparing', 7, 'Chờ vận chuyển'],
+    ['label_to_receive', 8, 'Đang giao'],
+    ['shipping', 8, 'Đang giao'],
+    ['unpaid', 9, 'Chờ thanh toán'],
+    ['label_return_refund_requested', 12, 'Trả hàng'],
+    ['refund', 12, 'Trả hàng'],
+    ['some_random_label', 0, 'Không rõ'],
+    [null, 0, 'Không rõ'],
+    ['', 0, 'Không rõ'],
+  ])('normalizes API status %j through the production script', async (label, code, text) => {
+    const { result } = await collect([{ new_data: { order_or_checkout_data: [makeOrder(label as string | null)] } }, end]);
+    expect(result.success).toBe(true);
+    expect(result.data.orders[0]).toMatchObject({ statusCode: code, status: text });
+    expect(result.data.totalAmount).toBe(code === 4 || code === 12 ? 0 : 100000);
   });
 
-  it('parses cancelled status', () => {
-    expect(parseStatusLabel('label_cancelled')).toEqual({ code: 4, text: 'Đã hủy' });
-    expect(parseStatusLabel('cancel')).toEqual({ code: 4, text: 'Đã hủy' });
+  it('collects all pages and reports progress before returning totals', async () => {
+    const first = makeOrder();
+    const second = makeOrder();
+    second.order_list_detail.info_card.order_id = 'ORDER-2';
+    const { result, fetch, postMessage } = await collect([
+      { new_data: { order_or_checkout_data: [first] } },
+      { new_data: { order_or_checkout_data: [second] } },
+      end,
+    ]);
+    expect(result.data.orders.map((order: { orderId: string }) => order.orderId)).toEqual(['ORDER-1', 'ORDER-2']);
+    expect(result.data).toMatchObject({ totalCount: 4, totalAmount: 200000 });
+    expect(fetch.mock.calls.map(([url]) => new URL(url).searchParams.get('offset'))).toEqual(['0', '20', '40']);
+    expect(postMessage).toHaveBeenCalledWith({ source: 'shopee-stats', type: 'progress', count: 2 }, '*');
   });
 
-  it('parses to_ship status', () => {
-    expect(parseStatusLabel('label_to_ship')).toEqual({ code: 7, text: 'Chờ vận chuyển' });
-    expect(parseStatusLabel('preparing')).toEqual({ code: 7, text: 'Chờ vận chuyển' });
+  it('retains legacy response and product-card support', async () => {
+    const detail = makeOrder().order_list_detail;
+    const card = detail.info_card.order_list_cards[0];
+    const legacy = {
+      list_type: 3,
+      info_card: { ...detail.info_card, order_list_cards: [{ shop_info: card.shop_info, product_info: card.parcel_cards[0].product_info }] },
+      shipping: { tracking_info: { ctime: 1705320000 } },
+    };
+    const { result } = await collect([
+      { data: { order_data: { details_list: [legacy] } } },
+      { data: { order_data: { details_list: [] } } },
+    ]);
+    expect(result.data.orders[0]).toMatchObject({ name: 'Product A', statusCode: 3, subTotal: 100000 });
+    expect(result.data.orders[0].deliveryDate).toBe(new Date(1705320000 * 1000).toISOString());
   });
 
-  it('parses to_receive status', () => {
-    expect(parseStatusLabel('label_to_receive')).toEqual({ code: 8, text: 'Đang giao' });
-    expect(parseStatusLabel('shipping')).toEqual({ code: 8, text: 'Đang giao' });
+  it('returns an error rather than a successful empty history for HTTP failures', async () => {
+    const { result } = await collect([end], 403);
+    expect(result).toEqual({ success: false, error: 'Failed to fetch orders (HTTP 403)' });
   });
 
-  it('parses payment status', () => {
-    expect(parseStatusLabel('unpaid')).toEqual({ code: 9, text: 'Chờ thanh toán' });
+  it('does not publish partial history when a later page reports an API error', async () => {
+    const { result } = await collect([
+      { new_data: { order_or_checkout_data: [makeOrder()] } },
+      { error: 19, error_msg: 'Session expired' },
+    ]);
+    expect(result).toEqual({ success: false, error: 'Session expired' });
+    expect(result).not.toHaveProperty('data');
   });
 
-  it('parses return/refund status', () => {
-    expect(parseStatusLabel('label_return_refund_requested')).toEqual({ code: 12, text: 'Trả hàng' });
-    expect(parseStatusLabel('refund')).toEqual({ code: 12, text: 'Trả hàng' });
+  it.each([null, {}, { new_data: {} }, { new_data: { order_or_checkout_data: {} } }])(
+    'rejects invalid success payload %j instead of replacing history with empty data', async page => {
+      const { result } = await collect([page]);
+      expect(result).toEqual({ success: false, error: 'Invalid order response from Shopee' });
+    },
+  );
+
+  it('accepts an explicit empty list as an empty history', async () => {
+    const { result } = await collect([end]);
+    expect(result.success).toBe(true);
+    expect(result.data).toMatchObject({ orders: [], totalCount: 0, totalAmount: 0 });
   });
 
-  it('returns unknown for unrecognized labels', () => {
-    expect(parseStatusLabel('some_random_label')).toEqual({ code: 0, text: 'Không rõ' });
+  it('preserves an explicit zero subtotal rather than charging final_total', async () => {
+    const item = makeOrder();
+    item.order_list_detail.info_card.subtotal = 0;
+    const { result } = await collect([{ new_data: { order_or_checkout_data: [item] } }, end]);
+    expect(result.data.orders[0].subTotal).toBe(0);
+    expect(result.data.totalAmount).toBe(0);
   });
 
-  it('handles null input', () => {
-    expect(parseStatusLabel(null)).toEqual({ code: 0, text: 'Không rõ' });
+  it('does not count products or money from skipped entries without an order card', async () => {
+    const skipped = makeOrder();
+    skipped.order_list_detail.info_card.order_list_cards = [];
+    const { result } = await collect([{ new_data: { order_or_checkout_data: [skipped, makeOrder()] } }, end]);
+    expect(result.data.orders).toHaveLength(1);
+    expect(result.data).toMatchObject({ totalCount: 2, totalAmount: 100000 });
   });
 
-  it('handles empty string', () => {
-    expect(parseStatusLabel('')).toEqual({ code: 0, text: 'Không rõ' });
-  });
-
-  it('is case-insensitive', () => {
-    expect(parseStatusLabel('LABEL_COMPLETED')).toEqual({ code: 3, text: 'Hoàn thành' });
-    expect(parseStatusLabel('Label_Cancelled')).toEqual({ code: 4, text: 'Đã hủy' });
+  it('includes products from every parcel in split-shipment details', async () => {
+    const item = makeOrder();
+    item.order_list_detail.info_card.order_list_cards[0].parcel_cards.push({
+      product_info: { item_groups: [{ items: [{ name: 'Product B', amount: 1, item_price: 1000000000 }] }] },
+    });
+    const { result } = await collect([{ new_data: { order_or_checkout_data: [item] } }, end]);
+    expect(result.data.orders[0].productSummary).toContain('Product A');
+    expect(result.data.orders[0].productSummary).toContain('Product B');
   });
 });

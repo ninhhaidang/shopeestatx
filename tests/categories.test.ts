@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { categorizeOrder, getCategoryBreakdown } from '../src/dashboard/categories';
+import { generateInsights } from '../src/dashboard/insights';
 import type { Order } from '../src/types';
 
 function makeOrder(overrides: Partial<Order> = {}): Order {
@@ -21,6 +22,15 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
 }
 
 describe('categorizeOrder', () => {
+  it.each([
+    ['Núm vú silicone', 'Mẹ & Bé'],
+    ['num vu silicone', 'Mẹ & Bé'],
+    ['Sạc không dây', 'Điện tử'],
+    ['Thước', 'Sách & Văn phòng'],
+  ])('matches normalized keyword in %s', (name, category) => {
+    expect(categorizeOrder(makeOrder({ name, productSummary: name }))).toBe(category);
+  });
+
   it('categorizes electronics by product name', () => {
     const order = makeOrder({ productSummary: 'Tai nghe bluetooth Sony (SL: 1)', name: 'Tai nghe Sony' });
     expect(categorizeOrder(order)).toBe('Điện tử');
@@ -75,6 +85,25 @@ describe('categorizeOrder', () => {
     const order = makeOrder({ productSummary: 'LAPTOP Gaming ASUS (SL: 1)', name: 'LAPTOP' });
     expect(categorizeOrder(order)).toBe('Điện tử');
   });
+
+  it.each([' Laptop ', '-Laptop-', '.Laptop.', ',Laptop,', '(Laptop)'])('matches existing boundaries in %s', name => {
+    expect(categorizeOrder(makeOrder({ name, productSummary: '', shopName: '' }))).toBe('Điện tử');
+  });
+
+  it.each(['xxlaptopyy', '/Laptop/', '_Laptop_'])('does not broaden word boundaries in %s', name => {
+    expect(categorizeOrder(makeOrder({ name, productSummary: '', shopName: '' }))).toBe('Khác');
+  });
+
+  it('keeps category priority when several categories match', () => {
+    expect(categorizeOrder(makeOrder({ name: 'Laptop baby', productSummary: '', shopName: '' }))).toBe('Mẹ & Bé');
+  });
+
+  it('does not retain a category when order text changes', () => {
+    const order = makeOrder({ name: 'Laptop', productSummary: '', shopName: '' });
+    expect(categorizeOrder(order)).toBe('Điện tử');
+    order.name = 'Vitamin';
+    expect(categorizeOrder(order)).toBe('Sức khỏe');
+  });
 });
 
 describe('getCategoryBreakdown', () => {
@@ -117,5 +146,72 @@ describe('getCategoryBreakdown', () => {
     ];
     const breakdown = getCategoryBreakdown(orders);
     expect(breakdown['Sức khỏe'].count).toBe(2);
+  });
+
+  it('recomputes totals and categories after orders change', () => {
+    const order = makeOrder({ name: 'Laptop', productSummary: '', shopName: '' });
+    const orders = [order];
+    const original = getCategoryBreakdown(orders);
+    order.name = 'Vitamin';
+    order.subTotal = 250_000;
+    expect(getCategoryBreakdown(orders)).toEqual({ 'Sức khỏe': { amount: 250_000, count: 1 } });
+    expect(original).toEqual({ 'Điện tử': { amount: 100_000, count: 1 } });
+    order.statusCode = 4;
+    expect(getCategoryBreakdown(orders)).toEqual({});
+  });
+});
+
+describe('generateInsights category reuse', () => {
+  it('preserves insights with a supplied filtered breakdown', () => {
+    const orders = [
+      makeOrder({ name: 'Laptop', productSummary: '', subTotal: 300_000 }),
+      makeOrder({ name: 'Vitamin', productSummary: '', subTotal: 100_000 }),
+      makeOrder({ name: 'Vitamin', productSummary: '', subTotal: 900_000, statusCode: 4 }),
+      makeOrder({ name: 'Vitamin', productSummary: '', subTotal: 900_000, statusCode: 12 }),
+    ];
+    const allOrders = [...orders, makeOrder({ name: 'Vitamin', productSummary: '', subTotal: 5_000_000 })];
+    const breakdown = getCategoryBreakdown(orders);
+    const expected = generateInsights(orders, allOrders);
+    expect(expected).toContain('Danh mục "Điện tử" chiếm 75% tổng chi tiêu trong kết quả lọc.');
+    expect(generateInsights(orders, allOrders, breakdown)).toEqual(expected);
+    expect(breakdown).toEqual({
+      'Điện tử': { amount: 300_000, count: 1 },
+      'Sức khỏe': { amount: 100_000, count: 1 },
+    });
+  });
+
+  it('does not read product text again when a breakdown is supplied', () => {
+    const productSummary = vi.fn(() => 'Laptop');
+    const order = makeOrder({ name: 'Laptop' });
+    Object.defineProperty(order, 'productSummary', { get: productSummary });
+    const breakdown = getCategoryBreakdown([order]);
+    productSummary.mockClear();
+
+    expect(generateInsights([order], [order], breakdown)).toContain(
+      'Danh mục "Điện tử" chiếm 100% tổng chi tiêu trong kết quả lọc.',
+    );
+    expect(productSummary).not.toHaveBeenCalled();
+  });
+
+  it('preserves first-seen category order for tied spending', () => {
+    const orders = [
+      makeOrder({ name: 'Vitamin', productSummary: '' }),
+      makeOrder({ name: 'Laptop', productSummary: '' }),
+    ];
+    const breakdown = getCategoryBreakdown(orders);
+    expect(generateInsights(orders, orders, breakdown)).toEqual(generateInsights(orders, orders));
+    expect(generateInsights(orders, orders, breakdown)).toContain(
+      'Danh mục "Sức khỏe" chiếm 50% tổng chi tiêu trong kết quả lọc.',
+    );
+  });
+
+  it.each([
+    { orders: [] },
+    { orders: [makeOrder({ statusCode: 4 }), makeOrder({ statusCode: 12 })] },
+    { orders: [makeOrder({ subTotal: 0 })] },
+  ])('omits category insights without positive eligible spending (%#)', ({ orders }) => {
+    const insights = generateInsights(orders, orders, getCategoryBreakdown(orders));
+    expect(insights).toEqual(generateInsights(orders, orders));
+    expect(insights.some(insight => insight.startsWith('Danh mục'))).toBe(false);
   });
 });

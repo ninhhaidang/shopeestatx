@@ -87,6 +87,7 @@ export function getEventName(event: string): string {
 // Pre-defined event names for consistency
 export const EVENTS = {
   APPLY_FILTERS: getEventName('apply-filters'),
+  FILTERS_REQUESTED: getEventName('filters-requested'),
   DATE_RANGE_CLEARED: getEventName('date-range-cleared'),
   DATE_RANGE_SELECTED: getEventName('date-range-selected'),
   FILTER_BY_SHOP: getEventName('filter-by-shop'),

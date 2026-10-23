@@ -89,7 +89,6 @@
   border-left: 3px solid var(--primary);
 }
 
-.insight-icon { flex-shrink: 0; }
 
 .insights-empty {
   color: var(--text-muted);

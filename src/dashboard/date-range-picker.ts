@@ -172,7 +172,7 @@ export function renderDateRangePicker(container: HTMLElement): void {
     if (!startInput.value && !endInput.value) return;
 
     const start = startInput.value ? new Date(startInput.value + 'T00:00:00') : null;
-    const end = endInput.value ? new Date(endInput.value + 'T23:59:59') : null;
+    const end = endInput.value ? new Date(endInput.value + 'T23:59:59.999') : null;
 
     state.dateRange = { start, end };
     state.selectedDay = null;
@@ -196,8 +196,10 @@ export function renderDateRangePicker(container: HTMLElement): void {
   if (state.dateRange.start || state.dateRange.end) {
     const startInput = container.querySelector('#drpStartDate') as HTMLInputElement;
     const endInput = container.querySelector('#drpEndDate') as HTMLInputElement;
-    if (state.dateRange.start) startInput.value = state.dateRange.start.toISOString().slice(0, 10);
-    if (state.dateRange.end) endInput.value = state.dateRange.end.toISOString().slice(0, 10);
+    const formatInputDate = (date: Date): string =>
+      `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    if (state.dateRange.start) startInput.value = formatInputDate(state.dateRange.start);
+    if (state.dateRange.end) endInput.value = formatInputDate(state.dateRange.end);
   }
 }
 

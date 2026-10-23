@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (statsData?.user && userAvatarEl && userNameEl) {
       const { user } = statsData;
-      if (user.avatar) {
-        userAvatarEl.src = user.avatar;
-      }
+      userAvatarEl.hidden = !user.avatar;
+      userAvatarEl.onerror = () => { userAvatarEl.hidden = true; };
+      if (user.avatar) userAvatarEl.src = user.avatar;
       const displayName = user.username || user.name || '';
       userNameEl.textContent = displayName;
       userGreetingEl?.classList.remove('hidden');

@@ -1,10 +1,14 @@
 // Auto-generated spending insights from order data
 import type { Order } from '../types/index.js';
 import { formatVND, escapeHtml } from './utils.js';
-import { categorizeOrder } from './categories.js';
+import { getCategoryBreakdown, type CategoryBreakdown } from './categories.js';
 import { t } from '../i18n/index.js';
 
-export function generateInsights(orders: Order[], allOrders: Order[]): string[] {
+export function generateInsights(
+  orders: Order[],
+  allOrders: Order[],
+  categoryBreakdown: CategoryBreakdown = getCategoryBreakdown(orders),
+): string[] {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
@@ -43,15 +47,11 @@ export function generateInsights(orders: Order[], allOrders: Order[]): string[] 
   }
 
   // Top spending category (from filtered orders)
-  const catAmount: Record<string, number> = {};
+  const categoryEntries = Object.entries(categoryBreakdown);
   const totalSpent = sum(completed(orders));
-  completed(orders).forEach(o => {
-    const cat = categorizeOrder(o);
-    catAmount[cat] = (catAmount[cat] || 0) + o.subTotal;
-  });
-  const topCat = Object.entries(catAmount).sort((a, b) => b[1] - a[1])[0];
+  const topCat = categoryEntries.sort((a, b) => b[1].amount - a[1].amount)[0];
   if (topCat && totalSpent > 0) {
-    const pct = (topCat[1] / totalSpent * 100).toFixed(0);
+    const pct = (topCat[1].amount / totalSpent * 100).toFixed(0);
     insights.push(`Danh mục "${topCat[0]}" chiếm ${pct}% tổng chi tiêu trong kết quả lọc.`);
   }
 
@@ -90,6 +90,6 @@ export function renderInsights(container: HTMLElement, insights: string[]): void
     return;
   }
   container.innerHTML = insights
-    .map(text => `<div class="insight-item"><span class="insight-icon">💡</span>${escapeHtml(text)}</div>`)
+    .map(text => `<div class="insight-item">${escapeHtml(text)}</div>`)
     .join('');
 }

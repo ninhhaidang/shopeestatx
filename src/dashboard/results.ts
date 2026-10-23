@@ -184,11 +184,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   // Initial filter count
   updateFilterCount();
 
-  // Update filter count when filters change
-  document.getElementById('filterStatus')?.addEventListener('change', updateFilterCount);
-  document.getElementById('filterCategory')?.addEventListener('change', updateFilterCount);
-
-  // Also update count when filters are applied (e.g., from clear all)
+  // Keep the badge in sync after direct changes, chip removal, and clear-all.
   document.addEventListener(EVENTS.APPLY_FILTERS, updateFilterCount);
 
   // Filter changes
@@ -242,7 +238,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   });
 
   // Heatmap click → applyFilters (dispatched via custom event to avoid circular dep)
-  document.addEventListener(EVENTS.APPLY_FILTERS, () => applyFilters());
+  document.addEventListener(EVENTS.FILTERS_REQUESTED, () => applyFilters());
 
   // Shop loyalty: filter by shop name
   document.addEventListener(EVENTS.FILTER_BY_SHOP, (e) => {

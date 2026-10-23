@@ -24,50 +24,12 @@ describe('Theme Toggle', () => {
       expect(document.documentElement.dataset.theme).toBe('forest');
     });
 
-    it('applies orange theme when no stored theme and no system preference', () => {
-      // Mock matchMedia for no preference
-      vi.spyOn(window, 'matchMedia').mockReturnValueOnce({
-        matches: false,
-        media: '(prefers-color-scheme: light)',
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      } as any);
-
+    it('defaults to orange when no theme is stored', () => {
       initTheme();
       expect(document.documentElement.dataset.theme).toBe('orange');
     });
-
-    it('does not apply theme when no stored theme and system prefers light', () => {
-      // Mock matchMedia for light preference
-      vi.spyOn(window, 'matchMedia').mockReturnValueOnce({
-        matches: false,
-        media: '(prefers-color-scheme: light)',
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      } as any);
-
-      initTheme();
-      expect(document.documentElement.dataset.theme).toBe('orange');
-    });
-
-    it('prioritizes stored theme over system preference', () => {
+    it('prefers stored selection over default', () => {
       localStorage.setItem(THEME_KEY, 'rose');
-      vi.spyOn(window, 'matchMedia').mockReturnValueOnce({
-        matches: false,
-        media: '(prefers-color-scheme: light)',
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      } as any);
-
       initTheme();
       expect(document.documentElement.dataset.theme).toBe('rose');
     });

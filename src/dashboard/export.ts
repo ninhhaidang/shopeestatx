@@ -1,7 +1,6 @@
 // Excel, CSV, and PDF export functions
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
-import ExcelJS from 'exceljs';
 
 /** Helper: trigger browser file download */
 function downloadFile(content: string, filename: string, mimeType: string): void {
@@ -16,24 +15,15 @@ function downloadFile(content: string, filename: string, mimeType: string): void
   URL.revokeObjectURL(url);
 }
 
-/** Get currently-filtered orders for export (respects year/month/status filters) */
-function getExportOrders() {
-  if (!state.allOrdersData) return [];
-  const year = (document.getElementById('filterYear') as HTMLSelectElement).value;
-  const month = (document.getElementById('filterMonth') as HTMLSelectElement).value;
-  const status = (document.getElementById('filterStatus') as HTMLSelectElement).value;
-
-  // NOTE: Intentionally does not filter by selectedDay or searchTerm — pre-existing behavior
-  return state.allOrdersData.orders.filter(order => {
-    if (year && order.orderYear !== Number(year)) return false;
-    if (month && order.orderMonth !== Number(month)) return false;
-    if (status && order.statusCode !== Number(status)) return false;
-    return true;
-  });
+/** Quote CSV text and prevent merchant-supplied text from becoming formulas. */
+function csvCell(value: string | number): string {
+  if (typeof value === 'number') return String(value);
+  const text = /^\s*[=+\-@]|^[\t\r\n]/.test(value) ? `'${value}` : value;
+  return `"${text.replace(/"/g, '""')}"`;
 }
 
 export function exportToExcel(): void {
-  const filtered = getExportOrders();
+  const filtered = state.allOrdersData ? state.filteredOrders : [];
 
   if (filtered.length === 0) {
     alert(t('export.noData') || 'No data to export');
@@ -52,25 +42,28 @@ export function exportToExcel(): void {
     'Details': order.productSummary,
   }));
 
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('Shopee Orders');
+  // Load the spreadsheet bundle only when an Excel download is requested.
+  import('exceljs')
+    .then(({ default: ExcelJS }) => {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Shopee Orders');
 
-  // Add headers
-  const headers = Object.keys(data[0] || {});
-  headers.forEach((header, colIndex) => {
-    worksheet.getCell(1, colIndex + 1).value = header;
-  });
+      // Add headers
+      const headers = Object.keys(data[0] || {});
+      headers.forEach((header, colIndex) => {
+        worksheet.getCell(1, colIndex + 1).value = header;
+      });
 
-  // Add data rows
-  data.forEach((row, rowIndex) => {
-    const values = Object.values(row);
-    values.forEach((value, colIndex) => {
-      worksheet.getCell(rowIndex + 2, colIndex + 1).value = value;
-    });
-  });
+      // Add data rows
+      data.forEach((row, rowIndex) => {
+        const values = Object.values(row);
+        values.forEach((value, colIndex) => {
+          worksheet.getCell(rowIndex + 2, colIndex + 1).value = value;
+        });
+      });
 
-  // Download via buffer with error handling
-  workbook.xlsx.writeBuffer()
+      return workbook.xlsx.writeBuffer();
+    })
     .then(buffer => {
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -89,7 +82,7 @@ export function exportToExcel(): void {
 }
 
 export function exportToCSV(): void {
-  const filtered = getExportOrders();
+  const filtered = state.allOrdersData ? state.filteredOrders : [];
   const BOM = '\uFEFF'; // UTF-8 BOM for Excel compatibility
   const headers = [
     t('export.col.index'),
@@ -105,14 +98,14 @@ export function exportToCSV(): void {
     i + 1,
     o.orderId,
     o.deliveryDate ? new Date(o.deliveryDate).toLocaleDateString('vi-VN') : '',
-    `"${o.status.replace(/"/g, '""')}"`,
-    `"${o.name.replace(/"/g, '""')}"`,
+    o.status,
+    o.name,
     o.productCount,
     o.subTotal,
-    `"${o.shopName.replace(/"/g, '""')}"`,
-  ].join(','));
+    o.shopName,
+  ].map(csvCell).join(','));
 
-  const csv = BOM + [headers.join(','), ...rows].join('\n');
+  const csv = BOM + [headers.map(csvCell).join(','), ...rows].join('\n');
   downloadFile(csv, `shopee-stats-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8');
 }
 
