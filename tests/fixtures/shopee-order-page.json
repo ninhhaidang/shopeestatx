@@ -1,0 +1,145 @@
+{
+  "error": 0,
+  "error_msg": "x",
+  "new_data": {
+    "order_or_checkout_data": [
+      {
+        "order_list_detail": {
+          "status": {
+            "status_label": {
+              "text": "label_order_completed",
+              "tl": false
+            },
+            "list_view_status_label": {
+              "text": "label_completed",
+              "tl": false
+            }
+          },
+          "shipping": {
+            "tracking_info": {
+              "driver_phone": "x",
+              "driver_name": "x",
+              "ctime": 100000,
+              "description": "x",
+              "type": 0
+            },
+            "is_multi_parcel": false,
+            "num_parcels": 1,
+            "parcel_no": 1
+          },
+          "info_card": {
+            "order_id": 100000,
+            "order_list_cards": [
+              {
+                "shop_info": {
+                  "shop_id": 100000,
+                  "shop_name": "x",
+                  "user_id": 100000,
+                  "username": "x",
+                  "portrait": "x",
+                  "shop_tag": 3,
+                  "disable_redirection": false,
+                  "hide_contact_seller_button": false
+                },
+                "order_id": 100000,
+                "parcel_cards": [
+                  {
+                    "parcel_no": 1,
+                    "forder_id": "x",
+                    "product_info": {
+                      "item_groups": [
+                        {
+                          "items": [
+                            {
+                              "item_id": 100000,
+                              "model_id": 100000,
+                              "shop_id": 100000,
+                              "name": "x",
+                              "model_name": "x",
+                              "name_tr": "x",
+                              "model_name_tr": "x",
+                              "image": "x",
+                              "amount": 1,
+                              "ext_info": {
+                                "add_on_deal_id": 0,
+                                "is_add_on_sub_item": false,
+                                "free_return_day": 0,
+                                "is_wholesale": false,
+                                "is_pre_order": false,
+                                "is_membership_gift": false,
+                                "is_free_return": false,
+                                "disable_redirection": false,
+                                "is_main_item_exist": false,
+                                "is_refundable_sample": false,
+                                "is_prescription": false
+                              },
+                              "status": 1,
+                              "item_price": 100000,
+                              "order_price": 100000,
+                              "snapshot_id": 100000
+                            }
+                          ],
+                          "num_items": 1
+                        }
+                      ],
+                      "total_num_items": 1
+                    }
+                  }
+                ],
+                "product_info": {
+                  "item_groups": [
+                    {
+                      "items": [
+                        {
+                          "item_id": 100000,
+                          "model_id": 100000,
+                          "shop_id": 100000,
+                          "name": "x",
+                          "model_name": "x",
+                          "name_tr": "x",
+                          "model_name_tr": "x",
+                          "image": "x",
+                          "amount": 1,
+                          "ext_info": {
+                            "add_on_deal_id": 0,
+                            "is_add_on_sub_item": false,
+                            "free_return_day": 0,
+                            "is_wholesale": false,
+                            "is_pre_order": false,
+                            "is_membership_gift": false,
+                            "is_free_return": false,
+                            "disable_redirection": false,
+                            "is_main_item_exist": false,
+                            "is_refundable_sample": false,
+                            "is_prescription": false
+                          },
+                          "status": 1,
+                          "item_price": 100000,
+                          "order_price": 100000,
+                          "snapshot_id": 100000
+                        }
+                      ],
+                      "num_items": 1
+                    }
+                  ],
+                  "total_num_items": 1
+                }
+              }
+            ],
+            "product_count": 1,
+            "subtotal": 100000,
+            "final_total": 100000
+          },
+          "primary_buttons": [
+            {
+              "id": 24
+            }
+          ],
+          "list_type": 3
+        }
+      }
+    ],
+    "next_offset": 1,
+    "translation_status": 2
+  }
+}
