@@ -76,7 +76,50 @@ it('updates orders once per filter action and still accepts a heatmap filter req
   document.removeEventListener(EVENTS.APPLY_FILTERS, changed);
 });
 
+it('lists the categories found in the data and filters orders by them', async () => {
+  const html = readFileSync(resolve(process.cwd(), 'src/dashboard/results.html'), 'utf8');
+  document.body.innerHTML = html.match(/<body>([\s\S]*?)<\/body>/)![1];
+  const item = (itemId: number) => ({ itemId, name: 'x', variation: '', quantity: 1, unitPrice: 100_000 });
+  const categorized: Order[] = [
+    { ...orders[0], orderId: 'phone', items: [item(1)] },
+    { ...orders[0], orderId: 'shirt', items: [item(2)] },
+    { ...orders[0], orderId: 'legacy' },
+  ];
+  fixture.orders = categorized; // the mocked loadMockData installs this fixture at startup
+  state.allOrdersData = fixture;
+  state.filteredOrders = categorized;
+  state.categories = {
+    '1': { path: [{ catid: 1, name: 'Điện Thoại & Phụ Kiện' }], fetchedAt: '' },
+    '2': { path: [{ catid: 2, name: 'Thời Trang Nam' }], fetchedAt: '' },
+  };
+  state.dateRange = { start: null, end: null };
+  state.selectedDay = null;
+  state.currentSort = { field: null, direction: 'asc' };
+
+  await import('../src/dashboard/results');
+  document.dispatchEvent(new Event('DOMContentLoaded'));
+  await vi.waitFor(() => expect(document.getElementById('btnExport')?.getAttribute('aria-haspopup')).toBe('true'));
+  const category = document.getElementById('filterCategory') as HTMLSelectElement;
+
+  document.dispatchEvent(new CustomEvent(EVENTS.FILTERS_REQUESTED));
+  expect(Array.from(category.options, option => option.value)).toEqual(['', 'Điện Thoại & Phụ Kiện', 'Thời Trang Nam', 'Chưa phân loại']);
+
+  category.value = 'Thời Trang Nam';
+  category.dispatchEvent(new Event('change'));
+  expect(state.filteredOrders.map(order => order.orderId)).toEqual(['shirt']);
+
+  // Category data that arrives later adds its option without losing the selection.
+  state.categories['3'] = { path: [{ catid: 3, name: 'Sách' }], fetchedAt: '' };
+  state.allOrdersData.orders[2] = { ...state.allOrdersData.orders[2], items: [item(3)] };
+  document.dispatchEvent(new CustomEvent(EVENTS.FILTERS_REQUESTED));
+  expect(category.value).toBe('Thời Trang Nam');
+  expect(Array.from(category.options, option => option.value)).toContain('Sách');
+  expect(Array.from(category.options, option => option.value)).not.toContain('Chưa phân loại');
+});
+
 afterEach(() => {
   document.body.innerHTML = '';
   state.allOrdersData = null;
+  state.categories = {};
+  fixture.orders = orders;
 });

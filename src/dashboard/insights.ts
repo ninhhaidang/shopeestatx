@@ -1,13 +1,13 @@
 // Auto-generated spending insights from order data
 import type { Order } from '../types/index.js';
 import { formatVND, escapeHtml } from './utils.js';
-import { getCategoryBreakdown, type CategoryBreakdown } from './categories.js';
+import type { CategoryBreakdown } from './categories.js';
 import { t } from '../i18n/index.js';
 
 export function generateInsights(
   orders: Order[],
   allOrders: Order[],
-  categoryBreakdown: CategoryBreakdown = getCategoryBreakdown(orders),
+  categoryBreakdown: CategoryBreakdown,
 ): string[] {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;

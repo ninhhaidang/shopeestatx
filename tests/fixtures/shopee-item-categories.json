@@ -1,0 +1,18 @@
+{
+  "bff_meta": null,
+  "error": null,
+  "error_msg": null,
+  "data": {
+    "item": {
+      "categories": [
+        { "catid": 100000, "display_name": "x", "no_sub": false, "is_default_subcat": false },
+        { "catid": 100000, "display_name": "x", "no_sub": false, "is_default_subcat": false },
+        { "catid": 100000, "display_name": "x", "no_sub": true, "is_default_subcat": false }
+      ],
+      "fe_categories": [
+        { "catid": 100000, "display_name": "x", "no_sub": false, "is_default_subcat": false }
+      ]
+    },
+    "product_attributes": { "categories": [] }
+  }
+}

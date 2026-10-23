@@ -146,8 +146,7 @@
 - [x] English month names on X axis (Jan, Feb, Mar...)
 
 **Categories:**
-- [x] Keyword-based product categorization (8 categories + "Khác")
-- [x] Vietnamese + English keyword support
+- [x] Product categories read from Shopee's own category tree (root tier), per item, replacing the keyword dictionary (#24)
 - [x] Doughnut chart visualization
 - [x] Category breakdown in insights
 
@@ -199,7 +198,7 @@ After Phase 4 (i18n + Date Range Picker), module boundaries remain stable and ty
 | i18n/format.ts | Locale-aware formatting | New v3.1 |
 | date-range-picker.ts | Date range picker component | New v3.1 |
 | heatmap.ts | GitHub-style calendar heatmap | New v3.1 |
-| categories.ts | Keyword-based categorization | New v3.1 |
+| categories.ts | Spending by Shopee category (per item) + chart | v3.1, reworked #24 |
 | predictions.ts | Spending trend forecast | New v3.1 |
 | shop-loyalty.ts | Shop loyalty tracking | New v3.1 |
 | bridge.ts | ISOLATED world relay | Stable |

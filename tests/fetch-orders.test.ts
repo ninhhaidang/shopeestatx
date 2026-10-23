@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SCHEMA_VERSION, STORAGE_KEYS } from '../src/config';
+import { applyFilters } from '../src/dashboard/filters';
 import { state } from '../src/dashboard/state';
 import { fetchOrders } from '../src/dashboard/fetch-orders';
 import type { Order, OrderData } from '../src/types';
@@ -17,11 +18,25 @@ const makeData = (orders: Order[], extra: Partial<OrderData> = {}): OrderData =>
 
 type ContentResult = { success: boolean; data?: OrderData; partial?: OrderData; error?: string } | undefined;
 type Injection = { files?: string[]; func?: (...args: unknown[]) => void; args?: unknown[]; world?: string };
+type CategoryRequest = { items: Array<{ itemId: number; shopId: number }> };
+type CategoryResult = { categories: Record<string, { path: Array<{ catid: number; name: string }> }>; failed: string[] };
 
-function installChrome(initial: Record<string, unknown>, content: () => Promise<ContentResult> | ContentResult) {
+// By default every product asked about comes back with a one-tier category named after its id.
+const defaultCategories = (request: CategoryRequest): CategoryResult => ({
+  categories: Object.fromEntries(request.items.map(({ itemId }) => [String(itemId), { path: [{ catid: itemId, name: `Cat ${itemId}` }] }])),
+  failed: [],
+});
+
+function installChrome(
+  initial: Record<string, unknown>,
+  content: () => Promise<ContentResult> | ContentResult,
+  categories: (request: CategoryRequest) => Promise<CategoryResult> | CategoryResult = defaultCategories,
+) {
   const storage: Record<string, unknown> = { [STORAGE_KEYS.TAB_ID]: 42, ...initial };
   const injections: Injection[] = [];
   const progressListeners: Array<(message: unknown) => void> = [];
+  const categoryRequests: CategoryRequest[] = [];
+  let lastArgs: unknown;
   vi.stubGlobal('chrome', {
     storage: { local: {
       get: vi.fn(async (keys: string[]) => Object.fromEntries(keys.map(key => [key, storage[key]]))),
@@ -29,6 +44,11 @@ function installChrome(initial: Record<string, unknown>, content: () => Promise<
     } },
     scripting: { executeScript: vi.fn(async (injection: Injection) => {
       injections.push(injection);
+      if (injection.func) lastArgs = injection.args?.[0];
+      if (injection.files?.[0] === 'category-fetcher.js') {
+        categoryRequests.push(lastArgs as CategoryRequest);
+        return [{ result: await categories(lastArgs as CategoryRequest) }];
+      }
       return injection.files?.[0] === 'content.js' ? [{ result: await content() }] : [{}];
     }) },
     runtime: { onMessage: {
@@ -38,18 +58,20 @@ function installChrome(initial: Record<string, unknown>, content: () => Promise<
       }),
     } },
   });
-  return { storage, injections, progressListeners };
+  return { storage, injections, progressListeners, categoryRequests };
 }
 
 const saved = (storage: Record<string, unknown>) => storage[STORAGE_KEYS.STATS] as OrderData;
 const orderIds = (data: OrderData) => data.orders.map(order => order.orderId);
 const requestOf = (injections: Injection[]) => injections.find(injection => injection.func)!.args![0] as Record<string, unknown>;
+const categoriesOf = (storage: Record<string, unknown>) => (storage[STORAGE_KEYS.CATEGORIES] ?? {}) as Record<string, { path: Array<{ name: string }> }>;
 const text = (id: string) => document.getElementById(id)!.textContent;
 
 beforeEach(() => {
+  vi.mocked(applyFilters).mockClear();
   document.body.innerHTML = `
     <div id="loading"><p id="loadingText"></p><p id="loadingHint">Lần đầu có thể mất 1–2 phút.</p></div>
-    <div id="noData" class="hidden"><p></p></div>
+    <div id="noData" class="hidden"><p></p></div><p id="categoryProgress" class="hidden"></p>
     <div id="content" class="hidden"></div><span id="fetchedAt"></span><span id="lastUpdated"></span>
     <select id="filterYear"><option value=""></option></select>
     <button id="btnRefresh"></button><button id="btnFullReload"></button>
@@ -307,5 +329,146 @@ describe('unified order fetch: progress and re-entry', () => {
     await fetchOrders('auto');
     await fetchOrders('auto');
     expect(injections.filter(i => i.files?.[0] === 'content.js')).toHaveLength(2);
+  });
+});
+
+describe('unified order fetch: product categories', () => {
+  const item = (itemId: number | null) => ({ itemId, name: 'x', variation: '', quantity: 1, unitPrice: 1 });
+  const shopOrder = (orderId: string, itemIds: Array<number | null>, shopId: number | null = 7): Order =>
+    ({ ...makeOrder(orderId, 3), items: itemIds.map(item), shopId });
+  const fetched = (...orders: Order[]) => () => ({ success: true, data: makeData(orders) });
+
+  it('shows the orders first, then asks Shopee only for products not yet categorised, once each, with their shop', async () => {
+    const stored = { '1': { path: [{ catid: 1, name: 'Known' }], fetchedAt: 'x' } };
+    let contentVisibleWhileAsking = false;
+    const { storage, categoryRequests } = installChrome(
+      { [STORAGE_KEYS.CATEGORIES]: stored },
+      fetched(shopOrder('A', [1, 2]), shopOrder('B', [2, 3], 9)),
+      request => {
+        contentVisibleWhileAsking = !document.getElementById('content')!.classList.contains('hidden');
+        return defaultCategories(request);
+      },
+    );
+
+    await fetchOrders('auto');
+
+    expect(contentVisibleWhileAsking).toBe(true);
+    expect(categoryRequests).toEqual([{ items: [{ itemId: 2, shopId: 7 }, { itemId: 3, shopId: 9 }] }]);
+    expect(Object.keys(categoriesOf(storage)).sort()).toEqual(['1', '2', '3']);
+    expect(categoriesOf(storage)['1'].path[0].name).toBe('Known');
+    expect(state.categories).toEqual(storage[STORAGE_KEYS.CATEGORIES]);
+    expect(applyFilters).toHaveBeenCalled();
+  });
+
+  it('skips products without an id or a shop, and asks about nothing when everything is known', async () => {
+    const { categoryRequests } = installChrome({}, fetched(shopOrder('A', [null]), shopOrder('B', [5], null)));
+    await fetchOrders('auto');
+    expect(categoryRequests).toEqual([]);
+  });
+
+  it('asks in batches of ten and saves after each batch', async () => {
+    const saves: number[] = [];
+    const orders = [shopOrder('A', Array.from({ length: 25 }, (_, i) => 100 + i))];
+    vi.useFakeTimers();
+    const { storage, categoryRequests } = installChrome({}, fetched(...orders), request => {
+      saves.push(Object.keys(categoriesOf(storage)).length);
+      return defaultCategories(request);
+    });
+
+    const run = fetchOrders('auto');
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(categoryRequests.map(r => r.items.length)).toEqual([10, 10, 5]);
+    expect(saves).toEqual([0, 10, 20]); // each batch was already stored when the next one was asked
+    expect(Object.keys(categoriesOf(storage))).toHaveLength(25);
+  });
+
+  it('leaves a product that failed unsaved so the next run asks again', async () => {
+    const failing = (request: CategoryRequest): CategoryResult => ({ categories: {}, failed: request.items.map(i => String(i.itemId)) });
+    const { storage, categoryRequests } = installChrome({}, fetched(shopOrder('A', [2])), failing);
+
+    await fetchOrders('auto');
+    expect(categoriesOf(storage)).toEqual({});
+    expect(document.querySelector('.toast')!.textContent).toContain('1 sản phẩm chưa phân loại được');
+
+    await fetchOrders('auto');
+    expect(categoryRequests).toHaveLength(2);
+  });
+
+  it('keeps a product Shopee has no category for, so it is not asked about again', async () => {
+    const none = (request: CategoryRequest): CategoryResult => ({ categories: { [String(request.items[0].itemId)]: { path: [] } }, failed: [] });
+    const { categoryRequests } = installChrome({}, fetched(shopOrder('A', [2])), none);
+    await fetchOrders('auto');
+    await fetchOrders('auto');
+    expect(categoryRequests).toHaveLength(1);
+  });
+
+  it('shows how many products are done, then hides the progress line', async () => {
+    vi.useFakeTimers();
+    const seen: Array<string | null> = [];
+    const orders = [shopOrder('A', Array.from({ length: 15 }, (_, i) => 100 + i))];
+    installChrome({}, fetched(...orders), request => {
+      seen.push(text('categoryProgress'));
+      return defaultCategories(request);
+    });
+
+    const run = fetchOrders('auto');
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(seen).toEqual(['Đang phân loại 0/15 sản phẩm...', 'Đang phân loại 10/15 sản phẩm...']);
+    expect(document.getElementById('categoryProgress')!.classList.contains('hidden')).toBe(true);
+  });
+
+  it('warns when a batch gets no answer for 30 seconds', async () => {
+    vi.useFakeTimers();
+    let release!: (result: CategoryResult) => void;
+    const pending = new Promise<CategoryResult>(resolve => { release = resolve; });
+    installChrome({}, fetched(shopOrder('A', [2])), () => pending);
+
+    const run = fetchOrders('auto');
+    await vi.advanceTimersByTimeAsync(29_000);
+    expect(text('categoryProgress')).toBe('Đang phân loại 0/1 sản phẩm...');
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(text('categoryProgress')).toContain('Vẫn đang chờ Shopee phản hồi');
+
+    release({ categories: {}, failed: [] });
+    await run;
+    expect(vi.getTimerCount()).toBeLessThanOrEqual(1); // only the toast's own timer may remain
+  });
+
+  it('keeps the orders and the batches already saved when categorising breaks halfway', async () => {
+    vi.useFakeTimers();
+    let calls = 0;
+    const orders = [shopOrder('A', Array.from({ length: 25 }, (_, i) => 100 + i))];
+    const { storage } = installChrome({}, fetched(...orders), request => {
+      if (++calls === 2) throw new Error('tab closed');
+      return defaultCategories(request);
+    });
+
+    const run = fetchOrders('auto');
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(Object.keys(categoriesOf(storage))).toHaveLength(10);
+    expect(orderIds(saved(storage))).toEqual(['A']);
+    expect(document.getElementById('noData')!.classList.contains('hidden')).toBe(true);
+    expect(document.getElementById('content')!.classList.contains('hidden')).toBe(false);
+    expect(document.querySelector('.toast')!.textContent).toContain('tab closed');
+  });
+
+  it('ignores a refresh while categorising, so Shopee is not hit by two runs at once', async () => {
+    let release!: (result: CategoryResult) => void;
+    const pending = new Promise<CategoryResult>(resolve => { release = resolve; });
+    const { injections } = installChrome({}, fetched(shopOrder('A', [2])), () => pending);
+
+    const first = fetchOrders('auto');
+    await vi.waitFor(() => expect(injections.some(i => i.files?.[0] === 'category-fetcher.js')).toBe(true));
+    await fetchOrders('incremental');
+    release({ categories: {}, failed: [] });
+    await first;
+
+    expect(injections.filter(i => i.files?.[0] === 'content.js')).toHaveLength(1);
   });
 });
