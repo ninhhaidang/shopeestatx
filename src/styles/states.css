@@ -178,3 +178,11 @@ select:focus-visible,
   transform: translateY(-3px);
   box-shadow: var(--shadow-xl);
 }
+
+.loading-hint {
+  max-width: 360px;
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #888);
+}

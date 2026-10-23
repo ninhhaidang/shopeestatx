@@ -1,5 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { build as esbuild } from 'esbuild';
+import { bridgeBuildOptions } from './bridge-build';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync } from 'fs';
 
 export default defineConfig({
@@ -17,14 +19,11 @@ export default defineConfig({
         welcome: resolve(__dirname, 'src/welcome/welcome.html'),
         // Background service worker
         background: resolve(__dirname, 'src/background.ts'),
-        // Bridge script (ISOLATED world)
-        bridge: resolve(__dirname, 'src/bridge/bridge.ts'),
       },
       output: {
         entryFileNames: (chunkInfo) => {
-          // Keep background.js and bridge.js at root level for manifest references
+          // Keep background.js at root level for manifest references
           if (chunkInfo.name === 'background') return 'background.js';
-          if (chunkInfo.name === 'bridge') return 'bridge.js';
           return 'assets/[name]-[hash].js';
         },
         chunkFileNames: 'assets/[name]-[hash].js',
@@ -38,8 +37,11 @@ export default defineConfig({
     {
       // Copy static assets (manifest, icons, content.js, privacy.html) to dist after build
       name: 'copy-extension-files',
-      closeBundle() {
+      async closeBundle() {
         const distDir = resolve(__dirname, 'dist');
+
+        // Bridge script (ISOLATED world), built separately as a standalone IIFE
+        await esbuild({ ...bridgeBuildOptions, outfile: resolve(distDir, 'bridge.js') });
 
         // Copy manifest.json
         const manifest = JSON.parse(readFileSync(resolve(__dirname, 'src/manifest.json'), 'utf-8'));

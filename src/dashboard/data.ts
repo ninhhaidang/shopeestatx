@@ -4,6 +4,8 @@ import { state } from './state.js';
 import { applyFilters } from './filters.js';
 import { STORAGE_KEYS, MESSAGE_SOURCE } from '../config.js';
 
+const STALL_WARNING_MS = 30_000;
+
 export function isExtensionContext(): boolean {
   return typeof chrome !== 'undefined' && !!chrome.storage && !!chrome.scripting;
 }
@@ -27,6 +29,9 @@ export async function fetchDataFromShopee(): Promise<void> {
   const btnRefresh = document.getElementById('btnRefresh') as HTMLButtonElement | null;
   if (btnRefresh) { btnRefresh.disabled = true; btnRefresh.style.opacity = '0.6'; }
 
+  let stallTimer: ReturnType<typeof setTimeout> | undefined;
+  let onProgress: ((message: { source: string; type: string; count: number }) => void) | undefined;
+
   try {
     const storage = await chrome.storage.local.get([STORAGE_KEYS.TAB_ID]);
     const tabId = storage[STORAGE_KEYS.TAB_ID];
@@ -37,12 +42,24 @@ export async function fetchDataFromShopee(): Promise<void> {
 
     document.getElementById('loadingText')!.textContent = 'Đang kết nối với Shopee...';
 
-    chrome.runtime.onMessage.addListener(function (message: { source: string; type: string; count: number; fetched?: number }) {
+    const hintEl = document.getElementById('loadingHint');
+    const defaultHint = hintEl?.textContent ?? '';
+    const armStallWarning = () => {
+      clearTimeout(stallTimer);
+      stallTimer = setTimeout(() => {
+        if (hintEl) hintEl.textContent = 'Vẫn đang chờ Shopee phản hồi. Nếu quá lâu, hãy tải lại trang Shopee rồi thử lại.';
+      }, STALL_WARNING_MS);
+    };
+    armStallWarning();
+
+    onProgress = (message: { source: string; type: string; count: number }) => {
       if (message.source === MESSAGE_SOURCE && message.type === 'progress') {
-        const fetchedText = message.fetched ? ` (+${message.fetched})` : '';
-        document.getElementById('loadingText')!.textContent = `Đang lấy dữ liệu...${fetchedText} (${message.count} đơn hàng)`;
+        document.getElementById('loadingText')!.textContent = `Đã tải ${message.count} đơn hàng...`;
+        if (hintEl) hintEl.textContent = defaultHint;
+        armStallWarning();
       }
-    });
+    };
+    chrome.runtime.onMessage.addListener(onProgress);
 
     await chrome.scripting.executeScript({
       target: { tabId },
@@ -82,6 +99,8 @@ export async function fetchDataFromShopee(): Promise<void> {
     noData.classList.remove('hidden');
     noData.querySelector('p')!.textContent = (error as Error).message;
   } finally {
+    clearTimeout(stallTimer);
+    if (onProgress) chrome.runtime.onMessage.removeListener(onProgress);
     if (btnRefresh) { btnRefresh.disabled = false; btnRefresh.style.opacity = ''; }
   }
 }
