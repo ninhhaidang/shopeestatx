@@ -6,7 +6,7 @@ import { formatDate } from '../i18n/format.js';
 import { renderData } from './comparison.js';
 import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
-import { categorizeOrder, getCategoryBreakdown, renderCategoryChart } from './categories.js';
+import { getCategoryBreakdown, orderHasCategory, renderCategoryChart, syncCategoryOptions } from './categories.js';
 import { generateInsights, renderInsights } from './insights.js';
 import { renderHeatmap } from './heatmap.js';
 import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
@@ -84,6 +84,7 @@ let renderedLoyaltyHistory: Order[] | null = null;
 
 export function applyFilters(): void {
   if (!state.allOrdersData) return;
+  syncCategoryOptions(document.getElementById('filterCategory') as HTMLSelectElement | null, state.allOrdersData.orders, state.categories);
 
   const year = (document.getElementById('filterYear') as HTMLSelectElement).value;
   const month = (document.getElementById('filterMonth') as HTMLSelectElement).value;
@@ -93,9 +94,8 @@ export function applyFilters(): void {
 
   let filtered = filterOrders(state.allOrdersData.orders, { year, month, status, searchTerm });
 
-  // Apply category filter (runs categorizeOrder on each order)
   if (category) {
-    filtered = filtered.filter(o => categorizeOrder(o) === category);
+    filtered = filtered.filter(o => orderHasCategory(o, state.categories, category));
   }
 
   // Apply selectedDay filter (only in applyFilters, not in chart view)
@@ -133,11 +133,11 @@ export function applyFilters(): void {
   renderCharts(filtered);
   renderCurrentPage();
 
-  // Classify each filtered order once for the chart and the insights panel.
+  // Break spending down by category once for the chart and the insights panel.
   const catCanvas = document.getElementById('categoryChart') as HTMLCanvasElement | null;
   const insightsEl = document.getElementById('insightsContainer');
   if (catCanvas || insightsEl) {
-    const breakdown = getCategoryBreakdown(filtered);
+    const breakdown = getCategoryBreakdown(filtered, state.categories);
     if (catCanvas) renderCategoryChart(catCanvas, breakdown);
     if (insightsEl) renderInsights(insightsEl, generateInsights(filtered, state.allOrdersData!.orders, breakdown));
   }

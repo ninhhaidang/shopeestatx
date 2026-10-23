@@ -121,15 +121,6 @@
           <label for="filterCategory" class="visually-hidden">Lọc theo danh mục sản phẩm</label>
           <select id="filterCategory" aria-label="Lọc theo danh mục">
             <option value="" data-i18n-opt="filter.allCategories">Tất cả danh mục</option>
-            <option value="Điện tử">Điện tử</option>
-            <option value="Thời trang">Thời trang</option>
-            <option value="Sắc đẹp">Sắc đẹp</option>
-            <option value="Thực phẩm">Thực phẩm</option>
-            <option value="Nhà cửa">Nhà cửa</option>
-            <option value="Sức khỏe">Sức khỏe</option>
-            <option value="Thể thao">Thể thao</option>
-            <option value="Sách &amp; Văn phòng">Sách &amp; Văn phòng</option>
-            <option value="Khác">Khác</option>
           </select>
         </div>
 
@@ -221,6 +212,7 @@
       </div>
       <div class="chart-box">
         <h3 data-i18n="chart.categories">Danh mục chi tiêu</h3>
+        <p id="categoryProgress" class="category-progress hidden" role="status"></p>
         <canvas id="categoryChart"></canvas>
       </div>
     </div>

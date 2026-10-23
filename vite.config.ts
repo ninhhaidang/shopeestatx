@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { build as esbuild } from 'esbuild';
-import { bridgeBuildOptions } from './bridge-build';
+import { bridgeBuildOptions, categoryFetcherBuildOptions } from './bridge-build';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync } from 'fs';
 
 export default defineConfig({
@@ -42,6 +42,8 @@ export default defineConfig({
 
         // Bridge script (ISOLATED world), built separately as a standalone IIFE
         await esbuild({ ...bridgeBuildOptions, outfile: resolve(distDir, 'bridge.js') });
+        // Category fetcher (MAIN world), same standalone-IIFE treatment
+        await esbuild({ ...categoryFetcherBuildOptions, outfile: resolve(distDir, 'category-fetcher.js') });
 
         // Copy manifest.json
         const manifest = JSON.parse(readFileSync(resolve(__dirname, 'src/manifest.json'), 'utf-8'));

@@ -54,11 +54,11 @@
 - Comment non-obvious logic; skip trivial code
 - Mark API structure differences with inline comments (NEW API / OLD API)
 
-## Injected scripts (bridge.js, content.js)
+## Injected scripts (bridge.js, category-fetcher.js, content.js)
 
 `chrome.scripting.executeScript({ files })` runs a file as a classic script in the tab's shared global. A syntax error there does not throw: `executeScript` returns `result: undefined`, which the dashboard reports as "Không nhận được dữ liệu từ Shopee".
 
-- No `import`/`export`. `bridge.js` is built separately as an IIFE by esbuild (`bridge-build.ts`); `content.js` is copied as-is.
+- No `import`/`export`. `bridge.js` and `category-fetcher.js` are built separately as IIFEs by esbuild (`bridge-build.ts`); `content.js` is copied as-is. A script whose result the dashboard needs ends with an expression that evaluates to a promise (the category fetcher's build footer does this).
 - No top-level `const`/`let`/`class`. A second injection into the same tab redeclares them and fails. Keep every declaration inside the IIFE.
 - `npm run check:injected` (CI, after build) verifies the built files; add any new injected file to an `executeScript` `files` list in `src` and it is covered automatically.
 - Use ES6+ syntax and the same naming conventions as TypeScript code.

@@ -21,6 +21,21 @@ export interface OrderItem {
   unitPrice: number;
 }
 
+/** One tier of Shopee's category tree. */
+export interface CategoryNode {
+  catid: number;
+  name: string;
+}
+
+/** A product's category as Shopee reports it. An empty path means Shopee knows the product but it has none. */
+export interface ItemCategory {
+  path: CategoryNode[];
+  fetchedAt: string;
+}
+
+/** Category of each product ever seen, keyed by item id as a string. */
+export type CategoryMap = Record<string, ItemCategory>;
+
 export interface Order {
   orderId: string;
   name: string;
@@ -67,4 +82,5 @@ export interface AppState {
   shopMetric: ShopMetric;
   currentSort: { field: string | null; direction: SortDirection };
   dateRange: DateRange;
+  categories: CategoryMap;
 }
