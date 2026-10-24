@@ -12,6 +12,12 @@ Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 Single-context: one `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
+For UI reviews and requirements that say “no feature loss”, use `docs/features.md` as the user-visible feature inventory, including intentional redesign removals.
+
 ## Shopee API
 
 What the order-list response contains, and why no new Shopee requests are allowed: `docs/shopee-order-api.md`.
+
+## Verify
+
+`npm run verify` runs the same checks as CI (typecheck, Knip unused-code check, tests with coverage, build, injected-script check). Run it on a clean `npm ci` before reporting work done.

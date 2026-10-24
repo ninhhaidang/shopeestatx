@@ -1,0 +1,68 @@
+/* Design tokens: the single place colours live. Light is :root, Dark is [data-theme='dark'].
+   `data-theme` is always the resolved theme (Auto is resolved in JS, see ui/theme/theme.ts).
+   Contrast of the text/surface pairs is asserted in tests/tokens.test.ts (WCAG 2.2 AA).
+   Shopee orange is an accent, not a surface: decorative fills use --accent; anything that
+   carries text uses --accent-strong / --on-accent, which are tuned to pass AA. */
+
+:root {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --fg: #14171c;
+  --muted: #5b6470;
+  --line: #d6dbe1;
+  --control-line: #778291;
+  --accent: #ee4d2d;
+  --accent-strong: #c2371b;
+  --accent-hover: #a82e15;
+  --on-accent: #ffffff;
+  --good: #13795b;
+  --bad: #b42318;
+  --warn-bg: #fff4e5;
+  --warn-fg: #7a3a00;
+  --warn-line: #f0c28a;
+  --focus: #1d4ed8;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0e1013;
+  --card: #171a1f;
+  --fg: #eef0f3;
+  --muted: #9aa3af;
+  --line: #2b3038;
+  --control-line: #808b98;
+  --accent: #ff6a4d;
+  --accent-strong: #ff7a5c;
+  --accent-hover: #ff8f75;
+  --on-accent: #1a0a05;
+  --good: #4ade9f;
+  --bad: #ff8a7a;
+  --warn-bg: #2b1d0e;
+  --warn-fg: #ffd8a8;
+  --warn-line: #5a3d1a;
+  --focus: #8ab4ff;
+}
+
+/* Expose the tokens as Tailwind utilities (bg-card, text-muted, ...). `inline` keeps the
+   utilities pointing at the CSS variables above so they switch with the theme. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-control-line: var(--control-line);
+  --color-accent: var(--accent);
+  --color-accent-solid: var(--accent-strong);
+  --color-accent-text: var(--accent-strong);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-good: var(--good);
+  --color-bad: var(--bad);
+  --color-warn-bg: var(--warn-bg);
+  --color-warn-fg: var(--warn-fg);
+  --color-warn-line: var(--warn-line);
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+}

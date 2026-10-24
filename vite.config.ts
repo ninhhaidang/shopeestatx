@@ -1,24 +1,35 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import tailwindcss from '@tailwindcss/vite';
 import { build as esbuild } from 'esbuild';
-import { bridgeBuildOptions } from './bridge-build';
+import { bridgeBuildOptions } from './bridge-build.ts';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync } from 'fs';
+
+// ESM config: __dirname does not exist here.
+const projectRoot = import.meta.dirname;
 
 export default defineConfig({
   root: 'src',
   build: {
-    outDir: resolve(__dirname, 'dist'),
+    outDir: resolve(projectRoot, 'dist'),
     emptyOutDir: true,
     rollupOptions: {
+      // Radix ships "use client" directives that mean nothing in an extension bundle.
+      onwarn(warning, warn) {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+        warn(warning);
+      },
       input: {
-        // Dashboard (main results page)
-        results: resolve(__dirname, 'src/dashboard/results.html'),
+        // Dashboard (opened in a tab; see ADR-0002)
+        dashboard: resolve(projectRoot, 'src/dashboard-app/dashboard.html'),
         // Popup
-        popup: resolve(__dirname, 'src/popup/popup.html'),
+        popup: resolve(projectRoot, 'src/popup/popup.html'),
+        // Privacy policy (stays at the dist root: privacy.html)
+        privacy: resolve(projectRoot, 'src/privacy.html'),
         // Welcome/onboarding page
-        welcome: resolve(__dirname, 'src/welcome/welcome.html'),
+        welcome: resolve(projectRoot, 'src/welcome/welcome.html'),
         // Background service worker
-        background: resolve(__dirname, 'src/background.ts'),
+        background: resolve(projectRoot, 'src/background.ts'),
       },
       output: {
         entryFileNames: (chunkInfo) => {
@@ -34,31 +45,42 @@ export default defineConfig({
     minify: false,
   },
   plugins: [
+    tailwindcss(),
     {
-      // Copy static assets (manifest, icons, content.js, privacy.html) to dist after build
+      name: 'dashboard-dev-preview',
+      apply: 'serve',
+      configureServer(server) {
+        server.middlewares.use((request, _response, next) => {
+          const url = new URL(request.url ?? '/', 'http://localhost');
+          if (url.pathname === '/dev-preview' || url.pathname === '/dev-preview/') {
+            request.url = `/dev-preview/index.html${url.search}`;
+          }
+          next();
+        });
+      },
+    },
+    {
+      // Copy static assets (manifest, icons, content.js) to dist after build
       name: 'copy-extension-files',
       async closeBundle() {
-        const distDir = resolve(__dirname, 'dist');
+        const distDir = resolve(projectRoot, 'dist');
 
         // Bridge script (ISOLATED world), built separately as a standalone IIFE
         await esbuild({ ...bridgeBuildOptions, outfile: resolve(distDir, 'bridge.js') });
 
         // Copy manifest.json
-        const manifest = JSON.parse(readFileSync(resolve(__dirname, 'src/manifest.json'), 'utf-8'));
+        const manifest = JSON.parse(readFileSync(resolve(projectRoot, 'src/manifest.json'), 'utf-8'));
         writeFileSync(resolve(distDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
 
         // Copy content.js (IIFE, MAIN world)
-        copyFileSync(resolve(__dirname, 'src/content/content.js'), resolve(distDir, 'content.js'));
-
-        // Copy privacy.html
-        copyFileSync(resolve(__dirname, 'src/privacy.html'), resolve(distDir, 'privacy.html'));
+        copyFileSync(resolve(projectRoot, 'src/content/content.js'), resolve(distDir, 'content.js'));
 
         // Copy icons
         const iconsDir = resolve(distDir, 'icons');
         if (!existsSync(iconsDir)) mkdirSync(iconsDir, { recursive: true });
         for (const size of ['16', '48', '128']) {
           copyFileSync(
-            resolve(__dirname, 'src/icons/icon' + size + '.png'),
+            resolve(projectRoot, 'src/icons/icon' + size + '.png'),
             resolve(iconsDir, 'icon' + size + '.png')
           );
         }

@@ -1,6 +1,7 @@
-// Budget tracking — chrome.storage config, SVG progress ring, threshold alerts
-import { showToast, formatVND, escapeHtml } from './utils.js';
+// Budget tracking: the stored monthly limit and how far this month's spend is along it (pure parts + storage)
 import { STORAGE_KEYS } from '../config.js';
+import type { Order } from '../types/index.js';
+import { monthSpend } from './month.js';
 
 export interface BudgetConfig {
   monthlyLimit: number;   // VND
@@ -9,13 +10,7 @@ export interface BudgetConfig {
 }
 
 const STORAGE_KEY = STORAGE_KEYS.BUDGET;
-const DEFAULT: BudgetConfig = { monthlyLimit: 5_000_000, enabled: false, alertThreshold: 0.8 };
-
-/** Module-level cache — set via setCachedBudgetConfig() at startup */
-let _cached: BudgetConfig = { ...DEFAULT };
-
-export function getCachedBudgetConfig(): BudgetConfig { return _cached; }
-export function setCachedBudgetConfig(cfg: BudgetConfig): void { _cached = cfg; }
+const DEFAULT_BUDGET: BudgetConfig = { monthlyLimit: 5_000_000, enabled: false, alertThreshold: 0.8 };
 
 export async function loadBudgetConfig(): Promise<BudgetConfig> {
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
@@ -24,24 +19,22 @@ export async function loadBudgetConfig(): Promise<BudgetConfig> {
         // Check for storage errors
         if (chrome.runtime.lastError) {
           console.error('Budget storage error:', chrome.runtime.lastError);
-          resolve(DEFAULT);
+          resolve(DEFAULT_BUDGET);
           return;
         }
-        resolve((result[STORAGE_KEY] as BudgetConfig) ?? DEFAULT);
+        resolve((result[STORAGE_KEY] as BudgetConfig) ?? DEFAULT_BUDGET);
       });
     });
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as BudgetConfig) : DEFAULT;
+    return raw ? (JSON.parse(raw) as BudgetConfig) : DEFAULT_BUDGET;
   } catch {
-    return DEFAULT;
+    return DEFAULT_BUDGET;
   }
 }
 
 export async function saveBudgetConfig(config: BudgetConfig): Promise<void> {
-  setCachedBudgetConfig(config);
-  resetBudgetAlert(); // ISSUE-4: re-evaluate alert with new config in same session
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
     return new Promise((resolve, reject) => {
       chrome.storage.local.set({ [STORAGE_KEY]: config }, () => {
@@ -61,46 +54,32 @@ export async function saveBudgetConfig(config: BudgetConfig): Promise<void> {
   }
 }
 
-function buildRingSVG(percent: number, color: string): string {
-  const r = 36, cx = 44, cy = 44, sw = 8;
-  const circumference = 2 * Math.PI * r;
-  const filled = Math.min(percent, 1) * circumference;
-  return `<svg width="88" height="88" viewBox="0 0 88 88">
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border-color)" stroke-width="${sw}"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"
-      stroke-dasharray="${filled} ${circumference}" stroke-linecap="round"
-      transform="rotate(-90 ${cx} ${cy})"/>
-    <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle"
-      style="font-size:13px;font-weight:700;fill:${color}">${Math.round(percent * 100)}%</text>
-  </svg>`;
+/** What the calendar month of `now` has cost so far (cancelled and returned orders excluded). */
+export function currentMonthSpend(orders: Order[], now: Date): number {
+  return monthSpend(orders, now.getMonth() + 1, now.getFullYear());
 }
 
-let _alertFired = false;
-export function resetBudgetAlert(): void { _alertFired = false; }
+export interface BudgetProgress {
+  /** Spent / limit, 1 = on the limit (can exceed 1). */
+  ratio: number;
+  /** `ratio` as a whole percent. */
+  percent: number;
+  /** Colour bands: below 60%, up to the alert threshold, beyond it. */
+  level: 'ok' | 'warn' | 'danger';
+  alert: boolean;
+  /** How far the month-end `prediction` runs over the limit; 0 when it does not or the budget is off. */
+  predictedOver: number;
+}
 
-export function renderBudgetWidget(container: HTMLElement, spent: number, config: BudgetConfig): void {
-  if (!config.enabled) {
-    container.innerHTML = `
-      <div class="budget-disabled">
-        <p>Chưa thiết lập ngân sách</p>
-        <button class="btn-budget-settings">Thiết lập</button>
-      </div>`;
-    return;
-  }
-
-  const percent = config.monthlyLimit > 0 ? spent / config.monthlyLimit : 0;
-  const color = percent < 0.6 ? 'var(--success)' : percent < config.alertThreshold ? 'var(--warning)' : 'var(--danger)';
-
-  container.innerHTML = `
-    <div class="budget-ring-wrap">${buildRingSVG(percent, color)}</div>
-    <div class="budget-info">
-      <div class="budget-spent">${escapeHtml(formatVND(spent))}</div>
-      <div class="budget-limit">/ ${escapeHtml(formatVND(config.monthlyLimit))}</div>
-      <button class="btn-budget-settings">Sửa</button>
-    </div>`;
-
-  if (!_alertFired && percent >= config.alertThreshold) {
-    _alertFired = true;
-    showToast(`Cảnh báo: Đã tiêu ${Math.round(percent * 100)}% ngân sách tháng này!`);
-  }
+export function budgetProgress(spent: number, config: BudgetConfig, prediction = 0): BudgetProgress {
+  const ratio = config.monthlyLimit > 0 ? spent / config.monthlyLimit : 0;
+  const level = ratio >= config.alertThreshold ? 'danger' : ratio < 0.6 ? 'ok' : 'warn';
+  const overLimit = config.enabled && config.monthlyLimit > 0 && prediction > config.monthlyLimit;
+  return {
+    ratio,
+    percent: Math.round(ratio * 100),
+    level,
+    alert: ratio >= config.alertThreshold,
+    predictedOver: overLimit ? prediction - config.monthlyLimit : 0,
+  };
 }
