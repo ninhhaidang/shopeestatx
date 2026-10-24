@@ -4,8 +4,7 @@ import { formatVND } from './utils.js';
 import type { BudgetConfig } from './budget.js';
 import { isExcludedOrder } from './order-status.js';
 
-export function predictMonthEnd(allOrders: Order[]): number {
-  const now = new Date();
+export function predictMonthEnd(allOrders: Order[], now: Date = new Date()): number {
   const dayOfMonth = now.getDate();
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
