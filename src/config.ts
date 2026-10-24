@@ -76,9 +76,6 @@ export const STORAGE_KEYS = {
   BUDGET: getStorageKey('budget'),
 } as const;
 
-// Bump when Order gains fields, so caches written by older versions are refetched once.
-export const SCHEMA_VERSION = 2;
-
 // ============= Event Configuration =============
 
 export const EVENT_PREFIX = 'shopeestatx';
