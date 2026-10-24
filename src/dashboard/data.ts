@@ -34,7 +34,7 @@ export async function fetchDataFromShopee(): Promise<void> {
 
   try {
     const storage = await chrome.storage.local.get([STORAGE_KEYS.TAB_ID]);
-    const tabId = storage[STORAGE_KEYS.TAB_ID];
+    const tabId = storage[STORAGE_KEYS.TAB_ID] as number | undefined;
 
     if (!tabId) {
       throw new Error('Không tìm thấy tab Shopee');
