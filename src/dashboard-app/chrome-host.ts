@@ -22,6 +22,15 @@ async function scanShopee(tabId: number): Promise<OrderData> {
   return result.data;
 }
 
+/** Profile sources use different name fields; compare IDs only when both expose the same kind. */
+function accountsDiffer(cached: OrderData['user'], fresh: OrderData['user']): boolean {
+  if (!cached || !fresh) return false;
+  if (cached.userId != null && fresh.userId != null) return cached.userId !== fresh.userId;
+  if (cached.uid && fresh.uid) return cached.uid !== fresh.uid;
+  if (cached.userId != null || cached.uid || fresh.userId != null || fresh.uid) return false;
+  return Boolean(cached.username && fresh.username && cached.username !== fresh.username);
+}
+
 export const chromeHost: DashboardHost = {
   scanOnOpen: new URLSearchParams(window.location.search).get('fetch') === 'true',
 
@@ -30,7 +39,7 @@ export const chromeHost: DashboardHost = {
     return (stored[STORAGE_KEYS.STATS] as OrderData | undefined) ?? null;
   },
 
-  async refresh(onProgress) {
+  async refresh(onProgress, mode) {
     const stored = await chrome.storage.local.get([STORAGE_KEYS.STATS, STORAGE_KEYS.TAB_ID]);
     const tabId = stored[STORAGE_KEYS.TAB_ID] as number | undefined;
     if (!tabId) throw new Error(t('dash.error.noTab'));
@@ -43,7 +52,9 @@ export const chromeHost: DashboardHost = {
     chrome.runtime.onMessage.addListener(listener);
     try {
       const fresh = await scanShopee(tabId);
-      const merged = mergeOrderData((stored[STORAGE_KEYS.STATS] as OrderData | undefined) ?? null, fresh, new Date());
+      const cached = (stored[STORAGE_KEYS.STATS] as OrderData | undefined) ?? null;
+      const accountChanged = accountsDiffer(cached?.user, fresh.user);
+      const merged = mergeOrderData(mode === 'merge' && !accountChanged ? cached : null, fresh, new Date());
       await chrome.storage.local.set({ [STORAGE_KEYS.STATS]: merged.data });
       return merged;
     } finally {

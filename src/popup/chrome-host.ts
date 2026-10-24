@@ -19,9 +19,14 @@ export const chromeHost: PopupHost = {
 
   async isOnShopee() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    const url = tab?.url ?? '';
-    const domain = getActiveDomainUrl();
-    return url.includes(domain) || url.includes('www.' + domain);
+    try {
+      const url = new URL(tab?.url ?? '');
+      const domain = getActiveDomainUrl();
+      return (url.protocol === 'https:' || url.protocol === 'http:')
+        && (url.hostname === domain || url.hostname.endsWith(`.${domain}`));
+    } catch {
+      return false;
+    }
   },
 
   async startAnalysis() {
