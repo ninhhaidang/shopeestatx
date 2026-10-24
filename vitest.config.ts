@@ -15,9 +15,12 @@ export default defineConfig({
         'src/content/content.js',
         'src/ui/**/*.{ts,tsx}',
         'src/popup/**/*.{ts,tsx}',
+        'src/welcome/**/*.{ts,tsx}',
+        'src/privacy/**/*.{ts,tsx}',
+        'src/dashboard/share-image.ts',
       ],
       // Entry glue that only runs inside Chrome.
-      exclude: ['src/popup/main.tsx', 'src/popup/chrome-host.ts'],
+      exclude: ['src/*/main.tsx', 'src/*/chrome-host.ts'],
     },
   },
 });
