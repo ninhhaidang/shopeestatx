@@ -68,7 +68,7 @@ describe('Tổng quan', () => {
 
     expect(await screen.findByText('Chi tiêu ròng')).toBeInTheDocument();
     expect(hero()).toHaveTextContent(/1\.300\.000/);
-    expect(screen.getByText('↑ 50% so với tháng trước')).toBeInTheDocument();
+    expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 10/2026: 450.000 ₫ · ↑ 50% so với tháng 9/2026');
     expect(tile('Số đơn')).toHaveTextContent('4');
     expect(tile('Trung bình/đơn')).toHaveTextContent('325K');
     expect(tile('Hoàn tiền')).toHaveTextContent('900K');
@@ -135,6 +135,20 @@ describe('khoảng ngày toàn cục', () => {
     expect(hero()).toHaveTextContent(/450\.000/);
     expect(tile('Số đơn')).toHaveTextContent('1');
     expect(tile('Hoàn tiền')).toHaveTextContent('900K');
+  });
+
+  it('says which calendar months the change compares, whatever the range total is', async () => {
+    const { user } = renderDashboard();
+    await screen.findByText('Chi tiêu ròng');
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Năm nay');
+    expect(hero()).toHaveTextContent(/750\.000/);
+    expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 10/2026: 450.000 ₫ · ↑ 50% so với tháng 9/2026');
+
+    // The comparison follows the range's last month: September against August.
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
+    expect(hero()).toHaveTextContent(/300\.000/);
+    expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 9/2026: 300.000 ₫ · Chưa có dữ liệu tháng 8/2026');
   });
 
   it('accepts a custom range', async () => {

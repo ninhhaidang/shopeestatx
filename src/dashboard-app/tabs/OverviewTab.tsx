@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { computeOverview, monthChange } from '../../dashboard/overview.js';
+import { rangeEnd } from '../../dashboard/range.js';
 import { downloadShareImage } from '../../dashboard/share-image.js';
 import { needsRescan } from '../../dashboard/stats.js';
 import { formatCurrency } from '../../i18n/format.js';
@@ -18,10 +19,7 @@ export function OverviewTab() {
   const { data, orders, range, now, resetRange, refresh } = useDashboard();
   const overview = useMemo(() => computeOverview(orders), [orders]);
   // The month-over-month figure looks at the whole history, anchored on the range's last day (never in the future).
-  const change = useMemo(() => {
-    const end = range.end && range.end < now ? range.end : now;
-    return monthChange(data.orders, end);
-  }, [data, range, now]);
+  const change = useMemo(() => monthChange(data.orders, rangeEnd(range, now)), [data, range, now]);
   const series = useMemo(
     () => ({ labels: overview.monthly.map(m => m.label), values: overview.monthly.map(m => m.total) }),
     [overview],
@@ -64,12 +62,17 @@ export function OverviewTab() {
           <p data-testid="net-spend" className="num my-1 text-[clamp(2.125rem,7cqi,3.5rem)] font-semibold leading-tight tracking-tight">
             {money(stats.netSpend)}
           </p>
-          <p className={`text-sm font-semibold ${change.percent === null ? 'text-muted' : up ? 'text-bad' : 'text-good'}`}>
-            {change.percent === null
-              ? t('comparison.noLastMonth')
-              : t(up ? 'comparison.vsLastMonthUp' : 'comparison.vsLastMonthDown', {
-                  change: Math.abs(change.percent).toLocaleString('vi-VN'),
-                })}
+          <p data-testid="month-change" className="text-sm">
+            <span className="text-muted">{t('comparison.month', { month: change.label, amount: money(change.current) })}</span>
+            {' · '}
+            <span className={`font-semibold ${change.percent === null ? 'text-muted' : up ? 'text-bad' : 'text-good'}`}>
+              {change.percent === null
+                ? t('comparison.noLastMonth', { month: change.previousLabel })
+                : t(up ? 'comparison.vsLastMonthUp' : 'comparison.vsLastMonthDown', {
+                    change: Math.abs(change.percent).toLocaleString('vi-VN'),
+                    month: change.previousLabel,
+                  })}
+            </span>
           </p>
         </div>
         <dl className="grid flex-1 grid-cols-2 gap-2.5 @2xl:max-w-xl @2xl:grid-cols-4">
