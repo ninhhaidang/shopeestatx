@@ -9,7 +9,7 @@ import { useDashboard } from '../context';
 import { Budget } from './analysis/Budget';
 import { Heatmap } from './analysis/Heatmap';
 import { Insights } from './analysis/Insights';
-import { card } from './analysis/styles';
+import { card } from '../../ui/styles/classes';
 const money = (n: number) => formatCurrency(n);
 
 function Habits({ stats }: { stats: Stats }) {

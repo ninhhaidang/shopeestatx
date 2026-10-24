@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { generateInsights } from '../../../dashboard/insights.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
-import { card } from './styles';
+import { card } from '../../../ui/styles/classes';
 
 /** Auto-written observations about the whole order history (they compare this month with last month). */
 export function Insights({ orders, now }: { orders: Order[]; now: Date }) {

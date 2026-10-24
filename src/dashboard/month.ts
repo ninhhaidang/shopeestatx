@@ -23,3 +23,13 @@ export function monthSpend(orders: Order[], month: number, year: number): number
     return m && m.month === month && m.year === year && !isExcludedOrder(o) ? sum + o.subTotal : sum;
   }, 0);
 }
+
+/** The years that have a dated order, newest first. */
+export function orderYears(orders: Order[]): number[] {
+  const years = new Set<number>();
+  for (const o of orders) {
+    const m = monthOf(o);
+    if (m) years.add(m.year);
+  }
+  return [...years].sort((a, b) => b - a);
+}
