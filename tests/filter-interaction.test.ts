@@ -1,16 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, expect, it, vi } from 'vitest';
-import type * as CategoryModule from '../src/dashboard/categories';
 import { state } from '../src/dashboard/state';
 import { EVENTS } from '../src/config';
 import type { Order, OrderData } from '../src/types';
 
 vi.mock('../src/dashboard/charts', () => ({ renderCharts: vi.fn() }));
-vi.mock('../src/dashboard/categories', async importOriginal => {
-  const actual = await importOriginal<typeof CategoryModule>();
-  return { ...actual, renderCategoryChart: vi.fn() };
-});
 vi.mock('../src/dashboard/budget', () => ({
   loadBudgetConfig: () => Promise.resolve({}),
   setCachedBudgetConfig: vi.fn(),
