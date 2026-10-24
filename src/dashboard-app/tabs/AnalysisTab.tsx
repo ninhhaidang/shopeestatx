@@ -66,8 +66,8 @@ export function AnalysisTab() {
   if (orders.length === 0) return <NoOrdersInRange />;
 
   return (
-    <div className="grid gap-4 @2xl:grid-cols-2">
-      {stale && <RescanBanner className="@2xl:col-span-2" />}
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 @5xl:grid-cols-2">
+      {stale && <RescanBanner className="@5xl:col-span-2" />}
       <Insights orders={data.orders} now={now} />
       <Budget allOrders={data.orders} now={now} />
       <Habits stats={stats} />

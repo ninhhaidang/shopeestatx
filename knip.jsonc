@@ -4,6 +4,8 @@
   "includeEntryExports": true,
   "entry": [
     "src/dashboard-app/dashboard.html",
+    // Served only by Vite dev; deliberately absent from production Rollup inputs.
+    "src/dev-preview/main.tsx",
     "src/popup/popup.html",
     "src/welcome/welcome.html",
     "src/privacy.html",

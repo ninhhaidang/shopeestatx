@@ -38,7 +38,7 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
   const height = 7 * STEP + TOP;
 
   return (
-    <section aria-labelledby="analysis-heatmap" className={`${card} @2xl:col-span-2`}>
+    <section aria-labelledby="analysis-heatmap" className={`${card} min-w-0 @5xl:col-span-2`}>
       <h2 id="analysis-heatmap" className="text-sm font-semibold">{title}</h2>
       <p className="mb-3 text-xs text-muted">{t('analysis.heatmap.period', { from, to })}</p>
       {/* Wide grids scroll sideways inside the card; focusable so the keyboard can scroll it. */}

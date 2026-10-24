@@ -41,10 +41,10 @@ export function OverviewTab() {
   ];
 
   return (
-    <div className="grid gap-4 @2xl:grid-cols-[2fr_1fr]">
-      {stale && <RescanBanner className="@2xl:col-span-2" />}
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 @5xl:grid-cols-[2fr_1fr]">
+      {stale && <RescanBanner className="@5xl:col-span-2" />}
 
-      <section aria-label={t('stats.netSpend')} className="flex flex-col gap-4 @2xl:col-span-2 @2xl:flex-row @2xl:items-end @2xl:justify-between @2xl:gap-6">
+      <section aria-label={t('stats.netSpend')} className="flex flex-col gap-4 @5xl:col-span-2 @5xl:flex-row @5xl:items-end @5xl:justify-between @5xl:gap-6">
         <div>
           <p className="text-sm font-medium uppercase tracking-wide text-muted">{t('stats.netSpend')}</p>
           <p data-testid="net-spend" className="num my-1 text-[clamp(2.125rem,7cqi,3.5rem)] font-semibold leading-tight tracking-tight">
@@ -55,12 +55,14 @@ export function OverviewTab() {
             <ChangeLine unit="year" change={yearDiff} testId="year-change" />
           </div>
         </div>
-        <dl className="grid flex-1 grid-cols-2 gap-2.5 @2xl:max-w-xl @2xl:grid-cols-4">
+        <dl className="grid flex-1 grid-cols-2 gap-2.5 @5xl:max-w-xl @5xl:grid-cols-4">
           {tiles.map(item => (
             <div key={item.label} className="rounded-xl border border-line bg-card px-3.5 py-3">
               <dt className="text-xs text-muted">{item.label}</dt>
-              <dd className="num text-xl font-semibold">{item.value}</dd>
-              {item.note && <p className="text-xs text-muted">{item.note}</p>}
+              <dd className="num text-xl font-semibold">
+                {item.value}
+                {item.note && <span className="mt-0.5 block text-xs font-normal text-muted">{item.note}</span>}
+              </dd>
             </div>
           ))}
         </dl>
@@ -98,7 +100,7 @@ export function OverviewTab() {
         </ol>
       </section>
 
-      <div className="@2xl:col-span-2">
+      <div className="@5xl:col-span-2">
         <Button variant="outline" onClick={() => downloadShareImage(stats)}>{t('stats.share')}</Button>
       </div>
     </div>

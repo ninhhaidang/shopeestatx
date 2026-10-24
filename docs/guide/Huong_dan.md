@@ -4,7 +4,7 @@ Dashboard có ba màn hình ở thanh điều hướng phía trên: **Tổng qua
 
 ## 🚀 Bắt đầu
 
-1. Đăng nhập [shopee.vn](https://shopee.vn) (hoặc tên miền Shopee khác được hỗ trợ).
+1. Đăng nhập [shopee.vn](https://shopee.vn); các tên miền Shopee khác hiện chưa được cấu hình để lấy đơn.
 2. Bấm biểu tượng ShopeeStatX trên thanh công cụ Chrome, rồi **Bắt đầu phân tích**.
 3. Dashboard mở ở tab mới, hiện tiến độ số đơn đã tải. Dữ liệu được lưu cục bộ trong trình duyệt.
 

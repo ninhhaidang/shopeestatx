@@ -4,7 +4,7 @@ The dashboard has three screens in the top navigation: **Overview** (Tổng quan
 
 ## Getting started
 
-1. Log in to [shopee.vn](https://shopee.vn) (or another supported Shopee domain).
+1. Log in to [shopee.vn](https://shopee.vn); other Shopee domains are not currently configured for order retrieval.
 2. Click the ShopeeStatX icon in the Chrome toolbar, then **Start analysis**.
 3. The dashboard opens in a new tab and shows how many orders have been loaded. Data is cached locally in your browser.
 

@@ -42,6 +42,8 @@ const PAIRS: Array<[string, string, number]> = [
   ['accent', 'card', 3],
   ['focus', 'bg', 3],
   ['focus', 'card', 3],
+  ['control-line', 'bg', 3],
+  ['control-line', 'card', 3],
 ];
 
 describe('design tokens', () => {

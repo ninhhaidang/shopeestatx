@@ -1,0 +1,11 @@
+/* Keep the narrow container exactly 400px, regardless of the browser window width. */
+#root {
+  width: 400px;
+  margin-inline: auto;
+  outline: 1px solid var(--line);
+}
+
+[data-preview-width='tab'] #root {
+  width: 100%;
+  outline: none;
+}

@@ -47,6 +47,19 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     {
+      name: 'dashboard-dev-preview',
+      apply: 'serve',
+      configureServer(server) {
+        server.middlewares.use((request, _response, next) => {
+          const url = new URL(request.url ?? '/', 'http://localhost');
+          if (url.pathname === '/dev-preview' || url.pathname === '/dev-preview/') {
+            request.url = `/dev-preview/index.html${url.search}`;
+          }
+          next();
+        });
+      },
+    },
+    {
       // Copy static assets (manifest, icons, content.js) to dist after build
       name: 'copy-extension-files',
       async closeBundle() {
