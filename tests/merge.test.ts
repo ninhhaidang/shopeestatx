@@ -17,6 +17,13 @@ describe('mergeOrderData', () => {
     expect(data.orders.map(o => o.orderId)).toEqual(['A', 'NEW', 'OLD']);
     expect(added).toBe(1);
   });
+  it('preserves cached user profile when fresh scan has no user', () => {
+    const cached = { ...makeData([kept]), user: { name: 'cached_user', avatar: 'https://avatar' } };
+    const freshWithoutUser: OrderData = { ...makeData([fresh]), user: undefined };
+    const { data } = mergeOrderData(cached, freshWithoutUser, NOW);
+
+    expect(data.user).toEqual({ name: 'cached_user', avatar: 'https://avatar' });
+  });
 
   it('recomputes totals without cancelled or returned orders and stamps the cache time', () => {
     const { data } = mergeOrderData(null, makeData([kept, cancelled]), NOW);

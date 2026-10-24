@@ -73,7 +73,7 @@ export interface BudgetProgress {
 
 export function budgetProgress(spent: number, config: BudgetConfig, prediction = 0): BudgetProgress {
   const ratio = config.monthlyLimit > 0 ? spent / config.monthlyLimit : 0;
-  const level = ratio < 0.6 ? 'ok' : ratio < config.alertThreshold ? 'warn' : 'danger';
+  const level = ratio >= config.alertThreshold ? 'danger' : ratio < 0.6 ? 'ok' : 'warn';
   const overLimit = config.enabled && config.monthlyLimit > 0 && prediction > config.monthlyLimit;
   return {
     ratio,

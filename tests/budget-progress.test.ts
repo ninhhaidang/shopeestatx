@@ -9,6 +9,10 @@ describe('budgetProgress', () => {
     expect(budgetProgress(700_000, config)).toMatchObject({ percent: 70, level: 'warn', alert: false });
     expect(budgetProgress(860_000, config)).toMatchObject({ percent: 86, level: 'danger', alert: true });
   });
+  it('marks level danger when ratio crosses alert threshold even if threshold is low', () => {
+    const lowThresholdConfig: BudgetConfig = { monthlyLimit: 1_000_000, enabled: true, alertThreshold: 0.5 };
+    expect(budgetProgress(550_000, lowThresholdConfig)).toMatchObject({ level: 'danger', alert: true });
+  });
 
   it('can exceed 100%', () => {
     expect(budgetProgress(1_250_000, config)).toMatchObject({ percent: 125, alert: true });
