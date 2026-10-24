@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   try {
     const result = await chrome.storage.local.get(STORAGE_KEYS.STATS);
-    const statsData = result[STORAGE_KEYS.STATS];
+    const statsData = result[STORAGE_KEYS.STATS] as
+      | { user?: { avatar?: string; name?: string; username?: string } }
+      | undefined;
 
     if (statsData?.user && userAvatarEl && userNameEl) {
       const { user } = statsData;
