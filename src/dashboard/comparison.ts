@@ -3,6 +3,10 @@ import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { formatVND } from './utils.js';
 import { t } from '../i18n/index.js';
+import { computeStats, needsRescan } from './stats.js';
+import { renderStatsPanel } from './stats-panel.js';
+import { downloadShareImage } from './share-image.js';
+import { refreshData } from './data.js';
 
 export function renderData(orders: Order[]): void {
   let totalProducts = 0;
@@ -20,6 +24,16 @@ export function renderData(orders: Order[]): void {
   document.getElementById('totalAmount')!.textContent = formatVND(totalAmount);
 
   renderTimeComparison(state.allOrdersData!.orders);
+  renderStats(orders);
+}
+
+function renderStats(orders: Order[]): void {
+  const container = document.getElementById('statsContainer');
+  if (!container) return;
+  const stats = computeStats(orders);
+  renderStatsPanel(container, stats, needsRescan(state.allOrdersData!.orders));
+  document.getElementById('btnStatsRescan')?.addEventListener('click', refreshData);
+  document.getElementById('btnShareImage')?.addEventListener('click', () => downloadShareImage(stats));
 }
 
 export function renderTimeComparison(allOrders: Order[]): void {
