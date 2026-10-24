@@ -83,12 +83,6 @@ User clicks "Bat dau phan tich"
       → cache to chrome.storage.local {shopeeStats: {..., cachedAt}}
       → state.allOrdersData = data
       → initializeUI() → applyFilters() → renderCharts() + renderCurrentPage()
-      → fetch-categories.ts: for each product (item id) with no stored category, 10 at a time:
-          executeScript(func setting window.shopeeStatXCategoryRequest, MAIN)
-          → executeScript(category-fetcher.js, MAIN)   (built by esbuild like bridge.js; one request at a time,
-            GET /api/v4/pdp/get_pc?item_id&shop_id, same pacing/retry as content.js)
-          → category tree per product saved to chrome.storage.local {shopeestatx-categories} after every batch
-          → state.categories updated → applyFilters() redraws the category chart/filter
 ```
 
 ## State Management

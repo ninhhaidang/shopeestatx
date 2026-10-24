@@ -10,10 +10,6 @@ All notable changes to ShopeeStatX are documented here.
 - Orders store item variation, per-item price and quantity, shop id and parcel count; CSV and Excel exports gain Variation, Shop ID and Parcels columns. Caches from older versions are rebuilt once automatically.
 - A "Tải lại toàn bộ" button next to refresh, and a progress count ("Đã tải N đơn hàng...") on every fetch path.
 
-### Changed
-
-- Spending by category now uses each product's real Shopee category (root tier) instead of a keyword dictionary, and an order's money is split across its items. Categories are read in the background after the orders are shown, once per product, and kept; products not yet read appear under "Chưa phân loại". The category filter lists the categories found in your orders (#24).
-
 ### Fixed
 
 - The final Shopee page (no order list, `next_offset: -1`) no longer fails the load with "Invalid order response from Shopee".

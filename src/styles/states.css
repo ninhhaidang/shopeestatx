@@ -186,9 +186,3 @@ select:focus-visible,
   font-size: 0.875rem;
   color: var(--text-secondary, #888);
 }
-
-.category-progress {
-  margin: 4px 0 8px;
-  font-size: 0.8125rem;
-  color: var(--text-secondary, #888);
-}

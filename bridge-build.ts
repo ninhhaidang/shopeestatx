@@ -9,14 +9,3 @@ export const bridgeBuildOptions: BuildOptions = {
   format: 'iife',
   target: 'es2020',
 };
-
-// The category fetcher is also injected as a classic script. Its result must be the script's last
-// expression (a promise executeScript awaits), so the bundle's global is called once at the end.
-export const categoryFetcherBuildOptions: BuildOptions = {
-  entryPoints: [resolve(__dirname, 'src/content/category-fetcher.ts')],
-  bundle: true,
-  format: 'iife',
-  target: 'es2020',
-  globalName: 'shopeeStatXCategoryFetcher',
-  footer: { js: 'shopeeStatXCategoryFetcher.run(window.shopeeStatXCategoryRequest);' },
-};
