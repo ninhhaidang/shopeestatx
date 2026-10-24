@@ -1,5 +1,4 @@
 // Excel, CSV, and PDF export functions
-import { state } from './state.js';
 import { t } from '../i18n/index.js';
 import type { Order } from '../types/index.js';
 
@@ -23,11 +22,7 @@ function csvCell(value: string | number): string {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-/** Orders the legacy screen currently shows; the React screens pass their own list instead. */
-const legacySelection = (): Order[] => (state.allOrdersData ? state.filteredOrders : []);
-
-export function exportToExcel(filtered: Order[] = legacySelection()): void {
-
+export function exportToExcel(filtered: Order[]): void {
   if (filtered.length === 0) {
     alert(t('export.noData') || 'No data to export');
     return;
@@ -84,7 +79,7 @@ export function exportToExcel(filtered: Order[] = legacySelection()): void {
     });
 }
 
-export function exportToCSV(filtered: Order[] = legacySelection()): void {
+export function exportToCSV(filtered: Order[]): void {
   const BOM = '\uFEFF'; // UTF-8 BOM for Excel compatibility
   const headers = [
     t('export.col.index'),

@@ -1,4 +1,5 @@
 // Merge a fresh Shopee scan into the cached orders (pure)
+import { formatCurrency } from '../i18n/format.js';
 import type { OrderData } from '../types/index.js';
 import { isExcludedOrder } from './order-status.js';
 
@@ -24,7 +25,7 @@ export function mergeOrderData(
       orders,
       totalCount: orders.reduce((s, o) => s + o.productCount, 0),
       totalAmount,
-      totalAmountFormatted: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount),
+      totalAmountFormatted: formatCurrency(totalAmount),
       cachedAt: now.toISOString(),
     },
   };

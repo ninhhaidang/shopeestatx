@@ -1,6 +1,6 @@
 // Builds a shareable PNG from aggregate stats only (no shop names, order ids or product names)
 import type { Stats } from './stats.js';
-import { formatVND } from './utils.js';
+import { formatCurrency } from '../i18n/format.js';
 import { t } from '../i18n/index.js';
 
 const W = 720;
@@ -65,12 +65,12 @@ export function drawShareImage(canvas: HTMLCanvasElement, stats: Stats): void {
   ctx.fillText(t('stats.netSpend'), left, 150);
   ctx.fillStyle = COLOR.fg;
   ctx.font = `700 64px ${SANS}`;
-  ctx.fillText(formatVND(stats.netSpend), left, 220, inner);
+  ctx.fillText(formatCurrency(stats.netSpend), left, 220, inner);
 
   // Four headline figures as a 2x2 grid of tiles.
   const tiles: [string, string][] = [
-    [t('stats.savings'), formatVND(stats.estimatedSavings)],
-    [t('stats.refund'), formatVND(stats.refundTotal)],
+    [t('stats.savings'), formatCurrency(stats.estimatedSavings)],
+    [t('stats.refund'), formatCurrency(stats.refundTotal)],
     [t('stats.weekday'), stats.busiestWeekday === null ? t('stats.none') : t(`stats.weekday.${stats.busiestWeekday}`)],
     [t('stats.streak'), stats.longestMonthStreak ? t('stats.streak.unit', { n: stats.longestMonthStreak }) : t('stats.none')],
   ];
