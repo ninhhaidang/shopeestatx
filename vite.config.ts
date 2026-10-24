@@ -21,6 +21,8 @@ export default defineConfig({
         results: resolve(__dirname, 'src/dashboard/results.html'),
         // Popup
         popup: resolve(__dirname, 'src/popup/popup.html'),
+        // Privacy policy (stays at the dist root: privacy.html)
+        privacy: resolve(__dirname, 'src/privacy.html'),
         // Welcome/onboarding page
         welcome: resolve(__dirname, 'src/welcome/welcome.html'),
         // Background service worker
@@ -42,7 +44,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     {
-      // Copy static assets (manifest, icons, content.js, privacy.html) to dist after build
+      // Copy static assets (manifest, icons, content.js) to dist after build
       name: 'copy-extension-files',
       async closeBundle() {
         const distDir = resolve(__dirname, 'dist');
@@ -56,9 +58,6 @@ export default defineConfig({
 
         // Copy content.js (IIFE, MAIN world)
         copyFileSync(resolve(__dirname, 'src/content/content.js'), resolve(distDir, 'content.js'));
-
-        // Copy privacy.html
-        copyFileSync(resolve(__dirname, 'src/privacy.html'), resolve(distDir, 'privacy.html'));
 
         // Copy icons
         const iconsDir = resolve(distDir, 'icons');
