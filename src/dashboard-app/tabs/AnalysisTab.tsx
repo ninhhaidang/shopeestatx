@@ -21,10 +21,10 @@ function Habits({ stats }: { stats: Stats }) {
     { label: t('stats.rate'), value: stats.dailySpendRate ? t('stats.rate.unit', { amount: money(stats.dailySpendRate) }) : none },
   ];
   return (
-    <section aria-labelledby="analysis-habits" className={card}>
+    <section aria-labelledby="analysis-habits" className={`${card} min-w-0 @5xl:col-span-2`}>
       <h2 id="analysis-habits" className="text-sm font-semibold">{t('analysis.habits')}</h2>
       <p className="mb-3 text-xs text-muted">{t('stats.date.hint')}</p>
-      <dl className="grid grid-cols-2 gap-2.5">
+      <dl className="grid grid-cols-2 gap-2.5 @5xl:grid-cols-1">
         {tiles.map(item => (
           <div key={item.label} className="rounded-xl border border-line px-3.5 py-3">
             <dt className="text-xs text-muted">{item.label}</dt>
@@ -38,7 +38,7 @@ function Habits({ stats }: { stats: Stats }) {
 
 function ProductList({ title, rows }: { title: string; rows: { name: string; value: string }[] }) {
   return (
-    <section aria-label={title} className={card}>
+    <section aria-label={title} className={`${card} min-w-0 @5xl:col-span-2`}>
       <h2 className="mb-3 text-sm font-semibold">{title}</h2>
       {rows.length === 0 ? (
         <p className="text-sm text-muted">{t('analysis.noProducts')}</p>
@@ -66,22 +66,20 @@ export function AnalysisTab() {
   if (orders.length === 0) return <NoOrdersInRange />;
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 @5xl:grid-cols-2">
-      {stale && <RescanBanner className="@5xl:col-span-2" />}
-      <Insights orders={data.orders} now={now} />
-      <Budget allOrders={data.orders} now={now} />
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 @5xl:grid-cols-6">
+      {stale && <RescanBanner className="@5xl:col-span-6" />}
+      <div className="min-w-0 @5xl:col-span-3"><Insights orders={data.orders} now={now} /></div>
+      <div className="min-w-0 @5xl:col-span-3"><Budget allOrders={data.orders} now={now} /></div>
       <Habits stats={stats} />
+      <ProductList
+        title={t('stats.topQuantity')}
+        rows={stale ? [] : stats.topByQuantity.map(p => ({ name: p.name, value: t('stats.quantity.unit', { n: p.quantity }) }))}
+      />
+      <ProductList
+        title={t('stats.priciest')}
+        rows={stale ? [] : stats.priciest.map(p => ({ name: p.name, value: money(p.unitPrice) }))}
+      />
       <Heatmap orders={data.orders} range={range} now={now} />
-      <div className="grid content-start gap-4">
-        <ProductList
-          title={t('stats.topQuantity')}
-          rows={stale ? [] : stats.topByQuantity.map(p => ({ name: p.name, value: t('stats.quantity.unit', { n: p.quantity }) }))}
-        />
-        <ProductList
-          title={t('stats.priciest')}
-          rows={stale ? [] : stats.priciest.map(p => ({ name: p.name, value: money(p.unitPrice) }))}
-        />
-      </div>
       <Loyalty orders={data.orders} />
     </div>
   );

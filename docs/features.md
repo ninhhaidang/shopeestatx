@@ -13,6 +13,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Dashboard và khoảng thời gian
 
 - Dashboard chia thành ba màn hình Tổng quan, Phân tích và Đơn hàng, với thanh điều hướng và công cụ luôn nằm ngoài vùng nội dung cuộn.
+- Ở khổ trung gian, bộ lọc thời gian và nút làm mới có hàng riêng để không che các tab điều hướng; chỉ ghép lên một hàng khi có đủ chiều rộng.
 - Thanh đầu hiển thị thông tin tài khoản khi có dữ liệu và thời điểm cập nhật gần nhất.
 - Bộ chọn khoảng thời gian có Tất cả, 7 ngày gần nhất, tháng này, tháng trước, 3 tháng gần nhất, năm nay, theo năm, theo tháng và khoảng ngày tùy chọn.
 - Khoảng thời gian lọc đơn hàng theo ngày giao và được giữ khi chuyển giữa ba màn hình.
@@ -42,6 +43,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Phân tích
 
 - Phân tích hiển thị thứ trong tuần và khung giờ có nhiều đơn hàng nhất, chuỗi tháng liên tiếp có đơn hàng dài nhất và Chi tiêu ròng trung bình mỗi ngày trong khoảng đang chọn.
+- Ở khổ rộng, nhận xét và ngân sách chia một hàng; thói quen mua sắm và hai danh sách sản phẩm chia đều hàng tiếp theo, còn biểu đồ nhiệt và shop thân thiết dùng toàn chiều rộng. Khổ hẹp xếp các khối theo một cột.
 - Các thói quen theo ngày và giờ dựa trên ngày giao ghi trong lịch sử, không phải thời điểm đặt đơn hàng.
 - Phân tích xếp hạng sản phẩm mua nhiều theo số lượng và sản phẩm đắt nhất theo đơn giá trong khoảng đang chọn.
 - Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
@@ -54,6 +56,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Đơn hàng
 
 - Danh sách đơn hàng hiển thị mã đơn hàng, ngày giao, trạng thái, sản phẩm, số lượng sản phẩm và số tiền của từng đơn hàng trong khoảng đang chọn.
+- Bảng khổ rộng giữ chiều rộng cho mã đơn, ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm cùng dòng với mã đơn và nhãn «Đơn bị loại» không bị bẻ đôi.
 - Ô tìm kiếm lọc ngay theo mã đơn hàng, tên sản phẩm, tên shop, mô tả sản phẩm hoặc trạng thái và không phân biệt chữ hoa với chữ thường.
 - Bộ lọc trạng thái hỗ trợ tất cả, hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán và trả hàng.
 - Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn.
