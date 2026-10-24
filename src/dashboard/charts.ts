@@ -7,6 +7,7 @@ import { applyFilters, filterOrders } from './filters.js';
 import { getCurrentTheme } from './theme-toggle.js';
 import { Chart, registerables } from 'chart.js';
 import { EVENTS } from '../config.js';
+import { isExcludedOrder } from './order-status.js';
 
 Chart.register(...registerables);
 
@@ -56,7 +57,7 @@ export function renderCharts(orders: Order[]): void {
     : orders;
 
   chartOrders.forEach(order => {
-    if (order.statusCode === 4 || order.statusCode === 12) return;
+    if (isExcludedOrder(order)) return;
 
     let key: string;
     if (hasMonthFilter && order.deliveryDate) {
@@ -171,7 +172,7 @@ export function renderCharts(orders: Order[]): void {
   // Top shops doughnut chart
   const shopData: Record<string, { amount: number; orders: number; products: number }> = {};
   orders.forEach(order => {
-    if (order.statusCode === 4 || order.statusCode === 12) return;
+    if (isExcludedOrder(order)) return;
     const shop = order.shopName.split(' - ')[1] || order.shopName;
 
     if (!shopData[shop]) {
