@@ -5,11 +5,12 @@ import { NoOrdersInRange } from '../components/NoOrdersInRange';
 import { RescanBanner } from '../components/RescanBanner';
 import { useDashboard } from '../context';
 import { money } from '../format';
+import { card } from '../../ui/styles/classes';
 
 import { Budget } from './analysis/Budget';
 import { Heatmap } from './analysis/Heatmap';
 import { Insights } from './analysis/Insights';
-import { card } from '../../ui/styles/classes';
+import { Loyalty } from './analysis/Loyalty';
 
 function Habits({ stats }: { stats: Stats }) {
   const none = t('stats.none');
@@ -81,6 +82,7 @@ export function AnalysisTab() {
           rows={stale ? [] : stats.priciest.map(p => ({ name: p.name, value: money(p.unitPrice) }))}
         />
       </div>
+      <Loyalty orders={data.orders} />
     </div>
   );
 }

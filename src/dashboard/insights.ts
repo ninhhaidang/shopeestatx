@@ -2,6 +2,7 @@
 import type { Order } from '../types/index.js';
 import { formatVND, escapeHtml } from './utils.js';
 import { t } from '../i18n/index.js';
+import { shopDisplayName } from './shop.js';
 import { monthOf } from './month.js';
 import { isExcludedOrder } from './order-status.js';
 
@@ -39,7 +40,7 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
   // Top shop by order count
   const shopCount: Record<string, number> = {};
   completedAll.forEach(o => {
-    const shop = o.shopName.split(' - ')[1] || o.shopName;
+    const shop = shopDisplayName(o.shopName);
     shopCount[shop] = (shopCount[shop] || 0) + 1;
   });
   const topShop = Object.entries(shopCount).sort((a, b) => b[1] - a[1])[0];
