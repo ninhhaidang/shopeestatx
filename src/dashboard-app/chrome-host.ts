@@ -1,4 +1,5 @@
 import { MESSAGE_SOURCE, STORAGE_KEYS } from '../config.js';
+import { t } from '../i18n/index.js';
 import { mergeOrderData } from '../dashboard/merge.js';
 import type { OrderData } from '../types/index.js';
 import type { DashboardHost } from './host';
@@ -16,8 +17,8 @@ async function scanShopee(tabId: number): Promise<OrderData> {
     world: 'MAIN' as chrome.scripting.ExecutionWorld,
   });
   const result = results[0]?.result as { success: boolean; data?: OrderData; error?: string } | undefined;
-  if (!result) throw new Error('Không nhận được dữ liệu từ Shopee');
-  if (!result.success || !result.data) throw new Error(result.error || 'Có lỗi xảy ra khi lấy dữ liệu');
+  if (!result) throw new Error(t('dash.error.noResponse'));
+  if (!result.success || !result.data) throw new Error(result.error || t('dash.error.generic'));
   return result.data;
 }
 
@@ -32,7 +33,7 @@ export const chromeHost: DashboardHost = {
   async refresh(onProgress) {
     const stored = await chrome.storage.local.get([STORAGE_KEYS.STATS, STORAGE_KEYS.TAB_ID]);
     const tabId = stored[STORAGE_KEYS.TAB_ID] as number | undefined;
-    if (!tabId) throw new Error('Không tìm thấy tab Shopee. Vui lòng mở Shopee và thử lại.');
+    if (!tabId) throw new Error(t('dash.error.noTab'));
 
     const listener = (message: { source?: string; type?: string; count?: number }) => {
       if (message.source === MESSAGE_SOURCE && message.type === 'progress' && typeof message.count === 'number') {

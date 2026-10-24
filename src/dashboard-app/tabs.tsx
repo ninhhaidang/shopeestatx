@@ -12,7 +12,7 @@ export interface TabDef {
   Component: ComponentType;
 }
 
-/** The dashboard screens, in tab order. #34 and #35 swap the placeholders for the real screens. */
+/** The dashboard screens, in tab order. */
 export const TABS: TabDef[] = [
   { id: 'overview', label: 'dash.tab.overview', Component: OverviewTab },
   {
