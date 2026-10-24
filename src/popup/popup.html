@@ -5,54 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ShopeeStatX</title>
-  <link rel="stylesheet" href="popup.css">
+  <script src="/theme-init.js"></script>
 </head>
 
-<body>
-  <div class="popup-container">
-    <header class="popup-header">
-      <h1 class="popup-title" data-i18n="app.title">ShopeeStatX</h1>
-      <div class="version-badge">v3.1</div>
-    </header>
-
-    <main class="popup-body">
-      <div id="userGreeting" class="user-greeting hidden">
-        <img id="userAvatar" class="user-avatar-large" src="" alt="">
-        <div class="user-greeting-text">
-          <span class="user-greeting-hello" data-i18n="popup.hello">Xin chào</span>
-          <span id="userName" class="user-greeting-name"></span>
-        </div>
-      </div>
-
-      <div id="featureCard" class="feature-card">
-        <h2 class="feature-title" data-i18n="popup.featureTitle">Phân tích chi tiêu thông minh</h2>
-        <p class="feature-description" data-i18n="popup.featureDesc">Xem chi tiết lịch sử mua hàng, xu hướng chi tiêu và thống kê từng shop</p>
-      </div>
-
-      <button id="btnStart" class="btn-primary" type="button" data-i18n="popup.btnStart">
-        Bắt đầu phân tích
-      </button>
-
-      <p id="warning" class="warning-message hidden" role="status">
-        <a id="shopee-purchase-link" href="#" target="_blank" rel="noopener noreferrer" data-i18n="popup.warning">Vui lòng mở Shopee và đăng nhập trước.</a>
-      </p>
-      <p id="redirecting" class="redirecting-message hidden" role="status">
-        Vui lòng <a id="shopee-login-link" href="#">truy cập Shopee và đăng nhập</a> để sử dụng.
-      </p>
-    </main>
-
-    <footer class="popup-footer">
-      <nav class="footer-links">
-        <a href="https://www.buymeacoffee.com/ninhhaidang" target="_blank" rel="noopener noreferrer" class="footer-link" title="Support">Ủng hộ</a>
-        <a href="https://github.com/ninhhaidang/shopee-orders-statics" target="_blank" rel="noopener noreferrer" class="footer-link" title="Star on GitHub">GitHub</a>
-        <a href="https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim" target="_blank" rel="noopener noreferrer" class="footer-link" title="Rate on Chrome Store">Đánh giá</a>
-        <a id="btnHelp" href="#" class="footer-link" data-i18n="popup.help">Hướng dẫn</a>
-        <a id="btnPrivacy" href="#" class="footer-link" data-i18n="popup.privacy">Bảo mật</a>
-      </nav>
-    </footer>
-  </div>
-
-  <script type="module" src="./popup.ts"></script>
+<body class="w-[min(380px,100vw)] min-w-80">
+  <div id="root"></div>
+  <script type="module" src="./main.tsx"></script>
 </body>
 
 </html>

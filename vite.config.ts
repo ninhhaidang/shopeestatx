@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import tailwindcss from '@tailwindcss/vite';
 import { build as esbuild } from 'esbuild';
 import { bridgeBuildOptions } from './bridge-build';
 import { readFileSync, writeFileSync, copyFileSync, mkdirSync, existsSync } from 'fs';
@@ -10,6 +11,11 @@ export default defineConfig({
     outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,
     rollupOptions: {
+      // Radix ships "use client" directives that mean nothing in an extension bundle.
+      onwarn(warning, warn) {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+        warn(warning);
+      },
       input: {
         // Dashboard (main results page)
         results: resolve(__dirname, 'src/dashboard/results.html'),
@@ -34,6 +40,7 @@ export default defineConfig({
     minify: false,
   },
   plugins: [
+    tailwindcss(),
     {
       // Copy static assets (manifest, icons, content.js, privacy.html) to dist after build
       name: 'copy-extension-files',
