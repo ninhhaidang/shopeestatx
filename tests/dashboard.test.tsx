@@ -1,7 +1,9 @@
-import { act, screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Dashboard } from '../src/dashboard-app/Dashboard';
 import type { DashboardHost } from '../src/dashboard-app/host';
+import { chromeHost } from '../src/dashboard-app/chrome-host';
+import { STORAGE_KEYS } from '../src/config';
 import type { OrderData } from '../src/types';
 import { mockColorScheme } from './support/match-media';
 import { makeData, makeOrder } from './support/orders';
@@ -314,6 +316,52 @@ describe('tải dữ liệu', () => {
     expect(await screen.findByText('Chi tiêu ròng')).toBeInTheDocument();
     expect(host.refresh).toHaveBeenCalledOnce();
     expect(host.loadCached).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { scanOnOpen: true, hasOrders: false },
+    { scanOnOpen: true, hasOrders: true },
+    { scanOnOpen: false, hasOrders: true },
+  ])('isolates accounts on scan (initial: $scanOnOpen, has orders: $hasOrders)', async ({ scanOnOpen, hasOrders }) => {
+    const previous = makeData([makeOrder('2026-09-01T10:00:00', { orderId: 'A_ONLY', subTotal: 450_000 })], {
+      user: { username: 'account_A', avatar: '' },
+    });
+    const fresh = makeData(hasOrders ? [makeOrder('2026-10-01T10:00:00', { orderId: 'B_ONLY', subTotal: 150_000 })] : [], {
+      user: { username: 'account_B', avatar: '' },
+    });
+    let stored = previous;
+    vi.stubGlobal('chrome', {
+      storage: { local: {
+        get: async () => ({ [STORAGE_KEYS.STATS]: stored, [STORAGE_KEYS.TAB_ID]: 123 }),
+        set: async (value: Record<string, OrderData>) => { stored = value[STORAGE_KEYS.STATS]; },
+      } },
+      runtime: { onMessage: { addListener: vi.fn(), removeListener: vi.fn() } },
+      scripting: { executeScript: async ({ files }: { files: string[] }) => files[0] === 'bridge.js' ? [] : [{ result: { success: true, data: fresh } }] },
+    });
+    try {
+      const { user } = renderDashboard({ ...chromeHost, scanOnOpen });
+      if (!scanOnOpen) {
+        expect(await screen.findByTestId('net-spend')).toHaveTextContent(/450\.000/);
+        await user.click(screen.getByRole('button', { name: 'Làm mới' }));
+      }
+      if (hasOrders) {
+        await waitFor(() => expect(hero()).toHaveTextContent(/150\.000/));
+      } else {
+        expect(await screen.findByText('Chưa có đơn hàng nào')).toBeInTheDocument();
+      }
+      expect(stored.orders.map(o => o.orderId)).toEqual(hasOrders ? ['B_ONLY'] : []);
+      expect(stored.user?.username).toBe('account_B');
+
+      if (hasOrders) {
+        fresh.orders = [];
+        await user.click(screen.getByRole('button', { name: 'Làm mới' }));
+        await screen.findByText('Không có đơn hàng mới');
+        expect(hero()).toHaveTextContent(/150\.000/);
+        expect(stored.orders.map(o => o.orderId)).toEqual(['B_ONLY']);
+      }
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('explains when there are no orders yet and can fetch them', async () => {

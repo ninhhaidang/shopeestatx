@@ -54,7 +54,7 @@ export function useOrderData(host: DashboardHost): OrderDataState & { refresh: (
       const { data, added } = await host.refresh(count => {
         setState(s => ({ ...s, progress: count, stalled: false }));
         armStall();
-      });
+      }, background ? 'merge' : 'replace');
       dataRef.current = data;
       setState(s => ({
         ...s,
