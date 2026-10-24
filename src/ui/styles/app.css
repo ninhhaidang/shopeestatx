@@ -22,6 +22,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Printing a screen that provides its own print sheet (Đơn hàng → In / PDF): print only that sheet. */
+@media print {
+  body:has(#orders-print) > #root {
+    display: none;
+  }
+}
+
 /* Honour the OS "reduce motion" setting (WCAG 2.3.3). */
 @media (prefers-reduced-motion: reduce) {
   *,
