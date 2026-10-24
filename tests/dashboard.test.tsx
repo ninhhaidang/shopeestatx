@@ -162,7 +162,7 @@ describe('khoảng ngày toàn cục', () => {
 });
 
 describe('tab', () => {
-  it('starts on Tổng quan and switches to the empty Phân tích and Đơn hàng screens', async () => {
+  it('starts on Tổng quan and switches to the Phân tích and Đơn hàng screens', async () => {
     const { user } = renderDashboard();
     await screen.findByText('Chi tiêu ròng');
 
@@ -174,7 +174,7 @@ describe('tab', () => {
     expect(screen.queryByText('Chi tiêu ròng')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: 'Đơn hàng' }));
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Màn Đơn hàng sẽ sớm có mặt.');
+    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm đơn hàng' })).toBeInTheDocument();
   });
 
   it('moves between tabs with the arrow keys', async () => {
