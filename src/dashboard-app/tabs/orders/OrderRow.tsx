@@ -15,7 +15,7 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
   return (
     <Fragment>
       <tr className="grid grid-cols-[1fr_auto] gap-x-3 rounded-xl border border-line bg-card p-3 @5xl:table-row @5xl:rounded-none @5xl:border-0 @5xl:border-b @5xl:bg-transparent @5xl:p-0">
-        <td className={cell}>
+        <td className={`${cell} whitespace-nowrap`}>
           <button
             type="button"
             aria-expanded={expanded}
@@ -30,14 +30,16 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
             {order.orderId}
           </a>
         </td>
-        <td className={cell}>{order.deliveryDate ? formatDate(new Date(order.deliveryDate)) : t('table.noDate')}</td>
+        <td className={`${cell} whitespace-nowrap`}>{order.deliveryDate ? formatDate(new Date(order.deliveryDate)) : t('table.noDate')}</td>
         <td className={cell}>
-          {order.status}
-          {excluded && <span className="ml-2 rounded border border-bad px-1.5 text-xs text-bad">{t('orders.excluded')}</span>}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span>{order.status}</span>
+            {excluded && <span className="inline-block whitespace-nowrap rounded border border-bad px-1.5 text-xs text-bad">{t('orders.excluded')}</span>}
+          </div>
         </td>
-        <td className={`col-span-2 ${cell}`}>{order.name}</td>
-        <td className={`num ${cell} @5xl:text-right`}>{order.productCount}</td>
-        <td className={`num ${cell} @5xl:text-right ${excluded ? 'text-muted line-through' : ''}`}>{money(order.subTotal)}</td>
+        <td className={`col-span-2 min-w-0 [overflow-wrap:anywhere] ${cell}`}>{order.name}</td>
+        <td className={`num whitespace-nowrap ${cell} @5xl:text-right`}>{order.productCount}</td>
+        <td className={`num whitespace-nowrap ${cell} @5xl:text-right ${excluded ? 'text-muted line-through' : ''}`}>{money(order.subTotal)}</td>
       </tr>
       {expanded && (
         <tr className="block @5xl:table-row">
