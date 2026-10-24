@@ -1,241 +1,127 @@
-# ShopeeStatX - Thống Kê Chi Tiêu Shopee
+# ShopeeStatX
 
-<div align="center">
+**Hiểu rõ bạn đã chi bao nhiêu trên Shopee.**
 
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-[![Tiếng Việt](https://img.shields.io/badge/Tiếng_Việt-red?style=for-the-badge)](#)
-[![English](https://img.shields.io/badge/English-blue?style=for-the-badge)](docs/guide/README-en.md)
+ShopeeStatX là tiện ích Chrome giúp tổng hợp lịch sử mua hàng trên **Shopee Việt Nam**, xem xu hướng chi tiêu và quản lý ngân sách — ngay trong trình duyệt, không cần tạo tài khoản riêng.
 
----
+[**Cài từ Chrome Web Store**](https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim) · [Hướng dẫn sử dụng](docs/guide/Huong_dan.md) · [English](docs/guide/README-en.md)
 
-[![GitHub stars](https://img.shields.io/github/stars/ninhhaidang/shopeestatx?style=for-the-badge&logo=github&label=Star%20this%20repo)](https://github.com/ninhhaidang/shopeestatx/stargazers)
-[![GitHub release](https://img.shields.io/github/v/release/ninhhaidang/shopeestatx?style=for-the-badge&logo=github)](https://github.com/ninhhaidang/shopeestatx/releases)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+![Tổng quan ShopeeStatX: chi tiêu ròng, so sánh tháng, hoàn tiền, tiết kiệm ước tính và biểu đồ chi tiêu](store-assets/screenshots/01-summary-cards.png)
 
-</div>
+*Ảnh chụp giao diện mới dùng dữ liệu minh họa, không phải lịch sử mua hàng thật. Bản trên Chrome Web Store có thể khác bản mã nguồn hiện tại.*
 
-> **Version 3.4.1** - React + Tailwind + Vite, Light/Dark
+## Từ lịch sử đơn hàng đến bức tranh chi tiêu
 
-> Chrome Extension giúp theo dõi và phân tích chi tiêu trên Shopee một cách chi tiết và trực quan.
+### Biết tiền đi đâu
 
-## 📸 Screenshots
+- Xem **chi tiêu ròng**, số đơn và giá trị trung bình mỗi đơn; loại đơn hủy và trả hàng khỏi chi tiêu.
+- Đối chiếu tháng, năm; xem biểu đồ theo tháng và những shop bạn chi nhiều nhất.
+- Theo dõi hoàn tiền và **tiết kiệm ước tính** khi đơn hàng có đủ dữ liệu.
 
-![Summary Cards](store-assets/screenshots/01-summary-cards.png)
+### Nhận ra thói quen, chủ động ngân sách
 
-![Charts](store-assets/screenshots/02-charts.png)
+- Xem sản phẩm mua nhiều, sản phẩm có đơn giá cao và những shop thường xuyên quay lại.
+- Khám phá số đơn theo ngày qua biểu đồ nhiệt, cùng các nhận xét từ lịch sử mua hàng.
+- Đặt hạn mức tháng, chọn ngưỡng cảnh báo và xem dự đoán chi tiêu cuối tháng.
 
-![Order Details](store-assets/screenshots/03-order-details.png)
+![Màn Phân tích: nhận xét chi tiêu, ngân sách tháng, thói quen mua sắm và các sản phẩm nổi bật](store-assets/screenshots/02-charts.png)
 
-![Orders Table](store-assets/screenshots/04-orders-table.png)
+### Tìm lại đơn hàng và mang dữ liệu ra ngoài
 
-![Popup](store-assets/screenshots/05-popup.png)
+- Tìm theo mã đơn, sản phẩm, shop hoặc mô tả; lọc theo thời gian, trạng thái và shop.
+- Sắp xếp, phân trang và mở chi tiết từng đơn ngay trong danh sách.
+- Xuất **Excel, CSV hoặc In / PDF** theo toàn bộ kết quả đang lọc, không chỉ trang đang xem.
+- Tạo ảnh chia sẻ chỉ chứa số liệu tổng hợp, không chứa tên tài khoản hay chi tiết đơn hàng.
 
-## Giới thiệu
+![Chi tiết đơn hàng: người bán, ngày giao, tổng tiền và từng sản phẩm trong đơn](store-assets/screenshots/03-order-details.png)
 
-Shopee không cung cấp bất kỳ công cụ nào để người dùng biết mình đã tiêu bao nhiêu. ShopeeStatX giải quyết vấn đề đó — một extension Chrome tự động lấy toàn bộ lịch sử đơn hàng, phân tích và hiển thị trực quan bằng biểu đồ và bảng dữ liệu. Không cần server, không cần tài khoản riêng, dữ liệu không rời khỏi máy bạn.
+<details>
+<summary>Xem thêm: danh sách đơn hàng và popup</summary>
 
-## Tính năng chính
+**Danh sách đơn hàng** — bộ lọc, sắp xếp và xuất dữ liệu ở cùng một nơi.
 
-### 📊 Tổng quan
-- **Chi tiêu ròng** (không tính đơn hủy/trả hàng), so với tháng trước
-- Số đơn, trung bình/đơn, hoàn tiền, tiết kiệm ước tính
-- Biểu đồ chi tiêu theo tháng (kèm bảng số liệu), top shop
-- Ảnh chia sẻ chỉ chứa số liệu tổng hợp
+![Danh sách đơn hàng đã lọc theo trạng thái Hoàn thành và sắp xếp theo tổng tiền](store-assets/screenshots/04-orders-table.png)
 
-### 🗓️ Khoảng thời gian toàn cục
-- Một bộ chọn khoảng ngày áp dụng cho Tổng quan, Phân tích và Đơn hàng
+**Popup** — bắt đầu phân tích từ tab Shopee đang đăng nhập.
 
-### 📋 Đơn hàng
-- Tìm kiếm theo sản phẩm, shop, mã đơn; lọc theo trạng thái và shop; sắp xếp; phân trang
-- Chi tiết đơn; trên khổ hẹp bảng chuyển thành danh sách thẻ
-- Xuất Excel (.xlsx), CSV, In / PDF theo đúng bộ lọc đang áp dụng
+![Popup ShopeeStatX với nút Bắt đầu phân tích; đây là trạng thái demo](store-assets/screenshots/05-popup.png)
 
-### 🔎 Phân tích
-- Biểu đồ nhiệt số đơn theo ngày, thói quen mua sắm, sản phẩm mua nhiều, nhận xét tự động
-- Dự đoán chi tiêu cuối tháng và ngân sách có cảnh báo
+</details>
 
-### 🎨 Giao diện
-- Một UI thích ứng cho tab, side panel và popup; Light / Dark / Tự động
+Giao diện có **Sáng, Tối và Tự động** theo hệ thống. Khi vùng hiển thị hẹp, bảng đơn chuyển thành thẻ; các bộ lọc và chi tiết đơn vẫn dùng được.
 
-## Cách hoạt động
+## Bắt đầu trong ba bước
 
-### Mô hình xác thực
-ShopeeStatX sử dụng phiên đăng nhập sẵn có của trình duyệt để truy cập dữ liệu Shopee. Người dùng chỉ cần đăng nhập Shopee như bình thường — extension tự động sử dụng session đó để gọi API. Không cần tạo tài khoản riêng, không lưu mật khẩu, không gửi dữ liệu ra ngoài.
+1. [Cài ShopeeStatX từ Chrome Web Store](https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim).
+2. Mở [shopee.vn](https://shopee.vn) và đăng nhập tài khoản Shopee của bạn.
+3. Bấm biểu tượng tiện ích → **Bắt đầu phân tích**. Dashboard mở ở tab mới và hiển thị tiến độ lấy đơn hàng.
 
-Đây là mô hình xác thực chuẩn công nghiệp cho các extension chạy trên website cụ thể (tương tự Grammarly, Honey, Return YouTube Dislike).
+Sau lần phân tích, bạn có thể xem lại dữ liệu đã lưu hoặc bấm **Làm mới** để cập nhật. Nếu đổi tài khoản Shopee, hãy bắt đầu một lần phân tích mới từ popup.
 
-- Kiểm tra domain: Nút bắt đầu chỉ được bật khi tab hiện tại là shopee.vn; các tên miền Shopee khác chưa được cấu hình để chạy.
-- Chưa đăng nhập: Shopee có thể từ chối lấy đơn; đăng nhập rồi thử lại.
-- Đã đăng nhập: Gọi API bằng session trình duyệt qua MAIN world injection
+Cần chỉ dẫn chi tiết? Xem [hướng dẫn sử dụng](docs/guide/Huong_dan.md).
 
-### Luồng dữ liệu
-```
-Đăng nhập Shopee → Click icon extension → Popup kiểm tra domain
-  → "Bắt đầu phân tích" → Mở dashboard (tab mới)
-    → Loading spinner + cập nhật real-time số đơn đang lấy
-      → Inject content.js (MAIN world) + bridge.js (ISOLATED world)
-        → Fetch API Shopee (dùng session trình duyệt, có cookie)
-        → postMessage → bridge → chrome.runtime → dashboard
-          → Cache vào chrome.storage.local
-          → Render: Tổng quan / Đơn hàng / Phân tích (React)
-            → Tương tác: Khoảng ngày / Lọc / Tìm kiếm / Sắp xếp / Ngân sách / Xuất dữ liệu / Ảnh chia sẻ
-```
+## Dữ liệu của bạn được xử lý thế nào?
 
-### Kiến trúc Dual-World
-Chrome Extension mặc định chạy trong ISOLATED world — không thể truy cập cookie của trang web. ShopeeStatX giải quyết bằng Dual-World Pattern:
+- Tiện ích dùng **phiên đăng nhập Shopee đang có**. Bạn không cần nhập mật khẩu vào ShopeeStatX.
+- Lịch sử đơn hàng được xử lý trong trình duyệt và lưu bằng `chrome.storage.local`, không đồng bộ lên máy chủ của ShopeeStatX.
+- Không có tài khoản ShopeeStatX, công cụ theo dõi hay phân tích hành vi người dùng.
+- File xuất và ảnh chia sẻ được tạo trên máy; việc gửi chúng cho người khác là do bạn quyết định.
+- Gỡ tiện ích sẽ xóa dữ liệu mà tiện ích đã lưu. Những file bạn đã tải xuống vẫn nằm trên máy.
 
-- `content.js` chạy trong MAIN world → truy cập fetch() và cookie như trang web bình thường (IIFE, không bundle)
-- `bridge.ts` chạy trong ISOLATED world → relay message về extension
-- Kết quả: Bypass CORS hợp lệ, không cần proxy server, không cần API key riêng
+Mở **Chính sách bảo mật** trong popup của tiện ích để đọc chi tiết về dữ liệu được truy cập, quyền cần thiết và cách xóa dữ liệu.
 
-```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  Popup       │───▶│ dashboard    │───▶│ chrome-host  │
-│ (Trigger)    │    │ (React UI)   │    │ (Orchestrator)│
-└──────────────┘    └──────┬───────┘    └──────┬───────┘
-                           │                    │
-                    inject │              listen│
-                           ▼                    │
-               ┌───────────────────┐            │
-               │   Shopee Tab      │            │
-               │                   │            │
-               │ ┌───────────────┐ │  message   │
-               │ │  content.js   │─┼────────────┘
-               │ │  (MAIN world) │ │  via bridge.ts
-               │ │  fetch API    │ │  (ISOLATED world)
-               │ └───────────────┘ │
-               └───────────────────┘
-```
+## Những điều cần biết
 
-## ⚙️ Cài đặt
+- **Phạm vi:** hiện hỗ trợ `shopee.vn`, yêu cầu Chrome 116 trở lên và phiên Shopee đã đăng nhập.
+- **Nguồn dữ liệu:** kết quả phụ thuộc dữ liệu Shopee trả về. Thay đổi từ Shopee hoặc phiên hết hạn có thể khiến việc lấy đơn thất bại.
+- **Mốc thời gian:** các bộ lọc và thói quen mua sắm dùng ngày giao/nhận hàng có trong lịch sử, không phải lúc đặt đơn.
+- **Số liệu ước tính:** tiết kiệm không tách riêng voucher với phí vận chuyển; dự đoán cuối tháng không phải cam kết hay tư vấn tài chính.
+- **Ngân sách:** luôn tính tháng hiện tại trên toàn bộ lịch sử, độc lập với khoảng thời gian đang chọn.
+- **Vùng hẹp:** giao diện đã thích ứng, nhưng chưa có nút mở Chrome Side Panel.
 
-### Cài từ Chrome Web Store (Khuyến nghị)
-[Cài ShopeeStatX trên Chrome Web Store](https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim).
+## Chạy từ mã nguồn
 
-### Cài thủ công (Developer mode)
-1. Tải file ZIP từ [Releases](https://github.com/ninhhaidang/shopeestatx/releases) và giải nén, hoặc clone repo:
-   ```bash
-   git clone https://github.com/ninhhaidang/shopeestatx.git
-   ```
-2. Mở Chrome, vào `chrome://extensions/`
-3. Bật **Chế độ nhà phát triển** (Developer mode)
-4. Click **Tải chưa giải nén** và chọn thư mục `ShopeeStatX`
-
-## 📖 Hướng dẫn sử dụng
-
-Xem hướng dẫn chi tiết tại [Hướng dẫn sử dụng](docs/guide/Huong_dan.md)
-
-**Tóm tắt:**
-1. Đăng nhập tài khoản [Shopee](https://shopee.vn)
-2. Bật tiện ích ShopeeStatX trên thanh công cụ Chrome
-3. Click **Bắt đầu phân tích**
-4. Sử dụng bộ lọc và biểu đồ để phân tích chi tiêu
-
-## 🛠️ Công nghệ sử dụng
-
-| Công nghệ | Vai trò | Lý do lựa chọn |
-|-----------|---------|----------------|
-| Chrome Extension MV3 | Runtime | Standard mới nhất, Service Worker model |
-| React 19 + Radix | UI | Một UI thích ứng cho tab, side panel và popup ([ADR-0001](docs/adr/0001-react-tailwind-ui.md), [ADR-0002](docs/adr/0002-one-adaptive-ui-for-all-hosts.md)) |
-| Tailwind CSS v4 | Styling | Design tokens dạng CSS variables, Light/Dark/Auto |
-| TypeScript | Ngôn ngữ | Strict mode, type safety, zero `any` |
-| Vite | Build tool | Fast builds, multi-entry cho extension |
-| Vitest + Testing Library | Testing | jsdom, test ở component gốc, coverage |
-| Chart.js | Visualization | Bọc thành component `BarChart` |
-| ExcelJS | Export | Tạo file Excel (.xlsx) |
-| chrome.storage.local | Cache | Lưu dữ liệu offline, không cần server |
-| Shopee API v4 | Data source | `v4/order/get_all_order_and_checkout_list` |
-
-## 📁 Cấu trúc dự án
-
-```
-ShopeeStatX/
-├── src/
-│   ├── manifest.json             # Cấu hình extension (Manifest V3)
-│   ├── background.ts             # Service worker
-│   ├── config.ts                 # Hardcoded values (domains, storage keys)
-│   ├── content/content.js        # MAIN world — gọi Shopee API (IIFE, không bundle)
-│   ├── bridge/bridge.ts          # ISOLATED world — relay message
-│   ├── dashboard-app/            # Dashboard React (tab Tổng quan / Đơn hàng / Phân tích)
-│   ├── popup/                    # Popup React
-│   ├── welcome/                  # Onboarding React
-│   ├── privacy/                  # Chính sách riêng tư React
-│   ├── ui/                       # Component dùng chung, design tokens, theme
-│   ├── dashboard/                # Logic miền thuần (stats, insights, budget, export, ...)
-│   ├── i18n/                     # Đa ngôn ngữ (hiện tại: Tiếng Việt)
-│   └── types/index.ts            # TypeScript interfaces
-├── docs/                         # ADR, tài liệu Shopee API, hướng dẫn
-├── tests/                        # Vitest test files
-├── dist/                         # Vite build output (bị ignore)
-├── vite.config.ts
-└── vitest.config.ts
-```
-
-Phần giao diện được dựng lại theo [ADR-0001](docs/adr/0001-react-tailwind-ui.md) (React + Tailwind) và [ADR-0002](docs/adr/0002-one-adaptive-ui-for-all-hosts.md) (một UI thích ứng theo container). Bản mẫu phong cách trực quan (style reference) nằm ở nhánh `prototype/overview`. Ràng buộc về request tới Shopee: [docs/shopee-order-api.md](docs/shopee-order-api.md).
-
-## 🧪 Phát triển
-
-### Yêu cầu
-- Node.js 24+
-- npm hoặc yarn
-
-### Scripts
+Yêu cầu **Node.js 24+**, npm và Chrome 116+.
 
 ```bash
-npm install              # Cài đặt dependencies
-npm run dev              # Vite dev server (localhost:5173) với mock data
-npm run build            # Typecheck + build production → dist/
-npm run check:injected   # Kiểm tra bridge.js/content.js parse được như classic script
-npm run typecheck        # Kiểm tra TypeScript
-npm test                 # Chạy tests (Vitest)
-npm run test:watch       # Tests trong watch mode
-npm run test:coverage    # Tests với coverage report
-npm run verify           # CI: typecheck, knip (unused files/exports/deps), tests, build, injected scripts
+git clone https://github.com/ninhhaidang/shopeestatx.git
+cd shopeestatx
+npm ci
+npm run build
 ```
 
-### Demo Mode
-Mở trang dashboard ngoài extension (`npm run dev`, `npm run preview`) thì dashboard tự dùng mock data thay vì gọi Shopee API, nên phát triển UI không cần cài extension. Trong build dev nạp vào Chrome, thêm `?mock=1` vào URL dashboard để xem mock data; build production bỏ qua tham số này.
+Mở `chrome://extensions`, bật **Developer mode**, chọn **Load unpacked** rồi trỏ đến thư mục **`dist/`** vừa tạo — không chọn thư mục mã nguồn.
 
-`exportToExcel()` trả `Promise<void>` hoàn tất sau khi tạo file và kích hoạt tải xuống, hoặc sau khi báo lỗi. Kiểm thử phải chờ Promise này để tránh tác vụ xuất còn chạy sang test tiếp theo.
+### Phát triển với dữ liệu demo
 
-### Dashboard dev preview
+```bash
+npm run dev
+```
 
-Chạy `npm run dev`, rồi mở một trong các URL sau (đổi cổng nếu Vite chọn cổng khác):
+Mở [dashboard demo](http://localhost:5173/dashboard-app/dashboard.html). Chế độ này không cần extension hay tài khoản Shopee và không gọi API Shopee. Nếu Vite dùng cổng khác, thay cổng trong URL.
 
-| Khung | Light | Dark |
-| --- | --- | --- |
-| Side panel 400px | [400px / Light](http://localhost:5173/dev-preview?width=400&theme=light) | [400px / Dark](http://localhost:5173/dev-preview?width=400&theme=dark) |
-| Toàn bộ chiều rộng tab | [Tab / Light](http://localhost:5173/dev-preview?width=tab&theme=light) | [Tab / Dark](http://localhost:5173/dev-preview?width=tab&theme=dark) |
+Để kiểm tra bố cục, dùng [preview khổ tab](http://localhost:5173/dev-preview?width=tab&theme=light) hoặc [container 400px](http://localhost:5173/dev-preview?width=400&theme=dark). Preview chỉ có ở dev server, không nằm trong gói extension.
 
-Khung 400px được cố định ngay trong tab bình thường, nên có thể xem bố cục container query mà không cần thu nhỏ cửa sổ Chrome. `width=tab` dùng toàn bộ chiều rộng tab hiện tại. Thiếu hoặc sai tham số thì mặc định `width=400&theme=light`. Mỗi lần mở URL, `theme` đặt lựa chọn ban đầu thay vì dùng theme đã lưu, nhưng không tự ghi đè lựa chọn đã lưu. Nút đổi theme của dashboard vẫn hoạt động và lưu lựa chọn như trang dashboard thông thường.
+### Kiểm tra trước khi đóng góp
 
-Trang luôn dùng `mockHost` và dữ liệu mẫu, không cần extension, không đọc đơn thật hay gọi Shopee API. HTML, mã khởi tạo và CSS của preview chỉ được phục vụ bởi Vite dev server: không khai báo trong Rollup build inputs hay extension manifest, không sao chép vào `dist/`, không dùng được qua `npm run preview`.
+```bash
+npm ci
+npm run verify
+```
 
-### Phiên bản Chrome tối thiểu (116)
-`minimum_chrome_version` là 116 vì giao diện dùng: container query (Chrome 105), `color-mix()` (Chrome 111) và `chrome.sidePanel.open()` cho tuỳ chọn mở bằng side panel sắp tới (Chrome 116). Xem thêm `docs/adr/0002-one-adaptive-ui-for-all-hosts.md`.
+`verify` chạy typecheck, kiểm tra code thừa bằng Knip, tests với coverage, production build và kiểm tra injected scripts — cùng pipeline với CI.
 
-## ⚠️ Lưu ý
+React 19, Tailwind CSS v4 và Vite dựng giao diện; Chart.js hiển thị biểu đồ, ExcelJS tạo file XLSX. Logic thống kê và Chrome host được tách khỏi các component giao diện.
 
-- Extension chỉ hoạt động khi đã đăng nhập Shopee
-- Hiện chỉ lấy đơn từ shopee.vn; các thị trường khác chưa được cấu hình.
-- Dữ liệu lấy trực tiếp từ API Shopee, không qua server trung gian
-- Ngày giao hàng: Thời điểm giao/nhận hàng thành công
-- Đơn đã hủy và trả hàng: Không tính vào tổng chi tiêu
-- Dữ liệu chỉ tồn tại trong session cục bộ, không gửi đi đâu
-- Extension này không liên quan đến Shopee chính thức
+- [Danh sách tính năng và giới hạn đã thống nhất](docs/features.md)
+- [Quyết định kiến trúc](docs/adr/)
+- [Nguồn dữ liệu và ràng buộc Shopee API](docs/shopee-order-api.md)
+- [Quy cách ảnh chụp sản phẩm](store-assets/screenshots/README.md)
 
-## License
+## Góp ý và hỗ trợ
 
-[MIT License](LICENSE)
+Gặp lỗi? [Tạo GitHub issue](https://github.com/ninhhaidang/shopeestatx/issues/new) kèm phiên bản tiện ích, phiên bản Chrome và các bước tái hiện. Không đăng cookie, token, thông tin tài khoản hay lịch sử mua hàng cá nhân; hãy che dữ liệu nhạy cảm trong ảnh chụp.
 
-## 👨‍💻 Tác giả
+Phát triển bởi [Ninh Hải Đăng](https://github.com/ninhhaidang). Bạn có thể [ủng hộ dự án](https://www.buymeacoffee.com/ninhhaidang).
 
-<div align="center">
-
-**Phát triển bởi [Ninh Hải Đăng](https://github.com/ninhhaidang)**
-
-[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=google-chrome&logoColor=white)](https://ninhhaidang.dev)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ninhhaidang)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/ninhhaidang)
-
-</div>
+ShopeeStatX là dự án độc lập, không liên kết hay được bảo trợ bởi Shopee. Mã nguồn được phát hành theo [giấy phép MIT](LICENSE).
