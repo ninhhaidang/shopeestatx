@@ -123,6 +123,23 @@ describe('Tổng quan', () => {
   });
 });
 
+describe('người dùng', () => {
+  it('shows the account name and avatar in the top bar', async () => {
+    const withUser = makeData(ORDERS, { user: { username: 'ninh.dang', name: 'Ninh', avatar: 'https://cf.shopee.vn/file/abc' } });
+    renderDashboard(makeHost({ loadCached: vi.fn().mockResolvedValue(withUser) }));
+
+    const user = await screen.findByTestId('account');
+    expect(user).toHaveTextContent('ninh.dang');
+    expect(user.querySelector('img')).toHaveAttribute('src', 'https://cf.shopee.vn/file/abc');
+  });
+
+  it('shows no account chip when the data has no user', async () => {
+    renderDashboard();
+    await screen.findByText('Chi tiêu ròng');
+    expect(screen.queryByTestId('account')).not.toBeInTheDocument();
+  });
+});
+
 describe('khoảng ngày toàn cục', () => {
   it('updates the Tổng quan figures when the range changes', async () => {
     const { user } = renderDashboard();
