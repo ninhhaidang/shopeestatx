@@ -113,6 +113,9 @@ function generateOrders(): { orders: Order[]; totalCount: number; totalAmount: n
       deliveryDate,
       orderMonth,
       orderYear,
+      refundAmount: subTotal === 0 ? product.price : 0,
+      itemsTotal: product.price,
+      items: [{ name: product.name, quantity: product.count, unitPrice: Math.round(product.price / product.count) }],
     });
 
     totalCount += product.count;

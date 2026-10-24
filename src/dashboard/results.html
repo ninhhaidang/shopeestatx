@@ -138,8 +138,8 @@
         <span class="label" data-i18n="summary.products">Tổng sản phẩm</span>
         <span id="totalProducts" class="value">0</span>
       </div>
-      <div class="summary-item highlight" data-tooltip="Chỉ tính đơn hoàn thành, không bao gồm đơn huỷ và trả hàng">
-        <span class="label" data-i18n="summary.totalSpent">Tổng tiền đã tiêu</span>
+      <div class="summary-item highlight" data-tooltip="Tiền thực trả, không bao gồm đơn bị loại (huỷ và trả hàng)">
+        <span class="label" data-i18n="summary.totalSpent">Chi tiêu ròng</span>
         <span id="totalAmount" class="value">0 &#8363;</span>
       </div>
     </div>
@@ -162,6 +162,12 @@
         <div id="avgOrderValue" class="card-value">0 &#8363;</div>
         <div id="avgComparison" class="card-change"></div>
       </div>
+    </div>
+
+    <!-- Spending Stats -->
+    <div class="section-card">
+      <h3 data-i18n="stats.title">Số liệu chi tiêu</h3>
+      <div id="statsContainer" class="stats-panel"></div>
     </div>
 
     <!-- Spending Heatmap -->

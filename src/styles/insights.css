@@ -355,3 +355,15 @@
   padding: var(--spacing-md);
 }
 
+
+/* ----- Spending stats panel ----- */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
+.stat-card { background: var(--bg-secondary, var(--bg-card)); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: var(--spacing-md); text-align: center; }
+.stat-value { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.stat-label { font-size: 12px; color: var(--text-secondary, var(--text-primary)); margin-top: 4px; }
+.stat-rescan { display: flex; gap: var(--spacing-md); align-items: center; justify-content: space-between; padding: var(--spacing-md); margin-bottom: var(--spacing-md); border: 1px dashed var(--border-color); border-radius: var(--radius-lg); font-size: 13px; }
+.stat-list { margin-bottom: var(--spacing-md); }
+.stat-list summary { cursor: pointer; font-weight: 600; }
+.stat-list ol { margin: var(--spacing-sm, 8px) 0 0 20px; }
+.stat-list li { display: flex; justify-content: space-between; gap: var(--spacing-md); padding: 2px 0; }
+.stat-product-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

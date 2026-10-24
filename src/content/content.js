@@ -168,9 +168,11 @@ function getUserProfile() {
         count += productCount;
 
         let subTotal = (infoCard.subtotal ?? infoCard.final_total ?? 0) / 100000;
+        let refundAmount = 0;
         if (statusCode !== 4 && statusCode !== 12) {
           sum += subTotal;
         } else {
+          refundAmount = subTotal;
           subTotal = 0;
         }
         const shopInfo = orderCard.shop_info || {};
@@ -220,6 +222,13 @@ function getUserProfile() {
             .join(', '))
           .join('; ');
 
+        const lineItems = products.flatMap(g => (g.items || []).map(i => ({
+          name: i.name || 'N/A',
+          quantity: i.amount || 1,
+          unitPrice: (i.item_price || 0) / 100000
+        })));
+        const itemsTotal = lineItems.reduce((acc, i) => acc + i.unitPrice * i.quantity, 0);
+
         const name = products[0]?.items?.[0]?.name || 'Không có tên';
 
         allOrders.push({
@@ -228,6 +237,9 @@ function getUserProfile() {
           productCount: productCount,
           subTotal: subTotal,
           subTotalFormatted: _VietNamCurrency(subTotal),
+          refundAmount: refundAmount,
+          itemsTotal: itemsTotal,
+          items: lineItems,
           status: statusText,
           statusCode: statusCode,
           shopName: shopName,

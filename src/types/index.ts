@@ -13,6 +13,12 @@ export interface UserProfile {
   shopId?: number;
 }
 
+export interface OrderItem {
+  name: string;
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface Order {
   orderId: string;
   name: string;
@@ -26,6 +32,11 @@ export interface Order {
   deliveryDate: string | null;
   orderMonth: number | null;
   orderYear: number | null;
+  /** Original amount of an excluded order (cancelled/returned); 0 otherwise. Absent in caches saved before this field existed. */
+  refundAmount?: number;
+  /** Sum of item price × quantity before order-level discounts. Absent in older caches. */
+  itemsTotal?: number;
+  items?: OrderItem[];
 }
 
 export interface OrderData {
