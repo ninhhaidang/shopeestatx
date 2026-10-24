@@ -23,7 +23,7 @@ const FILL = [
 
 const dayOf = (key: string) => formatDate(new Date(`${key}T00:00:00`));
 
-/** Orders per day over the last 12 months of the range (calendar view), with the same numbers as a table. */
+/** Orders per day over the 12 months ending at the range's last day, from the whole history (calendar view), with the same numbers as a table. */
 export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRange; now: Date }) {
   const grid = useMemo(() => {
     const { start, end } = heatmapWindow(range, now);

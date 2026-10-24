@@ -4,12 +4,13 @@ import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { card } from './styles';
 
-/** Auto-written observations about the orders in range. */
+/** Auto-written observations about the whole order history (they compare this month with last month). */
 export function Insights({ orders, now }: { orders: Order[]; now: Date }) {
   const insights = useMemo(() => generateInsights(orders, now), [orders, now]);
   return (
     <section aria-labelledby="analysis-insights" className={card}>
-      <h2 id="analysis-insights" className="mb-3 text-sm font-semibold">{t('insights.title')}</h2>
+      <h2 id="analysis-insights" className="text-sm font-semibold">{t('insights.title')}</h2>
+      <p className="mb-3 text-xs text-muted">{t('insights.scope')}</p>
       {insights.length === 0 ? (
         <p className="text-sm text-muted">{t('insights.empty')}</p>
       ) : (
