@@ -5,10 +5,19 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['tests/setup.ts'],
-    include: ['tests/**/*.test.ts'],
+    include: ['tests/**/*.test.{ts,tsx}'],
     coverage: {
       provider: 'v8',
-      include: ['src/dashboard/utils.ts', 'src/dashboard/filters.ts', 'src/dashboard/comparison.ts', 'src/content/content.js'],
+      include: [
+        'src/dashboard/utils.ts',
+        'src/dashboard/filters.ts',
+        'src/dashboard/comparison.ts',
+        'src/content/content.js',
+        'src/ui/**/*.{ts,tsx}',
+        'src/popup/**/*.{ts,tsx}',
+      ],
+      // Entry glue that only runs inside Chrome.
+      exclude: ['src/popup/main.tsx', 'src/popup/chrome-host.ts'],
     },
   },
 });

@@ -10,6 +10,15 @@
   "popup.help": "Hướng dẫn",
   "popup.privacy": "Chính sách bảo mật",
   "popup.hello": "Xin chào",
+  "popup.openShopee": "Mở Shopee và đăng nhập",
+  "popup.support": "Ủng hộ",
+  "popup.rate": "Đánh giá",
+  "popup.links": "Liên kết",
+
+  "colorMode.label": "Giao diện",
+  "colorMode.auto": "Tự động",
+  "colorMode.light": "Sáng",
+  "colorMode.dark": "Tối",
 
   "welcome.title": "Chào mừng đến với ShopeeStatX",
   "welcome.tagline": "Theo dõi và phân tích toàn bộ chi tiêu Shopee của bạn",
