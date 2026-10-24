@@ -37,7 +37,7 @@ function BudgetForm({ initial, onSave, onCancel }: { initial: BudgetConfig; onSa
     <form onSubmit={submit} className="grid gap-3.5 text-sm">
       <div className="grid gap-1.5">
         <label htmlFor={ids.limit} className="font-medium">{t('budget.limit.label')}</label>
-        <input id={ids.limit} type="number" inputMode="numeric" min={0} step={100000} className={`num ${input}`} value={limit} onChange={e => setLimit(e.target.value)} />
+        <input id={ids.limit} type="number" inputMode="numeric" min={0} step={1} className={`num ${input}`} value={limit} onChange={e => setLimit(e.target.value)} />
       </div>
       <div className="grid gap-1.5">
         <label htmlFor={ids.threshold} className="font-medium">

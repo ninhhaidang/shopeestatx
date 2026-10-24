@@ -193,6 +193,32 @@ describe('Phân tích: dự đoán và ngân sách', () => {
     expect(await screen.findByRole('progressbar', { name: 'Ngân sách tháng' })).toHaveAttribute('aria-valuenow', '60');
   });
 
+  it('saves a whole-VND limit and lets an existing non-round budget change its alert threshold', async () => {
+    const { user, unmount } = await openAnalysis();
+    await user.click(await screen.findByRole('button', { name: 'Thiết lập' }));
+    const limit = screen.getByRole<HTMLInputElement>('spinbutton', { name: 'Hạn mức hàng tháng (VND)' });
+    await user.clear(limit);
+    await user.type(limit, '150000');
+    await user.click(screen.getByLabelText('Bật theo dõi ngân sách'));
+
+    expect(limit.form!.checkValidity()).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Lưu' }));
+    expect(screen.getByTestId('budget-figures')).toHaveTextContent(/600\.000.*150\.000/);
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.BUDGET) ?? 'null')).toMatchObject({ monthlyLimit: 150_000, enabled: true });
+
+    unmount();
+    const reloaded = await openAnalysis();
+    await reloaded.user.click(await screen.findByRole('button', { name: 'Sửa' }));
+    const savedLimit = screen.getByRole<HTMLInputElement>('spinbutton', { name: 'Hạn mức hàng tháng (VND)' });
+    expect(savedLimit).toHaveValue(150_000);
+    fireEvent.change(screen.getByLabelText(/Cảnh báo tại/), { target: { value: '90' } });
+    expect(savedLimit.form!.checkValidity()).toBe(true);
+    await reloaded.user.click(screen.getByRole('button', { name: 'Lưu' }));
+
+    expect(screen.queryByRole('button', { name: 'Lưu' })).not.toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.BUDGET) ?? 'null')).toMatchObject({ monthlyLimit: 150_000, alertThreshold: 0.9, enabled: true });
+  });
+
   it('edits an existing budget and warns when the threshold is reached', async () => {
     const { user } = await openAnalysis();
     await setBudget(user, '1000000');

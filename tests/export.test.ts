@@ -16,7 +16,7 @@ const order: Order = {
   orderMonth: 1,
   orderYear: 2024,
 };
-const headers = '"STT","Mã đơn hàng","Ngày giao","Trạng thái","Tên sản phẩm","Số lượng","Tổng tiền","Seller"';
+const headers = '"STT","Mã đơn hàng","Ngày giao","Trạng thái","Tên sản phẩm","Số lượng","Tổng tiền","Seller","Details"';
 
 function readBlob(blob: Blob): Promise<string> {
   const { promise, resolve, reject } = Promise.withResolvers<string>();
@@ -59,9 +59,24 @@ describe('Export Functions', () => {
 
       expect(downloads).toEqual([{ href: 'blob:mock-url', filename: expect.stringMatching(/^shopee-stats-\d{4}-\d{2}-\d{2}\.csv$/) }]);
       expect(blobs[0].type).toBe('text/csv;charset=utf-8');
-      expect(await readBlob(blobs[0])).toBe(`${headers}\n1,"ORD001","15/1/2024","Hoàn thành","Test Product",2,100000,"Test Shop"`);
+      expect(await readBlob(blobs[0])).toBe(`${headers}\n1,"ORD001","15/1/2024","Hoàn thành","Test Product",2,100000,"Test Shop","Test summary"`);
       expect(document.querySelector('a')).toBeNull();
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+    });
+
+    it.each([
+      ['Shirt "Blue", size M\nSocks x2', '"Shirt ""Blue"", size M\nSocks x2"'],
+      ['=HYPERLINK("https://example.com","Open")', '"\'=HYPERLINK(""https://example.com"",""Open"")"'],
+      ['  +SUM(1,2)', '"\'  +SUM(1,2)"'],
+      ['-2+3', '"\'-2+3"'],
+      ['@SUM(1,2)', '"\'@SUM(1,2)"'],
+      ['\tproduct', '"\'\tproduct"'],
+      ['\rproduct', '"\'\rproduct"'],
+      ['\nproduct', '"\'\nproduct"'],
+    ])('preserves and safely quotes product details %j in the downloaded CSV', async (productSummary, cell) => {
+      exportToCSV([{ ...order, productSummary }]);
+
+      expect(await readBlob(blobs[0])).toBe(`${headers}\n1,"ORD001","15/1/2024","Hoàn thành","Test Product",2,100000,"Test Shop",${cell}`);
     });
 
     it('exports exactly the orders it is given, in the given order', async () => {

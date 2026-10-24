@@ -6,7 +6,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 - Popup hiển thị lời chào cùng tên và ảnh đại diện khi có thông tin tài khoản, hoặc giới thiệu ngắn khi chưa có thông tin này.
 - Nút «Bắt đầu phân tích» mở dashboard ở tab mới để lấy lịch sử đơn hàng từ phiên đăng nhập Shopee đang có.
-- Popup chỉ cho bắt đầu khi tab hiện tại là Shopee và hiển thị lời nhắc mở Shopee, đăng nhập cùng nút mở Shopee khi chưa ở trang phù hợp.
+- Popup chỉ cho bắt đầu khi URL tab hiện tại dùng HTTP(S) và hostname là `shopee.vn` hoặc tên miền con của nó; chuỗi `shopee.vn` trong đường dẫn, query hoặc hostname giả không đủ. Khi chưa ở trang phù hợp, popup hiển thị lời nhắc mở Shopee, đăng nhập cùng nút mở Shopee.
 - Popup có liên kết ủng hộ, GitHub, đánh giá tiện ích, hướng dẫn và chính sách bảo mật.
 - Popup có bộ chọn giao diện Tự động, Sáng và Tối.
 
@@ -18,6 +18,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Khoảng thời gian lọc đơn hàng theo ngày giao và được giữ khi chuyển giữa ba màn hình.
 - Các chỉ số theo tháng, năm, nhận xét tự động, shop thân thiết, biểu đồ nhiệt, dự đoán và ngân sách có phạm vi riêng được mô tả ở các mục tương ứng thay vì luôn bị cắt theo khoảng ngày.
 - Dashboard có thể hiển thị lịch sử đơn hàng đã lưu cục bộ và có nút làm mới để cập nhật dữ liệu.
+- Mỗi lần bắt đầu phân tích từ popup, kết quả mới thay thế cache, kể cả hồ sơ tài khoản cũ; khi kết quả mới không có hồ sơ, tiện ích không gán tên tài khoản cũ cho lịch sử mới. Làm mới giữ các đơn cũ, trừ khi xác định được khác tài khoản: ưu tiên so sánh `userId`, sau đó `uid` khi cả hai hồ sơ cùng có loại ID đó; chỉ so sánh username khi cả hai đều không có ID. Nếu thiếu hồ sơ hoặc không có ID cùng loại để so sánh, làm mới giữ cache để tránh mất lịch sử do chuyển nguồn hồ sơ.
 - Khi lấy dữ liệu lần đầu, dashboard hiển thị khung chờ, trạng thái kết nối, số đơn hàng đã lấy khi có tiến độ và lời nhắc khi chờ lâu.
 - Khi làm mới, dashboard giữ nội dung đang xem, hiển thị tiến độ rồi thông báo số đơn hàng mới hoặc chưa có đơn hàng mới.
 - Khi làm mới thất bại, dashboard giữ dữ liệu đang có và hiển thị thông báo lỗi.
@@ -68,6 +69,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 - Màn hình Đơn hàng cho tải dữ liệu Excel định dạng XLSX hoặc CSV.
 - Excel và CSV chứa mã đơn hàng, ngày giao, trạng thái, sản phẩm, số lượng, số tiền, shop và mô tả sản phẩm.
+- Mô tả sản phẩm nằm ở cột `Details`; CSV giữ dấu phẩy, dấu ngoặc kép và xuống dòng trong một ô, đồng thời vô hiệu hóa văn bản có thể bị bảng tính hiểu thành công thức.
 - Nút «In / PDF» mở hộp thoại in của trình duyệt với bản in danh sách đơn hàng và cho lưu PDF bằng chức năng của trình duyệt.
 - Cả ba cách xuất dùng toàn bộ kết quả theo khoảng thời gian, tìm kiếm, trạng thái, shop và thứ tự sắp xếp hiện tại, không chỉ trang đang xem.
 - Các nút xuất bị vô hiệu hóa khi không có kết quả phù hợp.
@@ -83,7 +85,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 - Phân tích dự đoán Chi tiêu ròng cuối tháng khi có dữ liệu chi tiêu tháng hiện tại và hiển thị số tiền dự kiến vượt ngân sách khi phù hợp.
 - Ngân sách và dự đoán luôn dùng tháng hiện tại trên toàn bộ lịch sử, độc lập với khoảng thời gian đang chọn.
-- Người dùng có thể thiết lập hoặc chỉnh sửa hạn mức ngân sách tháng, bật hoặc tắt ngân sách và chọn ngưỡng cảnh báo từ 50% đến 95%.
+- Người dùng có thể thiết lập hoặc chỉnh sửa hạn mức ngân sách tháng theo từng đồng (ví dụ 150.000₫), bật hoặc tắt ngân sách và chọn ngưỡng cảnh báo từ 50% đến 95%.
 - Người dùng có thể lưu cấu hình ngân sách để dùng lại hoặc đóng biểu mẫu mà không lưu thay đổi.
 - Nếu lưu cấu hình ngân sách thất bại, biểu mẫu giữ lại giá trị đã nhập và hiển thị thông báo lỗi.
 - Khi bật ngân sách, Phân tích hiển thị Chi tiêu ròng tháng hiện tại so với hạn mức, tỷ lệ đã dùng và thanh tiến độ đổi màu theo mức sử dụng.
@@ -106,6 +108,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Trang chào mừng giải thích các quyền truy cập được yêu cầu và việc lưu dữ liệu cục bộ.
 - Trang chào mừng hướng dẫn đăng nhập Shopee, mở tiện ích, bắt đầu phân tích và khám phá dữ liệu.
 - Trang chào mừng có nút mở Shopee cùng liên kết chính sách bảo mật và GitHub.
+- Phiên bản trên trang chào mừng lấy trực tiếp từ manifest để luôn trùng phiên bản tiện ích.
 
 ## Quyền riêng tư
 

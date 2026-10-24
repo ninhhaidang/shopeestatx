@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from 'react';
+import manifest from '../manifest.json';
 import { t } from '../i18n/index.js';
 import { Button } from '../ui/components/Button';
 import { Logo } from '../ui/components/Logo';
@@ -47,7 +48,7 @@ export function Welcome({ host }: { host: WelcomeHost }) {
             <Logo className="text-[length:inherit]! text-4xl sm:text-5xl" />
           </h1>
           <p className="text-base text-muted sm:text-lg">{t('welcome.tagline')}</p>
-          <span className="rounded-full border border-line bg-card px-3 py-0.5 text-xs text-muted">v3.1</span>
+          <span className="rounded-full border border-line bg-card px-3 py-0.5 text-xs text-muted">v{manifest.version}</span>
         </header>
 
         <main className="flex flex-col gap-8">
