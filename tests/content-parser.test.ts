@@ -190,3 +190,34 @@ describe('content script order collection', () => {
     expect(result.data.orders[0].productSummary).toContain('Product B');
   });
 });
+
+describe('excluded orders keep their original amount as a refund', () => {
+  it('does not charge a cancelled order but records its amount as refundAmount', async () => {
+    const { result } = await collect([{ new_data: { order_or_checkout_data: [makeOrder('label_cancelled')] } }, end]);
+    expect(result.data.orders[0]).toMatchObject({ subTotal: 0, refundAmount: 100000 });
+    expect(result.data.totalAmount).toBe(0);
+  });
+
+  it('records no refund for a completed order', async () => {
+    const { result } = await collect([{ new_data: { order_or_checkout_data: [makeOrder()] } }, end]);
+    expect(result.data.orders[0]).toMatchObject({ subTotal: 100000, refundAmount: 0 });
+  });
+});
+
+describe('structured items and items total', () => {
+  it('records itemsTotal as item price times quantity and a structured item list', async () => {
+    const { result } = await collect([{ new_data: { order_or_checkout_data: [makeOrder()] } }, end]);
+    expect(result.data.orders[0].itemsTotal).toBe(100000);
+    expect(result.data.orders[0].items).toEqual([{ name: 'Product A', quantity: 2, unitPrice: 50000 }]);
+  });
+
+  it('sums items across every parcel of a split shipment', async () => {
+    const item = makeOrder();
+    item.order_list_detail.info_card.order_list_cards[0].parcel_cards.push({
+      product_info: { item_groups: [{ items: [{ name: 'Product B', amount: 3, item_price: 1000000000 }] }] },
+    });
+    const { result } = await collect([{ new_data: { order_or_checkout_data: [item] } }, end]);
+    expect(result.data.orders[0].itemsTotal).toBe(130000);
+    expect(result.data.orders[0].items.map((i: { name: string }) => i.name)).toEqual(['Product A', 'Product B']);
+  });
+});
