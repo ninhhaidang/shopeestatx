@@ -1,120 +1,112 @@
-# ShopeeStatX - Shopee Order Statistics
+# ShopeeStatX
 
-<div align="center">
+**Understand what you spend on Shopee.**
 
-![Ngôn ngữ](https://img.shields.io/badge/Ngôn_ngữ-gray?style=for-the-badge&logo=googletranslate&logoColor=white)
-[![Tiếng Việt](https://img.shields.io/badge/Tiếng_Việt-red?style=for-the-badge)](../README.md)
-[![English](https://img.shields.io/badge/English-blue?style=for-the-badge)](#)
+ShopeeStatX is a Chrome extension that turns your **Shopee Vietnam** order history into spending trends, searchable orders and a monthly budget — in your browser, without a separate account.
 
----
+[**Install from the Chrome Web Store**](https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim) · [User guide](Guide.md) · [Tiếng Việt](../../README.md)
 
-[![GitHub stars](https://img.shields.io/github/stars/ninhhaidang/shopee-orders-statics?style=for-the-badge&logo=github&label=Star%20this%20repo)](https://github.com/ninhhaidang/shopeestatx/stargazers)
+![ShopeeStatX overview showing net spend, monthly comparisons, refunds, estimated savings and spending trends](../../store-assets/screenshots/01-summary-cards.png)
 
-</div>
+*Screenshots show the current Vietnamese interface with fictional demo data, not real purchases. The published Chrome Web Store build may differ from the source shown here.*
 
-> **Version 3.1** - React + Tailwind UI, Light/Dark
+## Your purchases, in perspective
 
-A Chrome extension to track and analyze your Shopee spending in detail with intuitive visualizations.
+### See where your money goes
 
-## 📸 Screenshots
+- Track **net spend**, order count and average order value, excluding cancelled and returned orders.
+- Compare months and years, explore monthly spending and see the shops you spend most with.
+- Review refunds and **estimated savings** when the order data supports them.
 
-### Popup Interface
-![Popup Interface](../../store-assets/screenshots/05-popup.png)
+### Understand habits and plan your budget
 
-### Analysis Interface
-![Analysis Interface 1](../../store-assets/screenshots/02-charts.png)
+- Explore frequently purchased products, high-unit-price items and shops you return to.
+- Find patterns with a daily order heatmap and insights from your history.
+- Set a monthly limit, choose a warning threshold and see a month-end spending estimate.
 
-![Analysis Interface 2](../../store-assets/screenshots/04-orders-table.png)
+![Analysis showing spending insights, monthly budget, shopping habits and product rankings](../../store-assets/screenshots/02-charts.png)
 
-## Key Features
+### Find an order, then use your data
 
-### 📊 Overview
-- **Net spend** (cancelled and returned orders excluded), compared with last month
-- Order count, average per order, refunds, estimated savings
-- Spend per month chart (with a data table) and top shops
-- Share image containing aggregate figures only
+- Search by order ID, product, shop or description; filter by date, status and shop.
+- Sort, paginate and expand an order to inspect its seller and individual items.
+- Export **Excel, CSV or Print / PDF** for all matching results, not just the visible page.
+- Create a share image containing aggregate figures only, without account names or order details.
 
-### 🗓️ Global date range
-- One range picker applies to Overview, Analysis and Orders
+![Expanded order details showing seller, delivery time, total and line items](../../store-assets/screenshots/03-order-details.png)
 
-### 📋 Orders
-- Search by product, shop or order ID; filter by status and shop; sort; paginate
-- Order details; on narrow widths the table becomes a card list
-- Export to Excel (.xlsx), CSV or Print / PDF, matching the active filters
+<details>
+<summary>More screenshots: order list and popup</summary>
 
-### 🔎 Analysis
-- Daily order heatmap, buying habits, top products, automatic insights
-- End-of-month prediction and a monthly budget with warnings
+![Completed orders filtered and sorted by total](../../store-assets/screenshots/04-orders-table.png)
 
-### 🎨 Interface
-- One adaptive UI for tab, side panel and popup; Light / Dark / Auto
+![ShopeeStatX popup on a neutral canvas, explicitly marked as a demo](../../store-assets/screenshots/05-popup.png)
 
----
+</details>
 
-## ⚙️ Installation
+Choose **Light, Dark or Auto**. On narrow containers, orders become cards while filters and details remain available. The interface is currently in Vietnamese.
 
-### From the Chrome Web Store (recommended)
+## Get started
 
-[Install ShopeeStatX](https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim).
+1. [Install ShopeeStatX](https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim).
+2. Open [shopee.vn](https://shopee.vn) and sign in to Shopee.
+3. Open the extension and select **Bắt đầu phân tích**. A new dashboard tab shows the scan progress.
 
-### Manual install (Developer mode)
+Revisit cached data or select **Làm mới** to refresh it. After switching Shopee accounts, start a new analysis from the popup. See the [user guide](Guide.md) for more detail.
 
-1. Download source code:
-   - **Download ZIP file**: Download from [Releases](https://github.com/ninhhaidang/shopeestatx/releases) and extract
-   - **Or Clone repository**:
-   ```bash
-   git clone https://github.com/ninhhaidang/shopeestatx.git
-   ```
+## Privacy by design
 
-2. Open Chrome, go to `chrome://extensions/`
+- Uses your existing Shopee browser session; you do not enter a password into ShopeeStatX.
+- Processes order history in the browser and caches it in `chrome.storage.local`, without syncing it to a ShopeeStatX server.
+- No separate ShopeeStatX account, tracking or behavioral analytics.
+- Creates exports and share images locally; you decide whether to send them anywhere.
+- Uninstalling removes the extension's stored data. Files you downloaded remain on your computer.
 
-3. Enable "Developer mode"
+Open **Chính sách bảo mật** in the popup to read the full privacy policy, including permissions and data removal.
 
-4. Click "Load unpacked" and select the `ShopeeStatX` folder
+## Scope and limitations
 
-## 📖 User Guide
+- Supports **shopee.vn** with Chrome 116+ and a signed-in Shopee session.
+- Results depend on what Shopee returns. Shopee changes and expired sessions can interrupt scans.
+- Date filters and shopping habits use delivery/receipt dates in the history, not checkout times.
+- Savings and forecasts are estimates. Savings do not separately identify vouchers and shipping discounts.
+- Budgets always use the current month across the full history, independently of the selected date range.
+- Responsive layouts do not imply a Chrome Side Panel launcher; that option is not shipped.
 
-See detailed guide at [User Guide](Guide.md)
+## Build from source
 
-**Quick Start:**
-1. Log in to your [Shopee](https://shopee.vn) account
-2. Enable ShopeeStatX extension in Chrome toolbar
-3. Click "Start Analysis"
-4. Use filters and charts to analyze your spending
+Requires **Node.js 24+**, npm and Chrome 116+.
 
-## 🛠️ Technology
+```bash
+git clone https://github.com/ninhhaidang/shopeestatx.git
+cd shopeestatx
+npm ci
+npm run build
+```
 
-- Chrome Extension API (Manifest V3)
-- React 19, Radix UI, Tailwind CSS v4, Vite
-- Chart.js
-- ExcelJS (XLSX)
-- Shopee API: `v4/order/get_all_order_and_checkout_list`
+Open `chrome://extensions`, enable **Developer mode**, select **Load unpacked**, and choose the generated **`dist/`** directory — not the source directory.
 
-## ⚠️ Notes
+### Develop with demo data
 
-- Extension only works when logged into Shopee
-- Data fetched directly from Shopee API
-- Delivery date: When order was successfully delivered/received
-- Cancelled orders: No delivery date
-- Total spending excludes cancelled and returned orders
-- Data only displays in current session, not stored
+Run `npm run dev`, then open the [demo dashboard](http://localhost:5173/dashboard-app/dashboard.html). No extension or Shopee account is needed; the demo makes no Shopee API requests. Adjust the port if Vite chooses another one.
 
-## License
+Use the [wide preview](http://localhost:5173/dev-preview?width=tab&theme=light) or [400px container](http://localhost:5173/dev-preview?width=400&theme=dark) to inspect responsive layouts. These preview routes are dev-only and are not included in the extension package.
 
-[MIT License](../LICENSE)
+Before contributing, run:
 
-## 👨‍💻 Author
+```bash
+npm ci
+npm run verify
+```
 
-<div align="center">
+The CI-equivalent command runs typechecking, Knip unused-code checks, tests with coverage, the production build and injected-script checks.
 
-**Developed by [Ninh Hải Đăng](https://github.com/ninhhaidang)**
+Built with React 19, Tailwind CSS v4 and Vite, with Chart.js for charts and ExcelJS for XLSX exports. See the [feature inventory](../features.md), [architecture decisions](../adr/), [Shopee API constraints](../shopee-order-api.md) and [screenshot guidelines](../../store-assets/screenshots/README.md).
 
-[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=google-chrome&logoColor=white)](https://ninhhaidang.dev)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ninhhaidang)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/ninhhaidang)
+## Feedback and support
 
-</div>
+[Report a bug](https://github.com/ninhhaidang/shopeestatx/issues/new) with the extension version, Chrome version and reproduction steps. Never post cookies, tokens, account details or private order history; redact screenshots before sharing.
 
----
+Created by [Ninh Hải Đăng](https://github.com/ninhhaidang). [Support the project](https://www.buymeacoffee.com/ninhhaidang).
 
-**Note**: This extension is not affiliated with official Shopee. It's an independent tool to analyze your personal data.
+ShopeeStatX is an independent project, not affiliated with or endorsed by Shopee. Released under the [MIT License](../../LICENSE).
