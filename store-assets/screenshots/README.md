@@ -5,7 +5,7 @@ Required: 5 screenshots at **1280×800px** PNG format.
 ## Capture Instructions
 
 1. Run demo mode: `npm run dev`
-2. Open `http://localhost:3000/results.html` (loads mock data automatically)
+2. Open `http://localhost:5173/dashboard-app/dashboard.html` (loads mock data automatically)
 3. Set browser window to exactly 1280×800
 4. Capture each state below
 
@@ -22,5 +22,5 @@ Required: 5 screenshots at **1280×800px** PNG format.
 ## Tips
 
 - Use mock data (demo mode) to avoid showing real personal order data
-- Ensure charts have visible data (mock-data.js has representative orders)
+- Ensure charts have visible data (src/dashboard/mock-data.ts has representative orders)
 - For popup screenshot: load as unpacked extension, navigate to shopee.vn, then click icon

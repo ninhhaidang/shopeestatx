@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { computeOverview, monthChange } from '../../dashboard/overview.js';
+import { downloadShareImage } from '../../dashboard/share-image.js';
 import { needsRescan } from '../../dashboard/stats.js';
 import { formatCurrency } from '../../i18n/format.js';
 import { t } from '../../i18n/index.js';
@@ -113,6 +114,10 @@ export function OverviewTab() {
           ))}
         </ol>
       </section>
+
+      <div className="@2xl:col-span-2">
+        <Button variant="outline" onClick={() => downloadShareImage(stats)}>{t('stats.share')}</Button>
+      </div>
     </div>
   );
 }
