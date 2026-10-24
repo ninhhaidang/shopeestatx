@@ -14,7 +14,7 @@
 
 </div>
 
-> **Version 3.1.0** - React + Tailwind + Vite, Light/Dark, multi-domain
+> **Version 3.1.0** - React + Tailwind + Vite, Light/Dark
 
 > Chrome Extension giúp theo dõi và phân tích chi tiêu trên Shopee một cách chi tiết và trực quan.
 
@@ -64,8 +64,8 @@ ShopeeStatX sử dụng phiên đăng nhập sẵn có của trình duyệt đ�
 
 Đây là mô hình xác thực chuẩn công nghiệp cho các extension chạy trên website cụ thể (tương tự Grammarly, Honey, Return YouTube Dislike).
 
-- Kiểm tra domain: Chỉ hoạt động khi đang ở Shopee (shopee.vn, shopee.co.id, shopee.co.th, shopee.ph, shopee.com.my, shopee.sg, shopee.tw)
-- Chưa đăng nhập: Hiển thị cảnh báo, vô hiệu hóa nút bắt đầu
+- Kiểm tra domain: Nút bắt đầu chỉ được bật khi tab hiện tại là shopee.vn; các tên miền Shopee khác chưa được cấu hình để chạy.
+- Chưa đăng nhập: Shopee có thể từ chối lấy đơn; đăng nhập rồi thử lại.
 - Đã đăng nhập: Gọi API bằng session trình duyệt qua MAIN world injection
 
 ### Luồng dữ liệu
@@ -196,13 +196,26 @@ npm run verify           # CI: typecheck, knip (unused files/exports/deps), test
 ### Demo Mode
 Mở trang dashboard ngoài extension (`npm run dev`, `npm run preview`) thì dashboard tự dùng mock data thay vì gọi Shopee API, nên phát triển UI không cần cài extension. Trong build dev nạp vào Chrome, thêm `?mock=1` vào URL dashboard để xem mock data; build production bỏ qua tham số này.
 
+### Dashboard dev preview
+
+Chạy `npm run dev`, rồi mở một trong các URL sau (đổi cổng nếu Vite chọn cổng khác):
+
+| Khung | Light | Dark |
+| --- | --- | --- |
+| Side panel 400px | [400px / Light](http://localhost:5173/dev-preview?width=400&theme=light) | [400px / Dark](http://localhost:5173/dev-preview?width=400&theme=dark) |
+| Toàn bộ chiều rộng tab | [Tab / Light](http://localhost:5173/dev-preview?width=tab&theme=light) | [Tab / Dark](http://localhost:5173/dev-preview?width=tab&theme=dark) |
+
+Khung 400px được cố định ngay trong tab bình thường, nên có thể xem bố cục container query mà không cần thu nhỏ cửa sổ Chrome. `width=tab` dùng toàn bộ chiều rộng tab hiện tại. Thiếu hoặc sai tham số thì mặc định `width=400&theme=light`. Mỗi lần mở URL, `theme` đặt lựa chọn ban đầu thay vì dùng theme đã lưu, nhưng không tự ghi đè lựa chọn đã lưu. Nút đổi theme của dashboard vẫn hoạt động và lưu lựa chọn như trang dashboard thông thường.
+
+Trang luôn dùng `mockHost` và dữ liệu mẫu, không cần extension, không đọc đơn thật hay gọi Shopee API. HTML, mã khởi tạo và CSS của preview chỉ được phục vụ bởi Vite dev server: không khai báo trong Rollup build inputs hay extension manifest, không sao chép vào `dist/`, không dùng được qua `npm run preview`.
+
 ### Phiên bản Chrome tối thiểu (116)
 `minimum_chrome_version` là 116 vì giao diện dùng: container query (Chrome 105), `color-mix()` (Chrome 111) và `chrome.sidePanel.open()` cho tuỳ chọn mở bằng side panel sắp tới (Chrome 116). Xem thêm `docs/adr/0002-one-adaptive-ui-for-all-hosts.md`.
 
 ## ⚠️ Lưu ý
 
 - Extension chỉ hoạt động khi đã đăng nhập Shopee
-- Hỗ trợ đa quốc gia: shopee.vn, shopee.co.id, shopee.co.th, shopee.ph, shopee.com.my, shopee.sg, shopee.tw
+- Hiện chỉ lấy đơn từ shopee.vn; các thị trường khác chưa được cấu hình.
 - Dữ liệu lấy trực tiếp từ API Shopee, không qua server trung gian
 - Ngày giao hàng: Thời điểm giao/nhận hàng thành công
 - Đơn đã hủy và trả hàng: Không tính vào tổng chi tiêu

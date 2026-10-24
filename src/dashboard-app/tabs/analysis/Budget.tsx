@@ -14,7 +14,7 @@ import { money } from '../../format';
 import { card } from '../../../ui/styles/classes';
 
 const LEVEL_BAR = { ok: 'bg-good', warn: 'bg-warn-fg', danger: 'bg-bad' } as const;
-const input = 'w-full rounded-lg border border-line bg-bg px-3 py-2 text-base';
+const input = 'w-full rounded-lg border border-control-line bg-bg px-3 py-2 text-base';
 
 function BudgetForm({ initial, onSave, onCancel }: { initial: BudgetConfig; onSave: (c: BudgetConfig) => Promise<void>; onCancel: () => void }) {
   const [limit, setLimit] = useState(String(initial.monthlyLimit));

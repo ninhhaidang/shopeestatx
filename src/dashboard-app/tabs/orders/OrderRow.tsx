@@ -7,14 +7,14 @@ import type { Order } from '../../../types/index.js';
 import { money } from '../../format';
 import { OrderDetail } from './OrderDetail';
 
-const cell = '@2xl:table-cell @2xl:px-3 @2xl:py-2';
+const cell = '@5xl:table-cell @5xl:px-3 @5xl:py-2';
 
 export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded: boolean; onToggle: () => void }) {
   const excluded = isExcludedOrder(order);
   const detailId = `order-detail-${order.orderId}`;
   return (
     <Fragment>
-      <tr className="grid grid-cols-[1fr_auto] gap-x-3 rounded-xl border border-line bg-card p-3 @2xl:table-row @2xl:rounded-none @2xl:border-0 @2xl:border-b @2xl:bg-transparent @2xl:p-0">
+      <tr className="grid grid-cols-[1fr_auto] gap-x-3 rounded-xl border border-line bg-card p-3 @5xl:table-row @5xl:rounded-none @5xl:border-0 @5xl:border-b @5xl:bg-transparent @5xl:p-0">
         <td className={cell}>
           <button
             type="button"
@@ -22,7 +22,7 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
             aria-controls={expanded ? detailId : undefined}
             aria-label={t('orders.viewDetail', { id: order.orderId })}
             onClick={onToggle}
-            className="mr-2 cursor-pointer text-muted"
+            className="mr-2 inline-flex size-6 cursor-pointer items-center justify-center text-muted"
           >
             <span aria-hidden="true">{expanded ? '▾' : '▸'}</span>
           </button>
@@ -36,12 +36,12 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
           {excluded && <span className="ml-2 rounded border border-bad px-1.5 text-xs text-bad">{t('orders.excluded')}</span>}
         </td>
         <td className={`col-span-2 ${cell}`}>{order.name}</td>
-        <td className={`num ${cell} @2xl:text-right`}>{order.productCount}</td>
-        <td className={`num ${cell} @2xl:text-right ${excluded ? 'text-muted line-through' : ''}`}>{money(order.subTotal)}</td>
+        <td className={`num ${cell} @5xl:text-right`}>{order.productCount}</td>
+        <td className={`num ${cell} @5xl:text-right ${excluded ? 'text-muted line-through' : ''}`}>{money(order.subTotal)}</td>
       </tr>
       {expanded && (
-        <tr className="block @2xl:table-row">
-          <td colSpan={6} className="block @2xl:table-cell">
+        <tr className="block @5xl:table-row">
+          <td colSpan={6} className="block @5xl:table-cell">
             <OrderDetail order={order} id={detailId} excluded={excluded} />
           </td>
         </tr>

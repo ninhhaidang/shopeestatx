@@ -97,7 +97,8 @@ export function OrdersTab() {
         aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
         className={`px-3 py-2 text-xs font-medium text-muted ${align}`}
       >
-        <button type="button" onClick={() => sortBy(field)} className="cursor-pointer hover:text-fg">
+        <span className="@5xl:hidden">{t(column.label)}</span>
+        <button type="button" onClick={() => sortBy(field)} className="hidden cursor-pointer hover:text-fg @5xl:inline">
           {t(column.label)}
           <span aria-hidden="true" className="ml-1">{active ? (sort.direction === 'asc' ? '▲' : '▼') : ''}</span>
         </button>
@@ -114,7 +115,7 @@ export function OrdersTab() {
           placeholder={t('filter.search.placeholder')}
           value={search}
           onChange={e => changeFilter(() => setSearch(e.target.value))}
-          className={`${control} min-w-48 flex-1`}
+          className={`${control} min-w-48 flex-1 placeholder:text-muted`}
         />
         <select
           aria-label={t('orders.filter.status')}
@@ -141,7 +142,7 @@ export function OrdersTab() {
             const [field, direction] = e.target.value.split(':') as [SortField | '', SortDirection | undefined];
             changeFilter(() => setSort({ field: field || null, direction: direction ?? 'asc' }));
           }}
-          className={`${control} @2xl:hidden`}
+          className={`${control} @5xl:hidden`}
         >
           <option value="">{t('orders.sort.default')}</option>
           {SORT_COLUMNS.flatMap(c => [
@@ -161,9 +162,9 @@ export function OrdersTab() {
         <StateMessage title={t('empty.title')} message={t('empty.message')} action={{ label: t('filter.reset'), onClick: reset }} />
       ) : (
         <>
-          <table className="block w-full text-sm @2xl:table">
-            <thead className="sr-only @2xl:not-sr-only @2xl:table-header-group">
-              <tr className="@2xl:table-row">
+          <table className="block w-full text-sm @5xl:table">
+            <thead className="sr-only @5xl:not-sr-only @5xl:table-header-group">
+              <tr className="@5xl:table-row">
                 <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-muted">{t('table.col.orderId')}</th>
                 {sortableHeader('deliveryDate')}
                 {sortableHeader('status')}
@@ -172,7 +173,7 @@ export function OrdersTab() {
                 {sortableHeader('subTotal', 'text-right')}
               </tr>
             </thead>
-            <tbody className="block space-y-2 @2xl:table-row-group @2xl:space-y-0">
+            <tbody className="block space-y-2 @5xl:table-row-group @5xl:space-y-0">
               {pageOrders.map(order => (
                 <OrderRow key={order.orderId} order={order} expanded={open.has(order.orderId)} onToggle={() => toggle(order.orderId)} />
               ))}

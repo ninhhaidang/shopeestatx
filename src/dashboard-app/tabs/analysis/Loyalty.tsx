@@ -13,7 +13,7 @@ export function Loyalty({ orders }: { orders: Order[] }) {
   const shops = useMemo(() => analyzeShopLoyalty(orders), [orders]);
   const title = t('analysis.loyalty.title');
   return (
-    <section aria-labelledby="analysis-loyalty" className={`${card} @2xl:col-span-2`}>
+    <section aria-labelledby="analysis-loyalty" className={`${card} min-w-0 @5xl:col-span-2`}>
       <h2 id="analysis-loyalty" className="text-sm font-semibold">{title}</h2>
       <p className="mb-3 text-xs text-muted">{t('analysis.loyalty.scope')}</p>
       {shops.length === 0 ? (

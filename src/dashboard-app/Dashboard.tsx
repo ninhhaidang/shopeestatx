@@ -87,15 +87,15 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
 
   return (
     <div className="@container h-dvh bg-bg text-fg">
-      <div className="grid h-full grid-cols-[auto_1fr_auto_auto] grid-rows-[auto_auto_minmax(0,1fr)_auto] @2xl:grid-rows-[auto_minmax(0,1fr)]">
-        <div className="col-start-1 row-start-1 flex items-center px-4 py-3">
+      <div className="grid h-full grid-cols-[auto_1fr_auto_auto] grid-rows-[auto_auto_minmax(0,1fr)_auto] @5xl:grid-rows-[auto_minmax(0,1fr)]">
+        <div className="col-start-1 row-start-1 flex items-center px-2 py-3 @5xl:px-4">
           <Logo />
         </div>
 
         <nav
-          className="col-span-full row-start-4 border-t border-line bg-card @2xl:border-0 @2xl:bg-transparent @2xl:[grid-column:2] @2xl:row-start-1 @2xl:self-center"
+          className="col-span-full row-start-4 border-t border-line bg-card @5xl:border-0 @5xl:bg-transparent @5xl:[grid-column:2] @5xl:row-start-1 @5xl:self-center"
         >
-          <div role="tablist" aria-label={t('dash.tabs.label')} className="flex @2xl:gap-1">
+          <div role="tablist" aria-label={t('dash.tabs.label')} className="flex @5xl:gap-1">
             {TABS.map((def, i) => {
               const selected = def.id === tab;
               return (
@@ -112,10 +112,10 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
                   tabIndex={selected ? 0 : -1}
                   onClick={() => setTab(def.id)}
                   onKeyDown={e => onTabKeyDown(e, i)}
-                  className={`flex-1 cursor-pointer px-3 py-3 text-sm @2xl:flex-none @2xl:rounded-lg @2xl:py-1.5 ${
+                  className={`flex-1 cursor-pointer px-3 py-3 text-sm @5xl:flex-none @5xl:rounded-lg @5xl:py-1.5 ${
                     selected
-                      ? 'border-t-2 border-accent-text font-semibold text-accent-text @2xl:border-t-0 @2xl:bg-card @2xl:text-fg @2xl:shadow-[0_0_0_1px_var(--line)]'
-                      : 'border-t-2 border-transparent text-muted hover:text-fg @2xl:border-t-0'
+                      ? 'border-t-2 border-accent-text font-semibold text-accent-text @5xl:border-t-0 @5xl:bg-card @5xl:text-fg @5xl:shadow-[0_0_0_1px_var(--line)]'
+                      : 'border-t-2 border-transparent text-muted hover:text-fg @5xl:border-t-0'
                   }`}
                 >
                   {t(def.label)}
@@ -125,7 +125,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           </div>
         </nav>
 
-        <div className="col-span-full row-start-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 @2xl:[grid-column:3] @2xl:row-start-1 @2xl:p-3">
+        <div className="col-span-full row-start-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 @5xl:[grid-column:3] @5xl:row-start-1 @5xl:p-3">
           <RangePicker value={selection} onChange={setSelection} years={years} now={clock} />
           <Button variant="outline" disabled={phase === 'loading' || refreshing} onClick={orderData.refresh}>
             {t('dash.refresh')}
@@ -136,7 +136,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           </div>
         </div>
 
-        <div className="col-start-4 row-start-1 flex items-center gap-3 px-4 py-3">
+        <div className="col-start-4 row-start-1 flex items-center gap-3 px-2 py-3 @5xl:px-4">
           {data?.user && <AccountChip user={data.user} />}
           <ThemeToggle />
         </div>
@@ -146,7 +146,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           id={`panel-${tab}`}
           aria-labelledby={`tab-${tab}`}
           tabIndex={-1}
-          className="col-span-full row-start-3 min-h-0 overflow-y-auto px-4 pb-6 pt-2 @2xl:row-start-2 @2xl:px-6"
+          className="col-span-full row-start-3 min-h-0 overflow-y-auto px-4 pb-6 pt-2 @5xl:row-start-2 @5xl:px-6"
         >
           <div className="mx-auto max-w-6xl">{content}</div>
         </main>

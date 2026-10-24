@@ -18,9 +18,9 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ColorMode>(readMode);
-  const [theme, setTheme] = useState<ResolvedTheme>(() => resolveTheme(readMode()));
+export function ThemeProvider({ children, initialMode }: { children: ReactNode; initialMode?: ColorMode }) {
+  const [mode, setModeState] = useState<ColorMode>(() => initialMode ?? readMode());
+  const [theme, setTheme] = useState<ResolvedTheme>(() => resolveTheme(mode));
 
   useLayoutEffect(() => {
     applyTheme(theme);
