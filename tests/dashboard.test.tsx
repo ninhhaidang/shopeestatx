@@ -170,7 +170,7 @@ describe('tab', () => {
 
     await user.click(screen.getByRole('tab', { name: 'Phân tích' }));
     expect(screen.getByRole('tab', { name: 'Phân tích' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Màn Phân tích sẽ sớm có mặt.');
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('Thói quen mua sắm');
     expect(screen.queryByText('Chi tiêu ròng')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: 'Đơn hàng' }));
