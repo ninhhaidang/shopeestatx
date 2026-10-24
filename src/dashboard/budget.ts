@@ -1,6 +1,8 @@
 // Budget tracking — chrome.storage config, SVG progress ring, threshold alerts
 import { showToast, formatVND, escapeHtml } from './utils.js';
 import { STORAGE_KEYS } from '../config.js';
+import type { Order } from '../types/index.js';
+import { isExcludedOrder } from './order-status.js';
 
 export interface BudgetConfig {
   monthlyLimit: number;   // VND
@@ -59,6 +61,29 @@ export async function saveBudgetConfig(config: BudgetConfig): Promise<void> {
   } catch (err) {
     console.error('Budget localStorage error:', err);
   }
+}
+
+export const DEFAULT_BUDGET: BudgetConfig = DEFAULT;
+
+/** What the calendar month of `now` has cost so far (cancelled and returned orders excluded). */
+export function currentMonthSpend(orders: Order[], now: Date): number {
+  return orders
+    .filter(o => o.orderMonth === now.getMonth() + 1 && o.orderYear === now.getFullYear() && !isExcludedOrder(o))
+    .reduce((s, o) => s + o.subTotal, 0);
+}
+
+export interface BudgetProgress {
+  /** Spent / limit, 1 = on the limit (can exceed 1). */
+  ratio: number;
+  /** Same colour bands as the old ring: below 60%, up to the alert threshold, beyond it. */
+  level: 'ok' | 'warn' | 'danger';
+  alert: boolean;
+}
+
+export function budgetProgress(spent: number, config: BudgetConfig): BudgetProgress {
+  const ratio = config.monthlyLimit > 0 ? spent / config.monthlyLimit : 0;
+  const level = ratio < 0.6 ? 'ok' : ratio < config.alertThreshold ? 'warn' : 'danger';
+  return { ratio, level, alert: ratio >= config.alertThreshold };
 }
 
 function buildRingSVG(percent: number, color: string): string {
