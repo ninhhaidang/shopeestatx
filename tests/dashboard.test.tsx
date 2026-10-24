@@ -69,6 +69,7 @@ describe('Tổng quan', () => {
     expect(await screen.findByText('Chi tiêu ròng')).toBeInTheDocument();
     expect(hero()).toHaveTextContent(/1\.300\.000/);
     expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 10/2026: 450.000 ₫ · ↑ 50% so với tháng 9/2026');
+    expect(screen.getByTestId('year-change')).toHaveTextContent('Năm 2026: 750.000 ₫ · ↑ 36,4% so với năm 2025');
     expect(tile('Số đơn')).toHaveTextContent('4');
     expect(tile('Trung bình/đơn')).toHaveTextContent('325K');
     expect(tile('Hoàn tiền')).toHaveTextContent('900K');

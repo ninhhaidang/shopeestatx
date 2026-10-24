@@ -67,10 +67,14 @@
   "table.noDate": "Chưa có",
 
   "comparison.budget": "Ngân sách tháng",
-  "comparison.month": "Tháng {month}: {amount}",
-  "comparison.vsLastMonthUp": "↑ {change}% so với tháng {month}",
-  "comparison.vsLastMonthDown": "↓ {change}% so với tháng {month}",
-  "comparison.noLastMonth": "Chưa có dữ liệu tháng {month}",
+  "comparison.month": "Tháng {period}: {amount}",
+  "comparison.year": "Năm {period}: {amount}",
+  "comparison.vsLastMonthUp": "↑ {change}% so với tháng {period}",
+  "comparison.vsLastMonthDown": "↓ {change}% so với tháng {period}",
+  "comparison.vsLastYearUp": "↑ {change}% so với năm {period}",
+  "comparison.vsLastYearDown": "↓ {change}% so với năm {period}",
+  "comparison.noLastYear": "Chưa có dữ liệu năm {period}",
+  "comparison.noLastMonth": "Chưa có dữ liệu tháng {period}",
 
   "chart.spendingByMonth": "Chi tiêu theo tháng",
 
@@ -98,6 +102,9 @@
   "orders.prevPage": "Trang trước",
   "orders.nextPage": "Trang sau",
   "orders.page": "Trang {n}",
+  "orders.pageSize": "Số đơn mỗi trang",
+  "orders.pageSize.n": "{n}/trang",
+  "orders.pageSize.all": "Tất cả",
   "orders.export": "Xuất dữ liệu",
   "orders.viewDetail": "Xem chi tiết đơn {id}",
   "orders.detail": "Chi tiết đơn {id}",

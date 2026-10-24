@@ -7,10 +7,10 @@ import {
   type BudgetConfig,
 } from '../../../dashboard/budget.js';
 import { predictMonthEnd } from '../../../dashboard/predictions.js';
-import { formatCurrency } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { Button } from '../../../ui/components/Button';
+import { money } from '../../format';
 import { card } from '../../../ui/styles/classes';
 
 const LEVEL_BAR = { ok: 'bg-good', warn: 'bg-warn-fg', danger: 'bg-bad' } as const;
@@ -77,9 +77,8 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
 
   if (!config) return null;
 
-  const progress = budgetProgress(spent, config);
-  const percent = Math.round(progress.ratio * 100);
-  const over = config.enabled && config.monthlyLimit > 0 && prediction > config.monthlyLimit ? prediction - config.monthlyLimit : 0;
+  const progress = budgetProgress(spent, config, prediction);
+  const { percent } = progress;
 
   const save = async (next: BudgetConfig) => {
     await saveBudgetConfig(next);
@@ -92,8 +91,8 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
       <h2 id="analysis-budget" className="mb-3 text-sm font-semibold">{t('analysis.prediction.title')}</h2>
       {prediction > 0 && (
         <div className="mb-4 text-sm">
-          <p>{t('analysis.prediction.label')} <strong className="num">{formatCurrency(prediction)}</strong></p>
-          {over > 0 && <p className="mt-1 font-medium text-bad">{t('analysis.prediction.over', { amount: formatCurrency(over) })}</p>}
+          <p>{t('analysis.prediction.label')} <strong className="num">{money(prediction)}</strong></p>
+          {progress.predictedOver > 0 && <p className="mt-1 font-medium text-bad">{t('analysis.prediction.over', { amount: money(progress.predictedOver) })}</p>}
         </div>
       )}
 
@@ -108,8 +107,8 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
       ) : (
         <div className="grid gap-2.5 text-sm">
           <p data-testid="budget-figures" className="num">
-            <strong className="text-xl">{formatCurrency(spent)}</strong>
-            <span className="text-muted"> / {formatCurrency(config.monthlyLimit)}</span>
+            <strong className="text-xl">{money(spent)}</strong>
+            <span className="text-muted"> / {money(config.monthlyLimit)}</span>
           </p>
           <div
             role="progressbar"

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeOverview, monthChange } from '../src/dashboard/overview';
+import { computeOverview, monthChange, yearChange } from '../src/dashboard/overview';
 import { makeOrder } from './support/orders';
 
 describe('computeOverview', () => {
@@ -77,5 +77,22 @@ describe('monthChange', () => {
   it('looks back across the year boundary', () => {
     const o = [makeOrder('2025-12-10T10:00:00', { subTotal: 100_000 }), makeOrder('2026-01-10T10:00:00', { subTotal: 50_000 })];
     expect(monthChange(o, new Date(2026, 0, 20)).percent).toBe(-50);
+  });
+});
+
+describe('yearChange', () => {
+  const orders = [
+    makeOrder('2025-03-10T10:00:00', { subTotal: 400_000 }),
+    makeOrder('2025-12-31T10:00:00', { subTotal: 100_000 }),
+    makeOrder('2026-02-01T10:00:00', { subTotal: 750_000 }),
+    makeOrder('2026-03-01T10:00:00', { subTotal: 250_000, statusCode: 4, refundAmount: 250_000 }),
+  ];
+
+  it('compares the anchor year with the one before', () => {
+    expect(yearChange(orders, new Date(2026, 9, 24))).toEqual({ label: '2026', previousLabel: '2025', current: 750_000, previous: 500_000, percent: 50 });
+  });
+
+  it('has no percentage when the previous year had no spend', () => {
+    expect(yearChange(orders, new Date(2025, 5, 1)).percent).toBeNull();
   });
 });

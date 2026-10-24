@@ -33,3 +33,8 @@ export function orderYears(orders: Order[]): number[] {
   }
   return [...years].sort((a, b) => b - a);
 }
+
+/** Net spend of the orders delivered in the given year (cancelled and returned orders left out). */
+export function yearSpend(orders: Order[], year: number): number {
+  return orders.reduce((sum, o) => (monthOf(o)?.year === year && !isExcludedOrder(o) ? sum + o.subTotal : sum), 0);
+}

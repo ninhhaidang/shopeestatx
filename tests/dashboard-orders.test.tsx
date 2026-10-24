@@ -226,6 +226,23 @@ describe('Đơn hàng: phân trang', () => {
     expect(screen.getByRole('button', { name: 'Trang sau' })).toBeDisabled();
   });
 
+  it('lets the reader pick how many orders a page shows, or all of them', async () => {
+    const { user } = await openOrders(many);
+    const size = screen.getByRole('combobox', { name: 'Số đơn mỗi trang' });
+    expect(within(size).getAllByRole('option').map(o => o.textContent)).toEqual(['20/trang', '50/trang', '100/trang', 'Tất cả']);
+
+    await user.click(screen.getByRole('button', { name: 'Trang 3' }));
+    await user.selectOptions(size, '50/trang');
+    expect(screen.getAllByRole('link', { name: /^11\d\d$/ })).toHaveLength(45);
+    expect(screen.getByText('Hiển thị 1–45 trong tổng số 45 đơn')).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Phân trang' })).not.toBeInTheDocument();
+
+    await user.selectOptions(size, '20/trang');
+    expect(screen.getAllByRole('link', { name: /^11\d\d$/ })).toHaveLength(20);
+    await user.selectOptions(size, 'Tất cả');
+    expect(screen.getAllByRole('link', { name: /^11\d\d$/ })).toHaveLength(45);
+  });
+
   it('goes back to the first page when the results change', async () => {
     const { user } = await openOrders(many);
     await user.click(screen.getByRole('button', { name: 'Trang 2' }));
