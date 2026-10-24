@@ -1,5 +1,5 @@
 // Data fetching, caching, and initialization
-import type { CategoryMap, OrderData } from '../types/index.js';
+import type { OrderData } from '../types/index.js';
 import { state } from './state.js';
 import { applyFilters } from './filters.js';
 import { STORAGE_KEYS } from '../config.js';
@@ -10,8 +10,7 @@ export function isExtensionContext(): boolean {
 
 export async function loadMockData(): Promise<void> {
   try {
-    const { mockData, mockCategories } = await import('./mock-data.js');
-    state.categories = mockCategories;
+    const { mockData } = await import('./mock-data.js');
     state.allOrdersData = mockData;
     initializeUI(mockData);
     updateLastUpdatedTime(mockData.cachedAt);
@@ -25,7 +24,7 @@ export async function loadMockData(): Promise<void> {
 }
 
 export function loadDataFromStorage(): void {
-  chrome.storage.local.get([STORAGE_KEYS.STATS, STORAGE_KEYS.CATEGORIES], function (result: Record<string, unknown>) {
+  chrome.storage.local.get([STORAGE_KEYS.STATS], function (result: { [STORAGE_KEYS.STATS]?: OrderData }) {
     // Check for storage errors
     if (chrome.runtime.lastError) {
       console.error('Storage error:', chrome.runtime.lastError);
@@ -37,13 +36,12 @@ export function loadDataFromStorage(): void {
     try {
       document.getElementById('loading')!.classList.add('hidden');
 
-      const data = result[STORAGE_KEYS.STATS] as OrderData | undefined;
+      const data = result[STORAGE_KEYS.STATS];
       if (!data || !data.orders || data.orders.length === 0) {
         document.getElementById('noData')!.classList.remove('hidden');
         return;
       }
 
-      state.categories = (result[STORAGE_KEYS.CATEGORIES] as CategoryMap | undefined) ?? {};
       state.allOrdersData = data;
       initializeUI(data);
       updateLastUpdatedTime(data.cachedAt);

@@ -74,7 +74,6 @@ export const STORAGE_KEYS = {
   TAB_ID: getStorageKey('tabId'),
   THEME: getStorageKey('theme'),
   BUDGET: getStorageKey('budget'),
-  CATEGORIES: getStorageKey('categories'),
 } as const;
 
 // Bump when Order gains fields, so caches written by older versions are refetched once.

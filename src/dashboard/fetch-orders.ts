@@ -1,8 +1,7 @@
 // The single path that fetches orders from Shopee: first load, refresh and full reload all land here
-import type { CategoryMap, Order, OrderData } from '../types/index.js';
+import type { Order, OrderData } from '../types/index.js';
 import { state } from './state.js';
 import { initializeUI, updateLastUpdatedTime } from './data.js';
-import { categorize } from './fetch-categories.js';
 import { showToast } from './utils.js';
 import { MESSAGE_SOURCE, SCHEMA_VERSION, STORAGE_KEYS } from '../config.js';
 
@@ -89,11 +88,10 @@ export async function fetchOrders(requested: FetchRequest = 'auto'): Promise<voi
   let stallTimer: ReturnType<typeof setTimeout> | undefined;
   let onProgress: ((message: ProgressMessage) => void) | undefined;
   try {
-    const storage = await chrome.storage.local.get([STORAGE_KEYS.STATS, STORAGE_KEYS.TAB_ID, STORAGE_KEYS.CATEGORIES]);
+    const storage = await chrome.storage.local.get([STORAGE_KEYS.STATS, STORAGE_KEYS.TAB_ID]);
     const tabId = storage[STORAGE_KEYS.TAB_ID] as number | undefined;
     const cached = storage[STORAGE_KEYS.STATS] as OrderData | undefined;
     cachedData = cached;
-    state.categories = (storage[STORAGE_KEYS.CATEGORIES] as CategoryMap | undefined) ?? {};
     cachedOrders = cached?.orders ?? [];
     if (!tabId) throw new Error('Không tìm thấy tab Shopee');
 
@@ -169,7 +167,6 @@ export async function fetchOrders(requested: FetchRequest = 'auto'): Promise<voi
     if (mode === 'incremental') {
       showToast(added > 0 ? `Đã thêm ${added} đơn hàng mới!` : 'Dữ liệu đã cập nhật. Không có đơn hàng mới.');
     }
-    await categorize(tabId, merged.orders);
   } catch (error) {
     console.error('Fetch error:', error);
     const message = (error as Error).message;
