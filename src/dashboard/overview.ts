@@ -3,6 +3,7 @@
 import type { Order } from '../types/index.js';
 import { monthOf, monthSpend, yearSpend } from './month.js';
 import { isExcludedOrder } from './order-status.js';
+import { shopDisplayName } from './shop.js';
 import { computeStats, type Stats } from './stats.js';
 
 const TOP_SHOP_LIMIT = 5;
@@ -28,9 +29,6 @@ export interface Overview {
   monthly: MonthTotal[];
   topShops: ShopTotal[];
 }
-
-/** "user - Shop name" is shown as "Shop name". */
-const shopDisplayName = (shopName: string) => shopName.split(' - ')[1] || shopName;
 
 export function computeOverview(orders: Order[]): Overview {
   const included = orders.filter(o => !isExcludedOrder(o));

@@ -4,6 +4,7 @@ import { STORAGE_KEYS } from '../src/config';
 import { Dashboard } from '../src/dashboard-app/Dashboard';
 import type { DashboardHost } from '../src/dashboard-app/host';
 import { mockColorScheme } from './support/match-media';
+import type { OrderData } from '../src/types';
 import { makeData, makeOrder } from './support/orders';
 import { renderSurface } from './support/render';
 
@@ -27,12 +28,12 @@ const ORDERS = [
 ];
 const DATA = makeData(ORDERS, { cachedAt: new Date(2026, 9, 24, 10, 0).toISOString() });
 
-function makeHost(): DashboardHost {
-  return { scanOnOpen: false, loadCached: vi.fn().mockResolvedValue(DATA), refresh: vi.fn().mockResolvedValue({ data: DATA, added: 0 }) };
+function makeHost(data: OrderData = DATA): DashboardHost {
+  return { scanOnOpen: false, loadCached: vi.fn().mockResolvedValue(data), refresh: vi.fn().mockResolvedValue({ data, added: 0 }) };
 }
 
-async function openAnalysis() {
-  const view = renderSurface(<Dashboard host={makeHost()} now={() => NOW} />);
+async function openAnalysis(data: OrderData = DATA) {
+  const view = renderSurface(<Dashboard host={makeHost(data)} now={() => NOW} />);
   await screen.findByText('Chi tiêu ròng');
   await view.user.click(screen.getByRole('tab', { name: 'Phân tích' }));
   return view;
@@ -100,6 +101,30 @@ describe('Phân tích: heatmap', () => {
     const cell = document.querySelector('[data-date="2026-10-12"]')!;
     expect(cell).toHaveAttribute('data-level', '1');
     expect(document.querySelector('[data-date="2026-10-11"]')).toHaveAttribute('data-level', '0');
+  });
+});
+
+describe('Phân tích: shop thân thiết', () => {
+  it('says there is not enough data when no shop has 3 orders', async () => {
+    await openAnalysis();
+    expect(screen.getByText(/Chưa đủ dữ liệu \(cần ít nhất 3 đơn mỗi shop\)/)).toBeInTheDocument();
+  });
+
+  it('lists repeat shops over the whole history, whatever the range', async () => {
+    const repeat = makeData([
+      makeOrder('2026-08-05T10:00:00', { subTotal: 100_000, shopName: 'a - Alpha' }),
+      makeOrder('2026-09-05T10:00:00', { subTotal: 200_000, shopName: 'a - Alpha' }),
+      makeOrder('2026-10-05T10:00:00', { subTotal: 300_000, shopName: 'a - Alpha' }),
+      makeOrder('2026-10-06T10:00:00', { subTotal: 50_000, shopName: 'b - Beta' }),
+    ]);
+    const { user } = await openAnalysis(repeat);
+
+    const row = () => screen.getByRole('row', { name: /Alpha/ });
+    expect(row()).toHaveTextContent(/Alpha.*3.*600\.000.*200\.000.*1\/tháng.*5\/10\/2026/);
+    expect(screen.queryByRole('row', { name: /Beta/ })).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
+    expect(row()).toHaveTextContent(/Alpha.*3.*600\.000/); // September alone holds one of the three
   });
 });
 
