@@ -1,0 +1,21 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  // List shipped extension surfaces explicitly, even when build config also makes them entries.
+  "includeEntryExports": true,
+  "entry": [
+    "src/dashboard-app/dashboard.html",
+    "src/popup/popup.html",
+    "src/welcome/welcome.html",
+    "src/privacy.html",
+    "src/background.ts",
+    "src/bridge/bridge.ts",
+    // Copied unchanged into dist; not imported by Vite.
+    "src/content/content.js"
+  ],
+  // CSS is bundled by Vite/Tailwind, not a JS/TS module Knip analyzes.
+  "project": ["src/**/*.{js,ts,tsx}", "scripts/**/*.mjs", "tests/**/*.{ts,tsx}", "*.ts"],
+  "ignoreDependencies": [
+    // Tailwind's CSS entry imports tailwindcss; Knip only follows JS/TS imports here.
+    "tailwindcss"
+  ]
+}

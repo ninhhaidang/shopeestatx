@@ -8,13 +8,13 @@ import { computeStats, type Stats } from './stats.js';
 
 const TOP_SHOP_LIMIT = 5;
 
-export interface MonthTotal {
+interface MonthTotal {
   /** "9/2026" */
   label: string;
   total: number;
 }
 
-export interface ShopTotal {
+interface ShopTotal {
   name: string;
   amount: number;
   orders: number;

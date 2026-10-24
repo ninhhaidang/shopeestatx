@@ -3,7 +3,7 @@ import type { DateRange, Order } from '../types/index.js';
 import { rangeEnd } from './range.js';
 import { isExcludedOrder } from './order-status.js';
 
-export interface HeatmapDay {
+interface HeatmapDay {
   date: string;       // YYYY-MM-DD
   orderCount: number;
   intensity: 0 | 1 | 2 | 3 | 4;
@@ -23,7 +23,7 @@ function intensityScale(dayCounts: number[]): (count: number) => 0 | 1 | 2 | 3 |
   };
 }
 
-export interface HeatmapCell extends HeatmapDay {
+interface HeatmapCell extends HeatmapDay {
   /** Day of the week, 0 = Sunday. */
   weekday: number;
 }
@@ -42,7 +42,7 @@ export interface HeatmapGrid {
 
 const pad = (n: number) => String(n).padStart(2, '0');
 /** yyyy-mm-dd of the local calendar day. */
-export function localDateKey(d: Date): string {
+function localDateKey(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 

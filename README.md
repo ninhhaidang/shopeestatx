@@ -190,6 +190,7 @@ npm run typecheck        # Kiểm tra TypeScript
 npm test                 # Chạy tests (Vitest)
 npm run test:watch       # Tests trong watch mode
 npm run test:coverage    # Tests với coverage report
+npm run verify           # CI: typecheck, knip (unused files/exports/deps), tests, build, injected scripts
 ```
 
 ### Demo Mode
