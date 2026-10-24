@@ -87,7 +87,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
 
   return (
     <div className="@container h-dvh bg-bg text-fg">
-      <div className="grid h-full grid-cols-[auto_1fr_auto_auto] grid-rows-[auto_auto_minmax(0,1fr)_auto] @5xl:grid-rows-[auto_minmax(0,1fr)]">
+      <div className="grid h-full grid-cols-[auto_1fr_auto_auto] grid-rows-[auto_auto_minmax(0,1fr)_auto] @5xl:grid-rows-[auto_auto_minmax(0,1fr)] @6xl:grid-rows-[auto_minmax(0,1fr)]">
         <div className="col-start-1 row-start-1 flex items-center px-2 py-3 @5xl:px-4">
           <Logo />
         </div>
@@ -125,7 +125,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           </div>
         </nav>
 
-        <div className="col-span-full row-start-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 @5xl:[grid-column:3] @5xl:row-start-1 @5xl:p-3">
+        <div className="col-span-full row-start-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 @6xl:[grid-column:3] @6xl:row-start-1 @6xl:p-3">
           <RangePicker value={selection} onChange={setSelection} years={years} now={clock} />
           <Button variant="outline" disabled={phase === 'loading' || refreshing} onClick={orderData.refresh}>
             {t('dash.refresh')}
@@ -146,7 +146,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           id={`panel-${tab}`}
           aria-labelledby={`tab-${tab}`}
           tabIndex={-1}
-          className="col-span-full row-start-3 min-h-0 overflow-y-auto px-4 pb-6 pt-2 @5xl:row-start-2 @5xl:px-6"
+          className="col-span-full row-start-3 min-h-0 overflow-y-auto px-4 pb-6 pt-2 @5xl:px-6 @6xl:row-start-2"
         >
           <div className="mx-auto max-w-6xl">{content}</div>
         </main>

@@ -162,7 +162,15 @@ export function OrdersTab() {
         <StateMessage title={t('empty.title')} message={t('empty.message')} action={{ label: t('filter.reset'), onClick: reset }} />
       ) : (
         <>
-          <table className="block w-full text-sm @5xl:table">
+          <table className="block w-full text-sm @5xl:table @5xl:table-fixed">
+            <colgroup className="hidden @5xl:table-column-group">
+              <col className="w-52" />
+              <col className="w-28" />
+              <col className="w-40" />
+              <col />
+              <col className="w-16" />
+              <col className="w-36" />
+            </colgroup>
             <thead className="sr-only @5xl:not-sr-only @5xl:table-header-group">
               <tr className="@5xl:table-row">
                 <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-muted">{t('table.col.orderId')}</th>
