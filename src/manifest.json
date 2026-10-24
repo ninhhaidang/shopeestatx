@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "ShopeeStatX",
   "description": "Thống kê tổng số tiền bạn đã tiêu trên Shopee",
-  "version": "3.1.0",
+  "version": "3.4.1",
   "minimum_chrome_version": "116",
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
