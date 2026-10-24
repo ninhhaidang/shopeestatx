@@ -22,6 +22,7 @@ export function mergeOrderData(
     added: fresh.orders.filter(o => !cachedIds.has(String(o.orderId))).length,
     data: {
       ...fresh,
+      user: fresh.user ?? cached?.user,
       orders,
       totalCount: orders.reduce((s, o) => s + o.productCount, 0),
       totalAmount,
