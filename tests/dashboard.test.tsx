@@ -151,6 +151,38 @@ describe('khoảng ngày toàn cục', () => {
     expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 9/2026: 300.000 ₫ · Chưa có dữ liệu tháng 8/2026');
   });
 
+  it('filters by a chosen year, offering the years that have orders', async () => {
+    const { user } = renderDashboard();
+    await screen.findByText('Chi tiêu ròng');
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Theo năm');
+    const year = screen.getByRole('combobox', { name: 'Năm' });
+    expect(within(year).getAllByRole('option').map(o => o.textContent)).toEqual(['2026', '2025']);
+    expect(hero()).toHaveTextContent(/750\.000/); // defaults to the latest year
+
+    await user.selectOptions(year, '2025');
+    expect(hero()).toHaveTextContent(/550\.000/);
+  });
+
+  it('filters by a chosen month of a year', async () => {
+    const { user } = renderDashboard();
+    await screen.findByText('Chi tiêu ròng');
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Theo tháng');
+    expect(hero()).toHaveTextContent(/450\.000/); // this month
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Tháng' }), 'Tháng 9');
+    expect(hero()).toHaveTextContent(/300\.000/);
+  });
+
+  it('offers the last 7 days', async () => {
+    const { user } = renderDashboard();
+    await screen.findByText('Chi tiêu ròng');
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), '7 ngày qua');
+    expect(screen.getByText('Không có đơn hàng trong khoảng này')).toBeInTheDocument(); // newest order is 3 Oct
+  });
+
   it('accepts a custom range', async () => {
     const { user } = renderDashboard();
     await screen.findByText('Chi tiêu ròng');

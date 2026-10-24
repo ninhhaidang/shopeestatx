@@ -11,7 +11,7 @@ import { formatCurrency } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { Button } from '../../../ui/components/Button';
-import { card } from './styles';
+import { card } from '../../../ui/styles/classes';
 
 const LEVEL_BAR = { ok: 'bg-good', warn: 'bg-warn-fg', danger: 'bg-bad' } as const;
 const input = 'w-full rounded-lg border border-line bg-bg px-3 py-2 text-base';

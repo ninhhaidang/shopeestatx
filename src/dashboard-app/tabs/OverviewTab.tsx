@@ -8,9 +8,9 @@ import { t } from '../../i18n/index.js';
 import { BarChart } from '../../ui/components/BarChart';
 import { Button } from '../../ui/components/Button';
 import { StateMessage } from '../../ui/components/StateMessage';
+import { card } from '../../ui/styles/classes';
 import { useDashboard } from '../context';
 
-const card = 'rounded-2xl border border-line bg-card p-4 @2xl:p-5';
 const money = (n: number) => formatCurrency(n);
 const short = (n: number) => formatCurrency(n, true);
 

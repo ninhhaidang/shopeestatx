@@ -9,6 +9,7 @@ import { t } from '../../i18n/index.js';
 import type { Order, SortDirection } from '../../types/index.js';
 import { Button } from '../../ui/components/Button';
 import { StateMessage } from '../../ui/components/StateMessage';
+import { control } from '../../ui/styles/classes';
 import { useDashboard } from '../context';
 
 const money = (n: number) => formatCurrency(n);
@@ -35,7 +36,6 @@ interface Sort {
   direction: SortDirection;
 }
 
-const control = 'rounded-lg border border-line bg-card px-3 py-1.5 text-sm text-fg';
 const cell = '@2xl:table-cell @2xl:px-3 @2xl:py-2';
 
 /** Page numbers to show: all of them up to 7, else first, last and the neighbours of the current page (null = gap). */

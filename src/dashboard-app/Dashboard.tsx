@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { orderYears } from '../dashboard/month.js';
 import { filterByRange, resolveRange, type RangeSelection } from '../dashboard/range.js';
 import { t } from '../i18n/index.js';
 import { Button } from '../ui/components/Button';
@@ -30,6 +31,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
   // Re-read the clock whenever fresh data arrives, so "Cập nhật" and the month comparison stay current.
   const clock = useMemo(() => now(), [data]);
   const range = useMemo(() => resolveRange(selection, clock), [selection, clock]);
+  const years = useMemo(() => (data ? orderYears(data.orders) : []), [data]);
   const orders = useMemo(() => (data ? filterByRange(data.orders, range) : []), [data, range]);
   const context = useMemo(
     () => (data ? { data, orders, range, selection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh } : null),
@@ -123,7 +125,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
         </nav>
 
         <div className="col-span-full row-start-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 @2xl:[grid-column:3] @2xl:row-start-1 @2xl:p-3">
-          <RangePicker value={selection} onChange={setSelection} />
+          <RangePicker value={selection} onChange={setSelection} years={years} now={clock} />
           <Button variant="outline" disabled={phase === 'loading' || refreshing} onClick={orderData.refresh}>
             {t('dash.refresh')}
           </Button>

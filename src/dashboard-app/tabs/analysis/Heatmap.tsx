@@ -3,7 +3,7 @@ import { buildHeatmapGrid, heatmapWindow } from '../../../dashboard/heatmap.js';
 import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { DateRange, Order } from '../../../types/index.js';
-import { card } from './styles';
+import { card } from '../../../ui/styles/classes';
 
 const CELL = 12;
 const GAP = 3;

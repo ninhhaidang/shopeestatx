@@ -1,16 +1,18 @@
 // Global date range: what the user picked, the bounds it means, and filtering orders by it (pure)
 import type { DateRange, Order } from '../types/index.js';
 
-export type RangePreset = 'all' | 'thisMonth' | 'lastMonth' | 'last3months' | 'thisYear' | 'custom';
+export type RangePreset = 'all' | 'last7days' | 'thisMonth' | 'lastMonth' | 'last3months' | 'thisYear' | 'year' | 'month' | 'custom';
 
-/** The user's choice. `from`/`to` are yyyy-mm-dd and only used by `custom`. */
+/** The user's choice. `from`/`to` (yyyy-mm-dd) are used by `custom`; `year` by `year` and `month`; `month` (1-12) by `month`. */
 export interface RangeSelection {
   preset: RangePreset;
   from?: string;
   to?: string;
+  year?: number;
+  month?: number;
 }
 
-export const RANGE_PRESETS: RangePreset[] = ['all', 'thisMonth', 'lastMonth', 'last3months', 'thisYear', 'custom'];
+export const RANGE_PRESETS: RangePreset[] = ['all', 'last7days', 'thisMonth', 'lastMonth', 'last3months', 'thisYear', 'year', 'month', 'custom'];
 
 const endOfMonth = (year: number, month: number) => new Date(year, month + 1, 0, 23, 59, 59, 999);
 
@@ -19,6 +21,17 @@ export function resolveRange(selection: RangeSelection, now: Date): DateRange {
   const year = now.getFullYear();
   const month = now.getMonth();
   switch (selection.preset) {
+    case 'last7days':
+      return { start: new Date(year, now.getMonth(), now.getDate() - 6), end: new Date(year, now.getMonth(), now.getDate(), 23, 59, 59, 999) };
+    case 'year': {
+      const y = selection.year ?? year;
+      return { start: new Date(y, 0, 1), end: new Date(y, 11, 31, 23, 59, 59, 999) };
+    }
+    case 'month': {
+      const y = selection.year ?? year;
+      const m = (selection.month ?? month + 1) - 1;
+      return { start: new Date(y, m, 1), end: endOfMonth(y, m) };
+    }
     case 'thisMonth':
       return { start: new Date(year, month, 1), end: endOfMonth(year, month) };
     case 'lastMonth':
