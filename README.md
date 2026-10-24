@@ -193,7 +193,10 @@ npm run test:coverage    # Tests với coverage report
 ```
 
 ### Demo Mode
-Khi chạy `npm run dev`, extension tự động dùng mock data thay vì gọi Shopee API — cho phép phát triển UI mà không cần cài extension.
+Mở trang dashboard ngoài extension (`npm run dev`, `npm run preview`) thì dashboard tự dùng mock data thay vì gọi Shopee API, nên phát triển UI không cần cài extension. Trong build dev nạp vào Chrome, thêm `?mock=1` vào URL dashboard để xem mock data; build production bỏ qua tham số này.
+
+### Phiên bản Chrome tối thiểu (116)
+`minimum_chrome_version` là 116 vì giao diện dùng: container query (Chrome 105), `color-mix()` (Chrome 111) và `chrome.sidePanel.open()` cho tuỳ chọn mở bằng side panel sắp tới (Chrome 116). Xem thêm `docs/adr/0002-one-adaptive-ui-for-all-hosts.md`.
 
 ## ⚠️ Lưu ý
 
