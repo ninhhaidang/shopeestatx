@@ -69,17 +69,12 @@ User clicks "Bat dau phan tich"
   → popup.ts stores shopeeTabId in chrome.storage.local
   → opens results.html?fetch=true
     → results.ts initializes UI
-    → fetch-orders.ts::fetchOrders('auto' | 'incremental' | 'full')   (the only fetch path; one run at a time)
-      → mode: no cache or older schemaVersion → full; otherwise incremental
+    → data.ts::fetchDataFromShopee()
       → chrome.scripting.executeScript(bridge.js, ISOLATED)   (classic script: see code-standards.md "Injected scripts")
-      → chrome.scripting.executeScript(func setting window.shopeeStatXRequest = {mode, knownOrders?}, MAIN)
       → chrome.scripting.executeScript(content.js, MAIN)
-        → GET /api/v4/order/get_all_order_and_checkout_list?offset=N&limit=20 (Shopee caps a page at 20)
-        → full: up to 3 pages at once; incremental: one at a time, stops at the first page of only
-          known orders in a final state (completed, cancelled, returned)
-        → requests start >=400ms (+0-200ms jitter) apart; 429/5xx/network/error!=0 retried at 2s, 5s, 10s
-        → postMessage progress updates (MAIN → ISOLATED → runtime) → "Đã tải N đơn hàng..."
-        → returns {success, data} or {success:false, error, partial?}
+        → loops GET /api/v4/order/get_all_order_and_checkout_list?offset=N&limit=20
+        → postMessage progress updates (MAIN → ISOLATED → runtime)
+        → returns allOrders[]
       → cache to chrome.storage.local {shopeeStats: {..., cachedAt}}
       → state.allOrdersData = data
       → initializeUI() → applyFilters() → renderCharts() + renderCurrentPage()

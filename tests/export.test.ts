@@ -14,17 +14,11 @@ const order: Order = {
   statusCode: 3,
   shopName: 'Test Shop',
   productSummary: 'Test summary',
-  items: [
-    { itemId: 1, name: 'Test Product', variation: 'Red, XL', quantity: 2, unitPrice: 50000 },
-    { itemId: 2, name: 'Other', variation: '', quantity: 1, unitPrice: 0 },
-  ],
-  shopId: 9,
-  parcelCount: 1,
   deliveryDate: '2024-01-15T12:00:00',
   orderMonth: 1,
   orderYear: 2024,
 };
-const headers = '"STT","Mã đơn hàng","Ngày giao","Trạng thái","Tên sản phẩm","Số lượng","Tổng tiền","Seller","Variation","Shop ID","Parcels"';
+const headers = '"STT","Mã đơn hàng","Ngày giao","Trạng thái","Tên sản phẩm","Số lượng","Tổng tiền","Seller"';
 
 function readBlob(blob: Blob): Promise<string> {
   const { promise, resolve, reject } = Promise.withResolvers<string>();
@@ -76,7 +70,7 @@ describe('Export Functions', () => {
 
       expect(downloads).toEqual([{ href: 'blob:mock-url', filename: expect.stringMatching(/^shopee-stats-\d{4}-\d{2}-\d{2}\.csv$/) }]);
       expect(blobs[0].type).toBe('text/csv;charset=utf-8');
-      expect(await readBlob(blobs[0])).toBe(`${headers}\n1,"ORD001","15/1/2024","Hoàn thành","Test Product",2,100000,"Test Shop","Red, XL",9,1`);
+      expect(await readBlob(blobs[0])).toBe(`${headers}\n1,"ORD001","15/1/2024","Hoàn thành","Test Product",2,100000,"Test Shop"`);
       expect(document.querySelector('a')).toBeNull();
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
     });
@@ -97,16 +91,6 @@ describe('Export Functions', () => {
       expect(csv.split('\n')[1]).toContain('1,"ORD002"');
       expect(csv.split('\n')[2]).toContain('2,"ORD001"');
       expect(csv).not.toContain('HIDDEN');
-    });
-
-    it('leaves the new columns empty for orders cached before they existed', async () => {
-      const legacy = { ...order, items: undefined, shopId: undefined, parcelCount: undefined };
-      state.allOrdersData!.orders = [legacy];
-      state.filteredOrders = [legacy];
-
-      exportToCSV();
-
-      expect((await readBlob(blobs[0])).split('\n')[1]).toMatch(/,"Test Shop","","",""$/);
     });
 
     it('exports headers only when filters exclude every order', async () => {
@@ -187,7 +171,6 @@ describe('Export Functions', () => {
       expect(worksheet.getCell(2, 2).value).toBe('ORD001');
       expect(worksheet.getCell(2, 6).value).toBe(2);
       expect(worksheet.getCell(2, 7).value).toBe(100000);
-      expect([10, 11, 12].map(column => worksheet.getCell(2, column).value)).toEqual(['Red, XL', 9, 1]);
       expect(downloads[0].filename).toMatch(/\.xlsx$/);
       expect(blobs[0].type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     });

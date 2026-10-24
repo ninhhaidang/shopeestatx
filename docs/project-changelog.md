@@ -4,17 +4,7 @@ All notable changes to ShopeeStatX are documented here.
 
 ## Unreleased — 2026-10-23
 
-### Added
-
-- Faster, safer order fetching (#23): refresh now loads only new orders and orders not yet in a final state, stopping at the first fully settled page; a full load fetches up to 3 pages at once. Requests are paced, retried with back-off on throttling, and orders fetched before a failure are kept.
-- Orders store item variation, per-item price and quantity, shop id and parcel count; CSV and Excel exports gain Variation, Shop ID and Parcels columns. Caches from older versions are rebuilt once automatically.
-- A "Tải lại toàn bộ" button next to refresh, and a progress count ("Đã tải N đơn hàng...") on every fetch path.
-
 ### Fixed
-
-- The final Shopee page (no order list, `next_offset: -1`) no longer fails the load with "Invalid order response from Shopee".
-- The progress relay now runs: `bridge.js` was built as an ES module but injected as a classic script, so progress never reached the dashboard.
-- `content.js` can be injected into the same tab repeatedly; top-level declarations made the second run fail with "Không nhận được dữ liệu từ Shopee".
 
 - All-page pagination now renders finite row numbers; equal sort keys retain their original order.
 - Category matching recognizes accented Vietnamese keywords; custom date ranges retain local dates and include the end of the final second.

@@ -1,7 +1,6 @@
 // Excel, CSV, and PDF export functions
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
-import type { Order } from '../types/index.js';
 
 /** Helper: trigger browser file download */
 function downloadFile(content: string, filename: string, mimeType: string): void {
@@ -23,11 +22,6 @@ function csvCell(value: string | number): string {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-/** Distinct item variations of an order, e.g. "Red, XL; Blue, M". Empty for orders cached before schema v2. */
-function variationsOf(order: Order): string {
-  return [...new Set((order.items ?? []).map(item => item.variation).filter(Boolean))].join('; ');
-}
-
 export function exportToExcel(): void {
   const filtered = state.allOrdersData ? state.filteredOrders : [];
 
@@ -46,9 +40,6 @@ export function exportToExcel(): void {
     [t('export.col.total')]: order.subTotal,
     'Seller': order.shopName,
     'Details': order.productSummary,
-    'Variation': variationsOf(order),
-    'Shop ID': order.shopId ?? '',
-    'Parcels': order.parcelCount ?? '',
   }));
 
   // Load the spreadsheet bundle only when an Excel download is requested.
@@ -101,10 +92,7 @@ export function exportToCSV(): void {
     t('export.col.product'),
     t('export.col.quantity'),
     t('export.col.total'),
-    'Seller',
-    'Variation',
-    'Shop ID',
-    'Parcels'
+    'Seller'
   ];
   const rows = filtered.map((o, i) => [
     i + 1,
@@ -115,9 +103,6 @@ export function exportToCSV(): void {
     o.productCount,
     o.subTotal,
     o.shopName,
-    variationsOf(o),
-    o.shopId ?? '',
-    o.parcelCount ?? '',
   ].map(csvCell).join(','));
 
   const csv = BOM + [headers.map(csvCell).join(','), ...rows].join('\n');
