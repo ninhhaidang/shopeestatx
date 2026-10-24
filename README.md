@@ -122,7 +122,7 @@ Chrome Extension mặc định chạy trong ISOLATED world — không thể truy
 ## ⚙️ Cài đặt
 
 ### Cài từ Chrome Web Store (Khuyến nghị)
-> Extension đang chờ được duyệt trên Chrome Web Store. Link sẽ được cập nhật sau khi xuất bản.
+[Cài ShopeeStatX trên Chrome Web Store](https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim).
 
 ### Cài thủ công (Developer mode)
 1. Tải file ZIP từ [Releases](https://github.com/ninhhaidang/shopeestatx/releases) và giải nén, hoặc clone repo:
