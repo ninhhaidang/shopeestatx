@@ -3,6 +3,7 @@ import type { Order } from '../types/index.js';
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
 import { EVENTS } from '../config.js';
+import { isExcludedOrder } from './order-status.js';
 
 export interface HeatmapDay {
   date: string;       // YYYY-MM-DD
@@ -14,7 +15,7 @@ function buildDayIndex(orders: Order[], startDate: Date, endDate: Date): Record<
   const dayMap: Record<string, number> = {};
 
   orders.forEach(order => {
-    if (order.statusCode === 4 || order.statusCode === 12) return;
+    if (isExcludedOrder(order)) return;
     if (!order.deliveryDate) return;
     const dateStr = order.deliveryDate.substring(0, 10);
     const d = new Date(dateStr);

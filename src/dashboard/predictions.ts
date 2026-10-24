@@ -2,6 +2,7 @@
 import type { Order } from '../types/index.js';
 import { formatVND } from './utils.js';
 import type { BudgetConfig } from './budget.js';
+import { isExcludedOrder } from './order-status.js';
 
 export function predictMonthEnd(allOrders: Order[]): number {
   const now = new Date();
@@ -11,7 +12,7 @@ export function predictMonthEnd(allOrders: Order[]): number {
   const thisMonthOrders = allOrders.filter(o =>
     o.orderMonth === now.getMonth() + 1 &&
     o.orderYear === now.getFullYear() &&
-    o.statusCode !== 4 && o.statusCode !== 12
+    !isExcludedOrder(o)
   );
 
   const currentSpending = thisMonthOrders.reduce((s, o) => s + o.subTotal, 0);

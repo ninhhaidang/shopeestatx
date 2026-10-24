@@ -1,5 +1,6 @@
 // Pure spending statistics derived from cached orders (no DOM, no network)
 import type { Order } from '../types/index.js';
+import { isExcludedOrder } from './order-status.js';
 
 export interface Stats {
   netSpend: number;
@@ -16,8 +17,6 @@ export interface Stats {
 
 const LIST_LIMIT = 10;
 const MS_PER_DAY = 86_400_000;
-
-const isExcluded = (o: Order) => o.statusCode === 4 || o.statusCode === 12;
 
 // Index of the most frequent bucket; ties go to the earlier position in `order`.
 function peak(counts: number[], order: number[]): number | null {
@@ -40,8 +39,8 @@ function longestStreak(monthIndexes: Set<number>): number {
 }
 
 export function computeStats(orders: Order[]): Stats {
-  const included = orders.filter(o => !isExcluded(o));
-  const excluded = orders.filter(isExcluded);
+  const included = orders.filter(o => !isExcludedOrder(o));
+  const excluded = orders.filter(isExcludedOrder);
 
   const netSpend = included.reduce((s, o) => s + o.subTotal, 0);
   const refundTotal = excluded.reduce((s, o) => s + (o.refundAmount ?? 0), 0);

@@ -4,6 +4,7 @@ import { state } from './state.js';
 import { isExtensionContext, initializeUI, updateLastUpdatedTime } from './data.js';
 import { showToast } from './utils.js';
 import { STORAGE_KEYS } from '../config.js';
+import { isExcludedOrder } from './order-status.js';
 
 /** Fetch fresh data from Shopee and merge with cached orders (no page reload) */
 export async function incrementalFetch(): Promise<void> {
@@ -47,7 +48,7 @@ export async function incrementalFetch(): Promise<void> {
     const mergedOrders = [...freshOrders, ...onlyInCache];
 
     const totalAmount = mergedOrders
-      .filter(o => o.statusCode !== 4 && o.statusCode !== 12)
+      .filter(o => !isExcludedOrder(o))
       .reduce((s, o) => s + o.subTotal, 0);
 
     const merged: OrderData = {
