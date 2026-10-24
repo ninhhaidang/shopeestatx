@@ -7,7 +7,7 @@ import { getStorageKey } from '../../config.js';
 export type ColorMode = 'light' | 'dark' | 'auto';
 export type ResolvedTheme = 'light' | 'dark';
 
-export const COLOR_MODE_KEY = getStorageKey('color-mode');
+const COLOR_MODE_KEY = getStorageKey('color-mode');
 export const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 export function isColorMode(value: unknown): value is ColorMode {
@@ -31,7 +31,7 @@ export function writeMode(mode: ColorMode): void {
   }
 }
 
-export function systemTheme(): ResolvedTheme {
+function systemTheme(): ResolvedTheme {
   return window.matchMedia?.(DARK_QUERY).matches ? 'dark' : 'light';
 }
 

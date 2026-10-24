@@ -15,7 +15,7 @@ export function t(key: string, params?: Record<string, string | number>): string
 }
 
 /** Apply translations to all [data-i18n], [data-i18n-placeholder], [data-i18n-title] elements */
-export function applyTranslations(): void {
+function applyTranslations(): void {
   document.querySelectorAll<HTMLElement>('[data-i18n]').forEach(el => {
     el.textContent = t(el.dataset.i18n!);
   });

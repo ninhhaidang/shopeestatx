@@ -4,9 +4,9 @@ import type { OrderData } from '../types/index.js';
 import type { DashboardHost } from './host';
 
 /** No progress for this long: tell the user Shopee is slow. */
-export const STALL_MS = 30_000;
+const STALL_MS = 30_000;
 
-export type Phase = 'loading' | 'empty' | 'error' | 'ready';
+type Phase = 'loading' | 'empty' | 'error' | 'ready';
 
 export interface OrderDataState {
   phase: Phase;

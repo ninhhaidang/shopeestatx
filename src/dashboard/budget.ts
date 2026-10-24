@@ -10,7 +10,7 @@ export interface BudgetConfig {
 }
 
 const STORAGE_KEY = STORAGE_KEYS.BUDGET;
-export const DEFAULT_BUDGET: BudgetConfig = { monthlyLimit: 5_000_000, enabled: false, alertThreshold: 0.8 };
+const DEFAULT_BUDGET: BudgetConfig = { monthlyLimit: 5_000_000, enabled: false, alertThreshold: 0.8 };
 
 export async function loadBudgetConfig(): Promise<BudgetConfig> {
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {

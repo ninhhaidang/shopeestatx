@@ -12,7 +12,7 @@ export interface UserProfile {
   shopId?: number;
 }
 
-export interface OrderItem {
+interface OrderItem {
   name: string;
   quantity: number;
   unitPrice: number;

@@ -13,7 +13,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "preview": "vite preview",
-    "verify": "tsc --noEmit && vitest run --coverage && vite build && npm run check:injected"
+    "verify": "tsc --noEmit && knip && vitest run --coverage && vite build && npm run check:injected"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",
@@ -25,6 +25,7 @@
     "@vitest/coverage-v8": "^5.0.5",
     "esbuild": "^0.28.2",
     "jsdom": "^30.1.3",
+    "knip": "^6.42.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
