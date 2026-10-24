@@ -1,8 +1,7 @@
 import type { ComponentType } from 'react';
-import { t } from '../i18n/index.js';
 import { OverviewTab } from './tabs/OverviewTab';
 import { OrdersTab } from './tabs/OrdersTab';
-import { PlaceholderTab } from './tabs/PlaceholderTab';
+import { AnalysisTab } from './tabs/AnalysisTab';
 
 export type TabId = 'overview' | 'analysis' | 'orders';
 
@@ -19,7 +18,7 @@ export const TABS: TabDef[] = [
   {
     id: 'analysis',
     label: 'dash.tab.analysis',
-    Component: () => <PlaceholderTab title={t('dash.tab.analysis')} message={t('dash.placeholder.analysis')} />,
+    Component: AnalysisTab,
   },
   { id: 'orders', label: 'dash.tab.orders', Component: OrdersTab },
 ];

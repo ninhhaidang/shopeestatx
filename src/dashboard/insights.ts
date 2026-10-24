@@ -4,8 +4,7 @@ import { formatVND, escapeHtml } from './utils.js';
 import { t } from '../i18n/index.js';
 import { isExcludedOrder } from './order-status.js';
 
-export function generateInsights(allOrders: Order[]): string[] {
-  const now = new Date();
+export function generateInsights(allOrders: Order[], now: Date = new Date()): string[] {
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
   const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
