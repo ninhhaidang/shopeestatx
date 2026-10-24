@@ -61,6 +61,12 @@ A Chrome extension to track and analyze your Shopee spending in detail with intu
 
 ## ⚙️ Installation
 
+### From the Chrome Web Store (recommended)
+
+[Install ShopeeStatX](https://chromewebstore.google.com/detail/shopeestatx/hhcfonmapcabjmaghpapehegbmhdceim).
+
+### Manual install (Developer mode)
+
 1. Download source code:
    - **Download ZIP file**: Download from [Releases](https://github.com/ninhhaidang/shopeestatx/releases) and extract
    - **Or Clone repository**:
