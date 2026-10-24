@@ -4,8 +4,7 @@ import { exportToExcel, exportToCSV, exportToPDF } from './export.js';
 import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
 import { applyFilters, clearAllFilters, handleSort } from './filters.js';
-import { loadDataFromStorage, refreshData, reloadAllData, isExtensionContext, loadMockData } from './data.js';
-import { fetchOrders } from './fetch-orders.js';
+import { fetchDataFromShopee, loadDataFromStorage, refreshData, isExtensionContext, loadMockData } from './data.js';
 import { initTheme, setTheme, updateThemeButton, getThemes, toggleThemeDropdown, closeThemeDropdown } from './theme-toggle.js';
 import { loadBudgetConfig, saveBudgetConfig, setCachedBudgetConfig, getCachedBudgetConfig } from './budget.js';
 import { initLocale } from '../i18n/index.js';
@@ -68,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   if (!isExtensionContext()) {
     await loadMockData();
   } else if (shouldFetch) {
-    await fetchOrders('auto');
+    await fetchDataFromShopee();
   } else {
     loadDataFromStorage();
   }
@@ -194,7 +193,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   filterStatus.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
   filterCategory.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
   btnRefresh.addEventListener('click', refreshData);
-  document.getElementById('btnFullReload')?.addEventListener('click', reloadAllData);
   btnClearFilters.addEventListener('click', clearAllFilters);
   btnResetFilters.addEventListener('click', clearAllFilters);
 

@@ -20,7 +20,7 @@ vi.mock('../src/dashboard/budget', () => ({
 vi.mock('../src/dashboard/data', () => ({
   isExtensionContext: () => false,
   loadMockData: async () => { state.allOrdersData = fixture; },
-  loadDataFromStorage: vi.fn(), refreshData: vi.fn(), reloadAllData: vi.fn(),
+  loadDataFromStorage: vi.fn(), fetchDataFromShopee: vi.fn(), refreshData: vi.fn(),
 }));
 
 const orders: Order[] = [
