@@ -58,7 +58,7 @@ export default defineConfig({
         if (!existsSync(iconsDir)) mkdirSync(iconsDir, { recursive: true });
         for (const size of ['16', '48', '128']) {
           copyFileSync(
-            resolve(__dirname, '_legacy-shopeestatx/icons/icon' + size + '.png'),
+            resolve(__dirname, 'src/icons/icon' + size + '.png'),
             resolve(iconsDir, 'icon' + size + '.png')
           );
         }

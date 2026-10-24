@@ -4,7 +4,7 @@
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 [![Tiếng Việt](https://img.shields.io/badge/Tiếng_Việt-red?style=for-the-badge)](#)
-[![English](https://img.shields.io/badge/English-blue?style=for-the-badge)](Documents/README-en.md)
+[![English](https://img.shields.io/badge/English-blue?style=for-the-badge)](docs/guide/README-en.md)
 
 ---
 
@@ -20,15 +20,15 @@
 
 ## 📸 Screenshots
 
-![Summary Cards](Screenshots/01-summary-cards.png)
+![Summary Cards](store-assets/screenshots/01-summary-cards.png)
 
-![Charts](Screenshots/02-charts.png)
+![Charts](store-assets/screenshots/02-charts.png)
 
-![Order Details](Screenshots/03-order-details.png)
+![Order Details](store-assets/screenshots/03-order-details.png)
 
-![Orders Table](Screenshots/04-orders-table.png)
+![Orders Table](store-assets/screenshots/04-orders-table.png)
 
-![Popup](Screenshots/05-popup.png)
+![Popup](store-assets/screenshots/05-popup.png)
 
 ## Giới thiệu
 
@@ -135,7 +135,7 @@ Chrome Extension mặc định chạy trong ISOLATED world — không thể truy
 
 ## 📖 Hướng dẫn sử dụng
 
-Xem hướng dẫn chi tiết tại [Hướng dẫn sử dụng](Documents/Huong_dan.md)
+Xem hướng dẫn chi tiết tại [Hướng dẫn sử dụng](docs/guide/Huong_dan.md)
 
 **Tóm tắt:**
 1. Đăng nhập tài khoản [Shopee](https://shopee.vn)
