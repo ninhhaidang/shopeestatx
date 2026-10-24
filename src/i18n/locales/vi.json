@@ -67,9 +67,10 @@
   "table.noDate": "Chưa có",
 
   "comparison.budget": "Ngân sách tháng",
-  "comparison.vsLastMonthUp": "↑ {change}% so với tháng trước",
-  "comparison.vsLastMonthDown": "↓ {change}% so với tháng trước",
-  "comparison.noLastMonth": "Chưa có dữ liệu tháng trước",
+  "comparison.month": "Tháng {month}: {amount}",
+  "comparison.vsLastMonthUp": "↑ {change}% so với tháng {month}",
+  "comparison.vsLastMonthDown": "↓ {change}% so với tháng {month}",
+  "comparison.noLastMonth": "Chưa có dữ liệu tháng {month}",
 
   "chart.spendingByMonth": "Chi tiêu theo tháng",
 
