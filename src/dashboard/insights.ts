@@ -1,11 +1,11 @@
 // Auto-generated spending insights from order data
 import type { Order } from '../types/index.js';
-import { formatVND, escapeHtml } from './utils.js';
-import { t } from '../i18n/index.js';
+import { formatCurrency } from '../i18n/format.js';
+import { shopDisplayName } from './shop.js';
+import { monthOf } from './month.js';
 import { isExcludedOrder } from './order-status.js';
 
-export function generateInsights(allOrders: Order[]): string[] {
-  const now = new Date();
+export function generateInsights(allOrders: Order[], now: Date = new Date()): string[] {
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
   const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
@@ -15,8 +15,13 @@ export function generateInsights(allOrders: Order[]): string[] {
   const sum = (os: Order[]) => os.reduce((s, o) => s + o.subTotal, 0);
 
   const completedAll = completed(allOrders);
-  const thisMonth = completedAll.filter(o => o.orderMonth === currentMonth && o.orderYear === currentYear);
-  const lastMonthOrders = completedAll.filter(o => o.orderMonth === lastMonth && o.orderYear === lastMonthYear);
+  const inMonth = (month: number, year: number) =>
+    completedAll.filter(o => {
+      const m = monthOf(o);
+      return m?.month === month && m.year === year;
+    });
+  const thisMonth = inMonth(currentMonth, currentYear);
+  const lastMonthOrders = inMonth(lastMonth, lastMonthYear);
 
   const insights: string[] = [];
 
@@ -26,15 +31,15 @@ export function generateInsights(allOrders: Order[]): string[] {
   if (thisMonthTotal > 0 && lastMonthTotal > 0) {
     const pct = ((thisMonthTotal - lastMonthTotal) / lastMonthTotal * 100).toFixed(0);
     const dir = Number(pct) > 0 ? 'tăng' : 'giảm';
-    insights.push(`Tháng này bạn đã chi ${formatVND(thisMonthTotal)}, ${dir} ${Math.abs(Number(pct))}% so với tháng trước.`);
+    insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)}, ${dir} ${Math.abs(Number(pct))}% so với tháng trước.`);
   } else if (thisMonthTotal > 0) {
-    insights.push(`Tháng này bạn đã chi ${formatVND(thisMonthTotal)} trên Shopee.`);
+    insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)} trên Shopee.`);
   }
 
   // Top shop by order count
   const shopCount: Record<string, number> = {};
   completedAll.forEach(o => {
-    const shop = o.shopName.split(' - ')[1] || o.shopName;
+    const shop = shopDisplayName(o.shopName);
     shopCount[shop] = (shopCount[shop] || 0) + 1;
   });
   const topShop = Object.entries(shopCount).sort((a, b) => b[1] - a[1])[0];
@@ -43,7 +48,7 @@ export function generateInsights(allOrders: Order[]): string[] {
   }
 
   // Average monthly order count
-  const months = new Set(completedAll.map(o => `${o.orderMonth}/${o.orderYear}`)).size;
+  const months = new Set(completedAll.map(o => { const m = monthOf(o); return m && `${m.month}/${m.year}`; })).size;
   if (months > 1) {
     const avg = (completedAll.length / months).toFixed(0);
     insights.push(`Bạn đặt trung bình ${avg} đơn/tháng trên Shopee.`);
@@ -58,25 +63,15 @@ export function generateInsights(allOrders: Order[]): string[] {
   });
   const topDay = Object.entries(daySpend).sort((a, b) => b[1] - a[1])[0];
   if (topDay) {
-    insights.push(`Ngày ${topDay[0]} là ngày bạn chi nhiều nhất tháng này (${formatVND(topDay[1])}).`);
+    insights.push(`Ngày ${topDay[0]} là ngày bạn chi nhiều nhất tháng này (${formatCurrency(topDay[1])}).`);
   }
 
   // Savings from cancelled/returned orders
   const cancelled = allOrders.filter(isExcludedOrder);
   const cancelledTotal = cancelled.reduce((s, o) => s + o.subTotal, 0);
   if (cancelledTotal > 0) {
-    insights.push(`Bạn đã tiết kiệm ${formatVND(cancelledTotal)} nhờ các đơn bị hủy/trả hàng.`);
+    insights.push(`Bạn đã tiết kiệm ${formatCurrency(cancelledTotal)} nhờ các đơn bị hủy/trả hàng.`);
   }
 
   return insights.slice(0, 5);
-}
-
-export function renderInsights(container: HTMLElement, insights: string[]): void {
-  if (insights.length === 0) {
-    container.innerHTML = `<p class="insights-empty" data-i18n="insights.empty">${t('insights.empty')}</p>`;
-    return;
-  }
-  container.innerHTML = insights
-    .map(text => `<div class="insight-item">${escapeHtml(text)}</div>`)
-    .join('');
 }

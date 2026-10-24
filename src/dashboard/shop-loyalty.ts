@@ -1,8 +1,7 @@
-// Shop loyalty analysis — repeat purchase metrics per shop
+// Shop loyalty analysis: repeat-purchase metrics per shop (pure)
 import type { Order } from '../types/index.js';
-import { formatVND, escapeHtml } from './utils.js';
-import { EVENTS } from '../config.js';
 import { isExcludedOrder } from './order-status.js';
+import { shopDisplayName } from './shop.js';
 
 export interface ShopLoyalty {
   shopName: string;
@@ -11,34 +10,38 @@ export interface ShopLoyalty {
   firstOrder: string;   // YYYY-MM-DD
   lastOrder: string;    // YYYY-MM-DD
   avgOrderValue: number;
-  repeatRate: number;   // orders per month (over past 12 months)
+  repeatRate: number;   // orders per month (over the data span, at most 12 months)
 }
 
+const MIN_ORDERS = 3;
+const MAX_SHOPS = 10;
+const MAX_SPAN_MONTHS = 12;
+
+/** Shops with at least 3 orders that count towards spend, most orders first. */
 export function analyzeShopLoyalty(allOrders: Order[]): ShopLoyalty[] {
   const shopMap: Record<string, { orders: number; spent: number; dates: string[] }> = {};
 
-  const completed = allOrders.filter(o => !isExcludedOrder(o));
-  completed.forEach(o => {
-    const shop = o.shopName.split(' - ')[1] || o.shopName;
+  for (const o of allOrders.filter(o => !isExcludedOrder(o))) {
+    const shop = shopDisplayName(o.shopName);
     if (!shopMap[shop]) shopMap[shop] = { orders: 0, spent: 0, dates: [] };
     shopMap[shop].orders += 1;
     shopMap[shop].spent += o.subTotal;
     if (o.deliveryDate) shopMap[shop].dates.push(o.deliveryDate.substring(0, 10));
-  });
+  }
 
   return Object.entries(shopMap)
-    .filter(([, v]) => v.orders >= 3) // only shops with 3+ orders
+    .filter(([, v]) => v.orders >= MIN_ORDERS)
     .map(([shopName, v]) => {
       const sorted = [...v.dates].sort();
       const firstOrder = sorted[0] ?? '';
       const lastOrder = sorted[sorted.length - 1] ?? '';
-      // ISSUE-7: use actual data span (capped at 12 months) instead of always dividing by 12
+      // Divide by the real span (capped at 12 months), not always by 12.
       let monthsSpan = 1;
       if (firstOrder && lastOrder && firstOrder !== lastOrder) {
         const f = new Date(firstOrder), l = new Date(lastOrder);
         monthsSpan = Math.min(
           Math.max((l.getFullYear() - f.getFullYear()) * 12 + (l.getMonth() - f.getMonth()) + 1, 1),
-          12,
+          MAX_SPAN_MONTHS,
         );
       }
       return {
@@ -52,44 +55,5 @@ export function analyzeShopLoyalty(allOrders: Order[]): ShopLoyalty[] {
       };
     })
     .sort((a, b) => b.orderCount - a.orderCount)
-    .slice(0, 10);
-}
-
-export function renderShopLoyalty(container: HTMLElement, data: ShopLoyalty[]): void {
-  if (data.length === 0) {
-    container.innerHTML = '<p class="loyalty-empty">Chưa đủ dữ liệu (cần ít nhất 3 đơn/shop).</p>';
-    return;
-  }
-
-  const rows = data.map(s => `
-    <tr>
-      <td><button class="loyalty-shop-btn" data-shop="${escapeHtml(s.shopName.substring(0, 25))}">${escapeHtml(s.shopName.substring(0, 30))}</button></td>
-      <td class="text-center">${s.orderCount}</td>
-      <td>${formatVND(s.totalSpent)}</td>
-      <td>${formatVND(s.avgOrderValue)}</td>
-      <td class="text-center">${s.repeatRate}/tháng</td>
-      <td class="text-center">${escapeHtml(s.lastOrder)}</td>
-    </tr>`).join('');
-
-  container.innerHTML = `
-    <table class="loyalty-table">
-      <thead>
-        <tr>
-          <th>Shop</th>
-          <th class="text-center">Số đơn</th>
-          <th>Tổng tiền</th>
-          <th>TB/đơn</th>
-          <th class="text-center">Tần suất</th>
-          <th class="text-center">Mua cuối</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-
-  // Dispatch event instead of importing applyFilters (avoids circular dep)
-  container.querySelectorAll<HTMLButtonElement>('.loyalty-shop-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.dispatchEvent(new CustomEvent(EVENTS.FILTER_BY_SHOP, { detail: btn.dataset.shop }));
-    });
-  });
+    .slice(0, MAX_SHOPS);
 }

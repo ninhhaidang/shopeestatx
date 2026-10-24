@@ -1,0 +1,42 @@
+/* Entry stylesheet for every React surface: import this once from the surface's main.tsx. */
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Visible keyboard focus everywhere (WCAG 2.4.7 / 2.4.11). */
+  :where(a, button, [role='radio'], input, select, textarea):focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Money and other figures: equal-width digits so columns line up. */
+@utility num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Printing a screen that provides its own print sheet (Đơn hàng → In / PDF): print only that sheet. */
+@media print {
+  body:has(#orders-print) > #root {
+    display: none;
+  }
+}
+
+/* Honour the OS "reduce motion" setting (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

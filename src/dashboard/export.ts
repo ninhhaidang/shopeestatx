@@ -1,6 +1,6 @@
 // Excel, CSV, and PDF export functions
-import { state } from './state.js';
 import { t } from '../i18n/index.js';
+import type { Order } from '../types/index.js';
 
 /** Helper: trigger browser file download */
 function downloadFile(content: string, filename: string, mimeType: string): void {
@@ -22,9 +22,7 @@ function csvCell(value: string | number): string {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-export function exportToExcel(): void {
-  const filtered = state.allOrdersData ? state.filteredOrders : [];
-
+export async function exportToExcel(filtered: Order[]): Promise<void> {
   if (filtered.length === 0) {
     alert(t('export.noData') || 'No data to export');
     return;
@@ -43,7 +41,7 @@ export function exportToExcel(): void {
   }));
 
   // Load the spreadsheet bundle only when an Excel download is requested.
-  import('exceljs')
+  return import('exceljs')
     .then(({ default: ExcelJS }) => {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Shopee Orders');
@@ -81,8 +79,7 @@ export function exportToExcel(): void {
     });
 }
 
-export function exportToCSV(): void {
-  const filtered = state.allOrdersData ? state.filteredOrders : [];
+export function exportToCSV(filtered: Order[]): void {
   const BOM = '\uFEFF'; // UTF-8 BOM for Excel compatibility
   const headers = [
     t('export.col.index'),

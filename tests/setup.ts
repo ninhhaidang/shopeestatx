@@ -1,4 +1,10 @@
-// Test setup — jsdom localStorage mock
+// Test setup — jsdom localStorage mock, jest-dom matchers, RTL cleanup
+import '@testing-library/jest-dom/vitest';
+import { afterEach } from 'vitest';
+import { cleanup } from '@testing-library/react';
+
+afterEach(() => cleanup());
+
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {

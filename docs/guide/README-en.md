@@ -12,7 +12,7 @@
 
 </div>
 
-> **Version 2.1** - Minimalist interface, smart charts
+> **Version 3.1** - React + Tailwind UI, Light/Dark
 
 A Chrome extension to track and analyze your Shopee spending in detail with intuitive visualizations.
 
@@ -28,34 +28,26 @@ A Chrome extension to track and analyze your Shopee spending in detail with intu
 
 ## Key Features
 
-### 📊 Overview Statistics
-- Total orders and products
-- Total spending (including discounts, vouchers)
-- Compare this month/year vs previous month/year
-- Average order value
+### 📊 Overview
+- **Net spend** (cancelled and returned orders excluded), compared with last month
+- Order count, average per order, refunds, estimated savings
+- Spend per month chart (with a data table) and top shops
+- Share image containing aggregate figures only
 
-### 🔍 Filters
-- Search by order, product, shop
-- Filter by year, month, day (drill-down)
-- Filter by status: Completed, Cancelled, Shipping, In Delivery, Pending Payment, Returned
-- Quick remove individual filters or clear all
+### 🗓️ Global date range
+- One range picker applies to Overview, Analysis and Orders
 
-### 📈 Charts
-- Auto display by month or day (based on filters)
-- Click month column to drill-down, click day column to filter details
-- Selected day highlighted in orange, toggle by clicking again
-- Top 5 shops by purchase (pie chart)
-- Hover to view details
+### 📋 Orders
+- Search by product, shop or order ID; filter by status and shop; sort; paginate
+- Order details; on narrow widths the table becomes a card list
+- Export to Excel (.xlsx), CSV or Print / PDF, matching the active filters
 
-### 📋 Data Table
-- Complete display: No., Order ID, Delivery Date, Status, Product, Total Amount
-- Sort by column
-- Click to view details
-- Pagination: 20/50/100 items/page
+### 🔎 Analysis
+- Daily order heatmap, buying habits, top products, automatic insights
+- End-of-month prediction and a monthly budget with warnings
 
-### 📥 Export Data
-- Export to xlsx file with 1 click
-- Preserves filtered data
+### 🎨 Interface
+- One adaptive UI for tab, side panel and popup; Light / Dark / Auto
 
 ---
 
@@ -93,9 +85,9 @@ See detailed guide at [User Guide](Guide.md)
 ## 🛠️ Technology
 
 - Chrome Extension API (Manifest V3)
-- Vanilla JavaScript
+- React 19, Radix UI, Tailwind CSS v4, Vite
 - Chart.js
-- SheetJS (XLSX)
+- ExcelJS (XLSX)
 - Shopee API: `v4/order/get_all_order_and_checkout_list`
 
 ## ⚠️ Notes

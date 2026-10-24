@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "ShopeeStatX",
   "description": "Thống kê tổng số tiền bạn đã tiêu trên Shopee",
-  "version": "3.1.0",
+  "version": "3.4.1",
+  "minimum_chrome_version": "116",
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },
@@ -17,13 +18,7 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://shopee.vn/*",
-    "https://shopee.co.id/*",
-    "https://shopee.co.th/*",
-    "https://shopee.ph/*",
-    "https://shopee.com.my/*",
-    "https://shopee.sg/*",
-    "https://shopee.tw/*"
+    "https://shopee.vn/*"
   ],
   "background": {
     "service_worker": "background.js"

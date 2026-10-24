@@ -13,10 +13,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx tsc --noEmit
-      - run: npx vitest run --coverage
-      - run: npx vite build
-      - run: npm run check:injected
+      - run: npm run verify
       - run: npm audit --audit-level=high || true
       - uses: actions/upload-artifact@v4
         with:
