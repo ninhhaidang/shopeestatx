@@ -27,7 +27,7 @@ export const chromeHost: PopupHost = {
   async startAnalysis() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     await chrome.storage.local.set({ [STORAGE_KEYS.TAB_ID]: tab.id });
-    await chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/results.html?fetch=true') });
+    await chrome.tabs.create({ url: chrome.runtime.getURL('dashboard-app/dashboard.html?fetch=true') });
     window.close();
   },
 

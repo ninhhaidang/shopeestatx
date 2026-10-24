@@ -1,4 +1,4 @@
-// Background service worker — handles opening results tab and first-run onboarding
+// Background service worker — handles opening the dashboard tab and first-run onboarding
 
 chrome.runtime.onInstalled.addListener(function (details) {
   if (details.reason === 'install') {
@@ -8,6 +8,6 @@ chrome.runtime.onInstalled.addListener(function (details) {
 
 chrome.runtime.onMessage.addListener(function (message: { type: string }) {
   if (message.type === 'openResults') {
-    chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/results.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('dashboard-app/dashboard.html') });
   }
 });

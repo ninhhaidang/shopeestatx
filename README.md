@@ -14,7 +14,7 @@
 
 </div>
 
-> **Version 3.1.0** - TypeScript + Vite, multi-theme, multi-domain
+> **Version 3.1.0** - React + Tailwind + Vite, Light/Dark, multi-domain
 
 > Chrome Extension giúp theo dõi và phân tích chi tiêu trên Shopee một cách chi tiết và trực quan.
 
@@ -36,38 +36,26 @@ Shopee không cung cấp bất kỳ công cụ nào để người dùng biết 
 
 ## Tính năng chính
 
-### 📊 Thống kê tổng quan
-- Tổng số đơn, tổng chi tiêu (bao gồm giảm giá/voucher)
-- Giá trung bình mỗi đơn hàng
-- So sánh tháng này với tháng trước / năm nay với năm trước
+### 📊 Tổng quan
+- **Chi tiêu ròng** (không tính đơn hủy/trả hàng), so với tháng trước
+- Số đơn, trung bình/đơn, hoàn tiền, tiết kiệm ước tính
+- Biểu đồ chi tiêu theo tháng (kèm bảng số liệu), top shop
+- Ảnh chia sẻ chỉ chứa số liệu tổng hợp
 
-### 🔍 Bộ lọc thông minh
-- Tìm kiếm theo tên sản phẩm, shop, mã đơn hàng
-- Lọc theo năm, tháng, trạng thái đơn hàng
-- Filter chips hiển thị bộ lọc đang áp dụng, xóa từng cái hoặc xóa tất cả chỉ một click
+### 🗓️ Khoảng thời gian toàn cục
+- Một bộ chọn khoảng ngày áp dụng cho Tổng quan, Phân tích và Đơn hàng
 
-### 📈 Biểu đồ tương tác
-- Biểu đồ cột theo tháng hoặc ngày, biểu đồ tròn top shop
-- Click cột tháng để xem chi tiết từng ngày, click ngày để lọc bảng dữ liệu
-- Chọn metric hiển thị: tổng tiền / số đơn / số sản phẩm
+### 📋 Đơn hàng
+- Tìm kiếm theo sản phẩm, shop, mã đơn; lọc theo trạng thái và shop; sắp xếp; phân trang
+- Chi tiết đơn; trên khổ hẹp bảng chuyển thành danh sách thẻ
+- Xuất Excel (.xlsx), CSV, In / PDF theo đúng bộ lọc đang áp dụng
 
-### 📋 Bảng dữ liệu chi tiết
-- Hiển thị đầy đủ STT, mã đơn, ngày giao, trạng thái (7 loại badge màu), sản phẩm, tổng tiền
-- Sắp xếp theo bất kỳ cột nào, mở rộng xem chi tiết sản phẩm, click giá trị để tự động lọc
-- Phân trang 20 / 50 / 100 / tất cả
+### 🔎 Phân tích
+- Biểu đồ nhiệt số đơn theo ngày, thói quen mua sắm, sản phẩm mua nhiều, nhận xét tự động
+- Dự đoán chi tiêu cuối tháng và ngân sách có cảnh báo
 
-### 📥 Xuất dữ liệu
-- Xuất file Excel (.xlsx), CSV (UTF-8 BOM), PDF
-- Dữ liệu xuất theo đúng bộ lọc đang áp dụng
-
-### 🎨 Đa theme
-- 5 theme màu: Cam, Rừng, Hồng, Trời Xanh, Oải Hương
-- Lưu preference vào localStorage
-
-### ⌨️ Phím tắt
-- `/` mở tìm kiếm
-- `Escape` xóa tìm kiếm
-- `R` làm mới dữ liệu
+### 🎨 Giao diện
+- Một UI thích ứng cho tab, side panel và popup; Light / Dark / Tự động
 
 ## Cách hoạt động
 
@@ -83,14 +71,14 @@ ShopeeStatX sử dụng phiên đăng nhập sẵn có của trình duyệt đ�
 ### Luồng dữ liệu
 ```
 Đăng nhập Shopee → Click icon extension → Popup kiểm tra domain
-  → "Bắt đầu phân tích" → Mở trang kết quả
+  → "Bắt đầu phân tích" → Mở dashboard (tab mới)
     → Loading spinner + cập nhật real-time số đơn đang lấy
       → Inject content.js (MAIN world) + bridge.js (ISOLATED world)
         → Fetch API Shopee (dùng session trình duyệt, có cookie)
-        → postMessage → bridge → chrome.runtime → results.js
+        → postMessage → bridge → chrome.runtime → dashboard
           → Cache vào chrome.storage.local
-          → Render: Summary cards + Charts + Table
-            → Tương tác: Filter / Sort / Search / Drill-down / Export
+          → Render: Tổng quan / Đơn hàng / Phân tích (React)
+            → Tương tác: Khoảng ngày / Lọc / Tìm kiếm / Sắp xếp / Ngân sách / Xuất dữ liệu / Ảnh chia sẻ
 ```
 
 ### Kiến trúc Dual-World
@@ -102,8 +90,8 @@ Chrome Extension mặc định chạy trong ISOLATED world — không thể truy
 
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│  popup.ts    │───▶│ results.html │───▶│ results.ts   │
-│ (Trigger)    │    │ (Dashboard)  │    │ (Orchestrator)│
+│  Popup       │───▶│ dashboard    │───▶│ chrome-host  │
+│ (Trigger)    │    │ (React UI)   │    │ (Orchestrator)│
 └──────────────┘    └──────┬───────┘    └──────┬───────┘
                            │                    │
                     inject │              listen│
@@ -148,11 +136,13 @@ Xem hướng dẫn chi tiết tại [Hướng dẫn sử dụng](docs/guide/Huon
 | Công nghệ | Vai trò | Lý do lựa chọn |
 |-----------|---------|----------------|
 | Chrome Extension MV3 | Runtime | Standard mới nhất, Service Worker model |
-| TypeScript 5.7+ | Ngôn ngữ | Strict mode, type safety, zero `any` |
-| Vite 6.0 | Build tool | Fast builds, multi-entry cho extension |
-| Vitest 3.0 | Testing | Tương thích Vite, jsdom, coverage |
-| Chart.js 4.4.7 | Visualization | Thư viện chart phổ biến, nhẹ, responsive |
-| ExcelJS 4.4.0 | Export | Tạo file Excel (.xlsx) |
+| React 19 + Radix | UI | Một UI thích ứng cho tab, side panel và popup ([ADR-0001](docs/adr/0001-react-tailwind-ui.md), [ADR-0002](docs/adr/0002-one-adaptive-ui-for-all-hosts.md)) |
+| Tailwind CSS v4 | Styling | Design tokens dạng CSS variables, Light/Dark/Auto |
+| TypeScript | Ngôn ngữ | Strict mode, type safety, zero `any` |
+| Vite | Build tool | Fast builds, multi-entry cho extension |
+| Vitest + Testing Library | Testing | jsdom, test ở component gốc, coverage |
+| Chart.js | Visualization | Bọc thành component `BarChart` |
+| ExcelJS | Export | Tạo file Excel (.xlsx) |
 | chrome.storage.local | Cache | Lưu dữ liệu offline, không cần server |
 | Shopee API v4 | Data source | `v4/order/get_all_order_and_checkout_list` |
 
@@ -160,53 +150,33 @@ Xem hướng dẫn chi tiết tại [Hướng dẫn sử dụng](docs/guide/Huon
 
 ```
 ShopeeStatX/
-├── src/                          # TypeScript source
+├── src/
 │   ├── manifest.json             # Cấu hình extension (Manifest V3)
 │   ├── background.ts             # Service worker
 │   ├── config.ts                 # Hardcoded values (domains, storage keys)
-│   ├── content/
-│   │   └── content.js            # MAIN world — gọi Shopee API (IIFE, không bundle)
-│   ├── bridge/
-│   │   └── bridge.ts             # ISOLATED world — relay message
-│   ├── dashboard/                # Dashboard UI
-│   │   ├── results.ts            # Entry point — orchestrator
-│   │   ├── state.ts              # Quản lý state toàn cục
-│   │   ├── data.ts               # Fetch & xử lý dữ liệu từ API
-│   │   ├── charts.ts             # Render biểu đồ (Chart.js)
-│   │   ├── table.ts              # Render bảng dữ liệu & phân trang
-│   │   ├── filters.ts            # Logic bộ lọc & tìm kiếm
-│   │   ├── comparison.ts         # So sánh tháng/năm
-│   │   ├── export.ts             # Xuất Excel/CSV/PDF (ExcelJS)
-│   │   ├── theme-toggle.ts       # Multi-theme toggle (5 màu accent)
-│   │   ├── incremental-fetch.ts  # In-place data refresh
-│   │   ├── utils.ts              # Hàm tiện ích dùng chung
-│   │   └── mock-data.ts          # Demo data cho dev server
-│   ├── popup/
-│   │   └── popup.ts              # Popup logic
-│   ├── welcome/
-│   │   └── welcome.ts            # Onboarding page logic
+│   ├── content/content.js        # MAIN world — gọi Shopee API (IIFE, không bundle)
+│   ├── bridge/bridge.ts          # ISOLATED world — relay message
+│   ├── dashboard-app/            # Dashboard React (tab Tổng quan / Đơn hàng / Phân tích)
+│   ├── popup/                    # Popup React
+│   ├── welcome/                  # Onboarding React
+│   ├── privacy/                  # Chính sách riêng tư React
+│   ├── ui/                       # Component dùng chung, design tokens, theme
+│   ├── dashboard/                # Logic miền thuần (stats, insights, budget, export, ...)
 │   ├── i18n/                     # Đa ngôn ngữ (hiện tại: Tiếng Việt)
-│   ├── types/
-│   │   └── index.ts              # TypeScript interfaces
-│   └── styles/                   # CSS modules
-│       ├── results.css
-│       ├── dark-theme.css
-│       ├── popup.css
-│       ├── welcome.css
-│       └── shared.css
-├── dist/                         # Vite build output (git-ignored)
+│   └── types/index.ts            # TypeScript interfaces
+├── docs/                         # ADR, tài liệu Shopee API, hướng dẫn
 ├── tests/                        # Vitest test files
-├── vite.config.ts                # Vite configuration
-├── tsconfig.json                 # TypeScript configuration
-├── vitest.config.ts              # Vitest configuration
-├── package.json                  # Dependencies & scripts
-└── icons/                        # Icon extension (16/48/128px)
+├── dist/                         # Vite build output (bị ignore)
+├── vite.config.ts
+└── vitest.config.ts
 ```
+
+Phần giao diện được dựng lại theo [ADR-0001](docs/adr/0001-react-tailwind-ui.md) (React + Tailwind) và [ADR-0002](docs/adr/0002-one-adaptive-ui-for-all-hosts.md) (một UI thích ứng theo container). Bản mẫu phong cách trực quan (style reference) nằm ở nhánh `prototype/overview`. Ràng buộc về request tới Shopee: [docs/shopee-order-api.md](docs/shopee-order-api.md).
 
 ## 🧪 Phát triển
 
 ### Yêu cầu
-- Node.js 18+
+- Node.js 24+
 - npm hoặc yarn
 
 ### Scripts
@@ -214,7 +184,8 @@ ShopeeStatX/
 ```bash
 npm install              # Cài đặt dependencies
 npm run dev              # Vite dev server (localhost:5173) với mock data
-npm run build            # Build production → dist/
+npm run build            # Typecheck + build production → dist/
+npm run check:injected   # Kiểm tra bridge.js/content.js parse được như classic script
 npm run typecheck        # Kiểm tra TypeScript
 npm test                 # Chạy tests (Vitest)
 npm run test:watch       # Tests trong watch mode

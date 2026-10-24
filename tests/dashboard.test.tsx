@@ -23,6 +23,9 @@ vi.mock('chart.js', () => {
   return { Chart, BarController: {}, BarElement: {}, CategoryScale: {}, LinearScale: {}, Tooltip: {} };
 });
 
+const shareImage = vi.hoisted(() => ({ downloadShareImage: vi.fn() }));
+vi.mock('../src/dashboard/share-image', () => shareImage);
+
 const NOW = new Date(2026, 9, 24, 12, 0); // 24 Oct 2026, noon
 
 // Net spend over all time: 200k + 100k + 450k + 550k = 1.3M (the 900k order is cancelled).
@@ -56,6 +59,7 @@ beforeEach(() => {
   delete document.documentElement.dataset.theme;
   mockColorScheme('light');
   charts.length = 0;
+  shareImage.downloadShareImage.mockClear();
 });
 
 describe('Tổng quan', () => {
@@ -93,6 +97,15 @@ describe('Tổng quan', () => {
     await user.click(screen.getByText('Xem bảng số liệu'));
     const row = screen.getByRole('row', { name: /9\/2026/ });
     expect(row).toHaveTextContent(/300\.000/);
+  });
+
+  it('creates the share image from the aggregate stats of the selected range', async () => {
+    const { user } = renderDashboard();
+
+    await user.click(await screen.findByRole('button', { name: 'Khoe với bạn bè (tạo ảnh)' }));
+
+    expect(shareImage.downloadShareImage).toHaveBeenCalledOnce();
+    expect(shareImage.downloadShareImage.mock.calls[0][0]).toMatchObject({ netSpend: 1_300_000 });
   });
 
   it('shows "—" and a re-scan prompt for Hoàn tiền and Tiết kiệm when the cache predates them', async () => {
