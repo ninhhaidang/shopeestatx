@@ -2,6 +2,7 @@
 import type { Order } from '../types/index.js';
 import { formatVND, escapeHtml } from './utils.js';
 import { t } from '../i18n/index.js';
+import { isExcludedOrder } from './order-status.js';
 
 export function generateInsights(allOrders: Order[]): string[] {
   const now = new Date();
@@ -10,7 +11,7 @@ export function generateInsights(allOrders: Order[]): string[] {
   const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
   const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
-  const completed = (os: Order[]) => os.filter(o => o.statusCode !== 4 && o.statusCode !== 12);
+  const completed = (os: Order[]) => os.filter(o => !isExcludedOrder(o));
   const sum = (os: Order[]) => os.reduce((s, o) => s + o.subTotal, 0);
 
   const completedAll = completed(allOrders);
@@ -61,7 +62,7 @@ export function generateInsights(allOrders: Order[]): string[] {
   }
 
   // Savings from cancelled/returned orders
-  const cancelled = allOrders.filter(o => o.statusCode === 4 || o.statusCode === 12);
+  const cancelled = allOrders.filter(isExcludedOrder);
   const cancelledTotal = cancelled.reduce((s, o) => s + o.subTotal, 0);
   if (cancelledTotal > 0) {
     insights.push(`Bạn đã tiết kiệm ${formatVND(cancelledTotal)} nhờ các đơn bị hủy/trả hàng.`);

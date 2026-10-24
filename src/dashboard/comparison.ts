@@ -7,6 +7,7 @@ import { computeStats, needsRescan } from './stats.js';
 import { renderStatsPanel } from './stats-panel.js';
 import { downloadShareImage } from './share-image.js';
 import { refreshData } from './data.js';
+import { isExcludedOrder } from './order-status.js';
 
 export function renderData(orders: Order[]): void {
   let totalProducts = 0;
@@ -14,7 +15,7 @@ export function renderData(orders: Order[]): void {
 
   orders.forEach(order => {
     totalProducts += order.productCount;
-    if (order.statusCode !== 4 && order.statusCode !== 12) {
+    if (!isExcludedOrder(order)) {
       totalAmount += order.subTotal;
     }
   });
@@ -44,7 +45,7 @@ export function renderTimeComparison(allOrders: Order[]): void {
   const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
   const lastYear = currentYear - 1;
 
-  const completedOrders = allOrders.filter(o => o.statusCode !== 4 && o.statusCode !== 12);
+  const completedOrders = allOrders.filter(o => !isExcludedOrder(o));
 
   const currentMonthTotal = completedOrders
     .filter(o => o.orderMonth === currentMonth && o.orderYear === currentYear)

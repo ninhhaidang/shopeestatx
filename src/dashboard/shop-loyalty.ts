@@ -2,6 +2,7 @@
 import type { Order } from '../types/index.js';
 import { formatVND, escapeHtml } from './utils.js';
 import { EVENTS } from '../config.js';
+import { isExcludedOrder } from './order-status.js';
 
 export interface ShopLoyalty {
   shopName: string;
@@ -16,7 +17,7 @@ export interface ShopLoyalty {
 export function analyzeShopLoyalty(allOrders: Order[]): ShopLoyalty[] {
   const shopMap: Record<string, { orders: number; spent: number; dates: string[] }> = {};
 
-  const completed = allOrders.filter(o => o.statusCode !== 4 && o.statusCode !== 12);
+  const completed = allOrders.filter(o => !isExcludedOrder(o));
   completed.forEach(o => {
     const shop = o.shopName.split(' - ')[1] || o.shopName;
     if (!shopMap[shop]) shopMap[shop] = { orders: 0, spent: 0, dates: [] };
