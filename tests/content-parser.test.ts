@@ -221,3 +221,18 @@ describe('structured items and items total', () => {
     expect(result.data.orders[0].items.map((i: { name: string }) => i.name)).toEqual(['Product A', 'Product B']);
   });
 });
+
+// Same response shape as the live page, with a discounted item, a paid-less-than-items order and a
+// cancelled order that still carries its subtotal. Amounts are arbitrary, not from a real account.
+const discountPage = JSON.parse(readFileSync(resolve(process.cwd(), 'tests/fixtures/shopee-order-page-discounts.json'), 'utf8'));
+
+describe('content script against discounted and cancelled live shapes', () => {
+  it('reads paid amount, items total and refund from the real field layout', async () => {
+    const { result } = await collect([discountPage, liveFinalPage]);
+    const [discounted, voucher, cancelledOrder] = result.data.orders;
+    expect(discounted).toMatchObject({ subTotal: 80000, itemsTotal: 80000, refundAmount: 0 });
+    expect(voucher).toMatchObject({ subTotal: 140000, itemsTotal: 175000, refundAmount: 0 });
+    expect(cancelledOrder).toMatchObject({ subTotal: 0, refundAmount: 175000 });
+    expect(result.data.totalAmount).toBe(220000);
+  });
+});

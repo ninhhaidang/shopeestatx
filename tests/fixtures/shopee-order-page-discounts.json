@@ -1,0 +1,242 @@
+{
+  "error": 0,
+  "error_msg": "success",
+  "new_data": {
+    "order_or_checkout_data": [
+      {
+        "order_list_detail": {
+          "status": {
+            "status_label": {
+              "text": "label_order_completed",
+              "tl": false
+            },
+            "list_view_status_label": {
+              "text": "label_completed",
+              "tl": false
+            }
+          },
+          "info_card": {
+            "order_id": 100001,
+            "order_list_cards": [
+              {
+                "shop_info": {
+                  "shop_id": 100000,
+                  "shop_name": "x",
+                  "user_id": 100000,
+                  "username": "x",
+                  "portrait": "x",
+                  "shop_tag": 3,
+                  "disable_redirection": false,
+                  "hide_contact_seller_button": false
+                },
+                "order_id": 100001,
+                "product_info": {
+                  "item_groups": [
+                    {
+                      "items": [
+                        {
+                          "item_id": 100000,
+                          "model_id": 100000,
+                          "shop_id": 100000,
+                          "name": "x",
+                          "model_name": "x",
+                          "image": "x",
+                          "amount": 1,
+                          "status": 1,
+                          "item_price": 8000000000,
+                          "order_price": 8000000000,
+                          "snapshot_id": 100000,
+                          "price_before_discount": 10000000000
+                        }
+                      ],
+                      "num_items": 1
+                    }
+                  ],
+                  "total_num_items": 1
+                }
+              }
+            ],
+            "product_count": 1,
+            "subtotal": 8000000000,
+            "final_total": 8000000000
+          },
+          "primary_buttons": [
+            {
+              "id": 24
+            }
+          ],
+          "secondary_buttons": [
+            {
+              "id": 3
+            }
+          ],
+          "list_type": 3,
+          "shipping": {
+            "tracking_info": {
+              "driver_phone": "x",
+              "driver_name": "x",
+              "ctime": 1705320000,
+              "description": "x",
+              "type": 0
+            },
+            "is_multi_parcel": false,
+            "num_parcels": 1,
+            "parcel_no": 1
+          }
+        }
+      },
+      {
+        "order_list_detail": {
+          "status": {
+            "status_label": {
+              "text": "label_order_completed",
+              "tl": false
+            },
+            "list_view_status_label": {
+              "text": "label_completed",
+              "tl": false
+            }
+          },
+          "info_card": {
+            "order_id": 100002,
+            "order_list_cards": [
+              {
+                "shop_info": {
+                  "shop_id": 100000,
+                  "shop_name": "x",
+                  "user_id": 100000,
+                  "username": "x",
+                  "portrait": "x",
+                  "shop_tag": 3,
+                  "disable_redirection": false,
+                  "hide_contact_seller_button": false
+                },
+                "order_id": 100002,
+                "product_info": {
+                  "item_groups": [
+                    {
+                      "items": [
+                        {
+                          "item_id": 100000,
+                          "model_id": 100000,
+                          "shop_id": 100000,
+                          "name": "x",
+                          "model_name": "x",
+                          "image": "x",
+                          "amount": 5,
+                          "status": 1,
+                          "item_price": 3500000000,
+                          "order_price": 3500000000,
+                          "snapshot_id": 100000
+                        }
+                      ],
+                      "num_items": 1
+                    }
+                  ],
+                  "total_num_items": 1
+                }
+              }
+            ],
+            "product_count": 5,
+            "subtotal": 14000000000,
+            "final_total": 14000000000
+          },
+          "primary_buttons": [
+            {
+              "id": 24
+            }
+          ],
+          "secondary_buttons": [
+            {
+              "id": 3
+            }
+          ],
+          "list_type": 3,
+          "shipping": {
+            "tracking_info": {
+              "driver_phone": "x",
+              "driver_name": "x",
+              "ctime": 1705320000,
+              "description": "x",
+              "type": 0
+            },
+            "is_multi_parcel": false,
+            "num_parcels": 1,
+            "parcel_no": 1
+          }
+        }
+      },
+      {
+        "order_list_detail": {
+          "status": {
+            "status_label": {
+              "text": "label_order_cancelled",
+              "tl": false
+            },
+            "list_view_status_label": {
+              "text": "label_cancelled",
+              "tl": false
+            }
+          },
+          "info_card": {
+            "order_id": 100003,
+            "order_list_cards": [
+              {
+                "shop_info": {
+                  "shop_id": 100000,
+                  "shop_name": "x",
+                  "user_id": 100000,
+                  "username": "x",
+                  "portrait": "x",
+                  "shop_tag": 3,
+                  "disable_redirection": false,
+                  "hide_contact_seller_button": false
+                },
+                "order_id": 100003,
+                "product_info": {
+                  "item_groups": [
+                    {
+                      "items": [
+                        {
+                          "item_id": 100000,
+                          "model_id": 100000,
+                          "shop_id": 100000,
+                          "name": "x",
+                          "model_name": "x",
+                          "image": "x",
+                          "amount": 5,
+                          "status": 1,
+                          "item_price": 3500000000,
+                          "order_price": 3500000000,
+                          "snapshot_id": 100000
+                        }
+                      ],
+                      "num_items": 1
+                    }
+                  ],
+                  "total_num_items": 1
+                }
+              }
+            ],
+            "product_count": 5,
+            "subtotal": 17500000000,
+            "final_total": 17500000000
+          },
+          "primary_buttons": [
+            {
+              "id": 24
+            }
+          ],
+          "secondary_buttons": [
+            {
+              "id": 3
+            }
+          ],
+          "list_type": 4
+        }
+      }
+    ],
+    "next_offset": 3,
+    "translation_status": 2
+  }
+}
