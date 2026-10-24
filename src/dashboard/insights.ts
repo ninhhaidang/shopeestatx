@@ -1,14 +1,9 @@
 // Auto-generated spending insights from order data
 import type { Order } from '../types/index.js';
 import { formatVND, escapeHtml } from './utils.js';
-import { getCategoryBreakdown, type CategoryBreakdown } from './categories.js';
 import { t } from '../i18n/index.js';
 
-export function generateInsights(
-  orders: Order[],
-  allOrders: Order[],
-  categoryBreakdown: CategoryBreakdown = getCategoryBreakdown(orders),
-): string[] {
+export function generateInsights(allOrders: Order[]): string[] {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
@@ -44,15 +39,6 @@ export function generateInsights(
   const topShop = Object.entries(shopCount).sort((a, b) => b[1] - a[1])[0];
   if (topShop) {
     insights.push(`Shop "${topShop[0].substring(0, 25)}" là nơi bạn mua nhiều nhất (${topShop[1]} đơn).`);
-  }
-
-  // Top spending category (from filtered orders)
-  const categoryEntries = Object.entries(categoryBreakdown);
-  const totalSpent = sum(completed(orders));
-  const topCat = categoryEntries.sort((a, b) => b[1].amount - a[1].amount)[0];
-  if (topCat && totalSpent > 0) {
-    const pct = (topCat[1].amount / totalSpent * 100).toFixed(0);
-    insights.push(`Danh mục "${topCat[0]}" chiếm ${pct}% tổng chi tiêu trong kết quả lọc.`);
   }
 
   // Average monthly order count

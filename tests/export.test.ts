@@ -79,7 +79,7 @@ describe('Export Functions', () => {
       const second = { ...order, orderId: 'ORD002', name: 'Second' };
       const hidden = { ...order, orderId: 'HIDDEN' };
       state.allOrdersData!.orders = [order, hidden, second];
-      // applyFilters owns year/month/status/search/category/date-range/day selection.
+      // applyFilters owns year/month/status/search/date-range/day selection.
       state.filteredOrders = [second, order];
       state.itemsPerPage = 1;
       state.currentPage = 2;

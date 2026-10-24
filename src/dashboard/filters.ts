@@ -6,7 +6,6 @@ import { formatDate } from '../i18n/format.js';
 import { renderData } from './comparison.js';
 import { renderCharts } from './charts.js';
 import { renderCurrentPage } from './table.js';
-import { categorizeOrder, getCategoryBreakdown, renderCategoryChart } from './categories.js';
 import { generateInsights, renderInsights } from './insights.js';
 import { renderHeatmap } from './heatmap.js';
 import { analyzeShopLoyalty, renderShopLoyalty } from './shop-loyalty.js';
@@ -89,14 +88,9 @@ export function applyFilters(): void {
   const month = (document.getElementById('filterMonth') as HTMLSelectElement).value;
   const status = (document.getElementById('filterStatus') as HTMLSelectElement).value;
   const searchTerm = (document.getElementById('searchBox') as HTMLInputElement).value.toLowerCase().trim();
-  const category = (document.getElementById('filterCategory') as HTMLSelectElement)?.value ?? '';
 
   let filtered = filterOrders(state.allOrdersData.orders, { year, month, status, searchTerm });
 
-  // Apply category filter (runs categorizeOrder on each order)
-  if (category) {
-    filtered = filtered.filter(o => categorizeOrder(o) === category);
-  }
 
   // Apply selectedDay filter (only in applyFilters, not in chart view)
   if (state.selectedDay !== null && month) {
@@ -133,14 +127,8 @@ export function applyFilters(): void {
   renderCharts(filtered);
   renderCurrentPage();
 
-  // Classify each filtered order once for the chart and the insights panel.
-  const catCanvas = document.getElementById('categoryChart') as HTMLCanvasElement | null;
   const insightsEl = document.getElementById('insightsContainer');
-  if (catCanvas || insightsEl) {
-    const breakdown = getCategoryBreakdown(filtered);
-    if (catCanvas) renderCategoryChart(catCanvas, breakdown);
-    if (insightsEl) renderInsights(insightsEl, generateInsights(filtered, state.allOrdersData!.orders, breakdown));
-  }
+  if (insightsEl) renderInsights(insightsEl, generateInsights(state.allOrdersData!.orders));
 
   const history = state.allOrdersData!.orders;
   const now = new Date();
@@ -172,8 +160,6 @@ export function updateActiveFilters(): void {
   const activeFiltersContainer = document.getElementById('activeFiltersContainer')!;
   const activeFiltersDiv = document.getElementById('activeFilters')!;
   const chips: { label: string; type: string }[] = [];
-  const categoryFilter = document.getElementById('filterCategory') as HTMLSelectElement | null;
-  const category = categoryFilter?.value ?? '';
 
   if (year) chips.push({ label: t('filter.chip.year', { value: year }), type: 'year' });
   if (month) chips.push({ label: t('filter.chip.month', { value: month }), type: 'month' });
@@ -188,7 +174,6 @@ export function updateActiveFilters(): void {
     chips.push({ label: escapeHtml(statusText), type: 'status' });
   }
   if (searchTerm) chips.push({ label: t('filter.chip.search', { value: searchTerm }), type: 'search' });
-  if (category) chips.push({ label: t('filter.chip.category', { value: category }), type: 'category' });
 
   if (chips.length > 0) {
     activeFiltersContainer.classList.remove('hidden');
@@ -216,8 +201,6 @@ export function clearAllFilters(): void {
   (document.getElementById('filterMonth') as HTMLSelectElement).value = '';
   (document.getElementById('filterStatus') as HTMLSelectElement).value = '';
   (document.getElementById('searchBox') as HTMLInputElement).value = '';
-  const filterCat = document.getElementById('filterCategory') as HTMLSelectElement | null;
-  if (filterCat) filterCat.value = '';
   state.selectedDay = null;
   state.dateRange = { start: null, end: null };
   state.currentPage = 1;
@@ -237,10 +220,6 @@ export function removeFilter(type: string): void {
   if (type === 'dateRange') {
     state.dateRange = { start: null, end: null };
     document.dispatchEvent(new CustomEvent(EVENTS.DATE_RANGE_CLEARED));
-  }
-  if (type === 'category') {
-    const el = document.getElementById('filterCategory') as HTMLSelectElement | null;
-    if (el) el.value = '';
   }
   state.currentPage = 1;
   applyFilters();

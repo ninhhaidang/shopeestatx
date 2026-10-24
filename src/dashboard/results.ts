@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   const filterYear = document.getElementById('filterYear') as HTMLSelectElement;
   const filterMonth = document.getElementById('filterMonth') as HTMLSelectElement;
   const filterStatus = document.getElementById('filterStatus') as HTMLSelectElement;
-  const filterCategory = document.getElementById('filterCategory') as HTMLSelectElement;
   const searchBox = document.getElementById('searchBox') as HTMLInputElement;
   const btnExport = document.getElementById('btnExport')!;
   const btnRefresh = document.getElementById('btnRefresh')!;
@@ -136,8 +135,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   // Update filter count badge
   function updateFilterCount(): void {
     const status = (document.getElementById('filterStatus') as HTMLSelectElement).value;
-    const category = (document.getElementById('filterCategory') as HTMLSelectElement).value;
-    const count = (status ? 1 : 0) + (category ? 1 : 0);
+    const count = status ? 1 : 0;
 
     if (filterCountEl) {
       filterCountEl.textContent = String(count);
@@ -191,7 +189,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   filterYear.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
   filterMonth.addEventListener('change', () => { state.selectedDay = null; state.currentPage = 1; applyFilters(); });
   filterStatus.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
-  filterCategory.addEventListener('change', () => { state.currentPage = 1; applyFilters(); });
   btnRefresh.addEventListener('click', refreshData);
   btnClearFilters.addEventListener('click', clearAllFilters);
   btnResetFilters.addEventListener('click', clearAllFilters);
