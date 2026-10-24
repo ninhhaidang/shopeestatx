@@ -6,6 +6,7 @@ import { Button } from '../ui/components/Button';
 import { Logo } from '../ui/components/Logo';
 import { StateMessage } from '../ui/components/StateMessage';
 import { ThemeToggle } from '../ui/components/ThemeToggle';
+import { AccountChip } from './AccountChip';
 import { DashboardContext } from './context';
 import type { DashboardHost } from './host';
 import { OverviewSkeleton } from './OverviewSkeleton';
@@ -135,7 +136,8 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           </div>
         </div>
 
-        <div className="col-start-4 row-start-1 flex items-center px-4 py-3">
+        <div className="col-start-4 row-start-1 flex items-center gap-3 px-4 py-3">
+          {data?.user && <AccountChip user={data.user} />}
           <ThemeToggle />
         </div>
 
