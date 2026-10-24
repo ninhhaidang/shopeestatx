@@ -15,3 +15,7 @@ Single-context: one `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agen
 ## Shopee API
 
 What the order-list response contains, and why no new Shopee requests are allowed: `docs/shopee-order-api.md`.
+
+## Verify
+
+`npm run verify` runs the same checks as CI (typecheck, tests with coverage, build, injected-script check). Run it on a clean `npm ci` before reporting work done.

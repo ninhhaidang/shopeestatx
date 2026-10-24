@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify": "tsc --noEmit && vitest run --coverage && vite build && npm run check:injected"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",
