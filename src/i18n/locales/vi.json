@@ -78,6 +78,7 @@
   "heatmap.day.wed": "T4",
   "heatmap.day.fri": "T6",
   "insights.title": "Phân tích chi tiêu",
+  "insights.scope": "Tính trên toàn bộ lịch sử, không phụ thuộc khoảng thời gian đã chọn.",
   "insights.empty": "Chưa đủ dữ liệu để phân tích.",
 
   "export.excel": "Excel (.xlsx)",
@@ -157,7 +158,7 @@
   "analysis.noProducts": "Chưa có dữ liệu sản phẩm.",
   "analysis.heatmap.title": "Chi tiêu theo ngày",
   "analysis.heatmap.summary": "{title}, {days} ngày có đơn, {orders} đơn, từ {from} đến {to}",
-  "analysis.heatmap.period": "Số đơn mỗi ngày, tối đa 12 tháng gần nhất của khoảng đã chọn ({from} đến {to})",
+  "analysis.heatmap.period": "Số đơn mỗi ngày, từ {from} đến {to}. Luôn lấy 12 tháng, kết thúc ở ngày cuối của khoảng đã chọn.",
   "analysis.heatmap.scroll": "Biểu đồ nhiệt, cuộn ngang để xem thêm",
   "analysis.heatmap.month": "T{n}",
   "analysis.heatmap.tip": "{date}: {n} đơn",

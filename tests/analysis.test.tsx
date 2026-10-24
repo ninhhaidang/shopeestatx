@@ -104,15 +104,33 @@ describe('Phân tích: heatmap', () => {
 });
 
 describe('Phân tích: khoảng ngày toàn cục', () => {
-  it('follows the global range', async () => {
+  it('follows the global range for habits', async () => {
     const { user } = await openAnalysis();
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng này');
 
     expect(tile('Chuỗi tháng liên tục')).toHaveTextContent('1 tháng');
+  });
+
+  it('keeps insights on the whole history, whatever the range', async () => {
+    const { user } = await openAnalysis();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
+
+    const list = within(screen.getByRole('list', { name: 'Phân tích chi tiêu' }));
+    expect(list.getAllByRole('listitem')[0]).toHaveTextContent(/Tháng này bạn đã chi 600\.000.*tăng 500% so với tháng trước/);
+  });
+
+  it('draws the heatmap over 12 months of the whole history ending at the range end', async () => {
+    const { user } = await openAnalysis();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
+
+    // Last month ends 30/9/2026: the window is 1/10/2025 to 30/9/2026, so 15/9 shows and October does not.
+    expect(screen.getByText(/từ 1\/10\/2025 đến 30\/9\/2026/)).toBeInTheDocument();
     await user.click(screen.getByText('Xem bảng số liệu'));
-    expect(screen.queryByRole('row', { name: /15\/9\/2026/ })).not.toBeInTheDocument();
-    expect(screen.getByRole('row', { name: /5\/10\/2026/ })).toBeInTheDocument();
+    expect(screen.getByRole('row', { name: /15\/9\/2026/ })).toBeInTheDocument();
+    expect(screen.queryByRole('row', { name: /5\/10\/2026/ })).not.toBeInTheDocument();
   });
 });
 

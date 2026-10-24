@@ -1,5 +1,6 @@
 // Calendar heatmap — GitHub-style 52-week order count visualization
-import type { Order } from '../types/index.js';
+import type { DateRange, Order } from '../types/index.js';
+import { rangeEnd } from './range.js';
 import { state } from './state.js';
 import { t } from '../i18n/index.js';
 import { EVENTS } from '../config.js';
@@ -212,15 +213,13 @@ export function localDateKey(d: Date): string {
 }
 
 /**
- * The days the heatmap covers: the global range, capped to the 12 months ending at its last day
- * (never later than `now`). An open start means exactly those 12 months.
+ * The days the heatmap covers: the 12 months ending at the last day of the global range (never later
+ * than `now`). Only the end follows the range; the orders drawn are the whole history, as before.
  */
-export function heatmapWindow(range: { start: Date | null; end: Date | null }, now: Date): { start: Date; end: Date } {
-  const endSource = range.end && range.end < now ? range.end : now;
-  const end = new Date(endSource.getFullYear(), endSource.getMonth(), endSource.getDate());
-  const yearAgo = new Date(end.getFullYear() - 1, end.getMonth(), end.getDate() + 1);
-  const rangeStart = range.start ? new Date(range.start.getFullYear(), range.start.getMonth(), range.start.getDate()) : null;
-  return { start: rangeStart && rangeStart > yearAgo ? rangeStart : yearAgo, end };
+export function heatmapWindow(range: DateRange, now: Date): { start: Date; end: Date } {
+  const last = rangeEnd(range, now);
+  const end = new Date(last.getFullYear(), last.getMonth(), last.getDate());
+  return { start: new Date(end.getFullYear() - 1, end.getMonth(), end.getDate() + 1), end };
 }
 
 export function buildHeatmapGrid(orders: Order[], start: Date, end: Date): HeatmapGrid {

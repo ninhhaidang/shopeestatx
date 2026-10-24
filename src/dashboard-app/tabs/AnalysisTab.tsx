@@ -81,10 +81,10 @@ export function AnalysisTab() {
           <Button variant="link" onClick={refresh}>{t('stats.rescan.btn')}</Button>
         </div>
       )}
-      <Insights orders={orders} now={now} />
+      <Insights orders={data.orders} now={now} />
       <Budget allOrders={data.orders} now={now} />
       <Habits stats={stats} />
-      <Heatmap orders={orders} range={range} now={now} />
+      <Heatmap orders={data.orders} range={range} now={now} />
       <div className="grid content-start gap-4">
         <ProductList
           title={t('stats.topQuantity')}

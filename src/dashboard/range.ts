@@ -46,3 +46,8 @@ export function filterByRange(orders: Order[], { start, end }: DateRange): Order
     return !(start && d < start) && !(end && d > end);
   });
 }
+
+/** The last day the range reaches, never later than `now` (a range cannot look into the future). */
+export function rangeEnd(range: DateRange, now: Date): Date {
+  return range.end && range.end < now ? range.end : now;
+}
