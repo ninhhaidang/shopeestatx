@@ -63,7 +63,7 @@ describe('predictMonthEnd', () => {
 
   it('ignores orders from other months', () => {
     const orders: Order[] = [
-      makeOrder({ subTotal: 900_000, orderMonth: 12, orderYear: 2024 }),
+      makeOrder({ subTotal: 900_000, deliveryDate: '2024-12-15T12:00:00.000Z', orderMonth: 12, orderYear: 2024 }),
       makeOrder({ subTotal: 150_000, orderMonth: 1, orderYear: 2025 }),
     ];
     const prediction = predictMonthEnd(orders);
@@ -72,7 +72,7 @@ describe('predictMonthEnd', () => {
 
   it('returns 0 when no orders this month', () => {
     const orders: Order[] = [
-      makeOrder({ subTotal: 500_000, orderMonth: 12, orderYear: 2024 }),
+      makeOrder({ subTotal: 500_000, deliveryDate: '2024-12-15T12:00:00.000Z', orderMonth: 12, orderYear: 2024 }),
     ];
     expect(predictMonthEnd(orders)).toBe(0);
   });

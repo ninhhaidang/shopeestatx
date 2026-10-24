@@ -61,7 +61,7 @@ describe('monthChange', () => {
   ];
 
   it('compares the anchor month with the one before, as a percentage', () => {
-    expect(monthChange(orders, new Date(2026, 9, 24))).toEqual({ current: 300_000, previous: 200_000, percent: 50 });
+    expect(monthChange(orders, new Date(2026, 9, 24))).toEqual({ label: '10/2026', previousLabel: '9/2026', current: 300_000, previous: 200_000, percent: 50 });
   });
 
   it('rounds to one decimal', () => {
@@ -70,7 +70,7 @@ describe('monthChange', () => {
   });
 
   it('has no percentage when the previous month had no spend', () => {
-    expect(monthChange(orders, new Date(2026, 10, 5))).toEqual({ current: 0, previous: 300_000, percent: -100 });
+    expect(monthChange(orders, new Date(2026, 10, 5))).toEqual({ label: '11/2026', previousLabel: '10/2026', current: 0, previous: 300_000, percent: -100 });
     expect(monthChange(orders, new Date(2026, 8, 5)).percent).toBeNull();
   });
 

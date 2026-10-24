@@ -2,6 +2,7 @@
 import type { Order } from '../types/index.js';
 import { formatVND, escapeHtml } from './utils.js';
 import { t } from '../i18n/index.js';
+import { monthOf } from './month.js';
 import { isExcludedOrder } from './order-status.js';
 
 export function generateInsights(allOrders: Order[], now: Date = new Date()): string[] {
@@ -14,8 +15,13 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
   const sum = (os: Order[]) => os.reduce((s, o) => s + o.subTotal, 0);
 
   const completedAll = completed(allOrders);
-  const thisMonth = completedAll.filter(o => o.orderMonth === currentMonth && o.orderYear === currentYear);
-  const lastMonthOrders = completedAll.filter(o => o.orderMonth === lastMonth && o.orderYear === lastMonthYear);
+  const inMonth = (month: number, year: number) =>
+    completedAll.filter(o => {
+      const m = monthOf(o);
+      return m?.month === month && m.year === year;
+    });
+  const thisMonth = inMonth(currentMonth, currentYear);
+  const lastMonthOrders = inMonth(lastMonth, lastMonthYear);
 
   const insights: string[] = [];
 
@@ -42,7 +48,7 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
   }
 
   // Average monthly order count
-  const months = new Set(completedAll.map(o => `${o.orderMonth}/${o.orderYear}`)).size;
+  const months = new Set(completedAll.map(o => { const m = monthOf(o); return m && `${m.month}/${m.year}`; })).size;
   if (months > 1) {
     const avg = (completedAll.length / months).toFixed(0);
     insights.push(`Bạn đặt trung bình ${avg} đơn/tháng trên Shopee.`);

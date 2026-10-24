@@ -2,7 +2,7 @@
 import { showToast, formatVND, escapeHtml } from './utils.js';
 import { STORAGE_KEYS } from '../config.js';
 import type { Order } from '../types/index.js';
-import { isExcludedOrder } from './order-status.js';
+import { monthSpend } from './month.js';
 
 export interface BudgetConfig {
   monthlyLimit: number;   // VND
@@ -67,9 +67,7 @@ export const DEFAULT_BUDGET: BudgetConfig = DEFAULT;
 
 /** What the calendar month of `now` has cost so far (cancelled and returned orders excluded). */
 export function currentMonthSpend(orders: Order[], now: Date): number {
-  return orders
-    .filter(o => o.orderMonth === now.getMonth() + 1 && o.orderYear === now.getFullYear() && !isExcludedOrder(o))
-    .reduce((s, o) => s + o.subTotal, 0);
+  return monthSpend(orders, now.getMonth() + 1, now.getFullYear());
 }
 
 export interface BudgetProgress {

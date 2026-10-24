@@ -1,6 +1,7 @@
 // Figures for the Tổng quan screen (pure). Spend totals come from computeStats; this adds the
 // groupings the screen needs (per month, per shop, month over month) so no UI code sums orders.
 import type { Order } from '../types/index.js';
+import { monthOf, monthSpend } from './month.js';
 import { isExcludedOrder } from './order-status.js';
 import { computeStats, type Stats } from './stats.js';
 
@@ -38,9 +39,10 @@ export function computeOverview(orders: Order[]): Overview {
   const byMonth = new Map<number, MonthTotal>();
   const byShop = new Map<string, ShopTotal>();
   for (const o of included) {
-    if (o.orderMonth && o.orderYear) {
-      const sortKey = o.orderYear * 12 + o.orderMonth;
-      const entry = byMonth.get(sortKey) ?? { label: `${o.orderMonth}/${o.orderYear}`, total: 0 };
+    const m = monthOf(o);
+    if (m) {
+      const sortKey = m.year * 12 + m.month;
+      const entry = byMonth.get(sortKey) ?? { label: `${m.month}/${m.year}`, total: 0 };
       entry.total += o.subTotal;
       byMonth.set(sortKey, entry);
     }
@@ -62,6 +64,10 @@ export function computeOverview(orders: Order[]): Overview {
 }
 
 export interface MonthChange {
+  /** "10/2026": the month `current` is about. */
+  label: string;
+  /** "9/2026": the month it is compared with. */
+  previousLabel: string;
   current: number;
   previous: number;
   /** Rounded to one decimal; null when the previous month had no spend to compare with. */
@@ -74,12 +80,11 @@ export function monthChange(orders: Order[], anchor: Date): MonthChange {
   const year = anchor.getFullYear();
   const prevMonth = month === 1 ? 12 : month - 1;
   const prevYear = month === 1 ? year - 1 : year;
-  const spend = (m: number, y: number) =>
-    orders.filter(o => !isExcludedOrder(o) && o.orderMonth === m && o.orderYear === y).reduce((s, o) => s + o.subTotal, 0);
-
-  const current = spend(month, year);
-  const previous = spend(prevMonth, prevYear);
+  const current = monthSpend(orders, month, year);
+  const previous = monthSpend(orders, prevMonth, prevYear);
   return {
+    label: `${month}/${year}`,
+    previousLabel: `${prevMonth}/${prevYear}`,
     current,
     previous,
     percent: previous > 0 ? Math.round(((current - previous) / previous) * 1000) / 10 : null,
