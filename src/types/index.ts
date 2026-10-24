@@ -1,7 +1,6 @@
 // Shared TypeScript types for ShopeeStatX
 
 export type StatusCode = 0 | 3 | 4 | 7 | 8 | 9 | 12;
-export type ShopMetric = 'amount' | 'orders' | 'products';
 export type SortDirection = 'asc' | 'desc';
 
 export interface UserProfile {
@@ -52,16 +51,4 @@ export interface OrderData {
 export interface DateRange {
   start: Date | null;
   end: Date | null;
-}
-
-export interface AppState {
-  allOrdersData: OrderData | null;
-  filteredOrders: Order[];
-  currentPage: number;
-  itemsPerPage: number;
-  selectedDay: number | null;
-  shopCount: number;
-  shopMetric: ShopMetric;
-  currentSort: { field: string | null; direction: SortDirection };
-  dateRange: DateRange;
 }

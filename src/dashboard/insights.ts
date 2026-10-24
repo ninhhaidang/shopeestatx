@@ -1,7 +1,6 @@
 // Auto-generated spending insights from order data
 import type { Order } from '../types/index.js';
-import { formatVND, escapeHtml } from './utils.js';
-import { t } from '../i18n/index.js';
+import { formatCurrency } from '../i18n/format.js';
 import { shopDisplayName } from './shop.js';
 import { monthOf } from './month.js';
 import { isExcludedOrder } from './order-status.js';
@@ -32,9 +31,9 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
   if (thisMonthTotal > 0 && lastMonthTotal > 0) {
     const pct = ((thisMonthTotal - lastMonthTotal) / lastMonthTotal * 100).toFixed(0);
     const dir = Number(pct) > 0 ? 'tăng' : 'giảm';
-    insights.push(`Tháng này bạn đã chi ${formatVND(thisMonthTotal)}, ${dir} ${Math.abs(Number(pct))}% so với tháng trước.`);
+    insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)}, ${dir} ${Math.abs(Number(pct))}% so với tháng trước.`);
   } else if (thisMonthTotal > 0) {
-    insights.push(`Tháng này bạn đã chi ${formatVND(thisMonthTotal)} trên Shopee.`);
+    insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)} trên Shopee.`);
   }
 
   // Top shop by order count
@@ -64,25 +63,15 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
   });
   const topDay = Object.entries(daySpend).sort((a, b) => b[1] - a[1])[0];
   if (topDay) {
-    insights.push(`Ngày ${topDay[0]} là ngày bạn chi nhiều nhất tháng này (${formatVND(topDay[1])}).`);
+    insights.push(`Ngày ${topDay[0]} là ngày bạn chi nhiều nhất tháng này (${formatCurrency(topDay[1])}).`);
   }
 
   // Savings from cancelled/returned orders
   const cancelled = allOrders.filter(isExcludedOrder);
   const cancelledTotal = cancelled.reduce((s, o) => s + o.subTotal, 0);
   if (cancelledTotal > 0) {
-    insights.push(`Bạn đã tiết kiệm ${formatVND(cancelledTotal)} nhờ các đơn bị hủy/trả hàng.`);
+    insights.push(`Bạn đã tiết kiệm ${formatCurrency(cancelledTotal)} nhờ các đơn bị hủy/trả hàng.`);
   }
 
   return insights.slice(0, 5);
-}
-
-export function renderInsights(container: HTMLElement, insights: string[]): void {
-  if (insights.length === 0) {
-    container.innerHTML = `<p class="insights-empty" data-i18n="insights.empty">${t('insights.empty')}</p>`;
-    return;
-  }
-  container.innerHTML = insights
-    .map(text => `<div class="insight-item">${escapeHtml(text)}</div>`)
-    .join('');
 }

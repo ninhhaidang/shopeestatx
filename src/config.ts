@@ -5,7 +5,6 @@
  * This module provides a single source of truth for:
  * - Domain configuration (multi-market support)
  * - Storage keys (consistent prefix)
- * - Event names (consistent prefix)
  * - Message source identifier
  */
 
@@ -74,23 +73,6 @@ export const STORAGE_KEYS = {
   TAB_ID: getStorageKey('tabId'),
   THEME: getStorageKey('theme'),
   BUDGET: getStorageKey('budget'),
-} as const;
-
-// ============= Event Configuration =============
-
-export const EVENT_PREFIX = 'shopeestatx';
-
-export function getEventName(event: string): string {
-  return `${EVENT_PREFIX}:${event}`;
-}
-
-// Pre-defined event names for consistency
-export const EVENTS = {
-  APPLY_FILTERS: getEventName('apply-filters'),
-  FILTERS_REQUESTED: getEventName('filters-requested'),
-  DATE_RANGE_CLEARED: getEventName('date-range-cleared'),
-  DATE_RANGE_SELECTED: getEventName('date-range-selected'),
-  FILTER_BY_SHOP: getEventName('filter-by-shop'),
 } as const;
 
 // ============= Message Configuration =============

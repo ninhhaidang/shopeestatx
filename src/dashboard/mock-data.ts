@@ -1,6 +1,6 @@
 // Mock data for preview/development outside Chrome Extension context
 import type { Order, OrderData, StatusCode } from '../types/index.js';
-import { formatVND } from './utils.js';
+import { formatCurrency } from '../i18n/format.js';
 
 const shops = [
   'techshop_vn - TechShop Việt Nam',
@@ -98,14 +98,14 @@ function generateOrders(): { orders: Order[]; totalCount: number; totalAmount: n
 
     const orderId = String(2400000000000000 + i * 1000000 + Math.floor(Math.random() * 999999));
 
-    const productSummary = `${product.name} (SL: ${product.count}, Giá: ${formatVND(product.price)})`;
+    const productSummary = `${product.name} (SL: ${product.count}, Giá: ${formatCurrency(product.price)})`;
 
     orders.push({
       orderId,
       name: product.name,
       productCount: product.count,
       subTotal,
-      subTotalFormatted: formatVND(subTotal),
+      subTotalFormatted: formatCurrency(subTotal),
       status: statusInfo.text,
       statusCode: statusInfo.code,
       shopName: shop,
@@ -141,7 +141,7 @@ export const mockData: OrderData = {
   orders,
   totalCount,
   totalAmount,
-  totalAmountFormatted: formatVND(totalAmount),
+  totalAmountFormatted: formatCurrency(totalAmount),
   fetchedAt: new Date().toISOString(),
   cachedAt: new Date().toISOString(),
 };

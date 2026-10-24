@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type ExcelJS from 'exceljs';
 import { exportToCSV, exportToExcel, exportToPDF } from '../src/dashboard/export';
-import { state } from '../src/dashboard/state';
 import type { Order } from '../src/types/index';
 
 const order: Order = {
@@ -37,15 +36,6 @@ describe('Export Functions', () => {
     downloads = [];
     blobs = [];
     document.body.innerHTML = '';
-    state.allOrdersData = {
-      orders: [order], totalCount: 2, totalAmount: 100000,
-      totalAmountFormatted: '100.000 ₫', fetchedAt: '2024-01-15T00:00:00Z',
-    };
-    state.filteredOrders = [order];
-    state.currentPage = 1;
-    state.itemsPerPage = 20;
-    state.selectedDay = null;
-    state.dateRange = { start: null, end: null };
     vi.stubGlobal('URL', class extends URL {
       static createObjectURL(blob: Blob): string {
         blobs.push(blob);
@@ -66,7 +56,7 @@ describe('Export Functions', () => {
 
   describe('exportToCSV', () => {
     it('downloads Vietnamese headers, amounts and quoted text, then removes its anchor', async () => {
-      exportToCSV();
+      exportToCSV([order]);
 
       expect(downloads).toEqual([{ href: 'blob:mock-url', filename: expect.stringMatching(/^shopee-stats-\d{4}-\d{2}-\d{2}\.csv$/) }]);
       expect(blobs[0].type).toBe('text/csv;charset=utf-8');
@@ -75,39 +65,24 @@ describe('Export Functions', () => {
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
     });
 
-    it('exports the complete visible selection in its sorted order, across pages', async () => {
+    it('exports exactly the orders it is given, in the given order', async () => {
       const second = { ...order, orderId: 'ORD002', name: 'Second' };
-      const hidden = { ...order, orderId: 'HIDDEN' };
-      state.allOrdersData!.orders = [order, hidden, second];
-      // applyFilters owns year/month/status/search/date-range/day selection.
-      state.filteredOrders = [second, order];
-      state.itemsPerPage = 1;
-      state.currentPage = 2;
 
-      exportToCSV();
+      exportToCSV([second, order]);
 
       const csv = await readBlob(blobs[0]);
       expect(csv.split('\n')).toHaveLength(3);
       expect(csv.split('\n')[1]).toContain('1,"ORD002"');
       expect(csv.split('\n')[2]).toContain('2,"ORD001"');
-      expect(csv).not.toContain('HIDDEN');
     });
 
-    it('exports headers only when filters exclude every order', async () => {
-      state.filteredOrders = [];
-      exportToCSV();
-      expect(await readBlob(blobs[0])).toBe(headers);
-    });
-
-    it('does not export stale selected rows when source data is absent', async () => {
-      state.allOrdersData = null;
-      exportToCSV();
+    it('exports headers only when there are no orders', async () => {
+      exportToCSV([]);
       expect(await readBlob(blobs[0])).toBe(headers);
     });
 
     it('escapes quotes, commas and newlines in all text fields', async () => {
-      state.filteredOrders = [{ ...order, orderId: 'ID,"1"', name: 'Product, "special"\nnext', shopName: 'Shop "A"' }];
-      exportToCSV();
+      exportToCSV([{ ...order, orderId: 'ID,"1"', name: 'Product, "special"\nnext', shopName: 'Shop "A"' }]);
       const csv = await readBlob(blobs[0]);
       expect(csv).toContain('"ID,""1"""');
       expect(csv).toContain('"Product, ""special""\nnext"');
@@ -116,8 +91,7 @@ describe('Export Functions', () => {
 
     it.each(['=1+1', '+SUM(1,1)', '-1+2', '@SUM(1,1)', '\t=1+1', '\r=1+1', '  =1+1'])(
       'exports untrusted spreadsheet formulas as text: %j', async value => {
-        state.filteredOrders = [{ ...order, name: value, shopName: value }];
-        exportToCSV();
+        exportToCSV([{ ...order, name: value, shopName: value }]);
         const csv = await readBlob(blobs[0]);
         expect(csv).toContain(`"'${value}"`);
         expect(csv).not.toContain(`,"${value}",`);
@@ -135,17 +109,12 @@ describe('Export Functions', () => {
       try {
         // Fresh imports exercise the module-loading boundary, not cached exports.
         const exports = await import('../src/dashboard/export');
-        const { state: freshState } = await import('../src/dashboard/state');
-        freshState.allOrdersData = state.allOrdersData;
-        freshState.filteredOrders = [order];
-        exports.exportToCSV();
+        exports.exportToCSV([order]);
         exports.exportToPDF();
-        freshState.filteredOrders = [];
-        exports.exportToExcel();
+        exports.exportToExcel([]);
         expect(loadExcel).not.toHaveBeenCalled();
 
-        freshState.filteredOrders = [order];
-        exports.exportToExcel();
+        exports.exportToExcel([order]);
         await vi.waitFor(() => expect(downloads).toHaveLength(2));
         expect(loadExcel).toHaveBeenCalledOnce();
         expect(downloads[1].filename).toMatch(/\.xlsx$/);
@@ -156,14 +125,12 @@ describe('Export Functions', () => {
       }
     });
 
-    it('exports the same visible selection and preserves numeric cell values', async () => {
-      const hidden = { ...order, orderId: 'HIDDEN' };
-      state.allOrdersData!.orders = [hidden, order];
+    it('preserves numeric cell values', async () => {
       // Match the lazily loaded module after module-boundary tests reset the cache.
       const { default: ExcelJS } = await import('exceljs');
       const worksheetSpy = vi.spyOn(ExcelJS.Workbook.prototype, 'addWorksheet');
 
-      exportToExcel();
+      exportToExcel([order]);
       await vi.waitFor(() => expect(downloads).toHaveLength(1));
 
       const worksheet = worksheetSpy.mock.results[0].value as ExcelJS.Worksheet;
@@ -176,8 +143,7 @@ describe('Export Functions', () => {
     });
 
     it('does not download an empty selection', () => {
-      state.filteredOrders = [];
-      exportToExcel();
+      exportToExcel([]);
       expect(window.alert).toHaveBeenCalledOnce();
       expect(downloads).toEqual([]);
       expect(blobs).toEqual([]);
@@ -190,7 +156,7 @@ describe('Export Functions', () => {
       vi.spyOn(Object.getPrototypeOf(new ExcelJS.Workbook().xlsx), 'writeBuffer').mockRejectedValue(error);
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      exportToExcel();
+      exportToExcel([order]);
 
       await vi.waitFor(() => expect(window.alert).toHaveBeenCalledWith('Failed to export Excel. Please try again.'));
       expect(consoleError).toHaveBeenCalledWith('Export failed:', error);
@@ -207,10 +173,7 @@ describe('Export Functions', () => {
       try {
         // Fresh imports allow this test to reject the lazy module load.
         const { exportToExcel: exportFreshExcel } = await import('../src/dashboard/export');
-        const { state: freshState } = await import('../src/dashboard/state');
-        freshState.allOrdersData = state.allOrdersData;
-        freshState.filteredOrders = [order];
-        exportFreshExcel();
+        exportFreshExcel([order]);
 
         await vi.waitFor(() => expect(window.alert).toHaveBeenCalledWith('Failed to export Excel. Please try again.'));
         expect(consoleError).toHaveBeenCalledWith('Export failed:', expect.any(Error));
