@@ -1,4 +1,4 @@
-// Pure order search and sort, shared by the legacy table and the React Đơn hàng screen
+// Pure order search and sort for the Đơn hàng screen
 import type { Order, SortDirection } from '../types/index.js';
 
 export function sortOrders(orders: Order[], field: string, direction: SortDirection): Order[] {
@@ -28,9 +28,9 @@ export function sortOrders(orders: Order[], field: string, direction: SortDirect
   });
 }
 
-/** Status code (as a string, '' = any) and lower-cased search term against order id, product, shop, summary and status. */
-export function matchesStatusAndSearch(order: Order, status: string, searchTerm: string): boolean {
-  if (status && order.statusCode !== Number(status)) return false;
+/** Status code (null = any) and lower-cased search term against order id, product, shop, summary and status. */
+export function matchesStatusAndSearch(order: Order, status: number | null, searchTerm: string): boolean {
+  if (status !== null && order.statusCode !== status) return false;
   if (!searchTerm) return true;
   const searchableText = [order.orderId?.toString(), order.name, order.shopName, order.productSummary, order.status]
     .filter(Boolean)

@@ -1,7 +1,7 @@
 // Figures for the Tổng quan screen (pure). Spend totals come from computeStats; this adds the
 // groupings the screen needs (per month, per shop, month over month) so no UI code sums orders.
 import type { Order } from '../types/index.js';
-import { monthOf, monthSpend } from './month.js';
+import { monthOf, monthSpend, yearSpend } from './month.js';
 import { isExcludedOrder } from './order-status.js';
 import { computeStats, type Stats } from './stats.js';
 
@@ -63,30 +63,38 @@ export function computeOverview(orders: Order[]): Overview {
   };
 }
 
-export interface MonthChange {
-  /** "10/2026": the month `current` is about. */
+export interface PeriodChange {
+  /** "10/2026" or "2026": the period `current` is about. */
   label: string;
-  /** "9/2026": the month it is compared with. */
+  /** The period it is compared with. */
   previousLabel: string;
   current: number;
   previous: number;
-  /** Rounded to one decimal; null when the previous month had no spend to compare with. */
+  /** Rounded to one decimal; null when the previous period had no spend to compare with. */
   percent: number | null;
 }
 
-/** Net spend of the month containing `anchor` against the month before it. */
+export type MonthChange = PeriodChange;
+
+const change = (label: string, previousLabel: string, current: number, previous: number): PeriodChange => ({
+  label,
+  previousLabel,
+  current,
+  previous,
+  percent: previous > 0 ? Math.round(((current - previous) / previous) * 1000) / 10 : null,
+});
+
+/** Net spend of the calendar month containing `anchor` against the month before it. */
 export function monthChange(orders: Order[], anchor: Date): MonthChange {
   const month = anchor.getMonth() + 1;
   const year = anchor.getFullYear();
   const prevMonth = month === 1 ? 12 : month - 1;
   const prevYear = month === 1 ? year - 1 : year;
-  const current = monthSpend(orders, month, year);
-  const previous = monthSpend(orders, prevMonth, prevYear);
-  return {
-    label: `${month}/${year}`,
-    previousLabel: `${prevMonth}/${prevYear}`,
-    current,
-    previous,
-    percent: previous > 0 ? Math.round(((current - previous) / previous) * 1000) / 10 : null,
-  };
+  return change(`${month}/${year}`, `${prevMonth}/${prevYear}`, monthSpend(orders, month, year), monthSpend(orders, prevMonth, prevYear));
+}
+
+/** Net spend of the calendar year containing `anchor` against the year before it. */
+export function yearChange(orders: Order[], anchor: Date): PeriodChange {
+  const year = anchor.getFullYear();
+  return change(String(year), String(year - 1), yearSpend(orders, year), yearSpend(orders, year - 1));
 }

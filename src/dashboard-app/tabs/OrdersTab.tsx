@@ -1,29 +1,22 @@
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { getOrderUrl } from '../../config.js';
 import { matchesStatusAndSearch, sortOrders } from '../../dashboard/order-query.js';
 import { exportToCSV, exportToExcel } from '../../dashboard/export.js';
-import { isExcludedOrder } from '../../dashboard/order-status.js';
-import { formatCurrency, formatDate, formatDateTime } from '../../i18n/format.js';
+import { ORDER_STATUSES } from '../../dashboard/order-status.js';
 import { t } from '../../i18n/index.js';
-import type { Order, SortDirection } from '../../types/index.js';
+import type { SortDirection } from '../../types/index.js';
 import { Button } from '../../ui/components/Button';
 import { StateMessage } from '../../ui/components/StateMessage';
 import { control } from '../../ui/styles/classes';
+import { NoOrdersInRange } from '../components/NoOrdersInRange';
 import { useDashboard } from '../context';
+import { OrderRow } from './orders/OrderRow';
+import { Pagination } from './orders/Pagination';
+import { PrintSheet } from './orders/PrintSheet';
 
-const money = (n: number) => formatCurrency(n);
-
-const PAGE_SIZE = 20;
-
-const STATUSES: { code: string; label: string }[] = [
-  { code: '3', label: 'status.completed' },
-  { code: '4', label: 'status.cancelled' },
-  { code: '7', label: 'status.waitingShipment' },
-  { code: '8', label: 'status.delivering' },
-  { code: '9', label: 'status.waitingPayment' },
-  { code: '12', label: 'status.returned' },
-];
+/** Orders per page the reader can pick; null is "all". */
+const PAGE_SIZES: (number | null)[] = [20, 50, 100, null];
+const sizeLabel = (size: number | null) => (size === null ? t('orders.pageSize.all') : t('orders.pageSize.n', { n: size }));
 
 type SortField = 'deliveryDate' | 'status' | 'subTotal';
 const SORT_COLUMNS: { field: SortField; label: string }[] = [
@@ -36,30 +29,18 @@ interface Sort {
   direction: SortDirection;
 }
 
-const cell = '@2xl:table-cell @2xl:px-3 @2xl:py-2';
-
-/** Page numbers to show: all of them up to 7, else first, last and the neighbours of the current page (null = gap). */
-function pageItems(page: number, pages: number): (number | null)[] {
-  if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
-  const items: (number | null)[] = [1];
-  if (page > 3) items.push(null);
-  for (let i = Math.max(2, page - 1); i <= Math.min(pages - 1, page + 1); i++) items.push(i);
-  if (page < pages - 2) items.push(null);
-  items.push(pages);
-  return items;
-}
-
 /**
  * Đơn hàng: the orders of the global date range with search, status and shop filters, sorting,
  * pagination and inline detail. A single table; below the container's 42rem its rows become cards.
  */
 export function OrdersTab() {
-  const { orders, resetRange } = useDashboard();
+  const { orders } = useDashboard();
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState<number | null>(null);
   const [shop, setShop] = useState('');
   const [sort, setSort] = useState<Sort>({ field: null, direction: 'asc' });
+  const [pageSize, setPageSize] = useState<number | null>(PAGE_SIZES[0]);
   const [requestedPage, setRequestedPage] = useState(1);
   const [printing, setPrinting] = useState(false);
 
@@ -80,20 +61,12 @@ export function OrdersTab() {
     return sort.field ? sortOrders(matching, sort.field, sort.direction) : matching;
   }, [orders, activeShop, status, term, sort]);
 
-  const pages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const pages = pageSize === null ? 1 : Math.max(1, Math.ceil(results.length / pageSize));
   const page = Math.min(requestedPage, pages);
-  const from = (page - 1) * PAGE_SIZE;
-  const pageOrders = results.slice(from, from + PAGE_SIZE);
+  const from = pageSize === null ? 0 : (page - 1) * pageSize;
+  const pageOrders = pageSize === null ? results : results.slice(from, from + pageSize);
 
-  if (orders.length === 0) {
-    return (
-      <StateMessage
-        title={t('dash.noOrdersInRange.title')}
-        message={t('dash.noOrdersInRange.message')}
-        action={{ label: t('dash.noOrdersInRange.action'), onClick: resetRange }}
-      />
-    );
-  }
+  if (orders.length === 0) return <NoOrdersInRange />;
 
   const toggle = (id: string) =>
     setOpen(prev => {
@@ -103,7 +76,7 @@ export function OrdersTab() {
     });
   const reset = () => {
     setSearch('');
-    setStatus('');
+    setStatus(null);
     setShop('');
     setRequestedPage(1);
   };
@@ -143,9 +116,14 @@ export function OrdersTab() {
           onChange={e => changeFilter(() => setSearch(e.target.value))}
           className={`${control} min-w-48 flex-1`}
         />
-        <select aria-label={t('orders.filter.status')} value={status} onChange={e => changeFilter(() => setStatus(e.target.value))} className={control}>
+        <select
+          aria-label={t('orders.filter.status')}
+          value={status ?? ''}
+          onChange={e => changeFilter(() => setStatus(e.target.value === '' ? null : Number(e.target.value)))}
+          className={control}
+        >
           <option value="">{t('filter.allStatus')}</option>
-          {STATUSES.map(s => (
+          {ORDER_STATUSES.map(s => (
             <option key={s.code} value={s.code}>{t(s.label)}</option>
           ))}
         </select>
@@ -203,152 +181,23 @@ export function OrdersTab() {
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted">
             <p>{t('orders.showing', { from: from + 1, to: from + pageOrders.length, total: results.length })}</p>
-            {pages > 1 && (
-              <nav aria-label={t('orders.pagination')} className="flex flex-wrap items-center gap-1">
-                <PageButton label={t('orders.prevPage')} disabled={page === 1} onClick={() => setRequestedPage(page - 1)}>‹</PageButton>
-                {pageItems(page, pages).map((item, i) =>
-                  item === null ? (
-                    <span key={`gap-${i}`} aria-hidden="true">…</span>
-                  ) : (
-                    <PageButton key={item} label={t('orders.page', { n: item })} current={item === page} onClick={() => setRequestedPage(item)}>
-                      {item}
-                    </PageButton>
-                  ),
-                )}
-                <PageButton label={t('orders.nextPage')} disabled={page === pages} onClick={() => setRequestedPage(page + 1)}>›</PageButton>
-              </nav>
-            )}
+            {pages > 1 && <Pagination page={page} pages={pages} onPage={setRequestedPage} />}
+            <select
+              aria-label={t('orders.pageSize')}
+              value={pageSize ?? 'all'}
+              onChange={e => {
+                setPageSize(e.target.value === 'all' ? null : Number(e.target.value));
+                setRequestedPage(1);
+              }}
+              className={control}
+            >
+              {PAGE_SIZES.map(size => (
+                <option key={size ?? 'all'} value={size ?? 'all'}>{sizeLabel(size)}</option>
+              ))}
+            </select>
           </div>
         </>
       )}
     </section>
-  );
-}
-
-/** Every filtered order as a plain table, shown only on paper (app.css hides the dashboard while it exists). */
-function PrintSheet({ orders }: { orders: Order[] }) {
-  return (
-    <div id="orders-print" className="hidden text-black print:block">
-      <table className="w-full border-collapse text-xs">
-        <thead>
-          <tr>
-            {['table.col.index', 'table.col.orderId', 'table.col.date', 'table.col.status', 'table.col.product', 'table.col.quantity', 'table.col.total'].map(key => (
-              <th key={key} className="border border-black px-1 py-0.5 text-left">{t(key)}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((o, i) => (
-            <tr key={o.orderId}>
-              <td className="border border-black px-1 py-0.5">{i + 1}</td>
-              <td className="border border-black px-1 py-0.5">{o.orderId}</td>
-              <td className="border border-black px-1 py-0.5">{o.deliveryDate ? formatDate(new Date(o.deliveryDate)) : t('table.noDate')}</td>
-              <td className="border border-black px-1 py-0.5">{o.status}</td>
-              <td className="border border-black px-1 py-0.5">{o.name}</td>
-              <td className="border border-black px-1 py-0.5">{o.productCount}</td>
-              <td className="border border-black px-1 py-0.5">{money(o.subTotal)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function PageButton({
-  label, current, disabled, onClick, children,
-}: { label: string; current?: boolean; disabled?: boolean; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      aria-current={current ? 'page' : undefined}
-      disabled={disabled}
-      onClick={onClick}
-      className={`num min-w-8 cursor-pointer rounded-md border px-2 py-1 disabled:cursor-not-allowed disabled:opacity-40 ${
-        current ? 'border-accent-text bg-accent-solid font-semibold text-on-accent' : 'border-line bg-card text-fg'
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function OrderRow({ order, expanded, onToggle }: { order: Order; expanded: boolean; onToggle: () => void }) {
-  const excluded = isExcludedOrder(order);
-  const detailId = `order-detail-${order.orderId}`;
-  return (
-    <Fragment>
-      <tr className="grid grid-cols-[1fr_auto] gap-x-3 rounded-xl border border-line bg-card p-3 @2xl:table-row @2xl:rounded-none @2xl:border-0 @2xl:border-b @2xl:bg-transparent @2xl:p-0">
-        <td className={cell}>
-          <button
-            type="button"
-            aria-expanded={expanded}
-            aria-controls={expanded ? detailId : undefined}
-            aria-label={t('orders.viewDetail', { id: order.orderId })}
-            onClick={onToggle}
-            className="mr-2 cursor-pointer text-muted"
-          >
-            <span aria-hidden="true">{expanded ? '▾' : '▸'}</span>
-          </button>
-          <a href={getOrderUrl(order.orderId)} target="_blank" rel="noopener noreferrer" className="num text-accent-text underline underline-offset-2">
-            {order.orderId}
-          </a>
-        </td>
-        <td className={cell}>{order.deliveryDate ? formatDate(new Date(order.deliveryDate)) : t('table.noDate')}</td>
-        <td className={cell}>
-          {order.status}
-          {excluded && <span className="ml-2 rounded border border-bad px-1.5 text-xs text-bad">{t('orders.excluded')}</span>}
-        </td>
-        <td className={`col-span-2 ${cell}`}>{order.name}</td>
-        <td className={`num ${cell} @2xl:text-right`}>{order.productCount}</td>
-        <td className={`num ${cell} @2xl:text-right ${excluded ? 'text-muted line-through' : ''}`}>{money(order.subTotal)}</td>
-      </tr>
-      {expanded && (
-        <tr className="block @2xl:table-row">
-          <td colSpan={6} className="block @2xl:table-cell">
-            <OrderDetail order={order} id={detailId} excluded={excluded} />
-          </td>
-        </tr>
-      )}
-    </Fragment>
-  );
-}
-
-function OrderDetail({ order, id, excluded }: { order: Order; id: string; excluded: boolean }) {
-  return (
-    <div id={id} role="region" aria-label={t('orders.detail', { id: order.orderId })} className="rounded-xl border border-line bg-bg p-3">
-      {excluded && (
-        <p className="mb-2 text-sm font-medium text-bad">
-          {t('orders.excludedNote', { amount: money(order.refundAmount || order.subTotal) })}
-        </p>
-      )}
-      <dl className="grid gap-x-6 gap-y-1 text-sm @2xl:grid-cols-2">
-        <dt className="text-muted">{t('table.detail.seller')}</dt>
-        <dd>{order.shopName}</dd>
-        {order.deliveryDate && (
-          <>
-            <dt className="text-muted">{t('table.detail.deliveryDate')}</dt>
-            <dd>{formatDateTime(new Date(order.deliveryDate))}</dd>
-          </>
-        )}
-        <dt className="text-muted">{t('table.detail.total')}</dt>
-        <dd className="num">{money(order.subTotal)}</dd>
-      </dl>
-      {order.items?.length ? (
-        <ul className="mt-2 divide-y divide-line text-sm">
-          {order.items.map((item, i) => (
-            <li key={i} className="flex justify-between gap-3 py-1">
-              <span>{item.name}</span>
-              <span className="num shrink-0 text-muted">
-                {item.quantity} × {money(item.unitPrice)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-2 text-sm">{order.productSummary || order.name}</p>
-      )}
-    </div>
   );
 }
