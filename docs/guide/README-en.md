@@ -19,12 +19,12 @@ A Chrome extension to track and analyze your Shopee spending in detail with intu
 ## 📸 Screenshots
 
 ### Popup Interface
-![Popup Interface](../Screenshots/popup.png)
+![Popup Interface](../../store-assets/screenshots/05-popup.png)
 
 ### Analysis Interface
-![Analysis Interface 1](../Screenshots/screenshot-1.png)
+![Analysis Interface 1](../../store-assets/screenshots/02-charts.png)
 
-![Analysis Interface 2](../Screenshots/screenshot-2.png)
+![Analysis Interface 2](../../store-assets/screenshots/04-orders-table.png)
 
 ## Key Features
 
