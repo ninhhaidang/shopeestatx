@@ -14,7 +14,7 @@
 
 </div>
 
-> **Version 3.1.0** - React + Tailwind + Vite, Light/Dark
+> **Version 3.4.1** - React + Tailwind + Vite, Light/Dark
 
 > Chrome Extension giúp theo dõi và phân tích chi tiêu trên Shopee một cách chi tiết và trực quan.
 
@@ -195,6 +195,8 @@ npm run verify           # CI: typecheck, knip (unused files/exports/deps), test
 
 ### Demo Mode
 Mở trang dashboard ngoài extension (`npm run dev`, `npm run preview`) thì dashboard tự dùng mock data thay vì gọi Shopee API, nên phát triển UI không cần cài extension. Trong build dev nạp vào Chrome, thêm `?mock=1` vào URL dashboard để xem mock data; build production bỏ qua tham số này.
+
+`exportToExcel()` trả `Promise<void>` hoàn tất sau khi tạo file và kích hoạt tải xuống, hoặc sau khi báo lỗi. Kiểm thử phải chờ Promise này để tránh tác vụ xuất còn chạy sang test tiếp theo.
 
 ### Dashboard dev preview
 

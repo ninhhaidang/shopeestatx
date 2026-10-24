@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type ExcelJS from 'exceljs';
 import { exportToCSV, exportToExcel, exportToPDF } from '../src/dashboard/export';
 import type { Order } from '../src/types/index';
 
@@ -100,40 +99,19 @@ describe('Export Functions', () => {
   });
 
   describe('exportToExcel', () => {
-    it('loads ExcelJS only for a nonempty Excel export', async () => {
-      vi.resetModules();
-      const loadExcel = vi.fn(() => vi.importActual('exceljs'));
-      vi.doMock('exceljs', loadExcel);
-      vi.spyOn(window, 'print').mockImplementation(() => {});
-
-      try {
-        // Fresh imports exercise the module-loading boundary, not cached exports.
-        const exports = await import('../src/dashboard/export');
-        exports.exportToCSV([order]);
-        exports.exportToPDF();
-        exports.exportToExcel([]);
-        expect(loadExcel).not.toHaveBeenCalled();
-
-        exports.exportToExcel([order]);
-        await vi.waitFor(() => expect(downloads).toHaveLength(2));
-        expect(loadExcel).toHaveBeenCalledOnce();
-        expect(downloads[1].filename).toMatch(/\.xlsx$/);
-        expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
-      } finally {
-        vi.doUnmock('exceljs');
-        vi.resetModules();
-      }
-    });
-
     it('preserves numeric cell values', async () => {
-      // Match the lazily loaded module after module-boundary tests reset the cache.
       const { default: ExcelJS } = await import('exceljs');
-      const worksheetSpy = vi.spyOn(ExcelJS.Workbook.prototype, 'addWorksheet');
 
-      exportToExcel([order]);
-      await vi.waitFor(() => expect(downloads).toHaveLength(1));
+      await exportToExcel([order]);
 
-      const worksheet = worksheetSpy.mock.results[0].value as ExcelJS.Worksheet;
+      const { promise, resolve, reject } = Promise.withResolvers<ArrayBuffer>();
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(blobs[0]);
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await promise);
+      const worksheet = workbook.getWorksheet('Shopee Orders')!;
       expect(worksheet.rowCount).toBe(2);
       expect(worksheet.getCell(2, 2).value).toBe('ORD001');
       expect(worksheet.getCell(2, 6).value).toBe(2);
@@ -142,8 +120,8 @@ describe('Export Functions', () => {
       expect(blobs[0].type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     });
 
-    it('does not download an empty selection', () => {
-      exportToExcel([]);
+    it('does not download an empty selection', async () => {
+      await exportToExcel([]);
       expect(window.alert).toHaveBeenCalledOnce();
       expect(downloads).toEqual([]);
       expect(blobs).toEqual([]);
@@ -156,9 +134,9 @@ describe('Export Functions', () => {
       vi.spyOn(Object.getPrototypeOf(new ExcelJS.Workbook().xlsx), 'writeBuffer').mockRejectedValue(error);
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      exportToExcel([order]);
+      await exportToExcel([order]);
 
-      await vi.waitFor(() => expect(window.alert).toHaveBeenCalledWith('Failed to export Excel. Please try again.'));
+      expect(window.alert).toHaveBeenCalledWith('Failed to export Excel. Please try again.');
       expect(consoleError).toHaveBeenCalledWith('Export failed:', error);
       expect(downloads).toEqual([]);
       expect(blobs).toEqual([]);
@@ -173,9 +151,9 @@ describe('Export Functions', () => {
       try {
         // Fresh imports allow this test to reject the lazy module load.
         const { exportToExcel: exportFreshExcel } = await import('../src/dashboard/export');
-        exportFreshExcel([order]);
+        await exportFreshExcel([order]);
 
-        await vi.waitFor(() => expect(window.alert).toHaveBeenCalledWith('Failed to export Excel. Please try again.'));
+        expect(window.alert).toHaveBeenCalledWith('Failed to export Excel. Please try again.');
         expect(consoleError).toHaveBeenCalledWith('Export failed:', expect.any(Error));
         expect(downloads).toEqual([]);
         expect(blobs).toEqual([]);

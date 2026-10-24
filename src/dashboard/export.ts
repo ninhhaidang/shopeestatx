@@ -22,7 +22,7 @@ function csvCell(value: string | number): string {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-export function exportToExcel(filtered: Order[]): void {
+export async function exportToExcel(filtered: Order[]): Promise<void> {
   if (filtered.length === 0) {
     alert(t('export.noData') || 'No data to export');
     return;
@@ -41,7 +41,7 @@ export function exportToExcel(filtered: Order[]): void {
   }));
 
   // Load the spreadsheet bundle only when an Excel download is requested.
-  import('exceljs')
+  return import('exceljs')
     .then(({ default: ExcelJS }) => {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Shopee Orders');
