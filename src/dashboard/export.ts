@@ -89,7 +89,8 @@ export function exportToCSV(filtered: Order[]): void {
     t('export.col.product'),
     t('export.col.quantity'),
     t('export.col.total'),
-    'Seller'
+    'Seller',
+    'Details'
   ];
   const rows = filtered.map((o, i) => [
     i + 1,
@@ -100,6 +101,7 @@ export function exportToCSV(filtered: Order[]): void {
     o.productCount,
     o.subTotal,
     o.shopName,
+    o.productSummary,
   ].map(csvCell).join(','));
 
   const csv = BOM + [headers.map(csvCell).join(','), ...rows].join('\n');

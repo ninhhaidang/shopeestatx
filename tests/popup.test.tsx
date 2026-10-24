@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { Popup } from '../src/popup/Popup';
 import type { PopupHost } from '../src/popup/host';
+import { chromeHost } from '../src/popup/chrome-host';
 import { renderSurface } from './support/render';
 import { mockColorScheme } from './support/match-media';
 
@@ -22,6 +23,8 @@ beforeEach(() => {
   delete document.documentElement.dataset.theme;
   mockColorScheme('light');
 });
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe('Popup', () => {
   it('greets the cached user by name', async () => {
@@ -45,6 +48,38 @@ describe('Popup', () => {
 
     expect(await screen.findByRole('status')).toHaveTextContent('Vui lòng mở Shopee và đăng nhập trước.');
     expect(screen.getByRole('button', { name: 'Bắt đầu phân tích' })).toBeDisabled();
+  });
+
+  it.each([
+    ['https://example.com/?next=https://shopee.vn', false],
+    ['https://shopee.vn.example.com', false],
+    ['https://notshopee.vn', false],
+    ['https://shopee.vn@example.com', false],
+    ['not a URL shopee.vn', false],
+    ['ftp://shopee.vn', false],
+    ['javascript://shopee.vn', false],
+    ['https://shopee.sg', false],
+    [undefined, false],
+    ['https://shopee.vn/user/purchase', true],
+    ['https://www.shopee.vn', true],
+    ['https://mall.shopee.vn', true],
+    ['https://SHOPEE.VN', true],
+    ['http://shopee.vn', true],
+  ])('gates scanning for active tab %s through the Chrome host', async (url, allowed) => {
+    vi.stubGlobal('chrome', {
+      tabs: { query: vi.fn().mockResolvedValue([{ url }]) },
+      storage: { local: { get: vi.fn().mockResolvedValue({}) } },
+    });
+    renderSurface(<Popup host={chromeHost} />);
+
+    const start = screen.getByRole('button', { name: 'Bắt đầu phân tích' });
+    if (allowed) {
+      await vi.waitFor(() => expect(start).toBeEnabled());
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    } else {
+      expect(await screen.findByRole('status')).toHaveTextContent('Vui lòng mở Shopee và đăng nhập trước.');
+      expect(start).toBeDisabled();
+    }
   });
 
   it('opens the Shopee login from the warning', async () => {

@@ -8,8 +8,9 @@ export interface DashboardHost {
   /** Orders cached by the last scan, or null when there are none. */
   loadCached(): Promise<OrderData | null>;
   /**
-   * Scan Shopee (the existing order-list read, no new request), merge into the cache and persist.
+   * Scan Shopee (the existing order-list read, no new request) and persist.
+   * Initial analysis replaces the cache; background refresh retains older orders for the same account.
    * `onProgress` reports how many orders have been fetched so far.
    */
-  refresh(onProgress: (count: number) => void): Promise<{ data: OrderData; added: number }>;
+  refresh(onProgress: (count: number) => void, mode: 'replace' | 'merge'): Promise<{ data: OrderData; added: number }>;
 }
