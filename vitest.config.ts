@@ -12,12 +12,22 @@ export default defineConfig({
         'src/dashboard/utils.ts',
         'src/dashboard/filters.ts',
         'src/dashboard/comparison.ts',
+        'src/dashboard/range.ts',
+        'src/dashboard/overview.ts',
+        'src/dashboard/merge.ts',
         'src/content/content.js',
         'src/ui/**/*.{ts,tsx}',
         'src/popup/**/*.{ts,tsx}',
+        'src/dashboard-app/**/*.{ts,tsx}',
       ],
       // Entry glue that only runs inside Chrome.
-      exclude: ['src/popup/main.tsx', 'src/popup/chrome-host.ts'],
+      exclude: [
+        'src/popup/main.tsx',
+        'src/popup/chrome-host.ts',
+        'src/dashboard-app/main.tsx',
+        'src/dashboard-app/chrome-host.ts',
+        'src/dashboard-app/mock-host.ts',
+      ],
     },
   },
 });

@@ -19,6 +19,8 @@ export default defineConfig({
       input: {
         // Dashboard (main results page)
         results: resolve(__dirname, 'src/dashboard/results.html'),
+        // New React dashboard (runs beside the old one until #37 swaps it in)
+        dashboardApp: resolve(__dirname, 'src/dashboard-app/dashboard.html'),
         // Popup
         popup: resolve(__dirname, 'src/popup/popup.html'),
         // Welcome/onboarding page
