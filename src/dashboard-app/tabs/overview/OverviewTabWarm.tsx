@@ -84,7 +84,7 @@ export function OverviewTabWarm() {
         <h2 className="mb-2 text-sm tracking-wide text-warm-muted">{t('dash.overview.topShops')}</h2>
         <ol aria-label={t('dash.overview.topShops')} className="grid gap-3">
           {topShops.map((shop, i) => (
-            <li key={shop.name}>
+            <li key={shop.name} className="min-w-0">
               <div className="mb-1 flex items-baseline justify-between gap-3">
                 <span className="truncate">{i + 1}. {shop.name}</span>
                 <span className="shrink-0 font-serif">{shortMoney(shop.amount)}</span>

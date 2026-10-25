@@ -56,7 +56,7 @@ export function AnalysisTabWarm() {
         ) : (
           <ol aria-label={t('stats.topQuantity')} className="grid gap-1.5">
             {stats.topByQuantity.map((p, i) => (
-              <li key={p.name} className="flex items-baseline gap-2">
+              <li key={p.name} className="flex min-w-0 items-baseline gap-2">
                 <span className="font-serif text-warm-muted">{i + 1}.</span>
                 <span className="flex-1 truncate">{p.name}</span>
                 <span className="font-serif">{t('stats.quantity.unit', { n: p.quantity })}</span>
@@ -73,7 +73,7 @@ export function AnalysisTabWarm() {
         ) : (
           <ol aria-label={t('stats.priciest')} className="grid gap-1.5">
             {stats.priciest.map((p, i) => (
-              <li key={p.name} className="flex items-baseline gap-2">
+              <li key={p.name} className="flex min-w-0 items-baseline gap-2">
                 <span className="font-serif text-warm-muted">{i + 1}.</span>
                 <span className="flex-1 truncate">{p.name}</span>
                 <span className="font-serif">{money(p.unitPrice)}</span>
