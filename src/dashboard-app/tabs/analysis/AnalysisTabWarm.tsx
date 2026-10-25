@@ -38,7 +38,7 @@ export function AnalysisTabWarm() {
   const rate = stats.dailySpendRate ? money(stats.dailySpendRate) : t('stats.none');
 
   return (
-    <div className="style-warm mx-auto grid max-w-prose gap-7 py-2 font-serif text-[15px] leading-relaxed text-warm-fg">
+    <div className="mx-auto flex max-w-prose flex-col gap-7 py-2 font-serif text-[15px] leading-relaxed text-warm-fg">
       <p>{t('analysisWarm.habitsIntro', { weekday, hour, streak, rate })}</p>
 
       {insights.length > 0 && (

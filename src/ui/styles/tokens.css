@@ -46,7 +46,9 @@
 
 /* Warm display-style: an independent presentation axis, not a theme (see ui/theme/style.ts,
    ADR 0003). It has its own light/dark token pair so switching to it never changes contrast
-   guarantees; it combines with [data-theme='dark'] rather than replacing it. */
+   guarantees; it combines with [data-theme='dark'] rather than replacing it. Both the class and
+   the data attribute land on <html> itself (applyStyle/applyTheme), so the dark-warm rule must be
+   a compound selector, not a descendant combinator. */
 .style-warm {
   --w-bg: #faf6ef;
   --w-card: #fffdf9;
@@ -63,7 +65,7 @@
   --w-b5: #7a4420;
 }
 
-[data-theme='dark'] .style-warm {
+[data-theme='dark'].style-warm {
   --w-bg: #1c1712;
   --w-card: #262019;
   --w-fg: #f3ead9;

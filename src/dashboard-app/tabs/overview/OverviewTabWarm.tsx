@@ -42,7 +42,7 @@ export function OverviewTabWarm() {
   const maxMonthly = Math.max(...monthly.map((m) => m.total), 1);
 
   return (
-    <div className="style-warm mx-auto grid max-w-prose gap-7 py-2 font-serif text-[15px] leading-relaxed text-warm-fg">
+    <div className="mx-auto flex max-w-prose flex-col gap-7 py-2 font-serif text-[15px] leading-relaxed text-warm-fg">
       <section aria-label={t('stats.netSpend')}>
         <p className="text-sm tracking-wide text-warm-muted">{t('stats.netSpend')}</p>
         <p data-testid="net-spend" className="my-1 font-serif text-[clamp(2.125rem,7cqi,3.5rem)] font-semibold leading-tight tracking-tight">
@@ -71,10 +71,10 @@ export function OverviewTabWarm() {
 
       <section aria-label={t('chart.spendingByMonth')}>
         <h2 className="mb-2 text-sm tracking-wide text-warm-muted">{t('chart.spendingByMonth')}</h2>
-        <div className="flex items-end gap-1" style={{ height: '5rem' }}>
+        <div className="flex gap-1" style={{ height: '5rem' }}>
           {monthly.map((m) => (
-            <div key={m.label} className="flex-1" title={`${m.label}: ${money(m.total)}`}>
-              <div className="rounded-t bg-warm-accent" style={{ height: `${Math.max((m.total / maxMonthly) * 100, 2)}%` }} />
+            <div key={m.label} className="flex h-full flex-1 items-end" title={`${m.label}: ${money(m.total)}`}>
+              <div className="w-full rounded-t bg-warm-accent" style={{ height: `${Math.max((m.total / maxMonthly) * 100, 2)}%` }} />
             </div>
           ))}
         </div>

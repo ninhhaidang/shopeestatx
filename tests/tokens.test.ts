@@ -65,7 +65,7 @@ describe('design tokens', () => {
 // light/dark token pair (`--w-*`), scoped under `.style-warm`. Same AA bar as fintech.
 const warmThemes = {
   light: block('.style-warm'),
-  dark: block("[data-theme='dark'] .style-warm"),
+  dark: block("[data-theme='dark'].style-warm"),
 };
 
 const WARM_PAIRS: Array<[string, string, number]> = [

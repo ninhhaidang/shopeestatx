@@ -121,7 +121,7 @@ export function OrdersTabWarm() {
   };
 
   return (
-    <div className="style-warm mx-auto max-w-prose py-2 font-serif text-warm-fg">
+    <div className="mx-auto max-w-prose py-2 font-serif text-warm-fg">
       <p className="mb-5 text-[15px]">{t('ordersWarm.summary', { count: results.length })}</p>
 
       <div className="mb-5 flex flex-wrap gap-4 text-sm">
