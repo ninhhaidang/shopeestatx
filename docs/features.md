@@ -104,6 +104,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Người dùng có thể thao tác bằng bàn phím với trạng thái focus rõ ràng, chuyển tab bằng phím mũi tên hoặc phím đầu và cuối, và dùng nhãn điều khiển dành cho trình đọc màn hình.
 - Biểu đồ chi tiêu và biểu đồ nhiệt có bảng số liệu thay thế để không buộc người dùng đọc dữ liệu chỉ qua màu sắc hoặc hình vẽ.
 - Giao diện giảm chuyển động theo thiết lập hệ thống và định dạng số tiền, ngày giờ theo cách hiển thị tiếng Việt.
+- Dashboard có bộ chọn kiểu hiển thị Fintech và Ấm áp, độc lập với bộ chọn Sáng/Tối, áp dụng cho cả ba màn hình Tổng quan, Phân tích và Đơn hàng. Mặc định là Fintech; lựa chọn Ấm áp được lưu để áp dụng ở lần mở sau. Kiểu Ấm áp giữ đủ số liệu, chức năng tìm kiếm/lọc/sắp xếp/phân trang/xuất dữ liệu/in như Fintech, chỉ đổi cách trình bày (văn xuôi, số serif, danh sách hoá đơn một cột) và có bảng màu sáng/tối riêng đạt WCAG AA.
 
 ## Trang chào mừng
 

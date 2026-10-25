@@ -44,6 +44,41 @@
   --focus: #8ab4ff;
 }
 
+/* Warm display-style: an independent presentation axis, not a theme (see ui/theme/style.ts,
+   ADR 0003). It has its own light/dark token pair so switching to it never changes contrast
+   guarantees; it combines with [data-theme='dark'] rather than replacing it. */
+.style-warm {
+  --w-bg: #faf6ef;
+  --w-card: #fffdf9;
+  --w-fg: #2b2015;
+  --w-muted: #6b5d4a;
+  --w-line: #e4d8c3;
+  --w-accent: #b5541f;
+  --w-accent-strong: #8a3f16;
+  --w-on-accent: #fffaf2;
+  --w-b1: #f0c9a0;
+  --w-b2: #e3a877;
+  --w-b3: #c97f4e;
+  --w-b4: #a85f32;
+  --w-b5: #7a4420;
+}
+
+[data-theme='dark'] .style-warm {
+  --w-bg: #1c1712;
+  --w-card: #262019;
+  --w-fg: #f3ead9;
+  --w-muted: #b8a890;
+  --w-line: #3a3023;
+  --w-accent: #e38a52;
+  --w-accent-strong: #f0a872;
+  --w-on-accent: #241206;
+  --w-b1: #4a3a26;
+  --w-b2: #6b5331;
+  --w-b3: #93703d;
+  --w-b4: #c08f4f;
+  --w-b5: #e3ab62;
+}
+
 /* Expose the tokens as Tailwind utilities (bg-card, text-muted, ...). `inline` keeps the
    utilities pointing at the CSS variables above so they switch with the theme. */
 @theme inline {
@@ -63,6 +98,19 @@
   --color-warn-bg: var(--warn-bg);
   --color-warn-fg: var(--warn-fg);
   --color-warn-line: var(--warn-line);
+  --color-warm-bg: var(--w-bg);
+  --color-warm-card: var(--w-card);
+  --color-warm-fg: var(--w-fg);
+  --color-warm-muted: var(--w-muted);
+  --color-warm-line: var(--w-line);
+  --color-warm-accent: var(--w-accent);
+  --color-warm-accent-strong: var(--w-accent-strong);
+  --color-warm-on-accent: var(--w-on-accent);
+  --color-warm-b1: var(--w-b1);
+  --color-warm-b2: var(--w-b2);
+  --color-warm-b3: var(--w-b3);
+  --color-warm-b4: var(--w-b4);
+  --color-warm-b5: var(--w-b5);
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
 }

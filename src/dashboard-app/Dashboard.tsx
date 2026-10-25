@@ -5,13 +5,15 @@ import { t } from '../i18n/index.js';
 import { Button } from '../ui/components/Button';
 import { Logo } from '../ui/components/Logo';
 import { StateMessage } from '../ui/components/StateMessage';
+import { StyleToggle } from '../ui/components/StyleToggle';
 import { ThemeToggle } from '../ui/components/ThemeToggle';
+import { useStyle } from '../ui/theme/StyleProvider';
 import { AccountChip } from './AccountChip';
 import { DashboardContext } from './context';
 import type { DashboardHost } from './host';
 import { OverviewSkeleton } from './OverviewSkeleton';
 import { RangePicker } from './RangePicker';
-import { TABS, type TabId } from './tabs';
+import { resolveTabComponent, TABS, type TabId } from './tabs';
 import { formatUpdated } from './updated';
 import { useOrderData } from './useOrderData';
 
@@ -24,6 +26,7 @@ const ALL_TIME: RangeSelection = { preset: 'all' };
  */
 export function Dashboard({ host, now = () => new Date() }: { host: DashboardHost; now?: () => Date }) {
   const orderData = useOrderData(host);
+  const { style } = useStyle();
   const { phase, data, refreshing, notice, progress, stalled, scanning } = orderData;
   const [tab, setTab] = useState<TabId>('overview');
   const [selection, setSelection] = useState<RangeSelection>(ALL_TIME);
@@ -77,7 +80,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
       <StateMessage title={t('dash.empty.title')} message={t('dash.empty.message')} action={{ label: t('dash.empty.action'), onClick: orderData.refresh }} />
     );
   } else {
-    const Active = TABS.find(def => def.id === tab)!.Component;
+    const Active = resolveTabComponent(tab, style);
     content = (
       <DashboardContext.Provider value={context}>
         <Active />
@@ -138,6 +141,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
 
         <div className="col-start-4 row-start-1 flex items-center gap-3 px-2 py-3 @5xl:px-4">
           {data?.user && <AccountChip user={data.user} />}
+          <StyleToggle />
           <ThemeToggle />
         </div>
 

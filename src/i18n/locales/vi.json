@@ -16,6 +16,10 @@
   "colorMode.light": "Sáng",
   "colorMode.dark": "Tối",
 
+  "displayStyle.label": "Kiểu hiển thị",
+  "displayStyle.fintech": "Fintech",
+  "displayStyle.warm": "Ấm áp",
+
   "welcome.tagline": "Theo dõi và phân tích toàn bộ chi tiêu Shopee của bạn",
   "welcome.sectionWhatDoes": "Extension này làm gì?",
   "welcome.featureGetHistory": "Lấy toàn bộ lịch sử",
@@ -207,6 +211,11 @@
   "analysis.budget.edit": "Sửa",
   "analysis.budget.alert": "Cảnh báo: Đã tiêu {percent}% ngân sách tháng này!",
   "analysis.budget.saveError": "Không lưu được ngân sách. Hãy thử lại.",
+
+  "analysisWarm.habitsIntro": "Trong khoảng đang xem, bạn mua nhiều nhất vào {weekday}, thường vào lúc {hour}. Chuỗi tháng liên tục dài nhất của bạn là {streak}, với nhịp chi tiêu trung bình {rate} mỗi ngày.",
+  "analysisWarm.topProductsStale": "Cần quét lại để tính sản phẩm.",
+
+  "ordersWarm.summary": "Bạn có {count} đơn hàng.",
 
   "dash.tabs.label": "Màn hình",
   "dash.tab.overview": "Tổng quan",

@@ -60,3 +60,36 @@ describe('design tokens', () => {
     });
   }
 });
+
+// Warm display-style (ui/theme/style.ts): an independent presentation axis with its own
+// light/dark token pair (`--w-*`), scoped under `.style-warm`. Same AA bar as fintech.
+const warmThemes = {
+  light: block('.style-warm'),
+  dark: block("[data-theme='dark'] .style-warm"),
+};
+
+const WARM_PAIRS: Array<[string, string, number]> = [
+  ['w-fg', 'w-bg', 4.5],
+  ['w-fg', 'w-card', 4.5],
+  ['w-muted', 'w-bg', 4.5],
+  ['w-muted', 'w-card', 4.5],
+  ['w-accent-strong', 'w-bg', 4.5],
+  ['w-accent-strong', 'w-card', 4.5],
+  ['w-on-accent', 'w-accent-strong', 4.5],
+  ['w-accent', 'w-card', 3],
+];
+
+describe('warm display-style tokens', () => {
+  it('define the same token names for Light and Dark', () => {
+    expect(Object.keys(warmThemes.dark).sort()).toEqual(Object.keys(warmThemes.light).sort());
+    expect(Object.keys(warmThemes.light).length).toBeGreaterThan(5);
+  });
+
+  for (const [name, tokens] of Object.entries(warmThemes)) {
+    describe(name, () => {
+      it.each(WARM_PAIRS)('%s on %s is at least %s:1', (fg, bg, min) => {
+        expect(contrast(tokens[fg], tokens[bg])).toBeGreaterThanOrEqual(min);
+      });
+    });
+  }
+});
