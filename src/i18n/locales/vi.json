@@ -203,6 +203,7 @@
   "analysis.loyalty.rate": "Tần suất",
   "analysis.loyalty.rate.unit": "{n}/tháng",
   "analysis.loyalty.last": "Mua gần nhất",
+  "analysis.loyalty.warmMeta": "{orders} đơn · TB {average}/đơn · {rate} · gần nhất {last}",
   "analysis.prediction.title": "Dự đoán và ngân sách",
   "analysis.prediction.label": "Dự kiến cuối tháng:",
   "analysis.prediction.over": "Dự kiến vượt ngân sách {amount}",

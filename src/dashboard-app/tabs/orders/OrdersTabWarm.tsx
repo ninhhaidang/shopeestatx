@@ -12,7 +12,7 @@ import { StateMessage } from '../../../ui/components/StateMessage';
 import { NoOrdersInRange } from '../../components/NoOrdersInRange';
 import { useDashboard } from '../../context';
 import { money } from '../../format';
-import { OrderDetail } from './OrderDetail';
+import { OrderDetailWarm } from './OrderDetailWarm';
 import { PrintSheet } from './PrintSheet';
 
 type SortField = 'deliveryDate' | 'status' | 'subTotal';
@@ -57,7 +57,7 @@ function Receipt({ order, expanded, onToggle }: { order: Order; expanded: boolea
       </p>
       {expanded && (
         <div className="mt-2">
-          <OrderDetail order={order} id={detailId} excluded={excluded} />
+          <OrderDetailWarm order={order} id={detailId} excluded={excluded} />
         </div>
       )}
     </li>

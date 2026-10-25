@@ -64,7 +64,7 @@ describe('Phân tích (warm): cùng số liệu với fintech, trình bày khác
     expect(priciest[0]).toHaveTextContent(/Giày.*300\.000/);
   });
 
-  it('lists repeat shops over the whole history via the same Loyalty table as fintech', async () => {
+  it('lists repeat shops over the whole history as a receipt-style list, not a table', async () => {
     const repeat = makeData([
       makeOrder('2026-08-05T10:00:00', { subTotal: 100_000, shopName: 'a - Alpha' }),
       makeOrder('2026-09-05T10:00:00', { subTotal: 200_000, shopName: 'a - Alpha' }),
@@ -75,7 +75,8 @@ describe('Phân tích (warm): cùng số liệu với fintech, trình bày khác
     await view.user.click(screen.getByRole('radio', { name: 'Ấm áp' }));
     await view.user.click(screen.getByRole('tab', { name: 'Phân tích' }));
 
-    expect(screen.getByRole('row', { name: /Alpha/ })).toHaveTextContent(/Alpha.*3.*600\.000/);
+    const loyalty = within(screen.getByRole('list', { name: 'Shop thân thiết' })).getAllByRole('listitem');
+    expect(loyalty[0]).toHaveTextContent(/Alpha.*600\.000.*3 đơn/);
   });
 
   it('summarises the heatmap over 12 months', async () => {

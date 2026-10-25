@@ -7,8 +7,8 @@ import { t } from '../../../i18n/index.js';
 import { NoOrdersInRange } from '../../components/NoOrdersInRange';
 import { useDashboard } from '../../context';
 import { money } from '../../format';
-import { Budget } from './Budget';
-import { Loyalty } from './Loyalty';
+import { BudgetWarm } from './BudgetWarm';
+import { LoyaltyWarm } from './LoyaltyWarm';
 
 const dayOf = (key: string) => (key ? formatDate(new Date(`${key}T00:00:00`)) : t('stats.none'));
 
@@ -83,7 +83,7 @@ export function AnalysisTabWarm() {
         )}
       </section>
 
-      <Loyalty orders={data.orders} />
+      <LoyaltyWarm orders={data.orders} />
 
       <section aria-label={t('analysis.heatmap.title')}>
         <h2 className="mb-2 text-sm tracking-wide text-warm-muted">{t('analysis.heatmap.title')}</h2>
@@ -103,7 +103,7 @@ export function AnalysisTabWarm() {
         </div>
       </section>
 
-      <Budget allOrders={data.orders} now={now} />
+      <BudgetWarm allOrders={data.orders} now={now} />
     </div>
   );
 }
