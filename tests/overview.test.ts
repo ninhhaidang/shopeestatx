@@ -39,8 +39,23 @@ describe('computeOverview', () => {
 
   it('ranks shops by spend using the shop display name', () => {
     expect(computeOverview(orders).topShops).toEqual([
-      { name: 'Alpha', amount: 500_000, orders: 2, products: 5 },
-      { name: 'Beta', amount: 100_000, orders: 1, products: 1 },
+      { shopKey: 'username:a', name: 'Alpha', amount: 500_000, orders: 2, products: 5 },
+      { shopKey: 'username:b', name: 'Beta', amount: 100_000, orders: 1, products: 1 },
+    ]);
+  });
+
+  it('keeps same-named sellers separate and joins renamed sellers by stable identity', () => {
+    const result = computeOverview([
+      makeOrder(null, { shopId: '1', shopName: 'a - Shared - Complete', subTotal: 100 }),
+      makeOrder(null, { shopId: '2', shopName: 'b - Shared - Complete', subTotal: 200 }),
+      makeOrder(null, { shopId: '1', shopName: 'a - Renamed - Complete', subTotal: 300 }),
+      makeOrder(null, { shopName: 'c - Shared - Complete', subTotal: 400 }),
+      makeOrder(null, { shopName: 'c - Different label', subTotal: 500 }),
+    ]).topShops;
+    expect(result).toEqual([
+      { shopKey: 'username:c', name: 'Shared - Complete', amount: 900, orders: 2, products: 2 },
+      { shopKey: 'id:1', name: 'Shared - Complete', amount: 400, orders: 2, products: 2 },
+      { shopKey: 'id:2', name: 'Shared - Complete', amount: 200, orders: 1, products: 1 },
     ]);
   });
 

@@ -31,6 +31,9 @@ describe('Welcome', () => {
 
     const privacy = screen.getAllByRole('link', { name: /chính sách bảo mật/i });
     expect(privacy).toHaveLength(2);
+    for (const link of privacy) {
+      expect(new URL(link.getAttribute('href')!, 'https://extension.test/src/welcome/index.html').pathname).toBe('/privacy.html');
+    }
     for (const link of privacy) await user.click(link);
     expect(host.openPrivacy).toHaveBeenCalledTimes(2);
 

@@ -11,15 +11,13 @@ export function mergeOrderData(
   fresh: OrderData,
   now: Date,
 ): { data: OrderData; added: number } {
-  const cachedOrders = cached?.orders ?? [];
-  const cachedIds = new Set(cachedOrders.map(o => String(o.orderId)));
-  const freshIds = new Set(fresh.orders.map(o => String(o.orderId)));
-
-  const orders = [...fresh.orders, ...cachedOrders.filter(o => !freshIds.has(String(o.orderId)))];
+  const cachedById = new Map(cached?.orders.map(o => [String(o.orderId), { ...o, orderId: String(o.orderId) }]));
+  const freshById = new Map(fresh.orders.map(o => [String(o.orderId), { ...o, orderId: String(o.orderId) }]));
+  const orders = [...freshById.values(), ...[...cachedById.values()].filter(o => !freshById.has(o.orderId))];
   const totalAmount = orders.filter(o => !isExcludedOrder(o)).reduce((s, o) => s + o.subTotal, 0);
 
   return {
-    added: fresh.orders.filter(o => !cachedIds.has(String(o.orderId))).length,
+    added: [...freshById.keys()].filter(id => !cachedById.has(id)).length,
     data: {
       ...fresh,
       user: fresh.user ?? cached?.user,

@@ -20,6 +20,8 @@ export function makeOrder(date: string | null, overrides: Partial<Order> = {}): 
     orderMonth: d ? d.getMonth() + 1 : null,
     orderYear: d ? d.getFullYear() : null,
     refundAmount: 0,
+    itemsTotal: overrides.subTotal ?? 100_000,
+    items: [],
     ...overrides,
   };
 }

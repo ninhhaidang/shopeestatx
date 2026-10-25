@@ -23,7 +23,7 @@ export function LoyaltyWarm({ orders }: { orders: Order[] }) {
       ) : (
         <ul aria-label={title} className="grid gap-3">
           {shops.map((shop) => (
-            <li key={shop.shopName} className="border-b border-warm-line pb-3">
+            <li key={shop.shopKey} className="border-b border-warm-line pb-3">
               <div className="flex items-baseline justify-between gap-3">
                 <span className="truncate">{shop.shopName}</span>
                 <span className="shrink-0 font-serif">{money(shop.totalSpent)}</span>

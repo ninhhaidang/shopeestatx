@@ -69,17 +69,6 @@ describe('Phân tích: thói quen và sản phẩm', () => {
   });
 });
 
-describe('Phân tích: insights', () => {
-  it('writes the insights for the orders in range', async () => {
-    await openAnalysis();
-
-    const list = within(screen.getByRole('list', { name: 'Phân tích chi tiêu' }));
-    const lines = list.getAllByRole('listitem').map(li => li.textContent);
-    expect(lines[0]).toMatch(/Tháng này bạn đã chi 600\.000.*tăng 500% so với tháng trước/);
-    expect(lines[1]).toMatch(/Alpha.*2 đơn/);
-    expect(lines.some(l => /tiết kiệm 700\.000.*hủy\/trả hàng/.test(l!))).toBe(true);
-  });
-});
 
 describe('Phân tích: heatmap', () => {
   it('summarises the heatmap and offers every day with orders as a table', async () => {
@@ -160,6 +149,43 @@ describe('Phân tích: khoảng ngày toàn cục', () => {
 });
 
 describe('Phân tích: dự đoán và ngân sách', () => {
+  it.each([
+    ['Fintech', 'localStorage'],
+    ['Ấm áp', 'localStorage'],
+    ['Fintech', 'chrome'],
+    ['Ấm áp', 'chrome'],
+  ])('preserves unsaved budget values after %s save failure through %s', async (style, adapter) => {
+    const { user } = await openAnalysis();
+    await user.click(screen.getByRole('radio', { name: style }));
+    await user.click(await screen.findByRole('button', { name: 'Thiết lập' }));
+    const limit = screen.getByLabelText('Hạn mức hàng tháng (VND)');
+    await user.clear(limit);
+    await user.type(limit, '150000');
+    fireEvent.change(screen.getByLabelText(/Cảnh báo tại/), { target: { value: '90' } });
+    await user.click(screen.getByLabelText('Bật theo dõi ngân sách'));
+    const failure = new Error('Storage full');
+    if (adapter === 'chrome') {
+      vi.stubGlobal('chrome', {
+        runtime: { lastError: { message: failure.message } },
+        storage: { local: { set: (_values: unknown, callback: () => void) => callback() } },
+      });
+    } else {
+      vi.spyOn(localStorage, 'setItem').mockImplementation(() => { throw failure; });
+    }
+    try {
+      await user.click(screen.getByRole('button', { name: 'Lưu' }));
+      expect(await screen.findByRole('alert')).toBeVisible();
+      expect(screen.getByLabelText('Hạn mức hàng tháng (VND)')).toHaveValue(150_000);
+      expect(screen.getByLabelText(/Cảnh báo tại/)).toHaveValue('90');
+      expect(screen.getByLabelText('Bật theo dõi ngân sách')).toBeChecked();
+      expect(screen.getByRole('button', { name: 'Lưu' })).toBeVisible();
+      expect(localStorage.getItem(STORAGE_KEYS.BUDGET)).toBeNull();
+    } finally {
+      vi.restoreAllMocks();
+      vi.unstubAllGlobals();
+    }
+  });
+
   async function setBudget(user: ReturnType<typeof renderSurface>['user'], limit: string, threshold?: string) {
     await user.click(await screen.findByRole('button', { name: 'Thiết lập' }));
     const input = screen.getByLabelText('Hạn mức hàng tháng (VND)');

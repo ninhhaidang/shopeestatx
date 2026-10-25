@@ -30,7 +30,7 @@ export async function exportToExcel(filtered: Order[]): Promise<void> {
 
   const data = filtered.map((order, index) => ({
     [t('export.col.index')]: index + 1,
-    [t('export.col.orderId')]: order.orderId,
+    [t('export.col.orderId')]: String(order.orderId),
     [t('export.col.date')]: order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString('vi-VN') : t('table.noDate'),
     [t('export.col.status')]: order.status,
     [t('export.col.product')]: order.name,

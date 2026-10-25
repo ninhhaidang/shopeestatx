@@ -85,7 +85,7 @@ export function OverviewTab() {
         <h2 className="mb-3 text-sm font-semibold">{t('dash.overview.topShops')}</h2>
         <ol aria-label={t('dash.overview.topShops')} className="grid gap-3.5">
           {topShops.map((shop, i) => (
-            <li key={shop.name} className="grid grid-cols-[1.25rem_1fr_auto] items-center gap-2.5 text-sm">
+            <li key={shop.shopKey} className="grid grid-cols-[1.25rem_1fr_auto] items-center gap-2.5 text-sm">
               <span className="text-muted">{i + 1}</span>
               <div className="min-w-0">
                 <p className="truncate" title={shop.name}>{shop.name}</p>
@@ -101,7 +101,7 @@ export function OverviewTab() {
       </section>
 
       <div className="@5xl:col-span-2">
-        <Button variant="outline" onClick={() => downloadShareImage(stats)}>{t('stats.share')}</Button>
+        <Button variant="outline" onClick={() => downloadShareImage(stats, !stale)}>{t('stats.share')}</Button>
       </div>
     </div>
   );

@@ -78,6 +78,7 @@ Mở **Chính sách bảo mật** trong popup của tiện ích để đọc chi
 - **Số liệu ước tính:** tiết kiệm không tách riêng voucher với phí vận chuyển; dự đoán cuối tháng không phải cam kết hay tư vấn tài chính.
 - **Ngân sách:** luôn tính tháng hiện tại trên toàn bộ lịch sử, độc lập với khoảng thời gian đang chọn.
 - **Vùng hẹp:** giao diện đã thích ứng, nhưng chưa có nút mở Chrome Side Panel.
+- **Mã đơn khi xuất:** XLSX giữ mã dưới dạng văn bản. Khi nhập CSV vào Excel, đặt cột mã đơn là Text để tránh tự làm tròn mã dài; dữ liệu đã bị làm tròn trước đó không thể tự khôi phục.
 
 ## Chạy từ mã nguồn
 
@@ -117,6 +118,15 @@ React 19, Tailwind CSS v4 và Vite dựng giao diện; Chart.js hiển thị bi�
 - [Quyết định kiến trúc](docs/adr/)
 - [Nguồn dữ liệu và ràng buộc Shopee API](docs/shopee-order-api.md)
 - [Quy cách ảnh chụp sản phẩm](store-assets/screenshots/README.md)
+
+### Khắc phục audit — issue #46
+
+- Thu thập theo cursor trả về, loại đơn trùng và giữ ngày giao chưa biết thay vì đoán từ mã đơn.
+- Phối hợp nhiều lượt quét để không mất cập nhật cache, phát hiện thay đổi tài khoản có thể nhận diện và tách tiến độ theo từng lượt.
+- Sửa identity shop, mốc ngày địa phương, thống kê bỏ ngày không hợp lệ và cửa sổ biểu đồ nhiệt năm nhuận.
+- Khôi phục đầy đủ số liệu/bảng thay thế ở Ấm áp, sửa phân trang, biểu đồ một tháng, bố cục hẹp và đồng hồ khi mở tab lâu.
+- Giữ mã đơn XLSX dạng text, số liệu chưa biết trên ảnh chia sẻ, lỗi lưu ngân sách và URL chính sách bảo mật.
+- [Bằng chứng và giới hạn điều tra origin/dependency](docs/shopee-order-api.md#origin-investigation-2026-10-25); chưa thay phạm vi origin, quyền truy cập hay dependency khi chưa có quyết định phù hợp.
 
 ## Góp ý và hỗ trợ
 

@@ -29,7 +29,7 @@ function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: num
   ctx.roundRect(x, y, w, h, r);
 }
 
-export function drawShareImage(canvas: HTMLCanvasElement, stats: Stats): void {
+export function drawShareImage(canvas: HTMLCanvasElement, stats: Stats, financialAvailable = true): void {
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext('2d')!;
@@ -69,8 +69,8 @@ export function drawShareImage(canvas: HTMLCanvasElement, stats: Stats): void {
 
   // Four headline figures as a 2x2 grid of tiles.
   const tiles: [string, string][] = [
-    [t('stats.savings'), formatCurrency(stats.estimatedSavings)],
-    [t('stats.refund'), formatCurrency(stats.refundTotal)],
+    [t('stats.savings'), financialAvailable ? formatCurrency(stats.estimatedSavings) : t('stats.none')],
+    [t('stats.refund'), financialAvailable ? formatCurrency(stats.refundTotal) : t('stats.none')],
     [t('stats.weekday'), stats.busiestWeekday === null ? t('stats.none') : t(`stats.weekday.${stats.busiestWeekday}`)],
     [t('stats.streak'), stats.longestMonthStreak ? t('stats.streak.unit', { n: stats.longestMonthStreak }) : t('stats.none')],
   ];
@@ -94,9 +94,9 @@ export function drawShareImage(canvas: HTMLCanvasElement, stats: Stats): void {
   });
 }
 
-export function downloadShareImage(stats: Stats): void {
+export function downloadShareImage(stats: Stats, financialAvailable = true): void {
   const canvas = document.createElement('canvas');
-  drawShareImage(canvas, stats);
+  drawShareImage(canvas, stats, financialAvailable);
   const a = document.createElement('a');
   a.href = canvas.toDataURL('image/png');
   a.download = t('stats.share.file');

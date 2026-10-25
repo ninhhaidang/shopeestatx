@@ -4,6 +4,7 @@ import { getOrderUrl } from '../../../config.js';
 import { exportToCSV, exportToExcel } from '../../../dashboard/export.js';
 import { matchesStatusAndSearch, sortOrders } from '../../../dashboard/order-query.js';
 import { isExcludedOrder, ORDER_STATUSES } from '../../../dashboard/order-status.js';
+import { shopIdentity } from '../../../dashboard/shop.js';
 import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { Order, SortDirection } from '../../../types/index.js';
@@ -85,12 +86,19 @@ export function OrdersTabWarm() {
     setPrinting(false);
   }, [printing]);
 
-  const shops = useMemo(() => [...new Set(orders.map((o) => o.shopName))].sort((a, b) => a.localeCompare(b, 'vi')), [orders]);
-  const activeShop = shops.includes(shop) ? shop : '';
+  const shops = useMemo(() => {
+    const labels = new Map<string, string>();
+    for (const order of orders) {
+      const key = shopIdentity(order);
+      if (!labels.has(key)) labels.set(key, order.shopName);
+    }
+    return [...labels].sort((a, b) => a[1].localeCompare(b[1], 'vi'));
+  }, [orders]);
+  const activeShop = shops.some(([key]) => key === shop) ? shop : '';
   const term = search.toLowerCase().trim();
 
   const results = useMemo(() => {
-    const matching = orders.filter((o) => (!activeShop || o.shopName === activeShop) && matchesStatusAndSearch(o, status, term));
+    const matching = orders.filter((o) => (!activeShop || shopIdentity(o) === activeShop) && matchesStatusAndSearch(o, status, term));
     return sort.field ? sortOrders(matching, sort.field, sort.direction) : matching;
   }, [orders, activeShop, status, term, sort]);
 
@@ -148,8 +156,8 @@ export function OrdersTabWarm() {
         </select>
         <select aria-label={t('orders.filter.shop')} value={activeShop} onChange={(e) => changeFilter(() => setShop(e.target.value))} className={control}>
           <option value="">{t('orders.allShops')}</option>
-          {shops.map((name) => (
-            <option key={name} value={name}>
+          {shops.map(([key, name]) => (
+            <option key={key} value={key}>
               {name}
             </option>
           ))}
@@ -190,11 +198,11 @@ export function OrdersTabWarm() {
             <p>{t('orders.showing', { from: from + 1, to: from + pageOrders.length, total: results.length })}</p>
             {pages > 1 && (
               <div className="flex gap-3">
-                <button type="button" disabled={current === 1} onClick={() => setPage((p) => p - 1)} className="cursor-pointer underline disabled:cursor-not-allowed disabled:opacity-40">
+                <button type="button" disabled={current === 1} onClick={() => setPage(current - 1)} className="cursor-pointer underline disabled:cursor-not-allowed disabled:opacity-40">
                   {t('orders.prevPage')}
                 </button>
                 <span>{t('orders.page', { n: current })} / {pages}</span>
-                <button type="button" disabled={current === pages} onClick={() => setPage((p) => p + 1)} className="cursor-pointer underline disabled:cursor-not-allowed disabled:opacity-40">
+                <button type="button" disabled={current === pages} onClick={() => setPage(current + 1)} className="cursor-pointer underline disabled:cursor-not-allowed disabled:opacity-40">
                   {t('orders.nextPage')}
                 </button>
               </div>

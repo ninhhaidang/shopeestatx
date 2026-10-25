@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { orderYears } from '../dashboard/month.js';
 import { filterByRange, resolveRange, type RangeSelection } from '../dashboard/range.js';
 import { t } from '../i18n/index.js';
@@ -18,13 +18,14 @@ import { formatUpdated } from './updated';
 import { useOrderData } from './useOrderData';
 
 const ALL_TIME: RangeSelection = { preset: 'all' };
+const currentTime = () => new Date();
 
 /**
  * Dashboard root: top bar (logo, tabs, global date range, refresh, theme) and the active screen.
  * One layout for every width: below the container's 42rem the tabs drop to a bottom bar and the
  * toolbar wraps under the logo (container queries, ADR-0002).
  */
-export function Dashboard({ host, now = () => new Date() }: { host: DashboardHost; now?: () => Date }) {
+export function Dashboard({ host, now = currentTime }: { host: DashboardHost; now?: () => Date }) {
   const orderData = useOrderData(host);
   const { style } = useStyle();
   const { phase, data, refreshing, notice, progress, stalled, scanning } = orderData;
@@ -32,8 +33,19 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
   const [selection, setSelection] = useState<RangeSelection>(ALL_TIME);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Re-read the clock whenever fresh data arrives, so "Cập nhật" and the month comparison stay current.
-  const clock = useMemo(() => now(), [data]);
+  const [clock, setClock] = useState(now);
+  useEffect(() => {
+    const sync = () => setClock(now());
+    sync();
+    const timer = window.setInterval(sync, 60_000);
+    window.addEventListener('focus', sync);
+    document.addEventListener('visibilitychange', sync);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', sync);
+      document.removeEventListener('visibilitychange', sync);
+    };
+  }, [now, data]);
   const range = useMemo(() => resolveRange(selection, clock), [selection, clock]);
   const years = useMemo(() => (data ? orderYears(data.orders) : []), [data]);
   const orders = useMemo(() => (data ? filterByRange(data.orders, range) : []), [data, range]);
@@ -90,13 +102,13 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
 
   return (
     <div className="@container h-dvh bg-bg text-fg">
-      <div className="grid h-full grid-cols-[auto_1fr_auto_auto] grid-rows-[auto_auto_minmax(0,1fr)_auto] @5xl:grid-rows-[auto_auto_minmax(0,1fr)] @6xl:grid-rows-[auto_minmax(0,1fr)]">
-        <div className="col-start-1 row-start-1 flex items-center px-2 py-3 @5xl:px-4">
+      <div className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] @5xl:grid-cols-[auto_minmax(0,1fr)_auto] @5xl:grid-rows-[auto_auto_minmax(0,1fr)] @6xl:grid-cols-[auto_minmax(0,1fr)_auto_auto] @6xl:grid-rows-[auto_minmax(0,1fr)]">
+        <div className="col-start-1 row-start-1 flex items-center px-2 pt-3 @5xl:px-4 @5xl:py-3">
           <Logo />
         </div>
 
         <nav
-          className="col-span-full row-start-4 border-t border-line bg-card @5xl:border-0 @5xl:bg-transparent @5xl:[grid-column:2] @5xl:row-start-1 @5xl:self-center"
+          className="col-span-full row-start-5 border-t border-line bg-card @5xl:border-0 @5xl:bg-transparent @5xl:[grid-column:2] @5xl:row-start-1 @5xl:self-center"
         >
           <div role="tablist" aria-label={t('dash.tabs.label')} className="flex @5xl:gap-1">
             {TABS.map((def, i) => {
@@ -128,7 +140,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           </div>
         </nav>
 
-        <div className="col-span-full row-start-2 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 @6xl:[grid-column:3] @6xl:row-start-1 @6xl:p-3">
+        <div className="col-span-full row-start-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 @5xl:row-start-2 @6xl:[grid-column:3] @6xl:row-start-1 @6xl:p-3">
           <RangePicker value={selection} onChange={setSelection} years={years} now={clock} />
           <Button variant="outline" disabled={phase === 'loading' || refreshing} onClick={orderData.refresh}>
             {t('dash.refresh')}
@@ -139,7 +151,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           </div>
         </div>
 
-        <div className="col-start-4 row-start-1 flex items-center gap-3 px-2 py-3 @5xl:px-4">
+        <div className="col-start-1 row-start-2 flex min-w-0 flex-wrap items-center gap-3 px-2 py-3 @5xl:col-start-3 @5xl:row-start-1 @5xl:px-4 @6xl:col-start-4">
           {data?.user && <AccountChip user={data.user} />}
           <StyleToggle />
           <ThemeToggle />
@@ -150,7 +162,7 @@ export function Dashboard({ host, now = () => new Date() }: { host: DashboardHos
           id={`panel-${tab}`}
           aria-labelledby={`tab-${tab}`}
           tabIndex={-1}
-          className="col-span-full row-start-3 min-h-0 overflow-y-auto px-4 pb-6 pt-2 @5xl:px-6 @6xl:row-start-2"
+          className="col-span-full row-start-4 min-h-0 min-w-0 overflow-y-auto px-4 pb-6 pt-2 @5xl:row-start-3 @5xl:px-6 @6xl:row-start-2"
         >
           <div className="mx-auto max-w-6xl">{content}</div>
         </main>

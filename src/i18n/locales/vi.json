@@ -249,6 +249,7 @@
   "dash.error.noResponse": "Không nhận được dữ liệu từ Shopee",
   "dash.error.generic": "Có lỗi xảy ra khi lấy dữ liệu",
   "dash.error.noTab": "Không tìm thấy tab Shopee. Vui lòng mở Shopee và thử lại.",
+  "dash.error.superseded": "Lượt phân tích này đã được thay thế bởi lượt mới. Vui lòng làm mới để xem dữ liệu hiện tại.",
   "dash.refreshError": "Lỗi cập nhật: {message}",
   "dash.noOrdersInRange.title": "Không có đơn hàng trong khoảng này",
   "dash.noOrdersInRange.message": "Chọn khoảng thời gian khác để xem số liệu.",

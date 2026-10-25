@@ -2,6 +2,7 @@
 import type { DateRange, Order } from '../types/index.js';
 import { rangeEnd } from './range.js';
 import { isExcludedOrder } from './order-status.js';
+import { localDateKey } from './month.js';
 
 interface HeatmapDay {
   date: string;       // YYYY-MM-DD
@@ -40,12 +41,6 @@ export interface HeatmapGrid {
   totalOrders: number;
 }
 
-const pad = (n: number) => String(n).padStart(2, '0');
-/** yyyy-mm-dd of the local calendar day. */
-function localDateKey(d: Date): string {
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
 /**
  * The days the heatmap covers: the 12 months ending at the last day of the global range (never later
  * than `now`). Only the end follows the range; the orders drawn are the whole history, as before.
@@ -53,7 +48,10 @@ function localDateKey(d: Date): string {
 export function heatmapWindow(range: DateRange, now: Date): { start: Date; end: Date } {
   const last = rangeEnd(range, now);
   const end = new Date(last.getFullYear(), last.getMonth(), last.getDate());
-  return { start: new Date(end.getFullYear() - 1, end.getMonth(), end.getDate() + 1), end };
+  // Clamp the same day last year before advancing: February 29 must not overflow to March 1 twice.
+  const lastYearMonthEnd = new Date(end.getFullYear() - 1, end.getMonth() + 1, 0).getDate();
+  const start = new Date(end.getFullYear() - 1, end.getMonth(), Math.min(end.getDate(), lastYearMonthEnd) + 1);
+  return { start, end };
 }
 
 export function buildHeatmapGrid(orders: Order[], start: Date, end: Date): HeatmapGrid {

@@ -4,6 +4,7 @@
 // Everything lives inside the IIFE: executeScript injects this file into the tab's shared
 // global, and a top-level const/let redeclared on a second injection fails silently.
 (async function () {
+const scanId = typeof window.__shopeestatxScanId === 'string' ? window.__shopeestatxScanId : '';
 // Configuration - Domain setup
 // This will be replaced by the actual domain at build time
 const SHOPEE_DOMAIN = 'shopee.vn';
@@ -16,7 +17,7 @@ function getUserProfile() {
     const miniSession = localStorage.getItem('mini-session');
     if (miniSession) {
       const parsed = JSON.parse(miniSession);
-      if (parsed.user) {
+      if (parsed?.user) {
         return {
           userId: parsed.user.id,
           uid: parsed.user.uid,
@@ -27,14 +28,19 @@ function getUserProfile() {
         };
       }
     }
+  } catch (e) {
+    console.error('Failed to get mini-session profile:', e);
+  }
+
+  try {
 
     // Fallback: try @shopee/account-basic-info
     const accountInfo = localStorage.getItem('@shopee/account-basic-info');
     if (accountInfo) {
       const parsed = JSON.parse(accountInfo);
       return {
-        username: parsed.username,
-        avatar: parsed.portrait ? `https://cf.shopee.vn/file/${parsed.portrait}` : ''
+        username: parsed?.username,
+        avatar: parsed?.portrait ? `https://cf.shopee.vn/file/${parsed.portrait}` : ''
       };
     }
   } catch (e) {
@@ -43,11 +49,29 @@ function getUserProfile() {
   return null;
 }
 
+const startingUser = getUserProfile();
+
+// Compare only IDs shared by both sources; names are weaker than stable IDs.
+function assertSameAccount() {
+  const current = getUserProfile();
+  if (!startingUser || !current) return;
+  let changed = false;
+  if (startingUser.userId != null && current.userId != null) {
+    changed = String(startingUser.userId) !== String(current.userId);
+  } else if (startingUser.uid && current.uid) {
+    changed = String(startingUser.uid) !== String(current.uid);
+  } else if (startingUser.userId == null && !startingUser.uid && current.userId == null && !current.uid) {
+    changed = Boolean(startingUser.username && current.username && startingUser.username !== current.username);
+  }
+  if (changed) throw new Error('Shopee account changed during collection. Please start a new scan.');
+}
+
   function sendProgress(count) {
     window.postMessage({
       source: MESSAGE_SOURCE,
       type: 'progress',
-      count: count
+      count: count,
+      scanId: scanId
     }, '*');
   }
 
@@ -56,27 +80,33 @@ function getUserProfile() {
   }
 
   async function getOrders(offset, limit) {
+    assertSameAccount();
     const url = "https://" + SHOPEE_DOMAIN + "/api/v4/order/get_all_order_and_checkout_list?limit=" + limit + "&offset=" + offset;
     const response = await fetch(url);
+    assertSameAccount();
     if (!response.ok) {
       throw new Error(`Failed to fetch orders (HTTP ${response.status})`);
     }
     const json = await response.json();
+    assertSameAccount();
     if (json?.error) {
       throw new Error(json.error_msg || `Shopee API error: ${json.error}`);
     }
 
-    // An empty list ends pagination; a missing list is not a successful fetch.
-    const orders = json?.new_data?.order_or_checkout_data
-      ?? json?.data?.order_data?.details_list;
-    // The final page omits the list and reports next_offset: -1.
-    if (orders === undefined && json?.new_data?.next_offset === -1) {
-      return [];
+    const envelope = json?.new_data;
+    const hasCursor = envelope != null && Object.prototype.hasOwnProperty.call(envelope, 'next_offset');
+    const nextOffset = hasCursor ? envelope.next_offset : offset + limit;
+    if (hasCursor && (!Number.isSafeInteger(nextOffset) || (nextOffset !== -1 && nextOffset <= offset))) {
+      throw new Error('Invalid or nonadvancing pagination cursor from Shopee');
+    }
+    const orders = envelope?.order_or_checkout_data ?? json?.data?.order_data?.details_list;
+    if (orders === undefined && nextOffset === -1) {
+      return { orders: [], nextOffset, hasCursor };
     }
     if (!Array.isArray(orders)) {
       throw new Error('Invalid order response from Shopee');
     }
-    return orders;
+    return { orders, nextOffset, hasCursor };
   }
 
   // Map status label string to status code and Vietnamese text
@@ -115,16 +145,14 @@ function getUserProfile() {
 
   const limit = 20;
   let offset = 0;
-  let count = 0;
-  let sum = 0;
-  let allOrders = [];
+  const ordersById = new Map();
 
   try {
     while (true) {
-      let data = await getOrders(offset, limit);
-      sendProgress(allOrders.length + data.length);
+      const { orders: data, nextOffset, hasCursor } = await getOrders(offset, limit);
+      sendProgress(ordersById.size + data.length);
 
-      if (data.length === 0) break;
+      if (data.length === 0 && !hasCursor) break;
 
       for (const item of data) {
         // NEW API: order data is wrapped in order_list_detail
@@ -165,13 +193,10 @@ function getUserProfile() {
         if (!orderCard) continue; // Skip if no order card
 
         const productCount = infoCard.product_count || 0;
-        count += productCount;
 
         let subTotal = (infoCard.subtotal ?? infoCard.final_total ?? 0) / 100000;
         let refundAmount = 0;
-        if (statusCode !== 4 && statusCode !== 12) {
-          sum += subTotal;
-        } else {
+        if (statusCode === 4 || statusCode === 12) {
           refundAmount = subTotal;
           subTotal = 0;
         }
@@ -183,9 +208,7 @@ function getUserProfile() {
           ? orderCard.parcel_cards.flatMap(parcel => parcel.product_info?.item_groups || [])
           : (orderCard.product_info?.item_groups || []);
 
-        // Get shipping and status info
         const shipping = orderDetail.shipping || item.shipping;
-        const statusInfo = orderDetail.status || item.status;
 
         // Get order date from shipping.tracking_info.ctime (delivery/received time)
         let orderTime = 0;
@@ -195,22 +218,6 @@ function getUserProfile() {
           // Use shipping.tracking_info.ctime if available and non-zero
           if (shipping?.tracking_info?.ctime && shipping.tracking_info.ctime > 0) {
             orderTime = shipping.tracking_info.ctime;
-          }
-          // Fallback: try status.update_time
-          else if (statusInfo?.update_time) {
-            orderTime = statusInfo.update_time;
-          }
-          // Fallback: try to extract from order_id (first 10 digits might be timestamp)
-          else if (infoCard.order_id) {
-            const orderIdStr = String(infoCard.order_id);
-            if (orderIdStr.length >= 10) {
-              const possibleTimestamp = parseInt(orderIdStr.substring(0, 10));
-              // Check if it's a reasonable timestamp (year >= 2020 and not in the future)
-              const testDate = new Date(possibleTimestamp * 1000);
-              if (testDate.getFullYear() >= 2020 && testDate.getTime() <= Date.now()) {
-                orderTime = possibleTimestamp;
-              }
-            }
           }
         }
 
@@ -231,8 +238,9 @@ function getUserProfile() {
 
         const name = products[0]?.items?.[0]?.name || 'Không có tên';
 
-        allOrders.push({
-          orderId: infoCard.order_id,
+        const orderId = String(infoCard.order_id);
+        ordersById.set(orderId, {
+          orderId: orderId,
           name: name,
           productCount: productCount,
           subTotal: subTotal,
@@ -243,6 +251,7 @@ function getUserProfile() {
           status: statusText,
           statusCode: statusCode,
           shopName: shopName,
+          ...(shopInfo.shop_id != null ? { shopId: String(shopInfo.shop_id) } : {}),
           productSummary: productSummary,
           deliveryDate: deliveryDate ? deliveryDate.toISOString() : null,
           orderMonth: deliveryDate ? deliveryDate.getMonth() + 1 : null,
@@ -250,13 +259,18 @@ function getUserProfile() {
         });
       }
 
-      offset += limit;
+      if (nextOffset === -1) break;
+      offset = nextOffset;
     }
+    const allOrders = [...ordersById.values()];
+    const count = allOrders.reduce((total, order) => total + order.productCount, 0);
+    const sum = allOrders.reduce((total, order) => total + order.subTotal, 0);
 
+    assertSameAccount();
     return {
       success: true,
       data: {
-        user: getUserProfile(),
+        user: startingUser,
         orders: allOrders,
         totalCount: count,
         totalAmount: sum,

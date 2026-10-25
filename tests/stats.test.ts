@@ -10,7 +10,7 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
     orderId: '1', name: 'A', productCount: 1, subTotal: 100_000, subTotalFormatted: '',
     status: 'Hoàn thành', statusCode: 3, shopName: 's - Shop', productSummary: '',
     deliveryDate: at(2025, 1, 15), orderMonth: 1, orderYear: 2025,
-    refundAmount: 0, ...overrides,
+    refundAmount: 0, itemsTotal: overrides.subTotal ?? 100_000, items: [], ...overrides,
   };
 }
 const cancelled = (refund: number) => makeOrder({ statusCode: 4, status: 'Đã hủy', subTotal: 0, refundAmount: refund });
@@ -91,6 +91,18 @@ describe('computeStats: buying habits', () => {
     expect(s.longestMonthStreak).toBe(0);
   });
 
+  it('keeps undated spend in totals but excludes unknown and invalid dates from the daily rate', () => {
+    const s = computeStats([
+      makeOrder({ deliveryDate: at(2025, 1, 15), subTotal: 100_000 }),
+      makeOrder({ deliveryDate: at(2025, 1, 16), subTotal: 300_000 }),
+      makeOrder({ deliveryDate: null, subTotal: 600_000 }),
+      makeOrder({ deliveryDate: 'invalid', subTotal: 800_000 }),
+    ]);
+    expect(s.netSpend).toBe(1_800_000);
+    expect(s.dailySpendRate).toBe(200_000);
+    expect(s.longestMonthStreak).toBe(1);
+  });
+
   it('finds the longest run of consecutive months with an order, across a year boundary', () => {
     const m = (y: number, mo: number) => makeOrder({ deliveryDate: at(y, mo, 5), orderMonth: mo, orderYear: y });
     const s = computeStats([m(2024, 11), m(2024, 12), m(2025, 1), m(2025, 1), m(2025, 3)]);
@@ -147,6 +159,10 @@ describe('needsRescan', () => {
     const old = makeOrder();
     delete old.refundAmount;
     expect(needsRescan([makeOrder(), old])).toBe(true);
+  });
+
+  it('requires a rescan when savings data is missing despite a known refund field', () => {
+    expect(needsRescan([makeOrder({ refundAmount: 0, itemsTotal: undefined })])).toBe(true);
   });
 
   it('is false for a current cache and for an empty one', () => {

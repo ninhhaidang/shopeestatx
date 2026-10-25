@@ -21,3 +21,16 @@ Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
   writable: true,
 });
+
+// jsdom omits the cross-context browser lock API used by extension pages.
+const lockQueues = new Map<string, Promise<unknown>>();
+Object.defineProperty(navigator, 'locks', {
+  configurable: true,
+  value: {
+    request(name: string, run: () => Promise<unknown>) {
+      const next = (lockQueues.get(name) ?? Promise.resolve()).then(run);
+      lockQueues.set(name, next.catch(() => {}));
+      return next;
+    },
+  },
+});

@@ -74,7 +74,7 @@ export function Welcome({ host }: { host: WelcomeHost }) {
             </ul>
             <p className="text-sm text-muted">
               {t('welcome.privacyNote')}{' '}
-              <a className="text-accent-text underline underline-offset-4 hover:text-accent-hover" href="privacy.html" onClick={openPrivacy}>
+              <a className="text-accent-text underline underline-offset-4 hover:text-accent-hover" href="/privacy.html" onClick={openPrivacy}>
                 {t('popup.privacy')}
               </a>
             </p>
@@ -106,7 +106,7 @@ export function Welcome({ host }: { host: WelcomeHost }) {
 
         <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t border-line pt-6 text-sm text-muted">
           <span>{t('welcome.footerDisclaimer')}</span>
-          <a className="underline underline-offset-4 hover:text-fg" href="privacy.html" onClick={openPrivacy}>
+          <a className="underline underline-offset-4 hover:text-fg" href="/privacy.html" onClick={openPrivacy}>
             {t('popup.privacy')}
           </a>
           <a

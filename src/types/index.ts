@@ -27,6 +27,8 @@ export interface Order {
   status: string;
   statusCode: StatusCode;
   shopName: string;
+  /** Stable seller ID from the order response; absent in older caches. */
+  shopId?: string;
   productSummary: string;
   deliveryDate: string | null;
   orderMonth: number | null;

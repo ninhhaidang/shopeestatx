@@ -47,11 +47,7 @@ export async function saveBudgetConfig(config: BudgetConfig): Promise<void> {
       });
     });
   }
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-  } catch (err) {
-    console.error('Budget localStorage error:', err);
-  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
 }
 
 /** What the calendar month of `now` has cost so far (cancelled and returned orders excluded). */

@@ -23,7 +23,7 @@ function makeOrder(label: string | null = 'label_completed') {
   };
 }
 
-async function collect(pages: unknown[], httpStatus = 200) {
+async function collect(pages: unknown[], httpStatus = 200, getItem: (key: string) => string | null = () => null) {
   const fetch = vi.fn();
   for (const page of pages) {
     fetch.mockResolvedValueOnce({ ok: httpStatus < 400, status: httpStatus, json: async () => page });
@@ -32,7 +32,7 @@ async function collect(pages: unknown[], httpStatus = 200) {
   const result = await runInNewContext(contentScript, {
     fetch,
     window: { postMessage },
-    localStorage: { getItem: () => null },
+    localStorage: { getItem },
     console: { error: vi.fn() },
   });
   return { result, fetch, postMessage };
@@ -75,6 +75,140 @@ describe('content script against live response shapes', () => {
 const end = { new_data: { order_or_checkout_data: [] } };
 
 describe('content script order collection', () => {
+  it('follows returned short-page cursors and consumes a nonempty terminal page', async () => {
+    const second = makeOrder();
+    second.order_list_detail.info_card.order_id = 'ORDER-2';
+    const { result, fetch } = await collect([
+      { new_data: { next_offset: 7, order_or_checkout_data: [makeOrder()] } },
+      { new_data: { next_offset: -1, order_or_checkout_data: [second] } },
+    ]);
+    expect(result.success).toBe(true);
+    expect(result.data.orders).toHaveLength(2);
+    expect(fetch.mock.calls.map(([url]) => new URL(url).searchParams.get('offset'))).toEqual(['0', '7']);
+  });
+
+  it('continues an empty cursor page until explicit terminal cursor', async () => {
+    const { result, fetch } = await collect([
+      { new_data: { next_offset: 4, order_or_checkout_data: [] } },
+      { new_data: { next_offset: -1, order_or_checkout_data: [makeOrder()] } },
+    ]);
+    expect(result.data.orders).toHaveLength(1);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([0, -2, '20', null, 1.5])('fails without partial data for invalid cursor %j', async (next_offset) => {
+    const { result } = await collect([{ new_data: { next_offset, order_or_checkout_data: [makeOrder()] } }]);
+    expect(result).toMatchObject({ success: false });
+    expect(result.error).toContain('cursor');
+    expect(result.data).toBeUndefined();
+  });
+
+  it('discards earlier pages when a later cursor does not advance', async () => {
+    const { result } = await collect([
+      { new_data: { next_offset: 7, order_or_checkout_data: [makeOrder()] } },
+      { new_data: { next_offset: 7, order_or_checkout_data: [makeOrder()] } },
+    ]);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('cursor');
+    expect(result.data).toBeUndefined();
+  });
+
+  it('keeps last duplicate order and computes totals from unique latest rows', async () => {
+    const changed = makeOrder('label_cancelled');
+    changed.order_list_detail.info_card.product_count = 3;
+    const { result } = await collect([
+      { new_data: { next_offset: 3, order_or_checkout_data: [makeOrder()] } },
+      { new_data: { next_offset: -1, order_or_checkout_data: [changed] } },
+    ]);
+    expect(result.data.orders).toHaveLength(1);
+    expect(result.data.orders[0].statusCode).toBe(4);
+    expect(result.data).toMatchObject({ totalCount: 3, totalAmount: 0 });
+  });
+
+  it('normalizes numeric order and stable shop IDs to strings', async () => {
+    const item = makeOrder();
+    Object.assign(item.order_list_detail.info_card, { order_id: 12345 });
+    Object.assign(item.order_list_detail.info_card.order_list_cards[0].shop_info, { shop_id: 42 });
+    const { result } = await collect([{ new_data: { next_offset: -1, order_or_checkout_data: [item] } }]);
+    expect(result.data.orders[0]).toMatchObject({ orderId: '12345', shopId: '42' });
+  });
+
+  it.each(['ORDER-1', '170532000012345'])('keeps delivery unknown without tracking time for %s', async (orderId) => {
+    const item = makeOrder();
+    item.order_list_detail.info_card.order_id = orderId;
+    if (orderId !== 'ORDER-1') Reflect.deleteProperty(item.order_list_detail.status, 'update_time');
+    const { result } = await collect([{ new_data: { next_offset: -1, order_or_checkout_data: [item] } }]);
+    expect(result.data.orders[0]).toMatchObject({ deliveryDate: null, orderMonth: null, orderYear: null });
+  });
+
+  it('uses valid basic profile when mini-session JSON is malformed', async () => {
+    const { result } = await collect([end], 200, key => key === 'mini-session' ? '{' : JSON.stringify({ username: 'fallback', portrait: 'portrait' }));
+    expect(result.data.user).toMatchObject({ username: 'fallback', avatar: 'https://cf.shopee.vn/file/portrait' });
+  });
+
+  it.each<[
+    { id?: string | number; uid?: string; name: string } | null,
+    { id?: string | number; uid?: string; name: string } | null,
+  ]>([
+    [{ id: 42, name: 'before' }, { id: '42', name: 'after' }],
+    [{ id: 42, name: 'before' }, { uid: 'different-source', name: 'after' }],
+    [{ id: 42, name: 'before' }, null],
+    [null, { id: 43, name: 'after' }],
+  ])('keeps starting profile when identity is equal or incomparable: %j -> %j', async (starting, ending) => {
+    let user = starting;
+    const result = await runInNewContext(contentScript, {
+      fetch: async () => {
+        user = ending;
+        return { ok: true, json: async () => ({ new_data: { next_offset: -1, order_or_checkout_data: [makeOrder()] } }) };
+      },
+      window: { postMessage: vi.fn() },
+      localStorage: { getItem: (key: string) => key === 'mini-session' && user ? JSON.stringify({ user }) : null },
+      console: { error: vi.fn() },
+    });
+    expect(result.success).toBe(true);
+    if (starting) expect(result.data.user).toMatchObject({ userId: starting.id, name: starting.name });
+    else expect(result.data.user).toBeNull();
+  });
+
+  it.each(['while fetching', 'at completion'])('rejects detectable account changes %s without partial data', async (phase) => {
+    let account = 'first';
+    const fetch = vi.fn(async () => {
+      if (phase === 'while fetching') account = 'second';
+      return {
+        ok: true,
+        json: async () => {
+          if (phase === 'at completion') account = 'second';
+          return { new_data: { next_offset: -1, order_or_checkout_data: [makeOrder()] } };
+        },
+      };
+    });
+    const result = await runInNewContext(contentScript, {
+      fetch,
+      window: { postMessage: vi.fn() },
+      localStorage: { getItem: (key: string) => key === 'mini-session' ? JSON.stringify({ user: { id: account, name: account } }) : null },
+      console: { error: vi.fn() },
+    });
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/account.*chang/i);
+    expect(result.data).toBeUndefined();
+  });
+
+  it('captures starting scan token for progress even when global token changes', async () => {
+    const postMessage = vi.fn();
+    const window = { postMessage, __shopeestatxScanId: 'scan-first' };
+    const result = await runInNewContext(contentScript, {
+      fetch: async () => {
+        window.__shopeestatxScanId = 'scan-second';
+        return { ok: true, json: async () => ({ new_data: { next_offset: -1, order_or_checkout_data: [makeOrder()] } }) };
+      },
+      window,
+      localStorage: { getItem: () => null },
+      console: { error: vi.fn() },
+    });
+    expect(result.success).toBe(true);
+    expect(postMessage).toHaveBeenCalledWith({ source: 'shopee-stats', type: 'progress', count: 1, scanId: 'scan-first' }, '*');
+  });
+
   it.each([
     ['label_completed', 3, 'Hoàn thành'],
     ['LABEL_COMPLETED', 3, 'Hoàn thành'],
@@ -108,8 +242,8 @@ describe('content script order collection', () => {
     ]);
     expect(result.data.orders.map((order: { orderId: string }) => order.orderId)).toEqual(['ORDER-1', 'ORDER-2']);
     expect(result.data).toMatchObject({ totalCount: 4, totalAmount: 200000 });
-    expect(fetch.mock.calls.map(([url]) => new URL(url).searchParams.get('offset'))).toEqual(['0', '20', '40']);
-    expect(postMessage).toHaveBeenCalledWith({ source: 'shopee-stats', type: 'progress', count: 2 }, '*');
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(postMessage).toHaveBeenCalledWith({ source: 'shopee-stats', type: 'progress', count: 2, scanId: '' }, '*');
   });
 
   it('retains legacy response and product-card support', async () => {

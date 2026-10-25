@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Dashboard } from '../src/dashboard-app/Dashboard';
 import type { DashboardHost } from '../src/dashboard-app/host';
@@ -33,8 +33,8 @@ function makeHost(): DashboardHost {
   return { scanOnOpen: false, loadCached: vi.fn().mockResolvedValue(DATA), refresh: vi.fn().mockResolvedValue({ data: DATA, added: 0 }) };
 }
 
-async function openOverviewWarm() {
-  const view = renderSurface(<Dashboard host={makeHost()} now={() => NOW} />);
+async function openOverviewWarm(host = makeHost()) {
+  const view = renderSurface(<Dashboard host={host} now={() => NOW} />);
   await screen.findByText('Chi tiêu ròng');
   await view.user.click(screen.getByRole('radio', { name: 'Ấm áp' }));
   return view;
@@ -54,10 +54,39 @@ describe('Tổng quan (warm): cùng số liệu với fintech, trình bày khác
     expect(screen.getByTestId('net-spend')).toHaveTextContent('1.300.000');
   });
 
-  it('shows top-shop share as a legend with percentages, not amounts', async () => {
-    await openOverviewWarm();
+  it('keeps comparisons, complete shop rankings, and monthly chart data in the warm narrative', async () => {
+    const { user } = await openOverviewWarm();
+    expect(screen.getByTestId('month-change')).toHaveTextContent(/50/);
+    expect(screen.getByTestId('year-change')).toBeInTheDocument();
     const list = screen.getByRole('list', { name: 'Tiền của bạn đi đâu?' });
-    expect(list).toHaveTextContent(/Alpha.*50%/);
+    const alpha = within(list).getAllByRole('listitem')[0];
+    expect(alpha).toHaveTextContent(/1.*Alpha.*650\.000.*2.*50%/);
+    await user.click(screen.getByText('Xem bảng số liệu'));
+    const table = screen.getByRole('table', { name: 'Chi tiêu theo tháng' });
+    expect(within(table).getByRole('row', { name: /10\/2026.*450\.000/ })).toBeInTheDocument();
+  });
+
+  it('describes a single populated month as one observation with its value', async () => {
+    const { user } = await openOverviewWarm();
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'thisMonth');
+    expect(screen.getByRole('img', { name: /Chi tiêu theo tháng.*10\/2026.*450\.000/ })).toBeInTheDocument();
+    await user.click(screen.getByText('Xem bảng số liệu'));
+    const table = screen.getByRole('table', { name: 'Chi tiêu theo tháng' });
+    expect(within(table).getAllByRole('row')).toHaveLength(2);
+    expect(within(table).getByRole('row', { name: /10\/2026.*450\.000/ })).toBeInTheDocument();
+  });
+
+  it('explains legacy values and offers rescan in both warm statistic tabs', async () => {
+    const legacy = makeData(ORDERS.map(order => ({ ...order, refundAmount: undefined })));
+    const host = makeHost();
+    vi.mocked(host.loadCached).mockResolvedValue(legacy);
+    const { user } = await openOverviewWarm(host);
+    expect(screen.getByText('Dữ liệu cũ chưa có số liệu hoàn tiền và tiết kiệm. Bấm để phân tích lại.')).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: 'Phân tích' }));
+    expect(screen.getByText('Dữ liệu cũ chưa có số liệu hoàn tiền và tiết kiệm. Bấm để phân tích lại.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Phân tích lại' }));
+    expect(host.refresh).toHaveBeenCalledOnce();
+    expect(screen.queryByText('Dữ liệu cũ chưa có số liệu hoàn tiền và tiết kiệm. Bấm để phân tích lại.')).not.toBeInTheDocument();
   });
 
   it('keeps the share-image button', async () => {

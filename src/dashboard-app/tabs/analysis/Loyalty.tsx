@@ -33,7 +33,7 @@ export function Loyalty({ orders }: { orders: Order[] }) {
             </thead>
             <tbody>
               {shops.map(shop => (
-                <tr key={shop.shopName} className="border-t border-line">
+                <tr key={shop.shopKey} className="border-t border-line">
                   <th scope="row" className="max-w-56 truncate py-1.5 pr-3 font-normal" title={shop.shopName}>{shop.shopName}</th>
                   <td className="px-3 py-1.5 text-right">{shop.orderCount}</td>
                   <td className="px-3 py-1.5 text-right">{money(shop.totalSpent)}</td>

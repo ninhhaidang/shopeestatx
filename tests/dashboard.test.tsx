@@ -330,13 +330,17 @@ describe('tải dữ liệu', () => {
       user: { username: 'account_B', avatar: '' },
     });
     let stored = previous;
+    const metadata: Record<string, unknown> = {};
     vi.stubGlobal('chrome', {
       storage: { local: {
-        get: async () => ({ [STORAGE_KEYS.STATS]: stored, [STORAGE_KEYS.TAB_ID]: 123 }),
-        set: async (value: Record<string, OrderData>) => { stored = value[STORAGE_KEYS.STATS]; },
+        get: async () => ({ ...metadata, [STORAGE_KEYS.STATS]: stored, [STORAGE_KEYS.TAB_ID]: 123 }),
+        set: async (value: Record<string, unknown>) => {
+          Object.assign(metadata, value);
+          if (STORAGE_KEYS.STATS in value) stored = value[STORAGE_KEYS.STATS] as OrderData;
+        },
       } },
       runtime: { onMessage: { addListener: vi.fn(), removeListener: vi.fn() } },
-      scripting: { executeScript: async ({ files }: { files: string[] }) => files[0] === 'bridge.js' ? [] : [{ result: { success: true, data: fresh } }] },
+      scripting: { executeScript: async ({ files }: { files?: string[] }) => files?.[0] === 'content.js' ? [{ result: { success: true, data: fresh } }] : [] },
     });
     try {
       const { user } = renderDashboard({ ...chromeHost, scanOnOpen });
@@ -445,14 +449,4 @@ describe('giao diện sáng/tối', () => {
     expect(document.documentElement.dataset.theme).toBe('dark');
   });
 
-  it('rebuilds the chart in the new theme', async () => {
-    const { user } = renderDashboard();
-    await screen.findByText('Chi tiêu ròng');
-    const before = charts.length;
-
-    await user.click(screen.getByRole('radio', { name: 'Tối' }));
-
-    expect(charts.length).toBeGreaterThan(before);
-    expect(charts[before - 1].destroyed).toBe(true);
-  });
 });

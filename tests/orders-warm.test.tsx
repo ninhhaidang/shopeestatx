@@ -106,6 +106,33 @@ describe('Đơn hàng (warm): danh sách hoá đơn một cột', () => {
     expect(within(screen.getByRole('region', { name: 'Chi tiết đơn 1004' })).getByText(/Không tính vào chi tiêu/)).toBeInTheDocument();
   });
 
+  it('moves Previous from the clamped displayed page after a global range shrinks', async () => {
+    const many = makeData(Array.from({ length: 100 }, (_, i) => makeOrder(
+      i < 30 ? '2026-10-02T10:00:00' : '2026-09-02T10:00:00',
+      { orderId: String(2000 + i) },
+    )));
+    const { user } = await openOrdersWarm(many);
+    for (let i = 0; i < 4; i++) await user.click(screen.getByRole('button', { name: 'Trang sau' }));
+    expect(screen.getByText('Trang 5 / 5')).toBeInTheDocument();
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'thisMonth');
+    expect(screen.getByText('Trang 2 / 2')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Trang trước' }));
+    expect(screen.getByText('Trang 1 / 2')).toBeInTheDocument();
+  });
+
+  it('filters all names of one stable seller without mixing a matching display name', async () => {
+    const data = makeData([
+      makeOrder('2026-10-03T10:00:00', { orderId: 'seller-new', shopId: '1', shopName: 'alice - Shared' }),
+      makeOrder('2026-10-02T10:00:00', { orderId: 'seller-old', shopId: '1', shopName: 'alice - Old name' }),
+      makeOrder('2026-10-01T10:00:00', { orderId: 'other-seller', shopId: '2', shopName: 'bob - Shared' }),
+    ]);
+    const { user } = await openOrdersWarm(data);
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc theo shop' }), screen.getByRole('option', { name: 'alice - Shared' }));
+    expect(screen.getByText('Bạn có 2 đơn hàng.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Xem chi tiết đơn seller-old/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Xem chi tiết đơn other-seller/ })).not.toBeInTheDocument();
+  });
+
   it('resets to the first page when the sort changes', async () => {
     const many = makeData(
       Array.from({ length: 45 }, (_, i) => makeOrder('2026-10-02T10:00:00', { orderId: String(1100 + i), subTotal: 1000 * (i + 1) })),

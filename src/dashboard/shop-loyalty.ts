@@ -1,9 +1,11 @@
 // Shop loyalty analysis: repeat-purchase metrics per shop (pure)
 import type { Order } from '../types/index.js';
 import { isExcludedOrder } from './order-status.js';
-import { shopDisplayName } from './shop.js';
+import { shopDisplayName, shopIdentity } from './shop.js';
+import { localDateKey } from './month.js';
 
 export interface ShopLoyalty {
+  shopKey: string;
   shopName: string;
   orderCount: number;
   totalSpent: number;
@@ -19,33 +21,37 @@ const MAX_SPAN_MONTHS = 12;
 
 /** Shops with at least 3 orders that count towards spend, most orders first. */
 export function analyzeShopLoyalty(allOrders: Order[]): ShopLoyalty[] {
-  const shopMap: Record<string, { orders: number; spent: number; dates: string[] }> = {};
+  const shopMap = new Map<string, { name: string; orders: number; spent: number; dates: string[] }>();
 
   for (const o of allOrders.filter(o => !isExcludedOrder(o))) {
-    const shop = shopDisplayName(o.shopName);
-    if (!shopMap[shop]) shopMap[shop] = { orders: 0, spent: 0, dates: [] };
-    shopMap[shop].orders += 1;
-    shopMap[shop].spent += o.subTotal;
-    if (o.deliveryDate) shopMap[shop].dates.push(o.deliveryDate.substring(0, 10));
+    const key = shopIdentity(o);
+    const shop = shopMap.get(key) ?? { name: shopDisplayName(o.shopName), orders: 0, spent: 0, dates: [] };
+    shop.orders += 1;
+    shop.spent += o.subTotal;
+    const date = o.deliveryDate ? new Date(o.deliveryDate) : null;
+    if (date && !Number.isNaN(date.getTime())) shop.dates.push(localDateKey(date));
+    shopMap.set(key, shop);
   }
 
-  return Object.entries(shopMap)
+  return [...shopMap]
     .filter(([, v]) => v.orders >= MIN_ORDERS)
-    .map(([shopName, v]) => {
+    .map(([shopKey, v]) => {
       const sorted = [...v.dates].sort();
       const firstOrder = sorted[0] ?? '';
       const lastOrder = sorted[sorted.length - 1] ?? '';
       // Divide by the real span (capped at 12 months), not always by 12.
       let monthsSpan = 1;
       if (firstOrder && lastOrder && firstOrder !== lastOrder) {
-        const f = new Date(firstOrder), l = new Date(lastOrder);
+        const [firstYear, firstMonth] = firstOrder.split('-').map(Number);
+        const [lastYear, lastMonth] = lastOrder.split('-').map(Number);
         monthsSpan = Math.min(
-          Math.max((l.getFullYear() - f.getFullYear()) * 12 + (l.getMonth() - f.getMonth()) + 1, 1),
+          Math.max((lastYear - firstYear) * 12 + lastMonth - firstMonth + 1, 1),
           MAX_SPAN_MONTHS,
         );
       }
       return {
-        shopName,
+        shopKey,
+        shopName: v.name,
         orderCount: v.orders,
         totalSpent: v.spent,
         firstOrder,

@@ -3,7 +3,7 @@
 import type { Order } from '../types/index.js';
 import { monthOf, monthSpend, yearSpend } from './month.js';
 import { isExcludedOrder } from './order-status.js';
-import { shopDisplayName } from './shop.js';
+import { shopDisplayName, shopIdentity } from './shop.js';
 import { computeStats, type Stats } from './stats.js';
 
 const TOP_SHOP_LIMIT = 5;
@@ -15,6 +15,7 @@ interface MonthTotal {
 }
 
 interface ShopTotal {
+  shopKey: string;
   name: string;
   amount: number;
   orders: number;
@@ -45,11 +46,12 @@ export function computeOverview(orders: Order[]): Overview {
       byMonth.set(sortKey, entry);
     }
     const name = shopDisplayName(o.shopName);
-    const shop = byShop.get(name) ?? { name, amount: 0, orders: 0, products: 0 };
+    const shopKey = shopIdentity(o);
+    const shop = byShop.get(shopKey) ?? { shopKey, name, amount: 0, orders: 0, products: 0 };
     shop.amount += o.subTotal;
     shop.orders += 1;
     shop.products += o.productCount;
-    byShop.set(name, shop);
+    byShop.set(shopKey, shop);
   }
 
   return {

@@ -16,7 +16,7 @@ const stats: Stats = {
 };
 
 /** Canvas stand-in that records every string drawn and every font/fill used. */
-function drawOnFakeCanvas(s: Stats) {
+function drawOnFakeCanvas(s: Stats, financialAvailable = true) {
   const texts: string[] = [];
   const fills = new Set<string>();
   const ctx = {
@@ -32,13 +32,22 @@ function drawOnFakeCanvas(s: Stats) {
     },
   } as unknown as CanvasRenderingContext2D;
   const canvas = { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement;
-  drawShareImage(canvas, s);
+  drawShareImage(canvas, s, financialAvailable);
   return { canvas, texts, fills };
 }
 
 const normalize = (s: string) => s.replace(/[  ]/g, ' ');
 
 describe('share image', () => {
+  it('marks unavailable financial figures unknown without hiding known zero values', () => {
+    const zeroStats = { ...stats, refundTotal: 0, estimatedSavings: 0 };
+    const unknown = drawOnFakeCanvas(zeroStats, false).texts.map(normalize);
+    expect(unknown.filter(text => text === '—')).toHaveLength(2);
+    expect(unknown).not.toContain('0 ₫');
+    const known = drawOnFakeCanvas(zeroStats).texts.map(normalize);
+    expect(known.filter(text => text === '0 ₫')).toHaveLength(2);
+  });
+
   it('draws the brand, the net spend hero and the four headline figures', () => {
     const { texts } = drawOnFakeCanvas(stats);
     const drawn = texts.map(normalize);

@@ -63,6 +63,17 @@ describe('Export Functions', () => {
       expect(document.querySelector('a')).toBeNull();
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
     });
+    it.each([
+      ['12345678901234567890', '"12345678901234567890"'],
+      ['00012345678901234567890', '"00012345678901234567890"'],
+      ['order,"id', '"order,""id"'],
+      [123456789, '123456789'],
+      ['=1+1', '"\'=1+1"'],
+    ])('keeps raw CSV identity and safe quoting for %j', async (orderId, cell) => {
+      exportToCSV([{ ...order, orderId }]);
+      expect((await readBlob(blobs[0])).split('\n')[1]).toContain(`1,${cell},`);
+    });
+
 
     it.each([
       ['Shirt "Blue", size M\nSocks x2', '"Shirt ""Blue"", size M\nSocks x2"'],
@@ -117,7 +128,7 @@ describe('Export Functions', () => {
     it('preserves numeric cell values', async () => {
       const { default: ExcelJS } = await import('exceljs');
 
-      await exportToExcel([order]);
+      await exportToExcel([order, { ...order, orderId: '12345678901234567890' }, { ...order, orderId: 123456789 }]);
 
       const { promise, resolve, reject } = Promise.withResolvers<ArrayBuffer>();
       const reader = new FileReader();
@@ -127,8 +138,10 @@ describe('Export Functions', () => {
       const workbook = new ExcelJS.Workbook();
       await workbook.xlsx.load(await promise);
       const worksheet = workbook.getWorksheet('Shopee Orders')!;
-      expect(worksheet.rowCount).toBe(2);
+      expect(worksheet.rowCount).toBe(4);
       expect(worksheet.getCell(2, 2).value).toBe('ORD001');
+      expect(worksheet.getCell(3, 2).value).toBe('12345678901234567890');
+      expect(worksheet.getCell(4, 2).value).toBe('123456789');
       expect(worksheet.getCell(2, 6).value).toBe(2);
       expect(worksheet.getCell(2, 7).value).toBe(100000);
       expect(downloads[0].filename).toMatch(/\.xlsx$/);

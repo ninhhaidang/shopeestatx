@@ -9,6 +9,11 @@ export interface OrderMonth {
   year: number;
 }
 
+/** YYYY-MM-DD of a valid local delivery-calendar date. */
+export function localDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 /** The month an order is delivered in, or null for an undated order. */
 export function monthOf(order: Pick<Order, 'deliveryDate'>): OrderMonth | null {
   if (!order.deliveryDate) return null;

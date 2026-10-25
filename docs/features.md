@@ -17,15 +17,19 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Thanh đầu hiển thị thông tin tài khoản khi có dữ liệu và thời điểm cập nhật gần nhất.
 - Bộ chọn khoảng thời gian có Tất cả, 7 ngày gần nhất, tháng này, tháng trước, 3 tháng gần nhất, năm nay, theo năm, theo tháng và khoảng ngày tùy chọn.
 - Khoảng thời gian lọc đơn hàng theo ngày giao và được giữ khi chuyển giữa ba màn hình.
+- Ngày giao không biết được giữ là chưa có ngày, không suy ra từ mã đơn hàng hoặc thời điểm cập nhật trạng thái. Đơn chưa có ngày vẫn có trong Tất cả và Chi tiêu ròng toàn thời gian, nhưng không tham gia khoảng có ngày, tần suất theo lịch hoặc nhận xét trung bình theo tháng.
 - Các chỉ số theo tháng, năm, nhận xét tự động, shop thân thiết, biểu đồ nhiệt, dự đoán và ngân sách có phạm vi riêng được mô tả ở các mục tương ứng thay vì luôn bị cắt theo khoảng ngày.
 - Dashboard có thể hiển thị lịch sử đơn hàng đã lưu cục bộ và có nút làm mới để cập nhật dữ liệu.
 - Mỗi lần bắt đầu phân tích từ popup, kết quả mới thay thế cache, kể cả hồ sơ tài khoản cũ; khi kết quả mới không có hồ sơ, tiện ích không gán tên tài khoản cũ cho lịch sử mới. Làm mới giữ các đơn cũ, trừ khi xác định được khác tài khoản: ưu tiên so sánh `userId`, sau đó `uid` khi cả hai hồ sơ cùng có loại ID đó; chỉ so sánh username khi cả hai đều không có ID. Nếu thiếu hồ sơ hoặc không có ID cùng loại để so sánh, làm mới giữ cache để tránh mất lịch sử do chuyển nguồn hồ sơ.
+- Quét theo cursor Shopee trả về và chỉ tính mỗi mã đơn hàng một lần. Nhiều dashboard làm mới đồng thời không được làm mất đơn hoặc ghi đè trạng thái đơn mới hơn; lần phân tích thay thế vô hiệu hóa các kết quả cũ đang chờ. Khi phát hiện đổi tài khoản giữa lúc quét, tiện ích không lưu kết quả một phần. Nếu hồ sơ không đủ để nhận diện thay đổi, tiện ích không tuyên bố có thể phát hiện mọi lần đổi tài khoản.
 - Khi lấy dữ liệu lần đầu, dashboard hiển thị khung chờ, trạng thái kết nối, số đơn hàng đã lấy khi có tiến độ và lời nhắc khi chờ lâu.
 - Khi làm mới, dashboard giữ nội dung đang xem, hiển thị tiến độ rồi thông báo số đơn hàng mới hoặc chưa có đơn hàng mới.
+- Tiến độ và lời nhắc chờ lâu thuộc từng lượt quét, không bị sự kiện từ tab hay lượt quét khác thay đổi.
 - Khi làm mới thất bại, dashboard giữ dữ liệu đang có và hiển thị thông báo lỗi.
 - Khi tải ban đầu thất bại hoặc chưa có dữ liệu, dashboard giải thích trạng thái và cung cấp hành động thử lại hoặc lấy dữ liệu.
 - Khi khoảng thời gian không có đơn hàng, cả ba màn hình có trạng thái rỗng và nút «Xem tất cả».
 - Khi dữ liệu cũ thiếu thông tin cần thiết, Tổng quan và Phân tích hiển thị lời nhắc phân tích lại để bổ sung Hoàn tiền, Tiết kiệm ước tính và chi tiết sản phẩm.
+- Các mốc ngày/tháng và thời gian cập nhật tương đối tự tiến khi dashboard mở lâu, không cần lấy lại lịch sử; đồng hồ cập nhật trong vòng một phút khi đang hoạt động hoặc khi quay lại tab.
 
 ## Tổng quan
 
@@ -38,6 +42,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - So sánh tháng và năm dùng toàn bộ lịch sử, lấy mốc ở cuối khoảng đang chọn nhưng không vượt quá ngày hiện tại.
 - Biểu đồ cột hiển thị Chi tiêu ròng theo tháng trong khoảng đang chọn và có bảng số liệu thay thế có thể mở hoặc đóng.
 - Danh sách năm shop có Chi tiêu ròng cao nhất hiển thị thứ hạng, tên shop, số đơn hàng, số tiền và thanh so sánh trong khoảng đang chọn.
+- Shop được nhóm theo định danh shop khi có, nếu thiếu dùng định danh người bán trong lịch sử cũ; tên hiển thị trùng nhau không làm gộp hai người bán và tên chứa dấu phân cách được giữ đầy đủ.
 - Nút tạo ảnh chia sẻ nằm ở màn hình Tổng quan.
 
 ## Phân tích
@@ -47,6 +52,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Các thói quen theo ngày và giờ dựa trên ngày giao ghi trong lịch sử, không phải thời điểm đặt đơn hàng.
 - Phân tích xếp hạng sản phẩm mua nhiều theo số lượng và sản phẩm đắt nhất theo đơn giá trong khoảng đang chọn.
 - Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
+- Số đơn trung bình mỗi tháng chỉ dùng đơn có ngày hợp lệ ở cả tử số và tập tháng; chỉ sinh nhận xét khi có hơn một tháng thực sự. Giá trị đơn bị loại lấy từ giá trị gốc đã lưu, không được diễn đạt như giao dịch hoàn tiền đã xác minh hoặc Tiết kiệm ước tính.
 - Biểu đồ nhiệt hiển thị số đơn hàng theo ngày trong cửa sổ 12 tháng kết thúc ở mốc cuối khoảng đang chọn, không vượt quá ngày hiện tại.
 - Biểu đồ nhiệt dùng màu để phân biệt mức độ, có nhãn ngày và số đơn hàng, vùng cuộn ngang cùng bảng số liệu thay thế có thể mở hoặc đóng.
 - Shop thân thiết dùng toàn bộ lịch sử và hiển thị tối đa mười shop có ít nhất ba đơn hàng không bị loại, ưu tiên shop có nhiều đơn hàng nhất.
@@ -72,6 +78,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 - Màn hình Đơn hàng cho tải dữ liệu Excel định dạng XLSX hoặc CSV.
 - Excel và CSV chứa mã đơn hàng, ngày giao, trạng thái, sản phẩm, số lượng, số tiền, shop và mô tả sản phẩm.
+- XLSX lưu mã đơn hàng dưới dạng văn bản để giữ nguyên mã dài. CSV giữ nguyên ký tự mã nhưng không quy định kiểu ô: khi mở bằng Excel, nhập cột mã đơn dưới dạng Text hoặc dùng XLSX. Mã đã bị làm tròn trước khi lưu không thể tự khôi phục.
 - Mô tả sản phẩm nằm ở cột `Details`; CSV giữ dấu phẩy, dấu ngoặc kép và xuống dòng trong một ô, đồng thời vô hiệu hóa văn bản có thể bị bảng tính hiểu thành công thức.
 - Nút «In / PDF» mở hộp thoại in của trình duyệt với bản in danh sách đơn hàng và cho lưu PDF bằng chức năng của trình duyệt.
 - Cả ba cách xuất dùng toàn bộ kết quả theo khoảng thời gian, tìm kiếm, trạng thái, shop và thứ tự sắp xếp hiện tại, không chỉ trang đang xem.
@@ -80,6 +87,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Chia sẻ ảnh
 
 - Nút tạo ảnh tải về ảnh PNG gồm Chi tiêu ròng, Hoàn tiền, Tiết kiệm ước tính, thứ có nhiều đơn hàng nhất và chuỗi tháng có đơn hàng dài nhất của khoảng đang chọn.
+- Khi lịch sử cũ thiếu số liệu Hoàn tiền hoặc Tiết kiệm ước tính, ảnh cũng hiển thị dấu thiếu dữ liệu thay vì 0₫.
 - Ảnh chia sẻ chỉ chứa số liệu tổng hợp, không chứa tên tài khoản, tên shop, mã đơn hàng hoặc tên sản phẩm.
 - Ảnh chia sẻ dùng thương hiệu ShopeeStatX và diện mạo sáng cố định, không đổi theo chế độ giao diện đang chọn.
 - Tạo ảnh chỉ tải ảnh về máy, không tự đăng hoặc gửi dữ liệu lên mạng xã hội.

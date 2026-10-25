@@ -24,9 +24,19 @@ describe('page-to-extension bridge', () => {
   it('relays only validated progress fields from the page', () => {
     window.dispatchEvent(new MessageEvent('message', {
       source: window,
-      data: { source: 'shopee-stats', type: 'progress', count: 20, unexpected: 'discard me' },
+      data: { source: 'shopee-stats', type: 'progress', scanId: 'scan-one', count: 20, unexpected: 'discard me' },
     }));
-    expect(sendMessage).toHaveBeenCalledExactlyOnceWith({ source: 'shopee-stats', type: 'progress', count: 20 });
+    expect(sendMessage).toHaveBeenCalledExactlyOnceWith({ source: 'shopee-stats', type: 'progress', scanId: 'scan-one', count: 20 });
+  });
+
+  it('delivers a page progress event once after reinjection', async () => {
+    vi.resetModules();
+    await import('../src/bridge/bridge');
+    window.dispatchEvent(new MessageEvent('message', {
+      source: window,
+      data: { source: 'shopee-stats', type: 'progress', scanId: 'scan-two', count: 40 },
+    }));
+    expect(sendMessage).toHaveBeenCalledExactlyOnceWith({ source: 'shopee-stats', type: 'progress', scanId: 'scan-two', count: 40 });
   });
 
   it('does not let page scripts invoke the background openResults command', () => {

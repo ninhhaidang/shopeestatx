@@ -44,12 +44,16 @@ describe('Chrome scan account isolation', () => {
 });
 
 function installChrome(read: () => OrderData, persist: (data: OrderData) => void, fresh: OrderData) {
+  const metadata: Record<string, unknown> = {};
   vi.stubGlobal('chrome', {
     storage: { local: {
-      get: async () => ({ [STORAGE_KEYS.STATS]: read(), [STORAGE_KEYS.TAB_ID]: 123 }),
-      set: async (value: Record<string, OrderData>) => { persist(value[STORAGE_KEYS.STATS]); },
+      get: async () => ({ ...metadata, [STORAGE_KEYS.STATS]: read(), [STORAGE_KEYS.TAB_ID]: 123 }),
+      set: async (value: Record<string, unknown>) => {
+        Object.assign(metadata, value);
+        if (STORAGE_KEYS.STATS in value) persist(value[STORAGE_KEYS.STATS] as OrderData);
+      },
     } },
     runtime: { onMessage: { addListener: vi.fn(), removeListener: vi.fn() } },
-    scripting: { executeScript: async ({ files }: { files: string[] }) => files[0] === 'bridge.js' ? [] : [{ result: { success: true, data: fresh } }] },
+    scripting: { executeScript: async ({ files }: { files?: string[] }) => files?.[0] === 'content.js' ? [{ result: { success: true, data: fresh } }] : [] },
   });
 }

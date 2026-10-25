@@ -6,6 +6,7 @@ import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import { NoOrdersInRange } from '../../components/NoOrdersInRange';
 import { useDashboard } from '../../context';
+import { RescanBanner } from '../../components/RescanBanner';
 import { money } from '../../format';
 import { BudgetWarm } from './BudgetWarm';
 import { LoyaltyWarm } from './LoyaltyWarm';
@@ -39,6 +40,7 @@ export function AnalysisTabWarm() {
 
   return (
     <div className="mx-auto flex max-w-prose flex-col gap-7 py-2 font-serif text-[15px] leading-relaxed text-warm-fg">
+      {stale && <RescanBanner />}
       <p>{t('analysisWarm.habitsIntro', { weekday, hour, streak, rate })}</p>
 
       {insights.length > 0 && (
@@ -53,6 +55,8 @@ export function AnalysisTabWarm() {
         <h2 className="mb-2 text-sm tracking-wide text-warm-muted">{t('stats.topQuantity')}</h2>
         {stale ? (
           <p className="text-warm-muted">{t('analysisWarm.topProductsStale')}</p>
+        ) : stats.topByQuantity.length === 0 ? (
+          <p className="text-warm-muted">{t('analysis.noProducts')}</p>
         ) : (
           <ol aria-label={t('stats.topQuantity')} className="grid gap-1.5">
             {stats.topByQuantity.map((p, i) => (
@@ -70,6 +74,8 @@ export function AnalysisTabWarm() {
         <h2 className="mb-2 text-sm tracking-wide text-warm-muted">{t('stats.priciest')}</h2>
         {stale ? (
           <p className="text-warm-muted">{t('analysisWarm.topProductsStale')}</p>
+        ) : stats.priciest.length === 0 ? (
+          <p className="text-warm-muted">{t('analysis.noProducts')}</p>
         ) : (
           <ol aria-label={t('stats.priciest')} className="grid gap-1.5">
             {stats.priciest.map((p, i) => (
@@ -87,8 +93,8 @@ export function AnalysisTabWarm() {
 
       <section aria-label={t('analysis.heatmap.title')}>
         <h2 className="mb-2 text-sm tracking-wide text-warm-muted">{t('analysis.heatmap.title')}</h2>
-        <div className="overflow-x-auto rounded-lg pb-2">
-          <svg role="img" aria-label={t('analysis.heatmap.title')} width={grid.weeks.length * 11 + 8} height={7 * 11 + 4} className="block max-w-none">
+        <div role="region" aria-label={t('analysis.heatmap.scroll')} tabIndex={0} className="overflow-x-auto rounded-lg pb-2">
+          <svg role="img" aria-label={t('analysis.heatmap.summary', { title: t('analysis.heatmap.title'), days: grid.days.length, orders: grid.totalOrders, from: formatDate(grid.start), to: formatDate(grid.end) })} width={grid.weeks.length * 11 + 8} height={7 * 11 + 4} className="block max-w-none">
             {grid.weeks.map((week, col) =>
               week.map(
                 (cell, row) =>
@@ -101,6 +107,30 @@ export function AnalysisTabWarm() {
             )}
           </svg>
         </div>
+        <details className="mt-2 text-sm">
+          <summary className="w-fit cursor-pointer rounded text-warm-muted">{t('dash.chart.showTable')}</summary>
+          {grid.days.length === 0 ? (
+            <p className="mt-2 text-warm-muted">{t('analysis.heatmap.empty')}</p>
+          ) : (
+            <table className="mt-2 w-full text-left tabular-nums">
+              <caption className="sr-only">{t('analysis.heatmap.title')}</caption>
+              <thead>
+                <tr className="text-warm-muted">
+                  <th scope="col" className="py-1 font-medium">{t('analysis.heatmap.date')}</th>
+                  <th scope="col" className="py-1 text-right font-medium">{t('analysis.heatmap.orders')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {grid.days.map(day => (
+                  <tr key={day.date} className="border-t border-warm-line">
+                    <th scope="row" className="py-1 font-normal">{dayOf(day.date)}</th>
+                    <td className="py-1 text-right">{day.orderCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </details>
       </section>
 
       <BudgetWarm allOrders={data.orders} now={now} />

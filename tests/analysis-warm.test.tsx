@@ -30,8 +30,8 @@ function makeHost(data = DATA): DashboardHost {
   return { scanOnOpen: false, loadCached: vi.fn().mockResolvedValue(data), refresh: vi.fn().mockResolvedValue({ data, added: 0 }) };
 }
 
-async function openAnalysisWarm() {
-  const view = renderSurface(<Dashboard host={makeHost()} now={() => NOW} />);
+async function openAnalysisWarm(data = DATA) {
+  const view = renderSurface(<Dashboard host={makeHost(data)} now={() => NOW} />);
   await screen.findByText('Chi tiêu ròng');
   await view.user.click(screen.getByRole('radio', { name: 'Ấm áp' }));
   await view.user.click(screen.getByRole('tab', { name: 'Phân tích' }));
@@ -64,6 +64,28 @@ describe('Phân tích (warm): cùng số liệu với fintech, trình bày khác
     expect(priciest[0]).toHaveTextContent(/Giày.*300\.000/);
   });
 
+  it('makes daily values available without color or hover', async () => {
+    const { user } = await openAnalysisWarm();
+    const heatmap = screen.getByRole('region', { name: 'Biểu đồ nhiệt, cuộn ngang để xem thêm' });
+    expect(heatmap).toHaveAttribute('tabindex', '0');
+    await user.click(screen.getByText('Xem bảng số liệu'));
+    const table = screen.getByRole('table', { name: 'Chi tiêu theo ngày' });
+    expect(within(table).getByRole('row', { name: /5\/10\/2026.*1/ })).toBeInTheDocument();
+    expect(within(table).queryByRole('row', { name: /13\/10\/2026/ })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    { statusCode: 3, items: [] },
+    { statusCode: 4, items: [{ name: 'Returned product', quantity: 1, unitPrice: 100_000 }] },
+  ])('explains both empty product rankings for eligible-product-free history %#', async (order) => {
+    await openAnalysisWarm(makeData([makeOrder('2026-10-05T10:00:00', order)]));
+    for (const title of ['Sản phẩm mua nhiều nhất', 'Sản phẩm đắt nhất']) {
+      const section = screen.getByRole('region', { name: title });
+      expect(within(section).getByText('Chưa có dữ liệu sản phẩm.')).toBeInTheDocument();
+      expect(within(section).queryByRole('list')).not.toBeInTheDocument();
+    }
+  });
+
   it('lists repeat shops over the whole history as a receipt-style list, not a table', async () => {
     const repeat = makeData([
       makeOrder('2026-08-05T10:00:00', { subTotal: 100_000, shopName: 'a - Alpha' }),
@@ -77,11 +99,6 @@ describe('Phân tích (warm): cùng số liệu với fintech, trình bày khác
 
     const loyalty = within(screen.getByRole('list', { name: 'Shop thân thiết' })).getAllByRole('listitem');
     expect(loyalty[0]).toHaveTextContent(/Alpha.*600\.000.*3 đơn/);
-  });
-
-  it('summarises the heatmap over 12 months', async () => {
-    await openAnalysisWarm();
-    expect(screen.getByRole('img', { name: 'Chi tiêu theo ngày' })).toBeInTheDocument();
   });
 
   it('still lets a budget be set up (reuses the same interactive budget card)', async () => {

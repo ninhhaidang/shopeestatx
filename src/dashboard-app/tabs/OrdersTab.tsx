@@ -4,6 +4,7 @@ import { matchesStatusAndSearch, sortOrders } from '../../dashboard/order-query.
 import { exportToCSV, exportToExcel } from '../../dashboard/export.js';
 import { ORDER_STATUSES } from '../../dashboard/order-status.js';
 import { t } from '../../i18n/index.js';
+import { shopIdentity } from '../../dashboard/shop.js';
 import type { SortDirection } from '../../types/index.js';
 import { Button } from '../../ui/components/Button';
 import { StateMessage } from '../../ui/components/StateMessage';
@@ -51,13 +52,17 @@ export function OrdersTab() {
     setPrinting(false);
   }, [printing]);
 
-  const shops = useMemo(() => [...new Set(orders.map(o => o.shopName))].sort((a, b) => a.localeCompare(b, 'vi')), [orders]);
-  // A shop that fell out of the date range no longer filters anything.
-  const activeShop = shops.includes(shop) ? shop : '';
+  const shops = useMemo(() => {
+    const names = new Map<string, string>();
+    for (const order of orders) if (!names.has(shopIdentity(order))) names.set(shopIdentity(order), order.shopName);
+    return [...names].sort((a, b) => a[1].localeCompare(b[1], 'vi'));
+  }, [orders]);
+  // A seller that fell out of the date range no longer filters anything.
+  const activeShop = shops.some(([id]) => id === shop) ? shop : '';
   const term = search.toLowerCase().trim();
 
   const results = useMemo(() => {
-    const matching = orders.filter(o => (!activeShop || o.shopName === activeShop) && matchesStatusAndSearch(o, status, term));
+    const matching = orders.filter(o => (!activeShop || shopIdentity(o) === activeShop) && matchesStatusAndSearch(o, status, term));
     return sort.field ? sortOrders(matching, sort.field, sort.direction) : matching;
   }, [orders, activeShop, status, term, sort]);
 
@@ -130,8 +135,8 @@ export function OrdersTab() {
         </select>
         <select aria-label={t('orders.filter.shop')} value={activeShop} onChange={e => changeFilter(() => setShop(e.target.value))} className={`${control} max-w-56`}>
           <option value="">{t('orders.allShops')}</option>
-          {shops.map(name => (
-            <option key={name} value={name}>{name}</option>
+          {shops.map(([id, name]) => (
+            <option key={id} value={id}>{name}</option>
           ))}
         </select>
         {/* The header row is only for screen readers when rows are cards, so sorting moves here. */}

@@ -52,9 +52,12 @@ export function computeStats(orders: Order[]): Stats {
   const months = new Set<number>();
   let first = Infinity;
   let last = -Infinity;
+  let datedSpend = 0;
   for (const o of included) {
     if (!o.deliveryDate) continue;
     const d = new Date(o.deliveryDate);
+    if (Number.isNaN(d.getTime())) continue;
+    datedSpend += o.subTotal;
     weekdays[d.getDay()]++;
     hours[d.getHours()]++;
     months.add(d.getFullYear() * 12 + d.getMonth());
@@ -81,7 +84,7 @@ export function computeStats(orders: Order[]): Stats {
     busiestWeekday: peak(weekdays, [1, 2, 3, 4, 5, 6, 0]),
     busiestHour: peak(hours, hours.map((_, i) => i)),
     longestMonthStreak: longestStreak(months),
-    dailySpendRate: spanDays ? Math.round(netSpend / spanDays) : 0,
+    dailySpendRate: spanDays ? Math.round(datedSpend / spanDays) : 0,
     topByQuantity: [...quantities]
       .map(([name, quantity]) => ({ name, quantity }))
       .sort((a, b) => b.quantity - a.quantity || a.name.localeCompare(b.name))
@@ -93,7 +96,7 @@ export function computeStats(orders: Order[]): Stats {
   };
 }
 
-/** True when the cache predates the stats fields (all of refundAmount, itemsTotal, items arrive together); a re-scan fills them in. */
+/** Any missing stats field needs a fresh analysis, including partially migrated caches. */
 export function needsRescan(orders: Order[]): boolean {
-  return orders.some(o => o.refundAmount === undefined);
+  return orders.some(o => o.refundAmount === undefined || o.itemsTotal === undefined || o.items === undefined);
 }
