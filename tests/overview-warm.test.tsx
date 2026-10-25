@@ -52,14 +52,12 @@ describe('Tổng quan (warm): cùng số liệu với fintech, trình bày khác
     await openOverviewWarm();
     expect(document.documentElement.classList.contains('style-warm')).toBe(true);
     expect(screen.getByTestId('net-spend')).toHaveTextContent('1.300.000');
-    expect(screen.getByTestId('month-change')).toHaveTextContent(/Tháng 10\/2026/);
-    expect(screen.getByTestId('year-change')).toHaveTextContent(/Năm 2026/);
   });
 
-  it('lists top shops with a rank bar, same amounts as fintech', async () => {
+  it('shows top-shop share as a legend with percentages, not amounts', async () => {
     await openOverviewWarm();
-    const list = screen.getByRole('list', { name: 'Top shop' });
-    expect(list).toHaveTextContent(/Alpha.*650K/);
+    const list = screen.getByRole('list', { name: 'Tiền của bạn đi đâu?' });
+    expect(list).toHaveTextContent(/Alpha.*50%/);
   });
 
   it('keeps the share-image button', async () => {

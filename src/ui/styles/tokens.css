@@ -58,11 +58,11 @@
   --w-accent: #b5541f;
   --w-accent-strong: #8a3f16;
   --w-on-accent: #fffaf2;
-  --w-b1: #f0c9a0;
-  --w-b2: #e3a877;
-  --w-b3: #c97f4e;
-  --w-b4: #a85f32;
-  --w-b5: #7a4420;
+  --w-b1: #ee4d2d;
+  --w-b2: #f59e63;
+  --w-b3: #e3c27a;
+  --w-b4: #a9b98a;
+  --w-b5: #c9b8a6;
 }
 
 [data-theme='dark'].style-warm {
@@ -74,11 +74,11 @@
   --w-accent: #e38a52;
   --w-accent-strong: #f0a872;
   --w-on-accent: #241206;
-  --w-b1: #4a3a26;
-  --w-b2: #6b5331;
-  --w-b3: #93703d;
-  --w-b4: #c08f4f;
-  --w-b5: #e3ab62;
+  --w-b1: #ee4d2d;
+  --w-b2: #f59e63;
+  --w-b3: #e3c27a;
+  --w-b4: #a9b98a;
+  --w-b5: #c9b8a6;
 }
 
 /* Expose the tokens as Tailwind utilities (bg-card, text-muted, ...). `inline` keeps the
