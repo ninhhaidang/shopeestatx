@@ -128,6 +128,56 @@ React 19, Tailwind CSS v4 và Vite dựng giao diện; Chart.js hiển thị bi�
 - Giữ mã đơn XLSX dạng text, số liệu chưa biết trên ảnh chia sẻ, lỗi lưu ngân sách và URL chính sách bảo mật.
 - [Bằng chứng và giới hạn điều tra origin/dependency](docs/shopee-order-api.md#origin-investigation-2026-10-25); chưa thay phạm vi origin, quyền truy cập hay dependency khi chưa có quyết định phù hợp.
 
+## System Overview
+
+ShopeeStatX chạy trong Chrome Manifest V3: popup chọn tab Shopee, dashboard host điều phối quét và cache, collector đọc lịch sử đơn trong MAIN world, bridge chuyển tiến độ về extension. React hiển thị dữ liệu đã chuẩn hóa; các module thống kê và xuất file xử lý tại máy. Các contract dưới đây mô tả ranh giới mã nguồn, không thay thế hướng dẫn sử dụng phía trên.
+
+## Interface
+
+### Subdirectories & System Boundaries
+
+| Boundary | Contract |
+| --- | --- |
+| Source runtime | [src/README.md](./src/README.md): collector, bridge, Chrome hosts, dashboard, analytics, shared UI và các trang extension. |
+| Build validation | [scripts/README.md](./scripts/README.md): kiểm tra cú pháp classic script cho các file được inject sau build. |
+
+`tests/` chứa kiểm thử; `docs/` chứa hướng dẫn, quyết định kiến trúc và ràng buộc API; `store-assets/` chứa ảnh và tài liệu phát hành. Các thư mục không chứa code production này không có contract sinh mới.
+
+### Local Interface & Invariants
+
+- `bridge-build.ts` xuất `bridgeBuildOptions`: bundle bridge thành IIFE độc lập, target ES2020, không có import khi inject bằng `chrome.scripting.executeScript`.
+- `vite.config.ts` dùng `src` làm root, dựng dashboard/popup/privacy/welcome/background vào `dist`, rồi bundle bridge và copy manifest, collector, icons. `background.js` giữ tên cố định để khớp manifest; UI assets dùng hash. Preview middleware chỉ chạy ở dev server.
+- `vitest.config.ts` chạy `tests/**/*.test.{ts,tsx}` trong jsdom, dùng `tests/setup.ts` và coverage V8. `package.json` là giao diện lệnh build/test/verify.
+
+## Invariants
+
+### Global Invariants
+
+- Chỉ dùng endpoint lịch sử đơn hiện có; không thêm request Shopee để bổ sung trường còn thiếu. [Ràng buộc API](./docs/shopee-order-api.md) là nguồn đối chiếu dữ liệu.
+- ID đơn và seller là chuỗi; ngày giao thiếu phải giữ chưa biết. Đơn huỷ/trả hàng không tính vào chi tiêu; giá trị đơn bị loại không chứng minh giao dịch hoàn tiền thực tế.
+- Phân biệt toàn bộ lịch sử với tập đơn theo khoảng ngày; ngân sách tháng hiện tại không phụ thuộc bộ lọc toàn cục. Scan lỗi không được ghi thành snapshot hoàn chỉnh.
+- Giao diện dùng host boundary để tách Chrome APIs khỏi React; demo dùng mock host, không gọi Shopee. Màu sáng/tối/tự động độc lập với phong cách fintech/ấm áp.
+- Collector và bridge phải chạy như classic script. Đường dẫn build phải khớp manifest; không mở rộng origin/quyền truy cập trong thay đổi tài liệu.
+
+## Side Effects
+
+### Global Side Effects
+
+- Runtime đọc phiên Shopee hiện tại, gọi API lịch sử đơn, chuyển tiến độ giữa execution worlds và lưu cache/cấu hình cục bộ. Background/popup có thể mở tab; UI tạo file tải xuống, ảnh chia sẻ hoặc hộp thoại in theo thao tác người dùng.
+- Preference providers đọc/ghi localStorage và đổi root selectors. Các module thống kê thuần không tự fetch hoặc persist cache.
+- Build xóa output cũ trong `dist`, ghi bundles và copy tài nguyên extension. Kiểm thử coverage tạo báo cáo; dev command mở server và rewrite URL preview. Không có backend ShopeeStatX hay telemetry trong các boundary này.
+
+## System Verification
+
+Chạy tại repository root:
+
+```bash
+npm test
+npm ci && npm run verify
+```
+
+`verify` gồm typecheck, Knip, kiểm thử coverage, build và kiểm tra injected scripts. Pipeline không chứng minh tương tác Chrome/Shopee trực tiếp; kiểm tra luồng thật cần extension đã load và phiên Shopee đăng nhập.
+
 ## Góp ý và hỗ trợ
 
 Gặp lỗi? [Tạo GitHub issue](https://github.com/ninhhaidang/shopeestatx/issues/new) kèm phiên bản tiện ích, phiên bản Chrome và các bước tái hiện. Không đăng cookie, token, thông tin tài khoản hay lịch sử mua hàng cá nhân; hãy che dữ liệu nhạy cảm trong ảnh chụp.
