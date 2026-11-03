@@ -1,7 +1,15 @@
 // Merge a fresh Shopee scan into the cached orders (pure)
 import { formatCurrency } from '../i18n/format.js';
-import type { OrderData } from '../types/index.js';
+import type { Order, OrderData } from '../types/index.js';
+import { deliveryDateOf } from './delivery-date.js';
 import { isExcludedOrder } from './order-status.js';
+
+/** Keep `deliveryDate` either a real timestamp or null; junk stored by an older cache becomes unknown. */
+function withUsableDeliveryDate(order: Order): Order {
+  return order.deliveryDate && !deliveryDateOf(order)
+    ? { ...order, deliveryDate: null, orderMonth: null, orderYear: null }
+    : order;
+}
 
 /**
  * Fresh orders win; cached orders the scan did not return are kept. `added` counts orders not seen before.
@@ -11,8 +19,9 @@ export function mergeOrderData(
   fresh: OrderData,
   now: Date,
 ): { data: OrderData; added: number } {
-  const cachedById = new Map(cached?.orders.map(o => [String(o.orderId), { ...o, orderId: String(o.orderId) }]));
-  const freshById = new Map(fresh.orders.map(o => [String(o.orderId), { ...o, orderId: String(o.orderId) }]));
+  const byId = (order: Order) => withUsableDeliveryDate({ ...order, orderId: String(order.orderId) });
+  const cachedById = new Map(cached?.orders.map(o => [String(o.orderId), byId(o)]));
+  const freshById = new Map(fresh.orders.map(o => [String(o.orderId), byId(o)]));
   const orders = [...freshById.values(), ...[...cachedById.values()].filter(o => !freshById.has(o.orderId))];
   const totalAmount = orders.filter(o => !isExcludedOrder(o)).reduce((s, o) => s + o.subTotal, 0);
 

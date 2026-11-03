@@ -37,4 +37,11 @@ describe('mergeOrderData', () => {
   it('treats a first scan as all new', () => {
     expect(mergeOrderData(null, makeData([kept, fresh]), NOW).added).toBe(2);
   });
+
+  it('turns an unusable stored delivery date into an unknown date', () => {
+    const junk = makeOrder(null, { orderId: 'JUNK', deliveryDate: 'not-a-date', orderMonth: 9, orderYear: 2026 });
+    const { data } = mergeOrderData(makeData([junk]), makeData([]), NOW);
+
+    expect(data.orders[0]).toMatchObject({ orderId: 'JUNK', deliveryDate: null, orderMonth: null, orderYear: null });
+  });
 });
