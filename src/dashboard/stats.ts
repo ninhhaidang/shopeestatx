@@ -1,5 +1,6 @@
 // Pure spending statistics derived from cached orders (no DOM, no network)
 import type { Order } from '../types/index.js';
+import { deliveryDateOf } from './delivery-date.js';
 import { isExcludedOrder } from './order-status.js';
 
 export interface Stats {
@@ -54,9 +55,8 @@ export function computeStats(orders: Order[]): Stats {
   let last = -Infinity;
   let datedSpend = 0;
   for (const o of included) {
-    if (!o.deliveryDate) continue;
-    const d = new Date(o.deliveryDate);
-    if (Number.isNaN(d.getTime())) continue;
+    const d = deliveryDateOf(o);
+    if (!d) continue;
     datedSpend += o.subTotal;
     weekdays[d.getDay()]++;
     hours[d.getHours()]++;

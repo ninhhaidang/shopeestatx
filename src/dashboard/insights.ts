@@ -1,6 +1,7 @@
 // Auto-generated spending insights from order data
 import type { Order } from '../types/index.js';
 import { formatCurrency } from '../i18n/format.js';
+import { deliveryDateOf } from './delivery-date.js';
 import { shopDisplayName, shopIdentity } from './shop.js';
 import { localDateKey, monthOf } from './month.js';
 import { isExcludedOrder } from './order-status.js';
@@ -60,9 +61,10 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
   // Highest spending day this month
   const daySpend: Record<string, number> = {};
   thisMonth.forEach(o => {
-    if (!o.deliveryDate) return;
-    const day = localDateKey(new Date(o.deliveryDate));
-    daySpend[day] = (daySpend[day] || 0) + o.subTotal;
+    const day = deliveryDateOf(o);
+    if (!day) return;
+    const key = localDateKey(day);
+    daySpend[key] = (daySpend[key] || 0) + o.subTotal;
   });
   const topDay = Object.entries(daySpend).sort((a, b) => b[1] - a[1])[0];
   if (topDay) {

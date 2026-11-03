@@ -1,5 +1,6 @@
 // Shop loyalty analysis: repeat-purchase metrics per shop (pure)
 import type { Order } from '../types/index.js';
+import { deliveryDateOf } from './delivery-date.js';
 import { isExcludedOrder } from './order-status.js';
 import { shopDisplayName, shopIdentity } from './shop.js';
 import { localDateKey } from './month.js';
@@ -28,8 +29,8 @@ export function analyzeShopLoyalty(allOrders: Order[]): ShopLoyalty[] {
     const shop = shopMap.get(key) ?? { name: shopDisplayName(o.shopName), orders: 0, spent: 0, dates: [] };
     shop.orders += 1;
     shop.spent += o.subTotal;
-    const date = o.deliveryDate ? new Date(o.deliveryDate) : null;
-    if (date && !Number.isNaN(date.getTime())) shop.dates.push(localDateKey(date));
+    const date = deliveryDateOf(o);
+    if (date) shop.dates.push(localDateKey(date));
     shopMap.set(key, shop);
   }
 

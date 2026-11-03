@@ -1,5 +1,6 @@
 // Calendar heatmap: orders per day over the last 12 months (pure grid; the React Phân tích tab draws it)
 import type { DateRange, Order } from '../types/index.js';
+import { deliveryDateOf } from './delivery-date.js';
 import { rangeEnd } from './range.js';
 import { isExcludedOrder } from './order-status.js';
 import { localDateKey } from './month.js';
@@ -57,9 +58,9 @@ export function heatmapWindow(range: DateRange, now: Date): { start: Date; end: 
 export function buildHeatmapGrid(orders: Order[], start: Date, end: Date): HeatmapGrid {
   const counts: Record<string, number> = {};
   for (const o of orders) {
-    if (isExcludedOrder(o) || !o.deliveryDate) continue;
-    const d = new Date(o.deliveryDate);
-    if (isNaN(d.getTime())) continue;
+    if (isExcludedOrder(o)) continue;
+    const d = deliveryDateOf(o);
+    if (!d) continue;
     const key = localDateKey(d);
     if (key < localDateKey(start) || key > localDateKey(end)) continue;
     counts[key] = (counts[key] ?? 0) + 1;

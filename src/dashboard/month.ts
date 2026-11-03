@@ -1,6 +1,7 @@
 // Calendar-month bucketing of orders (pure). One basis everywhere: the local delivery date, the same
 // field the global date range filters on, so a chart bar, a month figure and a range always agree.
 import type { Order } from '../types/index.js';
+import { deliveryDateOf } from './delivery-date.js';
 import { isExcludedOrder } from './order-status.js';
 
 export interface OrderMonth {
@@ -14,11 +15,10 @@ export function localDateKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-/** The month an order is delivered in, or null for an undated order. */
+/** The month an order is delivered in, or null for an undated or unusable date. */
 export function monthOf(order: Pick<Order, 'deliveryDate'>): OrderMonth | null {
-  if (!order.deliveryDate) return null;
-  const d = new Date(order.deliveryDate);
-  return Number.isNaN(d.getTime()) ? null : { month: d.getMonth() + 1, year: d.getFullYear() };
+  const d = deliveryDateOf(order);
+  return d ? { month: d.getMonth() + 1, year: d.getFullYear() } : null;
 }
 
 /** Net spend of the orders delivered in the given month (cancelled and returned orders left out). */
