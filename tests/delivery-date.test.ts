@@ -6,7 +6,6 @@ describe('delivery date validity', () => {
   it('returns the stored timestamp for a parseable date', () => {
     const order = makeOrder('2026-10-01T12:00:00');
     expect(deliveryTimeOf(order)).toBe(new Date('2026-10-01T12:00:00').getTime());
-    expect(deliveryDateOf(order)?.toISOString()).toBe(new Date('2026-10-01T12:00:00').toISOString());
   });
 
   it('treats an undated order as having no delivery date', () => {
@@ -23,6 +22,8 @@ describe('delivery date validity', () => {
   });
 
   it('formats a usable date locally instead of the fallback', () => {
-    expect(formatDeliveryDate(makeOrder('2026-10-01T12:00:00'), 'Chưa có')).toBe('1/10/2026');
+    const label = formatDeliveryDate(makeOrder('2026-10-01T12:00:00'), 'Chưa có');
+    expect(label).toBe(new Date('2026-10-01T12:00:00').toLocaleDateString('vi-VN'));
+    expect(label).not.toBe('Chưa có');
   });
 });

@@ -3,7 +3,7 @@ import type { Order, SortDirection } from '../types/index.js';
 import { deliveryTimeOf } from './delivery-date.js';
 
 /** Sorts before every real timestamp, so undated orders form their own group and epoch-0 stays dated. */
-const UNDATED_KEY = Number.NEGATIVE_INFINITY;
+const UNDATED_SORT_VALUE = Number.NEGATIVE_INFINITY;
 
 export function sortOrders(orders: Order[], field: string, direction: SortDirection): Order[] {
   return [...orders].sort((a, b) => {
@@ -12,9 +12,8 @@ export function sortOrders(orders: Order[], field: string, direction: SortDirect
 
     switch (field) {
       case 'deliveryDate':
-        // Undated and unusable dates share one group, at the start of ascending order.
-        aVal = deliveryTimeOf(a) ?? UNDATED_KEY;
-        bVal = deliveryTimeOf(b) ?? UNDATED_KEY;
+        aVal = deliveryTimeOf(a) ?? UNDATED_SORT_VALUE;
+        bVal = deliveryTimeOf(b) ?? UNDATED_SORT_VALUE;
         break;
       case 'subTotal':
         aVal = a.subTotal || 0;

@@ -15,6 +15,7 @@ export default defineConfig({
         'src/dashboard/range.ts',
         'src/dashboard/overview.ts',
         'src/dashboard/merge.ts',
+        'src/dashboard/delivery-date.ts',
         'src/content/content.js',
         'src/ui/**/*.{ts,tsx}',
         'src/popup/**/*.{ts,tsx}',

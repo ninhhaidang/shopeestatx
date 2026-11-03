@@ -116,6 +116,17 @@ describe('Đơn hàng: danh sách và chi tiết', () => {
     expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
   });
 
+  it('offers a long shop name in full in the filter', async () => {
+    const shopName = 'long_seller - Cửa hàng thời trang và phụ kiện công nghệ Đông Nam Á';
+    const data = makeData(
+      [makeOrder('2026-10-02T10:00:00', { orderId: '1009', shopId: '9', shopName })],
+      { cachedAt: NOW.toISOString() },
+    );
+    await openOrders(data);
+    const filter = screen.getByRole('combobox', { name: 'Lọc theo shop' }) as HTMLSelectElement;
+    expect([...filter.options].map(option => option.textContent)).toContain(shopName);
+  });
+
   it('explains an empty date range and offers to see everything again', async () => {
     const { user } = await openOrders();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tùy chỉnh');

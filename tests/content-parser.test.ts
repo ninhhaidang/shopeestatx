@@ -139,6 +139,9 @@ describe('content script order collection', () => {
     const counts = postMessage.mock.calls
       .filter(([message]) => message.type === 'progress')
       .map(([message]) => message.count);
+    // Reported while scanning, not only at the end, and never above the unique orders read.
+    expect(counts.length).toBeGreaterThan(1);
+    expect(counts[0]).toBe(1);
     expect(counts.every((count: number, i: number) => i === 0 || count >= counts[i - 1])).toBe(true);
     expect(counts.at(-1)).toBe(result.data.orders.length);
   });
