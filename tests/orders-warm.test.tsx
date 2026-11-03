@@ -140,6 +140,18 @@ describe('Đơn hàng (warm): danh sách hoá đơn một cột', () => {
     expect(screen.queryByRole('button', { name: /Xem chi tiết đơn other-seller/ })).not.toBeInTheDocument();
   });
 
+  it('offers a long shop name in full in the filter', async () => {
+    const data = makeData([
+      makeOrder('2026-10-02T10:00:00', {
+        orderId: '1009', shopId: '9',
+        shopName: 'long_seller - Cửa hàng thời trang và phụ kiện công nghệ Đông Nam Á',
+      }),
+    ], { cachedAt: NOW.toISOString() });
+    await openOrdersWarm(data);
+    const filter = screen.getByRole('combobox', { name: 'Lọc theo shop' }) as HTMLSelectElement;
+    expect([...filter.options].map(option => option.textContent)).toContain('long_seller - Cửa hàng thời trang và phụ kiện công nghệ Đông Nam Á');
+  });
+
   it('resets to the first page when the sort changes', async () => {
     const many = makeData(
       Array.from({ length: 45 }, (_, i) => makeOrder('2026-10-02T10:00:00', { orderId: String(1100 + i), subTotal: 1000 * (i + 1) })),
