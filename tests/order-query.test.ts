@@ -18,4 +18,13 @@ describe('delivery date sorting', () => {
     expect(desc.slice(0, 2)).toEqual(['late', 'early']);
     expect(desc.slice(2)).toEqual(expect.arrayContaining(['invalid', 'undated']));
   });
+
+  it('keeps a real epoch-0 delivery date with the dated orders', () => {
+    const epoch = makeOrder('1970-01-01T00:00:00.000Z', { orderId: 'epoch' });
+    const undated = makeOrder(null, { orderId: 'undated' });
+    const late = makeOrder('2026-10-01T12:00:00', { orderId: 'late' });
+    const orders = [epoch, undated, late];
+    expect(sortOrders(orders, 'deliveryDate', 'asc').map(o => o.orderId)).toEqual(['undated', 'epoch', 'late']);
+    expect(sortOrders(orders, 'deliveryDate', 'desc').map(o => o.orderId)).toEqual(['late', 'epoch', 'undated']);
+  });
 });
