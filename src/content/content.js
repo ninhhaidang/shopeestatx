@@ -152,7 +152,7 @@ function assertSameAccount() {
       const { orders: data, nextOffset, hasCursor } = await getOrders(offset, limit);
 
       if (data.length === 0 && !hasCursor) {
-        // A legacy response with no cursor is the only page of this scan: report its count.
+        // Legacy responses carry no cursor, so this empty page ends the scan: report its count.
         sendProgress(ordersById.size);
         break;
       }

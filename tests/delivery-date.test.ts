@@ -6,6 +6,7 @@ describe('delivery date validity', () => {
   it('returns the stored timestamp for a parseable date', () => {
     const order = makeOrder('2026-10-01T12:00:00');
     expect(deliveryTimeOf(order)).toBe(new Date('2026-10-01T12:00:00').getTime());
+    expect(deliveryDateOf(order)?.getTime()).toBe(new Date('2026-10-01T12:00:00').getTime());
   });
 
   it('treats an undated order as having no delivery date', () => {

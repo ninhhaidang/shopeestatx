@@ -40,8 +40,13 @@ describe('mergeOrderData', () => {
 
   it('turns an unusable stored delivery date into an unknown date', () => {
     const junk = makeOrder(null, { orderId: 'JUNK', deliveryDate: 'not-a-date', orderMonth: 9, orderYear: 2026 });
-    const { data } = mergeOrderData(makeData([junk]), makeData([]), NOW);
+    const emptyString = makeOrder(null, { orderId: 'EMPTY', deliveryDate: '' });
+    const stale = makeOrder(null, { orderId: 'STALE', deliveryDate: null, orderMonth: 9, orderYear: 2026 });
+    const { data } = mergeOrderData(makeData([junk, emptyString, stale]), makeData([]), NOW);
 
-    expect(data.orders[0]).toMatchObject({ orderId: 'JUNK', deliveryDate: null, orderMonth: null, orderYear: null });
+    const byId = new Map(data.orders.map(o => [o.orderId, o]));
+    for (const id of ['JUNK', 'EMPTY', 'STALE']) {
+      expect(byId.get(id)).toMatchObject({ deliveryDate: null, orderMonth: null, orderYear: null });
+    }
   });
 });

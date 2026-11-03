@@ -6,9 +6,10 @@ import { isExcludedOrder } from './order-status.js';
 
 /** Keep `deliveryDate` either a real timestamp or null; junk stored by an older cache becomes unknown. */
 function withUsableDeliveryDate(order: Order): Order {
-  return order.deliveryDate && !deliveryDateOf(order)
-    ? { ...order, deliveryDate: null, orderMonth: null, orderYear: null }
-    : order;
+  if (deliveryDateOf(order)) return order;
+  return order.deliveryDate == null && order.orderMonth == null && order.orderYear == null
+    ? order
+    : { ...order, deliveryDate: null, orderMonth: null, orderYear: null };
 }
 
 /**
