@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { getOrderUrl } from '../../../config.js';
+import { formatDeliveryDate } from '../../../dashboard/delivery-date.js';
 import { isExcludedOrder } from '../../../dashboard/order-status.js';
-import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { money } from '../../format';
@@ -30,7 +30,7 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
             {order.orderId}
           </a>
         </td>
-        <td className={`${cell} whitespace-nowrap`}>{order.deliveryDate ? formatDate(new Date(order.deliveryDate)) : t('table.noDate')}</td>
+        <td className={`${cell} whitespace-nowrap`}>{formatDeliveryDate(order, t('table.noDate'))}</td>
         <td className={cell}>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span>{order.status}</span>

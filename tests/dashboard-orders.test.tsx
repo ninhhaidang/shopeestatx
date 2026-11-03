@@ -108,6 +108,14 @@ describe('Đơn hàng: danh sách và chi tiết', () => {
     expect(detail.getByText(/Không tính vào chi tiêu \(giá trị gốc 900\.000/)).toBeInTheDocument();
   });
 
+  it('shows an unusable delivery date as undated instead of "Invalid Date"', async () => {
+    const data = makeData([makeOrder(null, { orderId: '1009', deliveryDate: 'not-a-date' })], { cachedAt: NOW.toISOString() });
+    await openOrders(data);
+    const row = screen.getByRole('link', { name: '1009' }).closest('tr')!;
+    expect(within(row).getByText('Chưa có')).toBeInTheDocument();
+    expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
+  });
+
   it('explains an empty date range and offers to see everything again', async () => {
     const { user } = await openOrders();
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tùy chỉnh');

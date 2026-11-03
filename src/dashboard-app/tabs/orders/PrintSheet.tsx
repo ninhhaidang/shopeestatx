@@ -1,4 +1,4 @@
-import { formatDate } from '../../../i18n/format.js';
+import { formatDeliveryDate } from '../../../dashboard/delivery-date.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { money } from '../../format';
@@ -22,7 +22,7 @@ export function PrintSheet({ orders }: { orders: Order[] }) {
             <tr key={o.orderId}>
               <td className="border border-black px-1 py-0.5">{i + 1}</td>
               <td className="border border-black px-1 py-0.5">{o.orderId}</td>
-              <td className="border border-black px-1 py-0.5">{o.deliveryDate ? formatDate(new Date(o.deliveryDate)) : t('table.noDate')}</td>
+              <td className="border border-black px-1 py-0.5">{formatDeliveryDate(o, t('table.noDate'))}</td>
               <td className="border border-black px-1 py-0.5">{o.status}</td>
               <td className="border border-black px-1 py-0.5">{o.name}</td>
               <td className="border border-black px-1 py-0.5">{o.productCount}</td>

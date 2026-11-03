@@ -84,6 +84,13 @@ describe('Đơn hàng (warm): danh sách hoá đơn một cột', () => {
     expect(document.querySelectorAll('ul > li')[0]).toHaveTextContent('c - Gamma');
   });
 
+  it('shows an unusable delivery date as undated instead of "Invalid Date"', async () => {
+    const data = makeData([makeOrder(null, { orderId: '1009', deliveryDate: 'not-a-date' })], { cachedAt: NOW.toISOString() });
+    await openOrdersWarm(data);
+    expect(document.querySelector('ul > li')).toHaveTextContent('Chưa có');
+    expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
+  });
+
   it('opens a receipt to show item detail, and closes it again', async () => {
     const { user } = await openOrdersWarm();
     const open = screen.getByRole('button', { name: /Xem chi tiết đơn 1001/ });

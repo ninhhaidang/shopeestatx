@@ -151,7 +151,11 @@ function assertSameAccount() {
     while (true) {
       const { orders: data, nextOffset, hasCursor } = await getOrders(offset, limit);
 
-      if (data.length === 0 && !hasCursor) break;
+      if (data.length === 0 && !hasCursor) {
+        // Report the final count even when a legacy response has no orders at all.
+        sendProgress(ordersById.size);
+        break;
+      }
 
       for (const item of data) {
         // NEW API: order data is wrapped in order_list_detail

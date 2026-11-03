@@ -1,9 +1,11 @@
+import { deliveryDateOf } from '../../../dashboard/delivery-date.js';
 import { formatDateTime } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { money } from '../../format';
 
 export function OrderDetail({ order, id, excluded }: { order: Order; id: string; excluded: boolean }) {
+  const delivered = deliveryDateOf(order);
   return (
     <div id={id} role="region" aria-label={t('orders.detail', { id: order.orderId })} className="rounded-xl border border-line bg-bg p-3">
       {excluded && (
@@ -14,10 +16,10 @@ export function OrderDetail({ order, id, excluded }: { order: Order; id: string;
       <dl className="grid gap-x-6 gap-y-1 text-sm @2xl:grid-cols-2">
         <dt className="text-muted">{t('table.detail.seller')}</dt>
         <dd>{order.shopName}</dd>
-        {order.deliveryDate && (
+        {delivered && (
           <>
             <dt className="text-muted">{t('table.detail.deliveryDate')}</dt>
-            <dd>{formatDateTime(new Date(order.deliveryDate))}</dd>
+            <dd>{formatDateTime(delivered)}</dd>
           </>
         )}
         <dt className="text-muted">{t('table.detail.total')}</dt>

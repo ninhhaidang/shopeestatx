@@ -1,5 +1,6 @@
 // Global date range: what the user picked, the bounds it means, and filtering orders by it (pure)
 import type { DateRange, Order } from '../types/index.js';
+import { deliveryDateOf } from './delivery-date.js';
 
 export type RangePreset = 'all' | 'last7days' | 'thisMonth' | 'lastMonth' | 'last3months' | 'thisYear' | 'year' | 'month' | 'custom';
 
@@ -50,13 +51,12 @@ export function resolveRange(selection: RangeSelection, now: Date): DateRange {
   }
 }
 
-/** Orders delivered inside the range. Undated orders only survive an open range. */
+/** Orders delivered inside the range. Orders with no usable delivery date only survive an open range. */
 export function filterByRange(orders: Order[], { start, end }: DateRange): Order[] {
   if (!start && !end) return orders;
   return orders.filter(order => {
-    if (!order.deliveryDate) return false;
-    const d = new Date(order.deliveryDate);
-    return !Number.isNaN(d.getTime()) && !(start && d < start) && !(end && d > end);
+    const delivered = deliveryDateOf(order);
+    return delivered !== null && !(start && delivered < start) && !(end && delivered > end);
   });
 }
 

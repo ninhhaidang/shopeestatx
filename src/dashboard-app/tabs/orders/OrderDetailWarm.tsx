@@ -1,9 +1,11 @@
+import { deliveryDateOf } from '../../../dashboard/delivery-date.js';
 import { formatDateTime } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { money } from '../../format';
 
 export function OrderDetailWarm({ order, id, excluded }: { order: Order; id: string; excluded: boolean }) {
+  const delivered = deliveryDateOf(order);
   return (
     <div id={id} role="region" aria-label={t('orders.detail', { id: order.orderId })} className="rounded-xl border border-warm-line bg-warm-bg p-3 text-sm">
       {excluded && (
@@ -14,10 +16,10 @@ export function OrderDetailWarm({ order, id, excluded }: { order: Order; id: str
       <dl className="grid gap-x-6 gap-y-1 @2xl:grid-cols-2">
         <dt className="text-warm-muted">{t('table.detail.seller')}</dt>
         <dd>{order.shopName}</dd>
-        {order.deliveryDate && (
+        {delivered && (
           <>
             <dt className="text-warm-muted">{t('table.detail.deliveryDate')}</dt>
-            <dd>{formatDateTime(new Date(order.deliveryDate))}</dd>
+            <dd>{formatDateTime(delivered)}</dd>
           </>
         )}
         <dt className="text-warm-muted">{t('table.detail.total')}</dt>

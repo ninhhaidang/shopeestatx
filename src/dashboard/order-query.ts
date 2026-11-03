@@ -1,5 +1,6 @@
 // Pure order search and sort for the Đơn hàng screen
 import type { Order, SortDirection } from '../types/index.js';
+import { deliveryTimeOf } from './delivery-date.js';
 
 export function sortOrders(orders: Order[], field: string, direction: SortDirection): Order[] {
   return [...orders].sort((a, b) => {
@@ -8,8 +9,9 @@ export function sortOrders(orders: Order[], field: string, direction: SortDirect
 
     switch (field) {
       case 'deliveryDate':
-        aVal = a.deliveryDate ? new Date(a.deliveryDate).getTime() || 0 : 0;
-        bVal = b.deliveryDate ? new Date(b.deliveryDate).getTime() || 0 : 0;
+        // Undated and unusable dates share one group, at the start of ascending order.
+        aVal = deliveryTimeOf(a) ?? 0;
+        bVal = deliveryTimeOf(b) ?? 0;
         break;
       case 'subTotal':
         aVal = a.subTotal || 0;

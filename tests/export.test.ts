@@ -106,6 +106,13 @@ describe('Export Functions', () => {
       expect(await readBlob(blobs[0])).toBe(headers);
     });
 
+    it('writes an unusable delivery date as empty instead of "Invalid Date"', async () => {
+      exportToCSV([{ ...order, deliveryDate: 'not-a-date' }]);
+      const row = (await readBlob(blobs[0])).split('\n')[1];
+      expect(row).toContain('1,"ORD001","",');
+      expect(row).not.toContain('Invalid Date');
+    });
+
     it('escapes quotes, commas and newlines in all text fields', async () => {
       exportToCSV([{ ...order, orderId: 'ID,"1"', name: 'Product, "special"\nnext', shopName: 'Shop "A"' }]);
       const csv = await readBlob(blobs[0]);
@@ -146,6 +153,22 @@ describe('Export Functions', () => {
       expect(worksheet.getCell(2, 7).value).toBe(100000);
       expect(downloads[0].filename).toMatch(/\.xlsx$/);
       expect(blobs[0].type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    });
+
+    it('writes an unusable delivery date as the no-date label', async () => {
+      const { default: ExcelJS } = await import('exceljs');
+
+      await exportToExcel([{ ...order, deliveryDate: 'not-a-date' }]);
+
+      const { promise, resolve, reject } = Promise.withResolvers<ArrayBuffer>();
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(blobs[0]);
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await promise);
+      const worksheet = workbook.getWorksheet('Shopee Orders')!;
+      expect(worksheet.getCell(2, 3).value).toBe('Chưa có');
     });
 
     it('does not download an empty selection', async () => {

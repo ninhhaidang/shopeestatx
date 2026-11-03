@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getOrderUrl } from '../../../config.js';
+import { formatDeliveryDate } from '../../../dashboard/delivery-date.js';
 import { exportToCSV, exportToExcel } from '../../../dashboard/export.js';
 import { matchesStatusAndSearch, sortOrders } from '../../../dashboard/order-query.js';
 import { isExcludedOrder, ORDER_STATUSES } from '../../../dashboard/order-status.js';
 import { shopIdentity } from '../../../dashboard/shop.js';
-import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { Order, SortDirection } from '../../../types/index.js';
 import { Button } from '../../../ui/components/Button';
@@ -24,7 +24,7 @@ const SORT_COLUMNS: { field: SortField; label: string }[] = [
 ];
 const PAGE_SIZES: (number | null)[] = [20, 50, 100, null];
 const sizeLabel = (size: number | null) => (size === null ? t('orders.pageSize.all') : t('orders.pageSize.n', { n: size }));
-const dayOf = (d: string | null) => (d ? formatDate(new Date(d)) : t('table.noDate'));
+const dayOf = (order: Order) => formatDeliveryDate(order, t('table.noDate'));
 
 const control = 'border-b border-warm-line bg-transparent px-1 py-1 font-serif text-warm-fg focus:border-warm-accent focus:outline-none';
 
@@ -51,7 +51,7 @@ function Receipt({ order, expanded, onToggle }: { order: Order; expanded: boolea
         {order.productSummary || t('table.col.product')}
       </p>
       <p className="mt-1 text-xs text-warm-muted">
-        {dayOf(order.deliveryDate)} · {order.status} ·{' '}
+        {dayOf(order)} · {order.status} ·{' '}
         <a href={getOrderUrl(order.orderId)} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
           {order.orderId}
         </a>

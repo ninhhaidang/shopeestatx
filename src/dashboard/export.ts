@@ -1,6 +1,7 @@
 // Excel, CSV, and PDF export functions
 import { t } from '../i18n/index.js';
 import type { Order } from '../types/index.js';
+import { formatDeliveryDate } from './delivery-date.js';
 
 /** Helper: trigger browser file download */
 function downloadFile(content: string, filename: string, mimeType: string): void {
@@ -31,7 +32,7 @@ export async function exportToExcel(filtered: Order[]): Promise<void> {
   const data = filtered.map((order, index) => ({
     [t('export.col.index')]: index + 1,
     [t('export.col.orderId')]: String(order.orderId),
-    [t('export.col.date')]: order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString('vi-VN') : t('table.noDate'),
+    [t('export.col.date')]: formatDeliveryDate(order, t('table.noDate')),
     [t('export.col.status')]: order.status,
     [t('export.col.product')]: order.name,
     [t('export.col.quantity')]: order.productCount,
@@ -95,7 +96,7 @@ export function exportToCSV(filtered: Order[]): void {
   const rows = filtered.map((o, i) => [
     i + 1,
     o.orderId,
-    o.deliveryDate ? new Date(o.deliveryDate).toLocaleDateString('vi-VN') : '',
+    formatDeliveryDate(o, ''),
     o.status,
     o.name,
     o.productCount,

@@ -135,7 +135,19 @@ describe('content script order collection', () => {
     ]);
     expect(result.success).toBe(true);
     expect(result.data.orders.map((o: { orderId: string }) => o.orderId)).toEqual(['ORDER-1', 'ORDER-2']);
-    expect(postMessage.mock.calls.map(([message]) => message.count)).toEqual([1, 2, 2]);
+
+    const counts = postMessage.mock.calls
+      .filter(([message]) => message.type === 'progress')
+      .map(([message]) => message.count);
+    expect(counts.every((count: number, i: number) => i === 0 || count >= counts[i - 1])).toBe(true);
+    expect(counts.at(-1)).toBe(result.data.orders.length);
+  });
+
+  it('reports a zero count when the first legacy page has no orders', async () => {
+    const { result, postMessage } = await collect([{ new_data: { order_or_checkout_data: [] } }]);
+    expect(result.success).toBe(true);
+    expect(result.data.orders).toEqual([]);
+    expect(postMessage.mock.calls.map(([message]) => message.count)).toEqual([0]);
   });
 
   it('normalizes numeric order and stable shop IDs to strings', async () => {

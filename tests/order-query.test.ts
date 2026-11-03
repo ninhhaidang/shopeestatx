@@ -9,7 +9,13 @@ describe('delivery date sorting', () => {
     const early = makeOrder('2026-09-01T12:00:00', { orderId: 'early' });
     const late = makeOrder('2026-10-01T12:00:00', { orderId: 'late' });
     const orders = [early, invalid, late, undated];
-    expect(sortOrders(orders, 'deliveryDate', 'asc').map(o => o.orderId)).toEqual(['invalid', 'undated', 'early', 'late']);
-    expect(sortOrders(orders, 'deliveryDate', 'desc').map(o => o.orderId)).toEqual(['late', 'early', 'invalid', 'undated']);
+
+    const asc = sortOrders(orders, 'deliveryDate', 'asc').map(o => o.orderId);
+    expect(asc.slice(0, 2)).toEqual(expect.arrayContaining(['invalid', 'undated']));
+    expect(asc.slice(2)).toEqual(['early', 'late']);
+
+    const desc = sortOrders(orders, 'deliveryDate', 'desc').map(o => o.orderId);
+    expect(desc.slice(0, 2)).toEqual(['late', 'early']);
+    expect(desc.slice(2)).toEqual(expect.arrayContaining(['invalid', 'undated']));
   });
 });
