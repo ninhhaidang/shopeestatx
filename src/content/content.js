@@ -150,7 +150,6 @@ function assertSameAccount() {
   try {
     while (true) {
       const { orders: data, nextOffset, hasCursor } = await getOrders(offset, limit);
-      sendProgress(ordersById.size + data.length);
 
       if (data.length === 0 && !hasCursor) break;
 
@@ -258,6 +257,7 @@ function assertSameAccount() {
           orderYear: deliveryDate ? deliveryDate.getFullYear() : null
         });
       }
+      sendProgress(ordersById.size);
 
       if (nextOffset === -1) break;
       offset = nextOffset;

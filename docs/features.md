@@ -17,14 +17,14 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Thanh đầu hiển thị thông tin tài khoản khi có dữ liệu và thời điểm cập nhật gần nhất.
 - Bộ chọn khoảng thời gian có Tất cả, 7 ngày gần nhất, tháng này, tháng trước, 3 tháng gần nhất, năm nay, theo năm, theo tháng và khoảng ngày tùy chọn.
 - Khoảng thời gian lọc đơn hàng theo ngày giao và được giữ khi chuyển giữa ba màn hình.
-- Ngày giao không biết được giữ là chưa có ngày, không suy ra từ mã đơn hàng hoặc thời điểm cập nhật trạng thái. Đơn chưa có ngày vẫn có trong Tất cả và Chi tiêu ròng toàn thời gian, nhưng không tham gia khoảng có ngày, tần suất theo lịch hoặc nhận xét trung bình theo tháng.
+- Ngày giao không biết được giữ là chưa có ngày, không suy ra từ mã đơn hàng hoặc thời điểm cập nhật trạng thái. Đơn chưa có ngày hoặc có chuỗi ngày không hợp lệ vẫn có trong Tất cả và Chi tiêu ròng toàn thời gian, nhưng không tham gia khoảng có ngày, tần suất theo lịch hoặc nhận xét trung bình theo tháng. Khi sắp xếp ngày giao, ngày không hợp lệ thuộc cùng nhóm với đơn chưa có ngày.
 - Các chỉ số theo tháng, năm, nhận xét tự động, shop thân thiết, biểu đồ nhiệt, dự đoán và ngân sách có phạm vi riêng được mô tả ở các mục tương ứng thay vì luôn bị cắt theo khoảng ngày.
 - Dashboard có thể hiển thị lịch sử đơn hàng đã lưu cục bộ và có nút làm mới để cập nhật dữ liệu.
 - Mỗi lần bắt đầu phân tích từ popup, kết quả mới thay thế cache, kể cả hồ sơ tài khoản cũ; khi kết quả mới không có hồ sơ, tiện ích không gán tên tài khoản cũ cho lịch sử mới. Làm mới giữ các đơn cũ, trừ khi xác định được khác tài khoản: ưu tiên so sánh `userId`, sau đó `uid` khi cả hai hồ sơ cùng có loại ID đó; chỉ so sánh username khi cả hai đều không có ID. Nếu thiếu hồ sơ hoặc không có ID cùng loại để so sánh, làm mới giữ cache để tránh mất lịch sử do chuyển nguồn hồ sơ.
 - Quét theo cursor Shopee trả về và chỉ tính mỗi mã đơn hàng một lần. Nhiều dashboard làm mới đồng thời không được làm mất đơn hoặc ghi đè trạng thái đơn mới hơn; lần phân tích thay thế vô hiệu hóa các kết quả cũ đang chờ. Khi phát hiện đổi tài khoản giữa lúc quét, tiện ích không lưu kết quả một phần. Nếu hồ sơ không đủ để nhận diện thay đổi, tiện ích không tuyên bố có thể phát hiện mọi lần đổi tài khoản.
 - Khi lấy dữ liệu lần đầu, dashboard hiển thị khung chờ, trạng thái kết nối, số đơn hàng đã lấy khi có tiến độ và lời nhắc khi chờ lâu.
 - Khi làm mới, dashboard giữ nội dung đang xem, hiển thị tiến độ rồi thông báo số đơn hàng mới hoặc chưa có đơn hàng mới.
-- Tiến độ và lời nhắc chờ lâu thuộc từng lượt quét, không bị sự kiện từ tab hay lượt quét khác thay đổi.
+- Tiến độ đếm đơn hợp lệ, duy nhất đã đọc xong; bản ghi trùng hoặc bị bỏ qua không làm số đếm tăng ảo rồi giảm ở trang cuối. Tiến độ và lời nhắc chờ lâu thuộc từng lượt quét, không bị sự kiện từ tab hay lượt quét khác thay đổi.
 - Khi làm mới thất bại, dashboard giữ dữ liệu đang có và hiển thị thông báo lỗi.
 - Khi tải ban đầu thất bại hoặc chưa có dữ liệu, dashboard giải thích trạng thái và cung cấp hành động thử lại hoặc lấy dữ liệu.
 - Khi khoảng thời gian không có đơn hàng, cả ba màn hình có trạng thái rỗng và nút «Xem tất cả».
@@ -65,7 +65,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Bảng khổ rộng giữ chiều rộng cho mã đơn, ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm cùng dòng với mã đơn và nhãn «Đơn bị loại» không bị bẻ đôi.
 - Ô tìm kiếm lọc ngay theo mã đơn hàng, tên sản phẩm, tên shop, mô tả sản phẩm hoặc trạng thái và không phân biệt chữ hoa với chữ thường.
 - Bộ lọc trạng thái hỗ trợ tất cả, hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán và trả hàng.
-- Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn.
+- Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn. Ở cả Fintech và Ấm áp, tên shop dài không đẩy bộ lọc vượt vùng nội dung; danh sách lựa chọn vẫn giữ đầy đủ tên.
 - Người dùng có thể sắp xếp tăng hoặc giảm theo ngày giao, trạng thái hoặc số tiền bằng tiêu đề cột ở khổ rộng và bộ chọn ở khổ hẹp.
 - Người dùng có thể chọn 20, 50, 100 hoặc tất cả đơn hàng mỗi trang và chuyển trang trong danh sách kết quả.
 - Danh sách hiển thị số kết quả và có trạng thái không tìm thấy cùng nút đặt lại bộ lọc khi tìm kiếm hoặc lọc không khớp đơn hàng nào.

@@ -78,6 +78,19 @@ describe('filterByRange', () => {
     const range = resolveRange({ preset: 'thisMonth' }, NOW);
     expect(filterByRange([inRange, before, undated], range)).toEqual([inRange]);
   });
+
+  it('retains invalid dates only in all-time history, never in bounded ranges', () => {
+    const invalid = makeOrder(null, { deliveryDate: 'not-a-date' });
+    const orders = [inRange, invalid, undated];
+    expect(filterByRange(orders, { start: null, end: null })).toEqual(orders);
+    for (const range of [
+      resolveRange({ preset: 'thisMonth' }, NOW),
+      { start: new Date(2026, 9, 1), end: null },
+      { start: null, end: new Date(2026, 9, 31) },
+    ]) {
+      expect(filterByRange(orders, range)).toEqual([inRange]);
+    }
+  });
 });
 
 describe('rangeEnd', () => {

@@ -125,6 +125,19 @@ describe('content script order collection', () => {
     expect(result.data).toMatchObject({ totalCount: 3, totalAmount: 0 });
   });
 
+  it('reports collected unique orders rather than duplicate or skipped page entries', async () => {
+    const second = makeOrder();
+    second.order_list_detail.info_card.order_id = 'ORDER-2';
+    const { result, postMessage } = await collect([
+      { new_data: { next_offset: 3, order_or_checkout_data: [makeOrder(), makeOrder(), {}] } },
+      { new_data: { next_offset: 5, order_or_checkout_data: [makeOrder(), second] } },
+      { new_data: { next_offset: -1, order_or_checkout_data: [] } },
+    ]);
+    expect(result.success).toBe(true);
+    expect(result.data.orders.map((o: { orderId: string }) => o.orderId)).toEqual(['ORDER-1', 'ORDER-2']);
+    expect(postMessage.mock.calls.map(([message]) => message.count)).toEqual([1, 2, 2]);
+  });
+
   it('normalizes numeric order and stable shop IDs to strings', async () => {
     const item = makeOrder();
     Object.assign(item.order_list_detail.info_card, { order_id: 12345 });

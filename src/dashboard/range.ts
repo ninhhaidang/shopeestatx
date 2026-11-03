@@ -56,7 +56,7 @@ export function filterByRange(orders: Order[], { start, end }: DateRange): Order
   return orders.filter(order => {
     if (!order.deliveryDate) return false;
     const d = new Date(order.deliveryDate);
-    return !(start && d < start) && !(end && d > end);
+    return !Number.isNaN(d.getTime()) && !(start && d < start) && !(end && d > end);
   });
 }
 

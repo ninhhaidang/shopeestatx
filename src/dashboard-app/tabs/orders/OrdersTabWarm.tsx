@@ -154,7 +154,7 @@ export function OrdersTabWarm() {
             </option>
           ))}
         </select>
-        <select aria-label={t('orders.filter.shop')} value={activeShop} onChange={(e) => changeFilter(() => setShop(e.target.value))} className={control}>
+        <select aria-label={t('orders.filter.shop')} value={activeShop} onChange={(e) => changeFilter(() => setShop(e.target.value))} className={`${control} max-w-56`}>
           <option value="">{t('orders.allShops')}</option>
           {shops.map(([key, name]) => (
             <option key={key} value={key}>

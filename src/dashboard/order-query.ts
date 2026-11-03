@@ -8,8 +8,8 @@ export function sortOrders(orders: Order[], field: string, direction: SortDirect
 
     switch (field) {
       case 'deliveryDate':
-        aVal = a.deliveryDate ? new Date(a.deliveryDate).getTime() : 0;
-        bVal = b.deliveryDate ? new Date(b.deliveryDate).getTime() : 0;
+        aVal = a.deliveryDate ? new Date(a.deliveryDate).getTime() || 0 : 0;
+        bVal = b.deliveryDate ? new Date(b.deliveryDate).getTime() || 0 : 0;
         break;
       case 'subTotal':
         aVal = a.subTotal || 0;
