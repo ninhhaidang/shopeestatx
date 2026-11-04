@@ -22,6 +22,13 @@ describe('delivery date validity', () => {
     expect(formatDeliveryDate(order, 'Chưa có')).toBe('Chưa có');
   });
 
+  it('treats the 1970-01-01 no-time sentinel as having no delivery date', () => {
+    const order = makeOrder(null, { deliveryDate: '1970-01-01T00:00:00.000Z' });
+    expect(deliveryTimeOf(order)).toBeNull();
+    expect(deliveryDateOf(order)).toBeNull();
+    expect(formatDeliveryDate(order, 'Chưa có')).toBe('Chưa có');
+  });
+
   it('formats a usable date locally instead of the fallback', () => {
     const label = formatDeliveryDate(makeOrder('2026-10-01T12:00:00'), 'Chưa có');
     expect(label).toBe(new Date('2026-10-01T12:00:00').toLocaleDateString('vi-VN'));

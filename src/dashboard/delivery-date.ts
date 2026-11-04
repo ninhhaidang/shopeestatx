@@ -5,11 +5,15 @@ import type { Order } from '../types/index.js';
 
 type Dated = Pick<Order, 'deliveryDate'>;
 
-/** Milliseconds of the delivery timestamp, or null when the order has no usable delivery date. */
+/**
+ * Milliseconds of the delivery timestamp, or null when the order has no usable delivery date.
+ * The source reports an unknown time as `0`, which serialises to 1970-01-01; that is a sentinel,
+ * not a delivery, so non-positive timestamps count as missing too.
+ */
 export function deliveryTimeOf(order: Dated): number | null {
   if (!order.deliveryDate) return null;
   const time = new Date(order.deliveryDate).getTime();
-  return Number.isNaN(time) ? null : time;
+  return Number.isNaN(time) || time <= 0 ? null : time;
 }
 
 /** The delivery date for display or export, or null when it should read as "no date". */

@@ -19,12 +19,18 @@ describe('delivery date sorting', () => {
     expect(desc.slice(2)).toEqual(expect.arrayContaining(['invalid', 'undated']));
   });
 
-  it('keeps a real epoch-0 delivery date with the dated orders', () => {
-    const epoch = makeOrder('1970-01-01T00:00:00.000Z', { orderId: 'epoch' });
+  it('sorts the 1970-01-01 no-time sentinel with the undated orders', () => {
+    const sentinel = makeOrder(null, { orderId: 'sentinel', deliveryDate: '1970-01-01T00:00:00.000Z' });
     const undated = makeOrder(null, { orderId: 'undated' });
     const late = makeOrder('2026-10-01T12:00:00', { orderId: 'late' });
-    const orders = [epoch, undated, late];
-    expect(sortOrders(orders, 'deliveryDate', 'asc').map(o => o.orderId)).toEqual(['undated', 'epoch', 'late']);
-    expect(sortOrders(orders, 'deliveryDate', 'desc').map(o => o.orderId)).toEqual(['late', 'epoch', 'undated']);
+    const orders = [sentinel, late, undated];
+
+    const asc = sortOrders(orders, 'deliveryDate', 'asc').map(o => o.orderId);
+    expect(asc.slice(0, 2)).toEqual(expect.arrayContaining(['sentinel', 'undated']));
+    expect(asc.slice(2)).toEqual(['late']);
+
+    const desc = sortOrders(orders, 'deliveryDate', 'desc').map(o => o.orderId);
+    expect(desc[0]).toBe('late');
+    expect(desc.slice(1)).toEqual(expect.arrayContaining(['sentinel', 'undated']));
   });
 });
