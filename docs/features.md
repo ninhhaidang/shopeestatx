@@ -40,7 +40,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Tổng quan hiển thị chi tiêu của tháng được đối chiếu và phần trăm tăng hoặc giảm so với tháng trước, kèm tên cả hai tháng hoặc thông báo thiếu dữ liệu đối chiếu.
 - Tổng quan hiển thị chi tiêu của năm được đối chiếu và phần trăm tăng hoặc giảm so với năm trước, kèm tên cả hai năm hoặc thông báo thiếu dữ liệu đối chiếu.
 - So sánh tháng và năm dùng toàn bộ lịch sử, lấy mốc ở cuối khoảng đang chọn nhưng không vượt quá ngày hiện tại.
-- Biểu đồ cột hiển thị Chi tiêu ròng theo tháng trong khoảng đang chọn và có bảng số liệu thay thế có thể mở hoặc đóng.
+- Biểu đồ cột hiển thị Chi tiêu ròng theo tháng trong khoảng đang chọn, tháng không có đơn nằm giữa vẫn có cột bằng 0, và có bảng số liệu thay thế có thể mở hoặc đóng.
 - Danh sách năm shop có Chi tiêu ròng cao nhất hiển thị thứ hạng, tên shop, số đơn hàng, số tiền và thanh so sánh trong khoảng đang chọn.
 - Shop được nhóm theo định danh shop khi có, nếu thiếu dùng định danh người bán trong lịch sử cũ (đơn cũ thiếu định danh shop được gán định danh của đơn khác cùng người bán khi có); tên hiển thị trùng nhau không làm gộp hai người bán và tên chứa dấu phân cách được giữ đầy đủ.
 - Nút tạo ảnh chia sẻ nằm ở màn hình Tổng quan.
@@ -48,7 +48,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Phân tích
 
 - Phân tích hiển thị thứ trong tuần và khung giờ có nhiều đơn hàng nhất, chuỗi tháng liên tiếp có đơn hàng dài nhất và Chi tiêu ròng trung bình mỗi ngày trong khoảng đang chọn.
-- Ở khổ rộng, nhận xét và ngân sách chia một hàng; thói quen mua sắm và hai danh sách sản phẩm chia đều hàng tiếp theo, còn biểu đồ nhiệt và shop thân thiết dùng toàn chiều rộng. Khổ hẹp xếp các khối theo một cột.
+- Phân tích chia thành hai nhóm có tiêu đề: «Trong khoảng thời gian đã chọn» (thói quen mua sắm, hai danh sách sản phẩm, biểu đồ nhiệt) và «Không phụ thuộc khoảng thời gian đã chọn» (nhận xét, dự đoán và ngân sách, shop thân thiết). Ở khổ rộng, thói quen và hai danh sách sản phẩm chia đều một hàng, nhận xét và ngân sách chia một hàng, còn biểu đồ nhiệt và shop thân thiết dùng toàn chiều rộng. Khổ hẹp xếp các khối theo một cột.
 - Các thói quen theo ngày và giờ dựa trên ngày giao ghi trong lịch sử, không phải thời điểm đặt đơn hàng.
 - Phân tích xếp hạng sản phẩm mua nhiều theo số lượng và sản phẩm đắt nhất theo đơn giá trong khoảng đang chọn.
 - Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu và mức thay đổi khác 0, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
@@ -71,6 +71,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Danh sách hiển thị số kết quả và có trạng thái không tìm thấy cùng nút đặt lại bộ lọc khi tìm kiếm hoặc lọc không khớp đơn hàng nào.
 - Mã đơn hàng là liên kết mở chi tiết đơn hàng trên Shopee trong tab mới.
 - Mỗi đơn hàng có thể mở hoặc đóng chi tiết ngay trong danh sách để xem shop, ngày giờ giao, số tiền và tên, số lượng, đơn giá của từng sản phẩm khi có dữ liệu.
+- Trạng thái đơn có chấm màu đi kèm chữ (hoàn thành, đang vận chuyển, hủy hoặc trả hàng); màu không phải kênh thông tin duy nhất.
 - Đơn bị loại có nhãn riêng và phần chi tiết giải thích việc không tính vào chi tiêu cùng giá trị Hoàn tiền hoặc giá trị đơn hàng khi thiếu thông tin Hoàn tiền.
 - Khi khổ hẹp, bảng đơn hàng chuyển thành thẻ nhưng vẫn giữ tìm kiếm, bộ lọc, sắp xếp, phân trang, liên kết Shopee và chi tiết đơn hàng.
 

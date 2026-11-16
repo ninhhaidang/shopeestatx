@@ -46,7 +46,7 @@ export function OverviewTab() {
 
       <section aria-label={t('stats.netSpend')} className="flex flex-col gap-4 @4xl:col-span-2 @5xl:flex-row @5xl:items-end @5xl:justify-between @5xl:gap-6">
         <div>
-          <p className="text-sm font-medium uppercase tracking-wide text-muted">{t('stats.netSpend')}</p>
+          <p className="text-sm font-medium text-muted">{t('stats.netSpend')}</p>
           <p data-testid="net-spend" className="num my-1 text-[clamp(2.125rem,7cqi,3.5rem)] font-semibold leading-tight tracking-tight">
             {money(stats.netSpend)}
           </p>
@@ -54,10 +54,11 @@ export function OverviewTab() {
             <ChangeLine unit="month" change={monthDiff} testId="month-change" />
             <ChangeLine unit="year" change={yearDiff} testId="year-change" />
           </div>
+          <Button variant="outline" className="mt-3" onClick={() => downloadShareImage(stats, !stale)}>{t('stats.share')}</Button>
         </div>
-        <dl className="grid flex-1 grid-cols-2 gap-2.5 @2xl:grid-cols-4 @5xl:max-w-xl">
+        <dl className="grid flex-1 grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line @2xl:grid-cols-4 @5xl:max-w-xl">
           {tiles.map(item => (
-            <div key={item.label} className="rounded-xl border border-line bg-card px-3.5 py-3">
+            <div key={item.label} className="bg-card px-3.5 py-3">
               <dt className="text-xs text-muted">{item.label}</dt>
               <dd className="num text-xl font-semibold">
                 {item.value}
@@ -69,7 +70,7 @@ export function OverviewTab() {
       </section>
 
       <section className={card}>
-        <h2 className="mb-3 text-sm font-semibold">{t('chart.spendingByMonth')}</h2>
+        <h2 className="mb-3 text-base font-semibold">{t('chart.spendingByMonth')}</h2>
         <BarChart
           title={t('chart.spendingByMonth')}
           labels={series.labels}
@@ -82,7 +83,7 @@ export function OverviewTab() {
       </section>
 
       <section className={card}>
-        <h2 className="mb-3 text-sm font-semibold">{t('dash.overview.topShops')}</h2>
+        <h2 className="mb-3 text-base font-semibold">{t('dash.overview.topShops')}</h2>
         <ol aria-label={t('dash.overview.topShops')} className="grid gap-3.5">
           {topShops.map((shop, i) => (
             <li key={shop.shopKey} className="grid grid-cols-[1.25rem_1fr_auto] items-center gap-2.5 text-sm">
@@ -100,9 +101,6 @@ export function OverviewTab() {
         </ol>
       </section>
 
-      <div className="@4xl:col-span-2">
-        <Button variant="outline" onClick={() => downloadShareImage(stats, !stale)}>{t('stats.share')}</Button>
-      </div>
     </div>
   );
 }

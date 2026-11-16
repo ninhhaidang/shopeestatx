@@ -9,7 +9,7 @@ export function Insights({ orders, now }: { orders: Order[]; now: Date }) {
   const insights = useMemo(() => generateInsights(orders, now), [orders, now]);
   return (
     <section aria-labelledby="analysis-insights" className={card}>
-      <h2 id="analysis-insights" className="text-sm font-semibold">{t('insights.title')}</h2>
+      <h3 id="analysis-insights" className="text-base font-semibold">{t('insights.title')}</h3>
       <p className="mb-3 text-xs text-muted">{t('insights.scope')}</p>
       {insights.length === 0 ? (
         <p className="text-sm text-muted">{t('insights.empty')}</p>

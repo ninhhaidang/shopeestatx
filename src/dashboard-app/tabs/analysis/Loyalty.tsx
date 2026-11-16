@@ -14,7 +14,7 @@ export function Loyalty({ orders }: { orders: Order[] }) {
   const title = t('analysis.loyalty.title');
   return (
     <section aria-labelledby="analysis-loyalty" className={`${card} min-w-0 @5xl:col-span-6`}>
-      <h2 id="analysis-loyalty" className="text-sm font-semibold">{title}</h2>
+      <h3 id="analysis-loyalty" className="text-base font-semibold">{title}</h3>
       <p className="mb-3 text-xs text-muted">{t('analysis.loyalty.scope')}</p>
       {shops.length === 0 ? (
         <p className="text-sm text-muted">{t('analysis.loyalty.empty')}</p>

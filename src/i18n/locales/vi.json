@@ -179,6 +179,8 @@
   "stats.weekday.5": "Thứ 6",
   "stats.weekday.6": "Thứ 7",
 
+  "analysis.band.range": "Trong khoảng thời gian đã chọn",
+  "analysis.band.history": "Không phụ thuộc khoảng thời gian đã chọn",
   "analysis.habits": "Thói quen mua sắm",
   "analysis.noProducts": "Chưa có dữ liệu sản phẩm.",
   "analysis.heatmap.title": "Số đơn theo ngày",

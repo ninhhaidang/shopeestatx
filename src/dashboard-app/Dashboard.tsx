@@ -100,7 +100,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   return (
     <div className="@container h-dvh bg-bg text-fg">
       <div className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] @3xl:grid-cols-[auto_minmax(0,1fr)_auto] @3xl:grid-rows-[auto_auto_minmax(0,1fr)] @6xl:grid-cols-[auto_minmax(0,1fr)_auto_auto] @6xl:grid-rows-[auto_minmax(0,1fr)]">
-        <div className="col-start-1 row-start-1 flex items-center px-2 pt-3 @3xl:px-4 @3xl:py-3">
+        <div className="col-start-1 row-start-1 flex items-center px-4 pt-3 @3xl:py-3">
           <Logo />
         </div>
 
@@ -148,7 +148,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
           </div>
         </div>
 
-        <div className="col-start-1 row-start-2 flex min-w-0 flex-wrap items-center gap-3 px-2 py-3 @3xl:col-start-3 @3xl:row-start-1 @3xl:px-4 @6xl:col-start-4">
+        <div className="col-start-1 row-start-1 flex min-w-0 items-center gap-3 justify-self-end px-4 py-3 @3xl:col-start-3 @6xl:col-start-4">
           {data?.user && <AccountChip user={data.user} />}
           <ThemeToggle />
         </div>

@@ -79,7 +79,7 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
   if (loadFailed) {
     return (
       <section aria-labelledby="analysis-budget" className={card}>
-        <h2 id="analysis-budget" className="mb-3 text-sm font-semibold">{t('analysis.prediction.title')}</h2>
+        <h3 id="analysis-budget" className="mb-3 text-base font-semibold">{t('analysis.prediction.title')}</h3>
         <p role="alert" className="text-sm text-bad">{t('analysis.budget.loadError')}</p>
       </section>
     );
@@ -97,7 +97,7 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
 
   return (
     <section aria-labelledby="analysis-budget" className={card}>
-      <h2 id="analysis-budget" className="mb-3 text-sm font-semibold">{t('analysis.prediction.title')}</h2>
+      <h3 id="analysis-budget" className="mb-3 text-base font-semibold">{t('analysis.prediction.title')}</h3>
       {prediction > 0 && (
         <div className="mb-4 text-sm">
           <p>{t('analysis.prediction.label')} <strong className="num">{money(prediction)}</strong></p>
@@ -105,7 +105,7 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
         </div>
       )}
 
-      <h3 className="mb-2 text-sm font-semibold">{t('comparison.budget')}</h3>
+      <h4 className="mb-2 text-sm font-semibold">{t('comparison.budget')}</h4>
       {editing ? (
         <BudgetForm initial={config} onSave={save} onCancel={() => setEditing(false)} />
       ) : !config.enabled ? (

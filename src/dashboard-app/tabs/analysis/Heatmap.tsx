@@ -39,7 +39,7 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
 
   return (
     <section aria-labelledby="analysis-heatmap" className={`${card} min-w-0 @5xl:col-span-6`}>
-      <h2 id="analysis-heatmap" className="text-sm font-semibold">{title}</h2>
+      <h3 id="analysis-heatmap" className="text-base font-semibold">{title}</h3>
       <p className="mb-3 text-xs text-muted">{t('analysis.heatmap.period', { from, to })}</p>
       {/* Wide grids scroll sideways inside the card; focusable so the keyboard can scroll it. */}
       <div role="region" aria-label={t('analysis.heatmap.scroll')} tabIndex={0} className="overflow-x-auto rounded-lg pb-2">
