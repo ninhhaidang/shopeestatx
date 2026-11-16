@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { formatCurrency } from '../src/i18n/format';
+import { t } from '../src/i18n/index';
+
+describe('t', () => {
+  it('keeps replacement patterns in a parameter literal', () => {
+    expect(t('dash.refreshError', { message: 'cost $& here' })).toBe('Lỗi cập nhật: cost $& here');
+  });
+});
 
 describe('formatCurrency', () => {
   it('formats a full amount in đồng with dot separators', () => {

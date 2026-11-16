@@ -40,6 +40,11 @@ describe('one month basis: the delivery date', () => {
     expect(generateInsights([drifted, prior, ...undated, invalid], NOW)).toContain('Bạn đặt trung bình 1 đơn/tháng trên Shopee.');
   });
 
+  it('does not call an unchanged month a 0% decrease', () => {
+    const same = [makeOrder(new Date(2026, 9, 5, 12).toISOString()), makeOrder(new Date(2026, 8, 5, 12).toISOString())];
+    expect(generateInsights(same, new Date(2026, 9, 20, 12))[0]).toMatch(/^Tháng này bạn đã chi 100\.000\s₫ trên Shopee\.$/);
+  });
+
   it('reports local peak day, stable top seller and excluded original value without savings claims', () => {
     const orders = [
       makeOrder(new Date(2026, 9, 2, 0, 15).toISOString(), { shopId: '1', shopName: 'a - constructor - Full' }),
@@ -50,7 +55,7 @@ describe('one month basis: the delivery date', () => {
     ];
     const insights = generateInsights(orders, NOW);
     expect(insights).toContain('Shop "constructor - Full" là nơi bạn mua nhiều nhất (2 đơn).');
-    expect(insights.find(s => s.startsWith('Ngày '))).toMatch(/Ngày 2026-10-02.*200\.000/);
+    expect(insights.find(s => s.startsWith('Ngày '))).toMatch(/Ngày 2\/10\/2026.*200\.000/);
     const excluded = insights.find(s => s.includes('70.000'));
     expect(excluded).toBeDefined();
     expect(excluded).toMatch(/giá trị.*hủy\/trả hàng/i);

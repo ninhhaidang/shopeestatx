@@ -1,6 +1,6 @@
 // Auto-generated spending insights from order data
 import type { Order } from '../types/index.js';
-import { formatCurrency } from '../i18n/format.js';
+import { formatCurrency, formatDate } from '../i18n/format.js';
 import { deliveryDateOf } from './delivery-date.js';
 import { shopDisplayName, shopIdentity } from './shop.js';
 import { localDateKey, monthOf } from './month.js';
@@ -29,10 +29,9 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
   // Month-over-month spending change
   const thisMonthTotal = sum(thisMonth);
   const lastMonthTotal = sum(lastMonthOrders);
-  if (thisMonthTotal > 0 && lastMonthTotal > 0) {
-    const pct = ((thisMonthTotal - lastMonthTotal) / lastMonthTotal * 100).toFixed(0);
-    const dir = Number(pct) > 0 ? 'tăng' : 'giảm';
-    insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)}, ${dir} ${Math.abs(Number(pct))}% so với tháng trước.`);
+  const pct = lastMonthTotal > 0 ? Math.round((thisMonthTotal - lastMonthTotal) / lastMonthTotal * 100) : 0;
+  if (thisMonthTotal > 0 && pct !== 0) {
+    insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)}, ${pct > 0 ? 'tăng' : 'giảm'} ${Math.abs(pct)}% so với tháng trước.`);
   } else if (thisMonthTotal > 0) {
     insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)} trên Shopee.`);
   }
@@ -68,7 +67,7 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
   });
   const topDay = Object.entries(daySpend).sort((a, b) => b[1] - a[1])[0];
   if (topDay) {
-    insights.push(`Ngày ${topDay[0]} là ngày bạn chi nhiều nhất tháng này (${formatCurrency(topDay[1])}).`);
+    insights.push(`Ngày ${formatDate(new Date(`${topDay[0]}T00:00:00`))} là ngày bạn chi nhiều nhất tháng này (${formatCurrency(topDay[1])}).`);
   }
 
   // The response gives original excluded value, not a verified refund or savings transaction.

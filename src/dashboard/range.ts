@@ -41,11 +41,16 @@ export function resolveRange(selection: RangeSelection, now: Date): DateRange {
       return { start: new Date(year, month - 2, 1), end: endOfMonth(year, month) };
     case 'thisYear':
       return { start: new Date(year, 0, 1), end: new Date(year, 11, 31, 23, 59, 59, 999) };
-    case 'custom':
+    case 'custom': {
+      // Dates typed in the wrong order still mean the days between them, not an empty history.
+      const [from, to] = selection.from && selection.to && selection.from > selection.to
+        ? [selection.to, selection.from]
+        : [selection.from, selection.to];
       return {
-        start: selection.from ? new Date(`${selection.from}T00:00:00`) : null,
-        end: selection.to ? new Date(`${selection.to}T23:59:59.999`) : null,
+        start: from ? new Date(`${from}T00:00:00`) : null,
+        end: to ? new Date(`${to}T23:59:59.999`) : null,
       };
+    }
     default:
       return { start: null, end: null };
   }

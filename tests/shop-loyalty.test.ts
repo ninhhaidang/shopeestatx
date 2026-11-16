@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { analyzeShopLoyalty } from '../src/dashboard/shop-loyalty';
 import { makeOrder } from './support/orders';
 
-const alpha = (date: string, overrides = {}) => makeOrder(date, { shopName: 'a - Alpha', subTotal: 100_000, ...overrides });
+const alpha = (date: string | null, overrides = {}) => makeOrder(date, { shopName: 'a - Alpha', subTotal: 100_000, ...overrides });
 
 describe('analyzeShopLoyalty', () => {
   it('keeps only shops with at least 3 orders', () => {
@@ -34,6 +34,14 @@ describe('analyzeShopLoyalty', () => {
       { shopKey: 'username:__proto__', shopName: 'constructor - Full', orderCount: 3, totalSpent: 300_000,
         firstOrder: '2026-09-01', lastOrder: '2026-09-03', avgOrderValue: 100_000, repeatRate: 3 },
     ]);
+  });
+
+  it('counts only dated orders in the monthly rate and has none without dates', () => {
+    const undated = [alpha(null), alpha(null), alpha(null)];
+    expect(analyzeShopLoyalty(undated)[0]).toMatchObject({ orderCount: 3, lastOrder: '', repeatRate: null });
+
+    const mixed = [alpha('2026-01-10T10:00:00'), alpha('2026-03-10T10:00:00'), alpha(null)];
+    expect(analyzeShopLoyalty(mixed)[0]).toMatchObject({ orderCount: 3, repeatRate: 0.7 }); // 2 dated orders over 3 months
   });
 
   it('ignores cancelled and returned orders', () => {

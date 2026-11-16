@@ -15,7 +15,7 @@
 ## Invariants
 
 - Analysis remains disabled until `isOnShopee()` resolves `true`. The warning appears only after an explicit `false`, avoiding an initial warning flash.
-- Active-tab detection accepts HTTP(S) on the configured hostname or its subdomains; malformed/missing URLs return false.
+- Active-tab detection accepts only HTTPS on exactly the configured hostname; malformed/missing URLs return false.
 - Async user/tab results are ignored after component cleanup.
 - Cached user lookup prefers `username` over `name`; missing data or storage errors produce no greeting.
 - The component delegates browser actions to its host rather than accessing `chrome.*` directly. The host assumes Chrome returns an active tab when starting analysis.

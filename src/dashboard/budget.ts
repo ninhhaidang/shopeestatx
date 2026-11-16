@@ -14,12 +14,12 @@ const DEFAULT_BUDGET: BudgetConfig = { monthlyLimit: 5_000_000, enabled: false, 
 
 export async function loadBudgetConfig(): Promise<BudgetConfig> {
   if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       chrome.storage.local.get(STORAGE_KEY, result => {
-        // Check for storage errors
+        // Defaults here would show a saved budget as "not set up" and invite overwriting it.
         if (chrome.runtime.lastError) {
           console.error('Budget storage error:', chrome.runtime.lastError);
-          resolve(DEFAULT_BUDGET);
+          reject(chrome.runtime.lastError);
           return;
         }
         resolve((result[STORAGE_KEY] as BudgetConfig) ?? DEFAULT_BUDGET);

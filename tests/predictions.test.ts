@@ -8,7 +8,6 @@ function makeOrder(overrides: Partial<Order> = {}): Order {
     name: 'Test Product',
     productCount: 1,
     subTotal: 100_000,
-    subTotalFormatted: '100.000 ₫',
     status: 'Hoàn thành',
     statusCode: 3,
     shopName: 'shopee - Test Shop',

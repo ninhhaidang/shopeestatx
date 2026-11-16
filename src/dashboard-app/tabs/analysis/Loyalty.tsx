@@ -38,7 +38,7 @@ export function Loyalty({ orders }: { orders: Order[] }) {
                   <td className="px-3 py-1.5 text-right">{shop.orderCount}</td>
                   <td className="px-3 py-1.5 text-right">{money(shop.totalSpent)}</td>
                   <td className="px-3 py-1.5 text-right">{money(shop.avgOrderValue)}</td>
-                  <td className="px-3 py-1.5 text-right">{t('analysis.loyalty.rate.unit', { n: shop.repeatRate.toLocaleString('vi-VN') })}</td>
+                  <td className="px-3 py-1.5 text-right">{shop.repeatRate === null ? t('stats.none') : t('analysis.loyalty.rate.unit', { n: shop.repeatRate.toLocaleString('vi-VN') })}</td>
                   <td className="py-1.5 pl-3 text-right">{dayOf(shop.lastOrder)}</td>
                 </tr>
               ))}

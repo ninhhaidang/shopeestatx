@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { exportToCSV, exportToExcel, exportToPDF } from '../src/dashboard/export';
+import { exportToCSV, exportToExcel } from '../src/dashboard/export';
 import type { Order } from '../src/types/index';
 
 const order: Order = {
@@ -7,7 +7,6 @@ const order: Order = {
   name: 'Test Product',
   productCount: 2,
   subTotal: 100000,
-  subTotalFormatted: '100.000 ₫',
   status: 'Hoàn thành',
   statusCode: 3,
   shopName: 'Test Shop',
@@ -213,11 +212,5 @@ describe('Export Functions', () => {
         vi.resetModules();
       }
     });
-  });
-
-  it('opens the print dialog for PDF export', () => {
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
-    exportToPDF();
-    expect(printSpy).toHaveBeenCalledOnce();
   });
 });

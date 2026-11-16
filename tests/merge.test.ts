@@ -31,7 +31,16 @@ describe('mergeOrderData', () => {
     expect(data.totalAmount).toBe(100_000);
     expect(data.totalCount).toBe(2);
     expect(data.cachedAt).toBe('2026-10-24T09:00:00.000Z');
-    expect(data.totalAmountFormatted).toContain('100.000');
+  });
+
+  it('gives a legacy order the seller ID of a newer order from the same username', () => {
+    const legacy = makeOrder('2026-10-01T10:00:00', { orderId: 'L', shopName: 'seller - Shop' });
+    const other = makeOrder('2026-10-01T10:00:00', { orderId: 'O', shopName: 'other - Shop' });
+    const scanned = makeOrder('2026-10-02T10:00:00', { orderId: 'S', shopName: 'seller - Shop', shopId: '17' });
+
+    const { data } = mergeOrderData(makeData([legacy, other]), makeData([scanned]), NOW);
+
+    expect(data.orders.map(o => [o.orderId, o.shopId])).toEqual([['S', '17'], ['L', '17'], ['O', undefined]]);
   });
 
   it('treats a first scan as all new', () => {

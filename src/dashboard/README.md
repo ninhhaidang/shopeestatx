@@ -10,7 +10,7 @@ Inputs use `Order`, `OrderData`, `DateRange`, and related types from `src/types/
 
 | File | Public contract |
 | --- | --- |
-| [order-status.ts](order-status.ts) | `isExcludedOrder(order)` identifies cancelled (`4`) and returned (`12`) orders. `ORDER_STATUSES` maps supported status codes to translation keys. |
+| [order-status.ts](order-status.ts) | `isExcludedOrder(order)` identifies cancelled (`4`), returned (`12`) and unpaid (`9`) orders. `ORDER_STATUSES` maps supported status codes to translation keys. |
 | [delivery-date.ts](delivery-date.ts) | `deliveryTimeOf(order)` returns the delivery timestamp or null when absent, unparseable, or non-positive (the source's `0` no-time sentinel serialises to 1970-01-01). `deliveryDateOf(order)` returns that date, and `formatDeliveryDate(order, undatedLabel)` its local label. Every reader of `deliveryDate` shares this rule. |
 | [month.ts](month.ts) | `OrderMonth`, `localDateKey(date)`, and `monthOf(order)` establish local delivery-calendar dates. `monthSpend(orders, month, year)` and `yearSpend(orders, year)` total included orders; `orderYears(orders)` lists dated years newest first. Months are 1–12. |
 | [range.ts](range.ts) | `RangePreset`, `RangeSelection`, and `RANGE_PRESETS` describe user selections. `resolveRange(selection, now)` returns inclusive bounds with null open ends. `filterByRange(orders, range)` filters delivery dates; `rangeEnd(range, now)` caps the anchor at now. |
@@ -24,13 +24,13 @@ Inputs use `Order`, `OrderData`, `DateRange`, and related types from `src/types/
 | [budget.ts](budget.ts) | `BudgetConfig`, `loadBudgetConfig()`, and `saveBudgetConfig(config)` persist monthly settings. `currentMonthSpend(orders, now)` delegates calendar-month spend. `budgetProgress(spent, config, prediction?): BudgetProgress` calculates ratio, rounded percent, color band, alert, and predicted excess. |
 | [order-query.ts](order-query.ts) | `sortOrders(orders, field, direction)` returns a sorted copy for delivery date, subtotal, or status code. `matchesStatusAndSearch(order, status, searchTerm)` combines an optional status code with a caller-lowercased search term across ID, product, seller, summary, and status. |
 | [merge.ts](merge.ts) | `mergeOrderData(cached, fresh, now)` returns `{ data, added }`: merges by string order ID, keeps fresh values and cached-only orders, and recalculates totals and cache timestamp. |
-| [export.ts](export.ts) | `exportToExcel(filtered): Promise<void>` downloads XLSX through lazy-loaded ExcelJS. `exportToCSV(filtered)` downloads UTF-8 BOM CSV. `exportToPDF()` opens browser print; print CSS owns layout. |
+| [export.ts](export.ts) | `exportToExcel(filtered): Promise<void>` downloads XLSX through lazy-loaded ExcelJS. `exportToCSV(filtered)` downloads UTF-8 BOM CSV. |
 | [share-image.ts](share-image.ts) | `drawShareImage(canvas, stats, financialAvailable?)` paints fixed 720×520 artwork. `downloadShareImage(stats, financialAvailable?)` downloads that card as PNG. |
 | [mock-data.ts](mock-data.ts) | `mockData: OrderData` supplies forty generated preview/development orders and a demo user outside the extension context. |
 
 ## Invariants
 
-- Spend calculations exclude only status codes `4` and `12`; they do not require completed status `3`. Excluded-order `refundAmount` totals are available source values, not verified refund transactions. Estimated savings sum positive `itemsTotal - subTotal` differences where that source field exists.
+- Spend calculations exclude only status codes `4`, `12` and `9`; they do not require completed status `3`. Excluded-order `refundAmount` totals are available source values, not verified refund transactions. Estimated savings sum positive `itemsTotal - subTotal` differences where that source field exists.
 - Calendar grouping uses the local delivery date, not legacy `orderMonth`/`orderYear` fields. `monthOf` rejects absent or unusable dates. Undated included orders still count in overall spend and order totals, but not date-based buckets or the dated-spend daily rate.
 - Resolved date bounds are inclusive. A fully open range returns the original order array; bounded ranges drop orders without a usable delivery date. `filterByRange` does not validate custom-range input, so callers must supply valid bounds.
 - Statistics use included orders' valid delivery dates for peak weekday/hour and consecutive-month streak. Weekday ties prefer Monday through Sunday; hour ties prefer earlier hours. Daily rate uses the inclusive first-to-last dated calendar span. Item rankings use available `items`, group by item name, and break equal values by name.
@@ -45,7 +45,7 @@ Inputs use `Order`, `OrderData`, `DateRange`, and related types from `src/types/
 ## Side Effects
 
 - `loadBudgetConfig` and `saveBudgetConfig` use `chrome.storage.local` when available, otherwise `localStorage`. Chrome read errors log and return defaults; fallback read/parse failures return defaults. Chrome write errors log and reject; fallback writes may throw.
-- XLSX and CSV exports create Blob/object URLs and trigger anchor downloads, then revoke those URLs. Excel export alerts on empty input and logs/alerts on failures; CSV can download headers for an empty array. PDF invokes `window.print()`.
+- XLSX and CSV exports create Blob/object URLs and trigger anchor downloads, then revoke those URLs. Excel export alerts on empty input and logs/alerts on failures; CSV can download headers for an empty array.
 - Share-image drawing resizes and paints the supplied canvas. Downloading creates a canvas, converts it to a PNG data URL, and clicks a download anchor.
 - Importing `mock-data.ts` generates data immediately using randomness and the current timestamp; its results are not deterministic.
 - Other modules do not access storage, perform network requests, or mutate the DOM. Optional `now` defaults in insights/predictions read the current clock; formatting depends on shared i18n state.

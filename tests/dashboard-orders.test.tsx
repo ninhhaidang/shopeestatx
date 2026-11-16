@@ -32,17 +32,17 @@ const NOW = new Date(2026, 9, 24, 12, 0);
 
 const ORDERS = [
   makeOrder('2026-10-02T10:00:00', {
-    orderId: '1001', name: 'Tai nghe Bluetooth', subTotal: 450_000, subTotalFormatted: '450.000 ₫', shopName: 'a - Alpha',
+    orderId: '1001', name: 'Tai nghe Bluetooth', subTotal: 450_000, shopName: 'a - Alpha',
     productCount: 2, productSummary: 'Tai nghe (SL: 1)', itemsTotal: 500_000,
     items: [{ name: 'Tai nghe Bluetooth', quantity: 1, unitPrice: 400_000 }, { name: 'Dây sạc', quantity: 1, unitPrice: 100_000 }],
   }),
-  makeOrder('2026-09-20T10:00:00', { orderId: '1002', name: 'Ốp lưng', subTotal: 100_000, subTotalFormatted: '100.000 ₫', shopName: 'b - Beta' }),
-  makeOrder('2026-09-05T10:00:00', { orderId: '1003', name: 'Chuột không dây', subTotal: 200_000, subTotalFormatted: '200.000 ₫', shopName: 'a - Alpha' }),
+  makeOrder('2026-09-20T10:00:00', { orderId: '1002', name: 'Ốp lưng', subTotal: 100_000, shopName: 'b - Beta' }),
+  makeOrder('2026-09-05T10:00:00', { orderId: '1003', name: 'Chuột không dây', subTotal: 200_000, shopName: 'a - Alpha' }),
   makeOrder('2026-10-03T10:00:00', {
-    orderId: '1004', name: 'Bàn phím cơ', subTotal: 900_000, subTotalFormatted: '900.000 ₫', status: 'Đã hủy', statusCode: 4,
+    orderId: '1004', name: 'Bàn phím cơ', subTotal: 900_000, status: 'Đã hủy', statusCode: 4,
     refundAmount: 900_000, shopName: 'c - Gamma',
   }),
-  makeOrder('2025-08-10T10:00:00', { orderId: '1005', name: 'Cáp HDMI', subTotal: 550_000, subTotalFormatted: '550.000 ₫', shopName: 'b - Beta' }),
+  makeOrder('2025-08-10T10:00:00', { orderId: '1005', name: 'Cáp HDMI', subTotal: 550_000, shopName: 'b - Beta' }),
 ];
 const DATA = makeData(ORDERS, { cachedAt: NOW.toISOString() });
 

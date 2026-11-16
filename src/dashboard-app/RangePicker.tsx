@@ -78,7 +78,6 @@ export function RangePicker({ value, onChange, years, now }: Props) {
             aria-label={t('dash.range.from')}
             className={control}
             value={value.from ?? ''}
-            max={value.to || undefined}
             onChange={e => onChange({ ...value, from: e.target.value || undefined })}
           />
           <input
@@ -86,7 +85,6 @@ export function RangePicker({ value, onChange, years, now }: Props) {
             aria-label={t('dash.range.to')}
             className={control}
             value={value.to ?? ''}
-            min={value.from || undefined}
             onChange={e => onChange({ ...value, to: e.target.value || undefined })}
           />
         </>

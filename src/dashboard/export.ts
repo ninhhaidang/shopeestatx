@@ -1,4 +1,4 @@
-// Excel, CSV, and PDF export functions
+// Excel and CSV export functions
 import { t } from '../i18n/index.js';
 import type { Order } from '../types/index.js';
 import { formatDeliveryDate } from './delivery-date.js';
@@ -107,9 +107,4 @@ export function exportToCSV(filtered: Order[]): void {
 
   const csv = BOM + [headers.map(csvCell).join(','), ...rows].join('\n');
   downloadFile(csv, `shopee-stats-${new Date().toISOString().split('T')[0]}.csv`, 'text/csv;charset=utf-8');
-}
-
-/** PDF export via browser print dialog — print CSS handles layout */
-export function exportToPDF(): void {
-  window.print();
 }

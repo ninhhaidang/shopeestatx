@@ -6,7 +6,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 - Popup hiển thị lời chào cùng tên và ảnh đại diện khi có thông tin tài khoản, hoặc giới thiệu ngắn khi chưa có thông tin này.
 - Nút «Bắt đầu phân tích» mở dashboard ở tab mới để lấy lịch sử đơn hàng từ phiên đăng nhập Shopee đang có.
-- Popup chỉ cho bắt đầu khi URL tab hiện tại dùng HTTP(S) và hostname là `shopee.vn` hoặc tên miền con của nó; chuỗi `shopee.vn` trong đường dẫn, query hoặc hostname giả không đủ. Khi chưa ở trang phù hợp, popup hiển thị lời nhắc mở Shopee, đăng nhập cùng nút mở Shopee.
+- Popup chỉ cho bắt đầu khi URL tab hiện tại dùng HTTPS và hostname đúng là `shopee.vn` (không nhận HTTP hay tên miền con, vì bộ thu thập chỉ đọc được từ origin này); chuỗi `shopee.vn` trong đường dẫn, query hoặc hostname giả không đủ. Khi chưa ở trang phù hợp, popup hiển thị lời nhắc mở Shopee, đăng nhập cùng nút mở Shopee.
 - Popup có liên kết ủng hộ, GitHub, đánh giá tiện ích, hướng dẫn và chính sách bảo mật.
 - Popup có bộ chọn giao diện Tự động, Sáng và Tối.
 
@@ -15,11 +15,11 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Dashboard chia thành ba màn hình Tổng quan, Phân tích và Đơn hàng, với thanh điều hướng và công cụ luôn nằm ngoài vùng nội dung cuộn.
 - Ở khổ trung gian, bộ lọc thời gian và nút làm mới có hàng riêng để không che các tab điều hướng; chỉ ghép lên một hàng khi có đủ chiều rộng.
 - Thanh đầu hiển thị thông tin tài khoản khi có dữ liệu và thời điểm cập nhật gần nhất.
-- Bộ chọn khoảng thời gian có Tất cả, 7 ngày gần nhất, tháng này, tháng trước, 3 tháng gần nhất, năm nay, theo năm, theo tháng và khoảng ngày tùy chọn.
+- Bộ chọn khoảng thời gian có Tất cả, 7 ngày gần nhất, tháng này, tháng trước, 3 tháng gần nhất, năm nay, theo năm, theo tháng và khoảng ngày tùy chọn. Nếu nhập ngày Từ sau ngày Đến, hai đầu được hiểu đảo lại thay vì lọc ra khoảng rỗng.
 - Khoảng thời gian lọc đơn hàng theo ngày giao và được giữ khi chuyển giữa ba màn hình.
 - Ngày giao không biết được giữ là chưa có ngày, không suy ra từ mã đơn hàng hoặc thời điểm cập nhật trạng thái. Giá trị thời gian 0 của nguồn (hiện ra 1970-01-01) cũng là chưa có ngày, không phải một ngày giao thật. Đơn chưa có ngày hoặc có chuỗi ngày không hợp lệ vẫn có trong Tất cả và Chi tiêu ròng toàn thời gian, nhưng không tham gia khoảng có ngày, tần suất theo lịch hoặc nhận xét trung bình theo tháng. Ngày không hợp lệ được hiển thị, in và xuất như đơn chưa có ngày, và khi sắp xếp ngày giao thì thuộc cùng nhóm với đơn chưa có ngày.
 - Các chỉ số theo tháng, năm, nhận xét tự động, shop thân thiết, biểu đồ nhiệt, dự đoán và ngân sách có phạm vi riêng được mô tả ở các mục tương ứng thay vì luôn bị cắt theo khoảng ngày.
-- Dashboard có thể hiển thị lịch sử đơn hàng đã lưu cục bộ và có nút làm mới để cập nhật dữ liệu.
+- Dashboard có thể hiển thị lịch sử đơn hàng đã lưu cục bộ và có nút làm mới để cập nhật dữ liệu. Tải lại trang dashboard đọc dữ liệu đã lưu thay vì quét lại; nếu lượt quét lúc mở thất bại mà đã có dữ liệu lưu, dashboard hiển thị dữ liệu đó kèm thông báo lỗi.
 - Mỗi lần bắt đầu phân tích từ popup, kết quả mới thay thế cache, kể cả hồ sơ tài khoản cũ; khi kết quả mới không có hồ sơ, tiện ích không gán tên tài khoản cũ cho lịch sử mới. Làm mới giữ các đơn cũ, trừ khi xác định được khác tài khoản: ưu tiên so sánh `userId`, sau đó `uid` khi cả hai hồ sơ cùng có loại ID đó; chỉ so sánh username khi cả hai đều không có ID. Nếu thiếu hồ sơ hoặc không có ID cùng loại để so sánh, làm mới giữ cache để tránh mất lịch sử do chuyển nguồn hồ sơ.
 - Quét theo cursor Shopee trả về và chỉ tính mỗi mã đơn hàng một lần. Nhiều dashboard làm mới đồng thời không được làm mất đơn hoặc ghi đè trạng thái đơn mới hơn; lần phân tích thay thế vô hiệu hóa các kết quả cũ đang chờ. Khi phát hiện đổi tài khoản giữa lúc quét, tiện ích không lưu kết quả một phần. Nếu hồ sơ không đủ để nhận diện thay đổi, tiện ích không tuyên bố có thể phát hiện mọi lần đổi tài khoản.
 - Khi lấy dữ liệu lần đầu, dashboard hiển thị khung chờ, trạng thái kết nối, số đơn hàng đã lấy khi có tiến độ và lời nhắc khi chờ lâu.
@@ -33,7 +33,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Tổng quan
 
-- Tổng quan hiển thị nổi bật Chi tiêu ròng của khoảng thời gian đang chọn và không tính đơn bị loại do hủy hoặc trả hàng vào chi tiêu.
+- Tổng quan hiển thị nổi bật Chi tiêu ròng của khoảng thời gian đang chọn và không tính đơn bị loại (hủy, trả hàng hoặc chờ thanh toán) vào chi tiêu.
 - Tổng quan hiển thị số đơn hàng không bị loại và Chi tiêu ròng trung bình mỗi đơn hàng trong khoảng đang chọn.
 - Tổng quan hiển thị Hoàn tiền cùng số đơn bị loại và Tiết kiệm ước tính, hoặc dấu thiếu dữ liệu khi lịch sử cũ chưa đủ thông tin.
 - Tiết kiệm ước tính là chênh lệch giữa giá các món sau giảm giá của món và số tiền thực trả, không tách riêng voucher với miễn phí vận chuyển và có thể thấp hơn thực tế khi có phí giao hàng.
@@ -56,7 +56,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Biểu đồ nhiệt hiển thị số đơn hàng theo ngày trong cửa sổ 12 tháng kết thúc ở mốc cuối khoảng đang chọn, không vượt quá ngày hiện tại.
 - Biểu đồ nhiệt dùng màu để phân biệt mức độ, có nhãn ngày và số đơn hàng, vùng cuộn ngang cùng bảng số liệu thay thế có thể mở hoặc đóng.
 - Shop thân thiết dùng toàn bộ lịch sử và hiển thị tối đa mười shop có ít nhất ba đơn hàng không bị loại, ưu tiên shop có nhiều đơn hàng nhất.
-- Bảng shop thân thiết hiển thị số đơn hàng, Chi tiêu ròng, Chi tiêu ròng trung bình mỗi đơn hàng, tần suất đơn hàng mỗi tháng và ngày mua gần nhất.
+- Bảng shop thân thiết hiển thị số đơn hàng, Chi tiêu ròng, Chi tiêu ròng trung bình mỗi đơn hàng, tần suất đơn hàng mỗi tháng và ngày mua gần nhất. Tần suất chỉ tính trên đơn có ngày giao; shop không có đơn nào có ngày hiển thị dấu thiếu dữ liệu.
 - Khi chưa có sản phẩm, shop thân thiết hoặc nhận xét phù hợp, Phân tích hiển thị lời giải thích thay cho danh sách trống.
 
 ## Đơn hàng
@@ -96,11 +96,12 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 - Phân tích dự đoán Chi tiêu ròng cuối tháng khi có dữ liệu chi tiêu tháng hiện tại và hiển thị số tiền dự kiến vượt ngân sách khi phù hợp.
 - Ngân sách và dự đoán luôn dùng tháng hiện tại trên toàn bộ lịch sử, độc lập với khoảng thời gian đang chọn.
-- Người dùng có thể thiết lập hoặc chỉnh sửa hạn mức ngân sách tháng theo từng đồng (ví dụ 150.000₫), bật hoặc tắt ngân sách và chọn ngưỡng cảnh báo từ 50% đến 95%.
+- Người dùng có thể thiết lập hoặc chỉnh sửa hạn mức ngân sách tháng theo từng đồng (ví dụ 150.000₫, tối thiểu 1₫, không được để trống), bật hoặc tắt ngân sách và chọn ngưỡng cảnh báo từ 50% đến 95%.
 - Người dùng có thể lưu cấu hình ngân sách để dùng lại hoặc đóng biểu mẫu mà không lưu thay đổi.
 - Nếu lưu cấu hình ngân sách thất bại, biểu mẫu giữ lại giá trị đã nhập và hiển thị thông báo lỗi.
 - Khi bật ngân sách, Phân tích hiển thị Chi tiêu ròng tháng hiện tại so với hạn mức, tỷ lệ đã dùng và thanh tiến độ đổi màu theo mức sử dụng.
 - Khi chạm ngưỡng cảnh báo, Phân tích hiển thị cảnh báo ngân sách ngay trong màn hình.
+- Nếu không đọc được cấu hình ngân sách đã lưu, Phân tích báo lỗi thay vì hiển thị như chưa thiết lập.
 - Khi ngân sách chưa bật, Phân tích hiển thị trạng thái chưa thiết lập cùng nút thiết lập ngân sách.
 
 ## Giao diện và khả năng tiếp cận

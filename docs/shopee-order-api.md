@@ -29,13 +29,13 @@ Endpoint: `/api/v4/order/get_all_order_and_checkout_list` (the only Shopee reque
 
 ## Origin investigation (2026-10-25)
 
-Popup acceptance remains HTTP(S) `shopee.vn` and subdomains; this remediation does not narrow that published behavior or expand permissions. The reliable documented usage remains the logged-in buyer page at `https://shopee.vn`.
+Popup acceptance was narrowed on 2026-11-17 to HTTPS on exactly `shopee.vn` (owner decision), the only origin the collector can read; permissions are unchanged. The reliable documented usage remains the logged-in buyer page at `https://shopee.vn`.
 
 - Permanent host permission covers `https://shopee.vn/*`; `activeTab` can temporarily authorize the user-invoked source tab. Opening a dashboard does not revoke that grant; navigating to a different origin or closing the source tab can revoke it ([Chrome activeTab](https://developer.chrome.com/docs/extensions/develop/concepts/activeTab)).
 - The collector runs in MAIN and uses canonical `https://shopee.vn` with default `credentials: same-origin`. A request from HTTP or a subdomain is cross-origin and omits cookies under that mode ([Request.credentials](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials)).
 - Profile localStorage is origin-scoped; another origin cannot read the canonical page's storage, although it may maintain its own keys ([localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)).
 - Exact Shopee redirects, CORS headers and authenticated outcomes on those origins were not verified. No Shopee API probe was sent. Passive inspection of the buyer site's own requests/storage is the next evidence source; do not assume a particular HTTP error or empty storage on every subdomain.
-- Recommendation for a separate product decision: make the accepted-origin promise match proven buyer-origin support. Do not silently change acceptance, widen host permissions or add cross-origin credentials here. Credentials alone do not force a CORS preflight and do not establish server support.
+- Decided 2026-11-17: the accepted origin now matches proven buyer-origin support. Do not widen host permissions or add cross-origin credentials. Credentials alone do not force a CORS preflight and do not establish server support.
 
 ## Dependency investigation (2026-10-25)
 
@@ -44,4 +44,4 @@ Popup acceptance remains HTTP(S) `shopee.vn` and subdomains; this remediation do
 - ExcelJS declares the browser entry `dist/exceljs.min.js`. Its shipped source map lists 534 sources: neither tmp nor brace-expansion is present; their Node filesystem/archive dependency paths are outside that browser bundle.
 - uuid is bundled, including v3/v5 implementations. ExcelJS's only uuid import in that source map is the conditional-formatting transform, which calls v4 without an output buffer. The reported [uuid buffer advisory](https://github.com/advisories/GHSA-w5hq-g745-h8pq) concerns v3/v5/v6 with caller-supplied buffers, not that call. ShopeeStatX writes a new in-memory workbook; it does not import arbitrary workbooks or invoke those UUID methods.
 - Upstream warnings remain real for affected Node consumers: [tmp path traversal](https://github.com/advisories/GHSA-ph9p-34f9-6g65), [brace-expansion resource exhaustion](https://github.com/advisories/GHSA-mh99-v99m-4gvg). Bundle reachability evidence is not a universal security guarantee.
-- Decision: retain current dependencies and the existing CI audit policy for this bounded remediation; no reachable instance of these reported paths was established in the current browser export. Do not blindly downgrade ExcelJS to satisfy npm's major-version suggestion. Reassess before adding Node execution, workbook import, UUID buffer calls or changing browser entry resolution.
+- Decision: retain current dependencies; CI no longer runs `npm audit` (the step could never fail the build), so re-run it by hand when dependencies change; no reachable instance of these reported paths was established in the current browser export. Do not blindly downgrade ExcelJS to satisfy npm's major-version suggestion. Reassess before adding Node execution, workbook import, UUID buffer calls or changing browser entry resolution.

@@ -5,8 +5,7 @@
 // global, and a top-level const/let redeclared on a second injection fails silently.
 (async function () {
 const scanId = typeof window.__shopeestatxScanId === 'string' ? window.__shopeestatxScanId : '';
-// Configuration - Domain setup
-// This will be replaced by the actual domain at build time
+// Copied to dist unchanged, so these repeat src/config.ts.
 const SHOPEE_DOMAIN = 'shopee.vn';
 const MESSAGE_SOURCE = 'shopee-stats';
 
@@ -247,7 +246,6 @@ function assertSameAccount() {
           name: name,
           productCount: productCount,
           subTotal: subTotal,
-          subTotalFormatted: _VietNamCurrency(subTotal),
           refundAmount: refundAmount,
           itemsTotal: itemsTotal,
           items: lineItems,
@@ -278,7 +276,6 @@ function assertSameAccount() {
         orders: allOrders,
         totalCount: count,
         totalAmount: sum,
-        totalAmountFormatted: _VietNamCurrency(sum),
         fetchedAt: new Date().toISOString()
       }
     };

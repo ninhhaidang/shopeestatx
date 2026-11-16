@@ -23,7 +23,6 @@ export interface Order {
   name: string;
   productCount: number;
   subTotal: number;
-  subTotalFormatted: string;
   status: string;
   statusCode: StatusCode;
   shopName: string;
@@ -45,7 +44,6 @@ export interface OrderData {
   orders: Order[];
   totalCount: number;
   totalAmount: number;
-  totalAmountFormatted: string;
   fetchedAt: string;
   cachedAt?: string;
 }

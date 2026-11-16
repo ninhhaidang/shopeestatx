@@ -1,8 +1,8 @@
 // Merge a fresh Shopee scan into the cached orders (pure)
-import { formatCurrency } from '../i18n/format.js';
 import type { Order, OrderData } from '../types/index.js';
 import { deliveryDateOf } from './delivery-date.js';
 import { isExcludedOrder } from './order-status.js';
+import { shopUsername } from './shop.js';
 
 /** Keep `deliveryDate` either a real timestamp or null; junk stored by an older cache becomes unknown. */
 function withUsableDeliveryDate(order: Order): Order {
@@ -23,7 +23,13 @@ export function mergeOrderData(
   const byId = (order: Order) => withUsableDeliveryDate({ ...order, orderId: String(order.orderId) });
   const cachedById = new Map(cached?.orders.map(o => [String(o.orderId), byId(o)]));
   const freshById = new Map(fresh.orders.map(o => [String(o.orderId), byId(o)]));
-  const orders = [...freshById.values(), ...[...cachedById.values()].filter(o => !freshById.has(o.orderId))];
+  const all = [...freshById.values(), ...[...cachedById.values()].filter(o => !freshById.has(o.orderId))];
+  // Older caches have no seller ID; borrow it from an order of the same username so one shop stays one group.
+  const idByUsername = new Map(all.filter(o => o.shopId && shopUsername(o.shopName)).map(o => [shopUsername(o.shopName), o.shopId]));
+  const orders = all.map(o => {
+    const shopId = o.shopId ? undefined : idByUsername.get(shopUsername(o.shopName));
+    return shopId ? { ...o, shopId } : o;
+  });
   const totalAmount = orders.filter(o => !isExcludedOrder(o)).reduce((s, o) => s + o.subTotal, 0);
 
   return {
@@ -34,7 +40,6 @@ export function mergeOrderData(
       orders,
       totalCount: orders.reduce((s, o) => s + o.productCount, 0),
       totalAmount,
-      totalAmountFormatted: formatCurrency(totalAmount),
       cachedAt: now.toISOString(),
     },
   };

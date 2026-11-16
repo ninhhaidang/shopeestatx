@@ -384,13 +384,22 @@ describe('tải dữ liệu', () => {
       .fn()
       .mockRejectedValueOnce(new Error('Không tìm thấy tab Shopee'))
       .mockResolvedValueOnce({ data: DATA, added: 4 });
-    const { user } = renderDashboard(makeHost({ scanOnOpen: true, refresh }));
+    const { user } = renderDashboard(makeHost({ scanOnOpen: true, refresh, loadCached: vi.fn().mockResolvedValue(null) }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Không tìm thấy tab Shopee');
     await user.click(screen.getByRole('button', { name: 'Thử lại' }));
 
     expect(await screen.findByText('Chi tiêu ròng')).toBeInTheDocument();
     expect(refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows the saved orders when the opening scan fails', async () => {
+    const refresh = vi.fn().mockRejectedValue(new Error('Không tìm thấy tab Shopee'));
+    renderDashboard(makeHost({ scanOnOpen: true, refresh }));
+
+    expect(await screen.findByText('Chi tiêu ròng')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Không tìm thấy tab Shopee');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('shows an error when the cache cannot be read', async () => {

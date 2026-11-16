@@ -16,8 +16,7 @@ describe('extension entry points', () => {
     for (const page of pages) expect(existsSync(resolve(__dirname, '../src', page)), page).toBe(true);
   });
 
-  it('opens the new dashboard from both the popup and the background worker', () => {
-    expect(pagesOpenedBy('src/background.ts')).toContain('dashboard-app/dashboard.html');
+  it('opens the new dashboard from the popup', () => {
     expect(read('src/popup/chrome-host.ts')).toContain('dashboard-app/dashboard.html?fetch=true');
   });
 

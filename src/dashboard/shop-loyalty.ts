@@ -13,7 +13,8 @@ export interface ShopLoyalty {
   firstOrder: string;   // YYYY-MM-DD
   lastOrder: string;    // YYYY-MM-DD
   avgOrderValue: number;
-  repeatRate: number;   // orders per month (over the data span, at most 12 months)
+  /** Dated orders per month over their span (at most 12 months); null when no order has a date. */
+  repeatRate: number | null;
 }
 
 const MIN_ORDERS = 3;
@@ -58,7 +59,7 @@ export function analyzeShopLoyalty(allOrders: Order[]): ShopLoyalty[] {
         firstOrder,
         lastOrder,
         avgOrderValue: Math.round(v.spent / v.orders),
-        repeatRate: parseFloat((v.orders / monthsSpan).toFixed(1)),
+        repeatRate: sorted.length ? parseFloat((sorted.length / monthsSpan).toFixed(1)) : null,
       };
     })
     .sort((a, b) => b.orderCount - a.orderCount)

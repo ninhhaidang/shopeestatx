@@ -14,9 +14,9 @@ function* sourceFiles(dir: string): Generator<string> {
 }
 
 describe('isExcludedOrder', () => {
-  it('is true for cancelled (4) and returned (12) orders only', () => {
+  it('is true for cancelled (4), returned (12) and unpaid (9) orders only', () => {
     expect([0, 3, 4, 7, 8, 9, 12].map(statusCode => isExcludedOrder({ statusCode }))).toEqual(
-      [false, false, true, false, false, false, true]);
+      [false, false, true, false, false, true, true]);
   });
 });
 

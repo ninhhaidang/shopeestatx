@@ -9,7 +9,7 @@ Một đơn mua trên Shopee của người dùng, thuộc đúng một shop và
 _Avoid_: Giao dịch, purchase
 
 **Đơn bị loại**:
-Đơn hàng bị huỷ hoặc trả hàng, không tính vào chi tiêu.
+Đơn hàng bị huỷ, trả hàng hoặc đang chờ thanh toán, không tính vào chi tiêu.
 _Avoid_: Đơn lỗi, đơn thất bại
 
 **Chi tiêu ròng**:

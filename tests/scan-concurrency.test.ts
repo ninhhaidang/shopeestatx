@@ -84,6 +84,18 @@ describe('concurrent dashboard scans', () => {
     expect(cache.cached().orders.map(o => [o.orderId, o.subTotal])).toEqual([['C', 500], ['OLD', 30]]);
   });
 
+  it('rejects a replacement analysis that finishes after a newer refresh committed', async () => {
+    const cache = install(makeData([order('A', 1)], { user: profile(1) }));
+    const replacement = await cache.begin(123, 'replace');
+    const newer = await cache.begin(124);
+    newer.finish(makeData([order('A', 200), order('B', 300)], { user: profile(1) }));
+    await newer.result;
+    const rejected = expect(replacement.result).rejects.toThrow();
+    replacement.finish(makeData([order('A', 100)], { user: profile(1) }));
+    await rejected;
+    expect(cache.cached().orders.map(o => [o.orderId, o.subTotal])).toEqual([['A', 200], ['B', 300]]);
+  });
+
   it('rejects an older refresh after a replacement analysis changes accounts', async () => {
     const cache = install(makeData([order('A')], { user: profile(1) }));
     const older = await cache.begin(123);

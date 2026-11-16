@@ -7,7 +7,7 @@ const at = (y: number, m: number, d: number, h = 12) => new Date(y, m - 1, d, h)
 
 function makeOrder(overrides: Partial<Order> = {}): Order {
   return {
-    orderId: '1', name: 'A', productCount: 1, subTotal: 100_000, subTotalFormatted: '',
+    orderId: '1', name: 'A', productCount: 1, subTotal: 100_000,
     status: 'Hoàn thành', statusCode: 3, shopName: 's - Shop', productSummary: '',
     deliveryDate: at(2025, 1, 15), orderMonth: 1, orderYear: 2025,
     refundAmount: 0, itemsTotal: overrides.subTotal ?? 100_000, items: [], ...overrides,

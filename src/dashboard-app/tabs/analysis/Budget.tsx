@@ -37,7 +37,7 @@ function BudgetForm({ initial, onSave, onCancel }: { initial: BudgetConfig; onSa
     <form onSubmit={submit} className="grid gap-3.5 text-sm">
       <div className="grid gap-1.5">
         <label htmlFor={ids.limit} className="font-medium">{t('budget.limit.label')}</label>
-        <input id={ids.limit} type="number" inputMode="numeric" min={0} step={1} className={`num ${input}`} value={limit} onChange={e => setLimit(e.target.value)} />
+        <input id={ids.limit} type="number" inputMode="numeric" required min={1} step={1} className={`num ${input}`} value={limit} onChange={e => setLimit(e.target.value)} />
       </div>
       <div className="grid gap-1.5">
         <label htmlFor={ids.threshold} className="font-medium">
@@ -65,16 +65,25 @@ function BudgetForm({ initial, onSave, onCancel }: { initial: BudgetConfig; onSa
 export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
   const [config, setConfig] = useState<BudgetConfig | null>(null);
   const [editing, setEditing] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    void loadBudgetConfig().then(cfg => alive && setConfig(cfg));
+    loadBudgetConfig().then(cfg => alive && setConfig(cfg), () => alive && setLoadFailed(true));
     return () => { alive = false; };
   }, []);
 
   const spent = useMemo(() => currentMonthSpend(allOrders, now), [allOrders, now]);
   const prediction = useMemo(() => predictMonthEnd(allOrders, now), [allOrders, now]);
 
+  if (loadFailed) {
+    return (
+      <section aria-labelledby="analysis-budget" className={card}>
+        <h2 id="analysis-budget" className="mb-3 text-sm font-semibold">{t('analysis.prediction.title')}</h2>
+        <p role="alert" className="text-sm text-bad">{t('analysis.budget.loadError')}</p>
+      </section>
+    );
+  }
   if (!config) return null;
 
   const progress = budgetProgress(spent, config, prediction);

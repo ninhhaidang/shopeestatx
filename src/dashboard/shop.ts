@@ -9,7 +9,11 @@ export const shopDisplayName = (shopName: string): string => {
 
 /** Stable seller ID, falling back to the username retained in historical shop labels. */
 export function shopIdentity(order: Pick<Order, 'shopName' | 'shopId'>): string {
-  if (order.shopId) return `id:${order.shopId}`;
-  const separator = order.shopName.indexOf(' - ');
-  return `username:${separator < 0 ? order.shopName : order.shopName.slice(0, separator)}`;
+  return order.shopId ? `id:${order.shopId}` : `username:${shopUsername(order.shopName)}`;
+}
+
+/** The "user" part of "user - Shop name". */
+export function shopUsername(shopName: string): string {
+  const separator = shopName.indexOf(' - ');
+  return separator < 0 ? shopName : shopName.slice(0, separator);
 }

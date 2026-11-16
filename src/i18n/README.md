@@ -7,7 +7,7 @@
 ## Interface
 
 - `t(key, params?)`: looks up a translation, returning the key when missing. Optional string/number parameters replace `{name}` tokens.
-- `initLocale()`: selects Vietnamese, sets document language to `vi`, and applies translations to existing `[data-i18n]`, `[data-i18n-placeholder]`, and `[data-i18n-title]` elements.
+- `initLocale()`: selects Vietnamese, and sets document language to `vi`.
 - `formatCurrency(amount, short = false)`: formats VND with `vi-VN`; short mode returns `M` at one million, `K` at one thousand, otherwise the input's string form.
 - `formatDate(date)` and `formatDateTime(date)`: use `vi-VN` browser date/time formatting.
 

@@ -61,10 +61,10 @@ describe('Popup', () => {
     ['https://shopee.sg', false],
     [undefined, false],
     ['https://shopee.vn/user/purchase', true],
-    ['https://www.shopee.vn', true],
-    ['https://mall.shopee.vn', true],
+    ['https://www.shopee.vn', false],
+    ['https://mall.shopee.vn', false],
     ['https://SHOPEE.VN', true],
-    ['http://shopee.vn', true],
+    ['http://shopee.vn', false],
   ])('gates scanning for active tab %s through the Chrome host', async (url, allowed) => {
     vi.stubGlobal('chrome', {
       tabs: { query: vi.fn().mockResolvedValue([{ url }]) },

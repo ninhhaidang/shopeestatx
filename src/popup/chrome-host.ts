@@ -21,9 +21,8 @@ export const chromeHost: PopupHost = {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     try {
       const url = new URL(tab?.url ?? '');
-      const domain = getActiveDomainUrl();
-      return (url.protocol === 'https:' || url.protocol === 'http:')
-        && (url.hostname === domain || url.hostname.endsWith(`.${domain}`));
+      // The collector fetches https://shopee.vn with same-origin cookies; any other origin cannot be read.
+      return url.protocol === 'https:' && url.hostname === getActiveDomainUrl();
     } catch {
       return false;
     }

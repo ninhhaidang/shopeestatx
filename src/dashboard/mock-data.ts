@@ -105,7 +105,6 @@ function generateOrders(): { orders: Order[]; totalCount: number; totalAmount: n
       name: product.name,
       productCount: product.count,
       subTotal,
-      subTotalFormatted: formatCurrency(subTotal),
       status: statusInfo.text,
       statusCode: statusInfo.code,
       shopName: shop,
@@ -141,7 +140,6 @@ export const mockData: OrderData = {
   orders,
   totalCount,
   totalAmount,
-  totalAmountFormatted: formatCurrency(totalAmount),
   fetchedAt: new Date().toISOString(),
   cachedAt: new Date().toISOString(),
 };

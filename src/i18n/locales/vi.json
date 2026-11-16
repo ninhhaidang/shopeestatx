@@ -181,7 +181,7 @@
 
   "analysis.habits": "Thói quen mua sắm",
   "analysis.noProducts": "Chưa có dữ liệu sản phẩm.",
-  "analysis.heatmap.title": "Chi tiêu theo ngày",
+  "analysis.heatmap.title": "Số đơn theo ngày",
   "analysis.heatmap.summary": "{title}, {days} ngày có đơn, {orders} đơn, từ {from} đến {to}",
   "analysis.heatmap.period": "Số đơn mỗi ngày, từ {from} đến {to}. Luôn lấy 12 tháng, kết thúc ở ngày cuối của khoảng đã chọn.",
   "analysis.heatmap.scroll": "Biểu đồ nhiệt, cuộn ngang để xem thêm",
@@ -207,6 +207,7 @@
   "analysis.budget.setup": "Thiết lập",
   "analysis.budget.edit": "Sửa",
   "analysis.budget.alert": "Cảnh báo: Đã tiêu {percent}% ngân sách tháng này!",
+  "analysis.budget.loadError": "Không đọc được ngân sách đã lưu. Hãy tải lại trang.",
   "analysis.budget.saveError": "Không lưu được ngân sách. Hãy thử lại.",
 
 

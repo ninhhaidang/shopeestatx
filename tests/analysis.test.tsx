@@ -74,7 +74,7 @@ describe('Phân tích: heatmap', () => {
   it('summarises the heatmap and offers every day with orders as a table', async () => {
     const { user } = await openAnalysis();
 
-    const heatmap = screen.getByRole('img', { name: /Chi tiêu theo ngày.*3 ngày có đơn.*3 đơn/ });
+    const heatmap = screen.getByRole('img', { name: /Số đơn theo ngày.*3 ngày có đơn.*3 đơn/ });
     expect(heatmap).toBeInTheDocument();
 
     await user.click(screen.getByText('Xem bảng số liệu'));
@@ -149,6 +149,31 @@ describe('Phân tích: khoảng ngày toàn cục', () => {
 });
 
 describe('Phân tích: dự đoán và ngân sách', () => {
+  it('does not save an enabled budget with a blank limit', async () => {
+    const { user } = await openAnalysis();
+    await user.click(await screen.findByRole('button', { name: 'Thiết lập' }));
+    await user.clear(screen.getByLabelText('Hạn mức hàng tháng (VND)'));
+    await user.click(screen.getByLabelText('Bật theo dõi ngân sách'));
+    await user.click(screen.getByRole('button', { name: 'Lưu' }));
+
+    expect(screen.getByRole('button', { name: 'Lưu' })).toBeVisible();
+    expect(localStorage.getItem(STORAGE_KEYS.BUDGET)).toBeNull();
+  });
+
+  it('reports a budget that cannot be read instead of calling it not set up', async () => {
+    vi.stubGlobal('chrome', {
+      runtime: { lastError: { message: 'read failed' } },
+      storage: { local: { get: (_key: unknown, callback: (result: object) => void) => callback({}) } },
+    });
+    try {
+      await openAnalysis();
+      expect(await screen.findByText('Không đọc được ngân sách đã lưu. Hãy tải lại trang.')).toBeVisible();
+      expect(screen.queryByText('Chưa thiết lập ngân sách')).not.toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it.each(['localStorage', 'chrome'])('preserves unsaved budget values after a save failure through %s', async (adapter) => {
     const { user } = await openAnalysis();
     await user.click(await screen.findByRole('button', { name: 'Thiết lập' }));

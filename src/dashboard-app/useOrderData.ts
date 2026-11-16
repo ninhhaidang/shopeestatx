@@ -63,8 +63,12 @@ export function useOrderData(host: DashboardHost): OrderDataState & { refresh: (
         notice: background ? { kind: 'info', text: added > 0 ? t('dash.added', { n: added }) : t('dash.noneAdded') } : null,
       }));
     } catch (e) {
-      setState(s => background
-        ? { ...s, notice: { kind: 'error', text: t('dash.refreshError', { message: messageOf(e) }) } }
+      const notice = { kind: 'error' as const, text: t('dash.refreshError', { message: messageOf(e) }) };
+      // A failed first scan still shows what an earlier scan saved, instead of a dead-end error.
+      const saved = background ? null : await host.loadCached().catch(() => null);
+      if (saved?.orders.length) dataRef.current = saved;
+      setState(s => background ? { ...s, notice }
+        : dataRef.current ? { ...s, phase: 'ready', data: dataRef.current, notice }
         : { ...s, phase: 'error', error: messageOf(e) });
     } finally {
       clearTimeout(stallTimer.current);

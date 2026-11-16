@@ -47,8 +47,12 @@ function accountsDiffer(cached: OrderData['user'], fresh: OrderData['user']): bo
   return Boolean(cached.username && fresh.username && cached.username !== fresh.username);
 }
 
+const scanOnOpen = new URLSearchParams(window.location.search).get('fetch') === 'true';
+// One scan per popup launch: a reload must read the cache, not replace it with another scan.
+if (scanOnOpen) history.replaceState(null, '', window.location.pathname);
+
 export const chromeHost: DashboardHost = {
-  scanOnOpen: new URLSearchParams(window.location.search).get('fetch') === 'true',
+  scanOnOpen,
 
   async loadCached() {
     const stored = await chrome.storage.local.get(STORAGE_KEYS.STATS);
@@ -87,8 +91,9 @@ export const chromeHost: DashboardHost = {
         if (state.epoch !== scan.epoch || scan.sequence < state.accountSequence) throw new Error(t('dash.error.superseded'));
         const cached = (stored[STORAGE_KEYS.STATS] as OrderData | undefined) ?? null;
         const accountChanged = accountsDiffer(cached?.user, fresh.user);
-        if (accountChanged && state.committed > scan.sequence) throw new Error(t('dash.error.superseded'));
         const replacing = mode === 'replace' || accountChanged;
+        // A replacement drops the per-order versions, so a newer commit can only be protected by rejecting it.
+        if (replacing && state.committed > scan.sequence) throw new Error(t('dash.error.superseded'));
         const versions = new Map(replacing ? [] : state.versions);
         const current = new Map(cached?.orders.map(o => [String(o.orderId), o]));
         const orders = fresh.orders.map(o => {

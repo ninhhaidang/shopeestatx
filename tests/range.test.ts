@@ -56,6 +56,11 @@ describe('resolveRange', () => {
     expect(resolveRange({ preset: 'month' }, NOW).start).toEqual(new Date(2026, 9, 1));
   });
 
+  it('custom dates typed in the wrong order mean the same days', () => {
+    expect(resolveRange({ preset: 'custom', from: '2026-10-01', to: '2026-09-01' }, NOW))
+      .toEqual(resolveRange({ preset: 'custom', from: '2026-09-01', to: '2026-10-01' }, NOW));
+  });
+
   it('custom takes inclusive day bounds and tolerates an open side', () => {
     const both = resolveRange({ preset: 'custom', from: '2026-03-05', to: '2026-03-07' }, NOW);
     expect(both.start).toEqual(new Date(2026, 2, 5));

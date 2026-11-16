@@ -1,7 +1,8 @@
-// Cancelled (4) and returned (12) orders are excluded from spending
+// Cancelled (4), returned (12) and not-yet-paid (9) orders are excluded from spending
 import type { Order, StatusCode } from '../types/index.js';
 
-export const isExcludedOrder = (o: Pick<Order, 'statusCode'>): boolean => o.statusCode === 4 || o.statusCode === 12;
+export const isExcludedOrder = (o: Pick<Order, 'statusCode'>): boolean =>
+  o.statusCode === 4 || o.statusCode === 12 || o.statusCode === 9;
 
 /** Statuses an order can have, with the i18n key of their label (for the status filter). */
 export const ORDER_STATUSES: { code: StatusCode; label: string }[] = [
