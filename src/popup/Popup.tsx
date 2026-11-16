@@ -59,7 +59,7 @@ export function Popup({ host }: { host: PopupHost }) {
           </div>
         ) : (
           <div className="rounded-xl border border-line bg-card p-4">
-            <h1 className="font-serif text-lg font-semibold">{t('popup.featureTitle')}</h1>
+            <h1 className="text-lg font-semibold">{t('popup.featureTitle')}</h1>
             <p className="mt-1 text-sm text-muted">{t('popup.featureDesc')}</p>
           </div>
         )}

@@ -16,16 +16,31 @@ import { ChangeLine } from './overview/ChangeLine';
 
 /** Tổng quan: Chi tiêu ròng, change vs last month, four metric tiles, spend per month, top shops. */
 export function OverviewTab() {
-  const { data, orders, range, now } = useDashboard();
+  const { data, orders, range, selection, setSelection, resetRange, now } = useDashboard();
   const overview = useMemo(() => computeOverview(orders), [orders]);
   // The month-over-month figure looks at the whole history, anchored on the range's last day (never in the future).
   const anchor = useMemo(() => rangeEnd(range, now), [range, now]);
   const monthDiff = useMemo(() => monthChange(data.orders, anchor), [data, anchor]);
   const yearDiff = useMemo(() => yearChange(data.orders, anchor), [data, anchor]);
-  const series = useMemo(
-    () => ({ labels: overview.monthly.map(m => m.label), values: overview.monthly.map(m => m.total) }),
-    [overview],
-  );
+  // The chart always shows the whole history, so a picked month keeps its neighbours for comparison.
+  const series = useMemo(() => {
+    const monthly = computeOverview(data.orders).monthly;
+    // "9/2026" -> the first and last instant of that month, to test against the range.
+    const months = monthly.map(m => m.label.split('/').map(Number) as [number, number]);
+    return {
+      labels: monthly.map(m => m.label),
+      values: monthly.map(m => m.total),
+      months,
+      active: months.map(([month, year]) =>
+        !(range.end && new Date(year, month - 1, 1) > range.end) && !(range.start && new Date(year, month, 0, 23, 59, 59, 999) < range.start)),
+    };
+  }, [data, range]);
+  const pickMonth = (i: number) => {
+    const [month, year] = series.months[i];
+    // Clicking the month already picked goes back to everything.
+    if (selection.preset === 'month' && selection.month === month && selection.year === year) resetRange();
+    else setSelection({ preset: 'month', year, month });
+  };
   const stale = needsRescan(data.orders);
 
   if (orders.length === 0) return <NoOrdersInRange />;
@@ -70,7 +85,8 @@ export function OverviewTab() {
       </section>
 
       <section className={card}>
-        <h2 className="mb-3 text-base font-semibold">{t('chart.spendingByMonth')}</h2>
+        <h2 className="text-base font-semibold">{t('chart.spendingByMonth')}</h2>
+        <p className="mb-3 text-xs text-muted">{t('dash.chart.hint')}</p>
         <BarChart
           title={t('chart.spendingByMonth')}
           labels={series.labels}
@@ -79,6 +95,8 @@ export function OverviewTab() {
           valueHeader={t('dash.chart.spend')}
           formatValue={money}
           formatTick={shortMoney}
+          active={series.active}
+          onSelect={pickMonth}
         />
       </section>
 

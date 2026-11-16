@@ -47,7 +47,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const years = useMemo(() => (data ? orderYears(data.orders) : []), [data]);
   const orders = useMemo(() => (data ? filterByRange(data.orders, range) : []), [data, range]);
   const context = useMemo(
-    () => (data ? { data, orders, range, selection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh } : null),
+    () => (data ? { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh } : null),
       [data, orders, range, selection, clock],
   );
 

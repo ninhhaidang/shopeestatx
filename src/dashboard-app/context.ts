@@ -10,6 +10,7 @@ export interface DashboardContextValue {
   orders: Order[];
   range: DateRange;
   selection: RangeSelection;
+  setSelection: (next: RangeSelection) => void;
   resetRange: () => void;
   now: Date;
   /** Scan Shopee again (the existing read). */

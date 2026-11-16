@@ -179,6 +179,7 @@
   "stats.weekday.5": "Thứ 6",
   "stats.weekday.6": "Thứ 7",
 
+  "dash.chart.hint": "Toàn bộ lịch sử; cột đậm thuộc khoảng thời gian đã chọn. Bấm một cột để xem riêng tháng đó.",
   "analysis.band.range": "Trong khoảng thời gian đã chọn",
   "analysis.band.history": "Không phụ thuộc khoảng thời gian đã chọn",
   "analysis.habits": "Thói quen mua sắm",

@@ -40,7 +40,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Tổng quan hiển thị chi tiêu của tháng được đối chiếu và phần trăm tăng hoặc giảm so với tháng trước, kèm tên cả hai tháng hoặc thông báo thiếu dữ liệu đối chiếu.
 - Tổng quan hiển thị chi tiêu của năm được đối chiếu và phần trăm tăng hoặc giảm so với năm trước, kèm tên cả hai năm hoặc thông báo thiếu dữ liệu đối chiếu.
 - So sánh tháng và năm dùng toàn bộ lịch sử, lấy mốc ở cuối khoảng đang chọn nhưng không vượt quá ngày hiện tại.
-- Biểu đồ cột hiển thị Chi tiêu ròng theo tháng trong khoảng đang chọn, tháng không có đơn nằm giữa vẫn có cột bằng 0, và có bảng số liệu thay thế có thể mở hoặc đóng.
+- Biểu đồ cột hiển thị Chi tiêu ròng theo tháng của toàn bộ lịch sử: cột thuộc khoảng đang chọn tô đậm, cột ngoài khoảng tô nhạt, tháng không có đơn nằm giữa vẫn có cột bằng 0. Mỗi cột là tổng cả tháng, kể cả khi khoảng đang chọn chỉ chạm một phần tháng đó. Bấm một cột chọn riêng tháng đó (tương đương «Theo tháng» trong bộ chọn khoảng thời gian); bấm lại cột đang chọn trở về Tất cả. Biểu đồ có bảng số liệu thay thế có thể mở hoặc đóng.
 - Danh sách năm shop có Chi tiêu ròng cao nhất hiển thị thứ hạng, tên shop, số đơn hàng, số tiền và thanh so sánh trong khoảng đang chọn.
 - Shop được nhóm theo định danh shop khi có, nếu thiếu dùng định danh người bán trong lịch sử cũ (đơn cũ thiếu định danh shop được gán định danh của đơn khác cùng người bán khi có); tên hiển thị trùng nhau không làm gộp hai người bán và tên chứa dấu phân cách được giữ đầy đủ.
 - Nút tạo ảnh chia sẻ nằm ở màn hình Tổng quan.
@@ -107,6 +107,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Giao diện và khả năng tiếp cận
 
+- Mọi màn hình dùng phông Be Vietnam Pro đóng gói sẵn trong tiện ích, không tải phông từ mạng; ảnh chia sẻ giữ phông riêng của nó.
 - Popup, dashboard, trang chào mừng và chính sách bảo mật đều có lựa chọn Tự động, Sáng và Tối.
 - Chế độ mặc định là Tự động, theo màu hệ thống và cập nhật khi hệ thống đổi giữa sáng với tối.
 - Lựa chọn giao diện được lưu để áp dụng ở lần mở sau và được áp dụng trước khi hiển thị nội dung.

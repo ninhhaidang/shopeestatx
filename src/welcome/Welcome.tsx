@@ -21,7 +21,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   const id = useId();
   return (
     <section aria-labelledby={id} className="flex flex-col gap-3">
-      <h2 id={id} className="font-serif text-xl font-semibold">
+      <h2 id={id} className="text-xl font-semibold">
         {title}
       </h2>
       {children}
@@ -84,7 +84,7 @@ export function Welcome({ host }: { host: WelcomeHost }) {
             <ol aria-label={t('welcome.sectionHowToUse')} className="flex flex-col gap-3">
               {STEPS.map((n) => (
                 <li key={n} className={`${cardClass} flex gap-4`}>
-                  <span aria-hidden="true" className="num font-serif text-2xl font-semibold text-accent-text">
+                  <span aria-hidden="true" className="num text-2xl font-semibold text-accent-text">
                     {String(n).padStart(2, '0')}
                   </span>
                   <div>

@@ -1,5 +1,9 @@
 /* Entry stylesheet for every React surface: import this once from the surface's main.tsx. */
 @import 'tailwindcss';
+/* Be Vietnam Pro is drawn for Vietnamese diacritics. Bundled with the extension: no font request leaves the browser. */
+@import '@fontsource/be-vietnam-pro/400.css';
+@import '@fontsource/be-vietnam-pro/500.css';
+@import '@fontsource/be-vietnam-pro/600.css';
 @import './tokens.css';
 
 @layer base {

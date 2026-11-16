@@ -20,7 +20,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   const id = useId();
   return (
     <section aria-labelledby={id} className="rounded-xl border border-line bg-card p-4 sm:p-6">
-      <h2 id={id} className="mb-3 font-serif text-lg font-semibold">
+      <h2 id={id} className="mb-3 text-lg font-semibold">
         {title}
       </h2>
       <div className="flex flex-col gap-2 text-sm leading-relaxed text-muted [&_strong]:text-fg">{children}</div>
@@ -51,7 +51,7 @@ export function Privacy() {
 
         <header className="mb-4 flex flex-col items-center gap-1 border-b border-line pb-6 text-center">
           <Logo className="text-lg" />
-          <h1 className="font-serif text-3xl font-semibold">Chính sách bảo mật</h1>
+          <h1 className="text-3xl font-semibold">Chính sách bảo mật</h1>
           <p className="text-sm text-muted">ShopeeStatX &nbsp;•&nbsp; Cập nhật lần cuối: 05/03/2026</p>
           <p className="text-sm text-muted">
             <em>Privacy Policy / Politique de confidentialité</em>

@@ -18,6 +18,8 @@
   "project": ["src/**/*.{js,ts,tsx}", "scripts/**/*.mjs", "tests/**/*.{ts,tsx}", "*.ts"],
   "ignoreDependencies": [
     // Tailwind's CSS entry imports tailwindcss; Knip only follows JS/TS imports here.
-    "tailwindcss"
+    "tailwindcss",
+    // Font files, imported from the same CSS entry.
+    "@fontsource/be-vietnam-pro"
   ]
 }

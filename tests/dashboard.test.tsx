@@ -105,6 +105,24 @@ describe('Tổng quan', () => {
     expect(row).toHaveTextContent(/300\.000/);
   });
 
+  it('picks a month when its bar is clicked, keeps the other bars dimmed, and clears on a second click', async () => {
+    renderDashboard();
+    await screen.findByRole('heading', { name: 'Chi tiêu theo tháng' });
+    const click = (index: number) =>
+      act(() => (charts.at(-1)!.config as unknown as { options: { onClick: (e: unknown, hit: { index: number }[]) => void } }).options.onClick({}, [{ index }]));
+
+    click(0); // 8/2025
+    expect(screen.getByTestId('net-spend')).toHaveTextContent(/550\.000/);
+    const chart = charts.at(-1)!;
+    expect(chart.config.data.labels).toHaveLength(15);
+    const fills = (chart.config.data.datasets[0] as unknown as { backgroundColor: string[] }).backgroundColor;
+    expect(new Set(fills.slice(1)).size).toBe(1);
+    expect(fills[0]).not.toBe(fills[1]);
+
+    click(0);
+    expect(screen.getByTestId('net-spend')).toHaveTextContent(/1\.300\.000/);
+  });
+
   it('creates the share image from the aggregate stats of the selected range', async () => {
     const { user } = renderDashboard();
 

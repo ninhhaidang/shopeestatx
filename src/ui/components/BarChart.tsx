@@ -17,25 +17,29 @@ export interface BarChartProps {
   formatValue: (value: number) => string;
   /** Compact form for the y axis. */
   formatTick: (value: number) => string;
+  /** Bars to draw at full strength; the others are dimmed. Omit to draw every bar the same. */
+  active?: boolean[];
+  /** Called with the index of a clicked bar. The caller offers the same action to the keyboard elsewhere. */
+  onSelect?: (index: number) => void;
 }
 
-/** Colours come from the active theme's tokens, so the chart follows Light/Dark. */
+/** Colours and the font come from the page, so the chart follows Light/Dark and the UI typeface. */
 function readColors() {
   const css = getComputedStyle(document.documentElement);
   const pick = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
-  return { bar: pick('--accent', '#ee4d2d'), hover: pick('--accent-strong', '#c2371b'), text: pick('--muted', '#5b6470'), grid: pick('--line', '#d6dbe1') };
+  return { bar: pick('--accent', '#ee4d2d'), hover: pick('--accent-strong', '#c2371b'), text: pick('--muted', '#5b6470'), grid: pick('--line', '#d6dbe1'), font: { family: getComputedStyle(document.body).fontFamily } };
 }
 
 /**
  * Chart.js bar chart. The canvas is a picture for sighted users; the same numbers are always
  * available as a table below it (keyboard and screen reader friendly).
  */
-export function BarChart({ title, labels, values, labelHeader, valueHeader, formatValue, formatTick }: BarChartProps) {
+export function BarChart({ title, labels, values, labelHeader, valueHeader, formatValue, formatTick, active, onSelect }: BarChartProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const { theme } = useTheme();
   // Latest formatters without re-creating the chart on every render.
-  const fmt = useRef({ formatValue, formatTick });
-  fmt.current = { formatValue, formatTick };
+  const fmt = useRef({ formatValue, formatTick, onSelect });
+  fmt.current = { formatValue, formatTick, onSelect };
 
   useEffect(() => {
     if (!canvas.current) return;
@@ -44,24 +48,28 @@ export function BarChart({ title, labels, values, labelHeader, valueHeader, form
       type: 'bar',
       data: {
         labels,
-        datasets: [{ label: valueHeader, data: values, backgroundColor: c.bar, hoverBackgroundColor: c.hover, borderRadius: 4 }],
+        datasets: [{ label: valueHeader, data: values, backgroundColor: active ? active.map(on => (on ? c.bar : `${c.bar}4d`)) : c.bar, hoverBackgroundColor: c.hover, borderRadius: 4 }],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         animation: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? false : undefined,
+        onClick: (_event, hit) => hit[0] && fmt.current.onSelect?.(hit[0].index),
+        onHover: (event, hit) => {
+          if (fmt.current.onSelect && event.native?.target instanceof HTMLElement) event.native.target.style.cursor = hit[0] ? 'pointer' : '';
+        },
         plugins: {
           legend: { display: false },
           tooltip: { callbacks: { label: ctx => fmt.current.formatValue(ctx.raw as number) } },
         },
         scales: {
-          y: { beginAtZero: true, ticks: { color: c.text, callback: v => fmt.current.formatTick(v as number) }, grid: { color: c.grid } },
-          x: { ticks: { color: c.text, maxRotation: 0 }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { color: c.text, font: c.font, callback: v => fmt.current.formatTick(v as number) }, grid: { color: c.grid } },
+          x: { ticks: { color: c.text, font: c.font, maxRotation: 0 }, grid: { display: false } },
         },
       },
     });
     return () => chart.destroy();
-  }, [labels, values, valueHeader, theme]);
+  }, [labels, values, valueHeader, theme, active]);
 
   return (
     <div>
