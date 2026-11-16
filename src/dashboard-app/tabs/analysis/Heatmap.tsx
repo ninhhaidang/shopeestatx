@@ -12,9 +12,9 @@ const LEFT = 24;
 const TOP = 20;
 const DAY_LABELS: Record<number, string> = { 1: 'heatmap.day.mon', 3: 'heatmap.day.wed', 5: 'heatmap.day.fri' };
 
-/** Empty days use the line colour; busier days mix in more of the accent. */
+/** Empty days use a faint line colour; busier days mix in more of the accent. */
 const FILL = [
-  'var(--line)',
+  'color-mix(in srgb, var(--line) 45%, var(--card))',
   'color-mix(in srgb, var(--accent) 30%, var(--card))',
   'color-mix(in srgb, var(--accent) 55%, var(--card))',
   'color-mix(in srgb, var(--accent) 80%, var(--card))',
@@ -73,6 +73,13 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
           )}
         </svg>
       </div>
+      <p aria-hidden="true" className="mt-1 flex items-center gap-1 text-xs text-muted">
+        {t('analysis.heatmap.less')}
+        {FILL.map(fill => (
+          <span key={fill} className="size-3 rounded-[2px]" style={{ background: fill }} />
+        ))}
+        {t('analysis.heatmap.more')}
+      </p>
       <details className="mt-2 text-sm">
         <summary className="w-fit cursor-pointer rounded text-muted hover:text-fg">{t('dash.chart.showTable')}</summary>
         {grid.days.length === 0 ? (

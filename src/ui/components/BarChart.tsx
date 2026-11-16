@@ -56,7 +56,7 @@ export function BarChart({ title, labels, values, labelHeader, valueHeader, form
         },
         scales: {
           y: { beginAtZero: true, ticks: { color: c.text, callback: v => fmt.current.formatTick(v as number) }, grid: { color: c.grid } },
-          x: { ticks: { color: c.text }, grid: { display: false } },
+          x: { ticks: { color: c.text, maxRotation: 0 }, grid: { display: false } },
         },
       },
     });

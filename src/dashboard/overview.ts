@@ -54,6 +54,13 @@ export function computeOverview(orders: Order[]): Overview {
     byShop.set(shopKey, shop);
   }
 
+  // Months without spend still get a zero bar, so the chart's time axis is even.
+  const keys = [...byMonth.keys()];
+  for (let key = Math.min(...keys); key < Math.max(...keys); key++) {
+    const year = Math.floor((key - 1) / 12);
+    if (!byMonth.has(key)) byMonth.set(key, { label: `${key - year * 12}/${year}`, total: 0 });
+  }
+
   return {
     stats,
     orderCount: included.length,

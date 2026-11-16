@@ -188,6 +188,8 @@
   "analysis.heatmap.month": "T{n}",
   "analysis.heatmap.tip": "{date}: {n} đơn",
   "analysis.heatmap.empty": "Không có đơn nào trong khoảng này.",
+  "analysis.heatmap.less": "Ít",
+  "analysis.heatmap.more": "Nhiều",
   "analysis.heatmap.date": "Ngày",
   "analysis.heatmap.orders": "Số đơn",
   "analysis.loyalty.title": "Shop thân thiết",

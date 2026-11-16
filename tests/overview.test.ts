@@ -37,6 +37,19 @@ describe('computeOverview', () => {
     expect(o.monthly.map(m => m.label)).toEqual(['12/2025', '1/2026']);
   });
 
+  it('gives months without orders a zero bar, across a year boundary', () => {
+    const o = computeOverview([
+      makeOrder('2025-11-10T10:00:00', { subTotal: 100_000 }),
+      makeOrder('2026-02-10T10:00:00', { subTotal: 200_000 }),
+    ]);
+    expect(o.monthly).toEqual([
+      { label: '11/2025', total: 100_000 },
+      { label: '12/2025', total: 0 },
+      { label: '1/2026', total: 0 },
+      { label: '2/2026', total: 200_000 },
+    ]);
+  });
+
   it('ranks shops by spend using the shop display name', () => {
     expect(computeOverview(orders).topShops).toEqual([
       { shopKey: 'username:a', name: 'Alpha', amount: 500_000, orders: 2, products: 5 },

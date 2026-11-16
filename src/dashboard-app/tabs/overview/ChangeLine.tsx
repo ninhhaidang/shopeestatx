@@ -15,7 +15,7 @@ export function ChangeLine({ unit, change, testId }: { unit: keyof typeof KEYS; 
     <p data-testid={testId} className="text-sm">
       <span className="text-muted">{t(keys.current, { period: change.label, amount: money(change.current) })}</span>
       {' · '}
-      <span className={`font-semibold ${change.percent === null ? 'text-muted' : up ? 'text-bad' : 'text-good'}`}>
+      <span className={change.percent === null ? 'text-muted' : `font-semibold ${up ? 'text-bad' : 'text-good'}`}>
         {change.percent === null
           ? t(keys.none, { period: change.previousLabel })
           : t(up ? keys.up : keys.down, {

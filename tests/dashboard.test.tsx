@@ -73,9 +73,9 @@ describe('Tổng quan', () => {
     expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 10/2026: 450.000 ₫ · ↑ 50% so với tháng 9/2026');
     expect(screen.getByTestId('year-change')).toHaveTextContent('Năm 2026: 750.000 ₫ · ↑ 36,4% so với năm 2025');
     expect(tile('Số đơn')).toHaveTextContent('4');
-    expect(tile('Trung bình/đơn')).toHaveTextContent('325K');
-    expect(tile('Hoàn tiền')).toHaveTextContent('900K');
-    expect(tile('Tiết kiệm ước tính')).toHaveTextContent('50K');
+    expect(tile('Trung bình/đơn')).toHaveTextContent('325k');
+    expect(tile('Hoàn tiền')).toHaveTextContent('900k');
+    expect(tile('Tiết kiệm ước tính')).toHaveTextContent('50k');
   });
 
   it('ranks the top shops by spend', async () => {
@@ -83,9 +83,9 @@ describe('Tổng quan', () => {
 
     const list = within(await screen.findByRole('list', { name: 'Top shop' }));
     const rows = list.getAllByRole('listitem').map(li => li.textContent);
-    expect(rows[0]).toMatch(/Alpha.*650K/);
-    expect(rows[1]).toMatch(/Gamma.*550K/);
-    expect(rows[2]).toMatch(/Beta.*100K/);
+    expect(rows[0]).toMatch(/Alpha.*650k/);
+    expect(rows[1]).toMatch(/Gamma.*550k/);
+    expect(rows[2]).toMatch(/Beta.*100k/);
   });
 
   it('charts spend per month and offers the same numbers as a table', async () => {
@@ -93,8 +93,11 @@ describe('Tổng quan', () => {
 
     await screen.findByRole('heading', { name: 'Chi tiêu theo tháng' });
     const chart = charts.at(-1)!;
-    expect(chart.config.data.labels).toEqual(['8/2025', '9/2026', '10/2026']);
-    expect(chart.config.data.datasets[0].data).toEqual([550_000, 300_000, 450_000]);
+    // 8/2025 to 10/2026 is 15 months; the twelve without orders are zero bars.
+    const { labels, datasets } = chart.config.data;
+    expect(labels).toHaveLength(15);
+    expect([labels[0], labels[13], labels[14]]).toEqual(['8/2025', '9/2026', '10/2026']);
+    expect(datasets[0].data).toEqual([550_000, ...Array(12).fill(0), 300_000, 450_000]);
     expect(screen.getByRole('img', { name: /Chi tiêu theo tháng/ })).toBeInTheDocument();
 
     await user.click(screen.getByText('Xem bảng số liệu'));
@@ -154,7 +157,7 @@ describe('khoảng ngày toàn cục', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng này');
     expect(hero()).toHaveTextContent(/450\.000/);
     expect(tile('Số đơn')).toHaveTextContent('1');
-    expect(tile('Hoàn tiền')).toHaveTextContent('900K');
+    expect(tile('Hoàn tiền')).toHaveTextContent('900k');
   });
 
   it('says which calendar months the change compares, whatever the range total is', async () => {

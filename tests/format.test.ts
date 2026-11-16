@@ -21,9 +21,12 @@ describe('formatCurrency', () => {
   });
 
   it('shortens to K and M', () => {
-    expect(formatCurrency(1_500_000, true)).toBe('1.5M');
-    expect(formatCurrency(1_000_000, true)).toBe('1.0M');
-    expect(formatCurrency(500_000, true)).toBe('500K');
+    expect(formatCurrency(1_500_000, true)).toBe('1,5 tr');
+    expect(formatCurrency(1_000_000, true)).toBe('1 tr');
+    expect(formatCurrency(500_000, true)).toBe('500k');
+    // Rounding never produces "1000k" or "1000 tr".
+    expect(formatCurrency(999_600, true)).toBe('1 tr');
+    expect(formatCurrency(2_340_000_000, true)).toBe('2,3 tỷ');
     expect(formatCurrency(999, true)).toBe('999');
   });
 });
