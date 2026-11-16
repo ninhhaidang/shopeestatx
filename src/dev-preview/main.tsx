@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { Dashboard } from '../dashboard-app/Dashboard';
 import { mockHost } from '../dashboard-app/mock-host';
 import { initLocale } from '../i18n/index.js';
-import { StyleProvider } from '../ui/theme/StyleProvider';
 import { ThemeProvider } from '../ui/theme/ThemeProvider';
 import '../ui/styles/app.css';
 import './preview.css';
@@ -20,9 +19,7 @@ if (import.meta.env.DEV) {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <ThemeProvider initialMode={theme}>
-        <StyleProvider>
-          <Dashboard host={mockHost} />
-        </StyleProvider>
+        <Dashboard host={mockHost} />
       </ThemeProvider>
     </StrictMode>,
   );

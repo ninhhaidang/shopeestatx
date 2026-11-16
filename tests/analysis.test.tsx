@@ -149,14 +149,8 @@ describe('Phân tích: khoảng ngày toàn cục', () => {
 });
 
 describe('Phân tích: dự đoán và ngân sách', () => {
-  it.each([
-    ['Fintech', 'localStorage'],
-    ['Ấm áp', 'localStorage'],
-    ['Fintech', 'chrome'],
-    ['Ấm áp', 'chrome'],
-  ])('preserves unsaved budget values after %s save failure through %s', async (style, adapter) => {
+  it.each(['localStorage', 'chrome'])('preserves unsaved budget values after a save failure through %s', async (adapter) => {
     const { user } = await openAnalysis();
-    await user.click(screen.getByRole('radio', { name: style }));
     await user.click(await screen.findByRole('button', { name: 'Thiết lập' }));
     const limit = screen.getByLabelText('Hạn mức hàng tháng (VND)');
     await user.clear(limit);

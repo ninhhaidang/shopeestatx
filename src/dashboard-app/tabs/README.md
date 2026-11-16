@@ -2,7 +2,7 @@
 
 ## Overview
 
-Three dashboard screens consume shared global range/data context. Fintech-style tab entry points live here; child directories hold shared helpers and warm-style counterparts. Style/tab selection belongs to `src/dashboard-app/tabs.tsx`, outside this directory.
+Three dashboard screens consume shared global range/data context. Tab entry points live here; child directories hold their helpers. Tab selection belongs to `src/dashboard-app/tabs.tsx`, outside this directory.
 
 ## Interface
 
@@ -14,9 +14,9 @@ Three dashboard screens consume shared global range/data context. Fintech-style 
 
 | Contract | Responsibility |
 | --- | --- |
-| [overview](overview/README.md) | Warm overview and comparison text shared by both styles. |
-| [orders](orders/README.md) | Warm browser, fintech row/detail/paging helpers, and print sheet. |
-| [analysis](analysis/README.md) | Warm analysis plus budget, loyalty, insights, and heatmap views. |
+| [overview](overview/README.md) | Period-comparison text. |
+| [orders](orders/README.md) | Row/detail/paging helpers and print sheet. |
+| [analysis](analysis/README.md) | Budget, loyalty, insights, and heatmap views. |
 
 ## Invariants
 

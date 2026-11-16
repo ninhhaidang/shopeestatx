@@ -10,13 +10,11 @@ Global stylesheet entry, design tokens, and reusable class strings for React sur
 | --- | --- |
 | [classes.ts](./classes.ts) | Exports `card` and `control`, shared Tailwind class strings for bordered card surfaces and compact controls. |
 | [app.css](./app.css) | Surface entry stylesheet: imports Tailwind and `tokens.css`; supplies body defaults, visible keyboard focus, `num` tabular-digit utility, print handling, and reduced-motion rules. Import once from each surface's `main.tsx`. |
-| [tokens.css](./tokens.css) | Defines base light and `[data-theme='dark']` tokens, `.style-warm` token families, and `@theme inline` mappings to Tailwind colour and font utilities. |
+| [tokens.css](./tokens.css) | Defines base light and `[data-theme='dark']` tokens and `@theme inline` mappings to Tailwind colour and font utilities. |
 
 ## Invariants
 
 - `data-theme` is resolved `light` or `dark`, not `auto`. Base `:root` values provide the light palette.
-- Display style is independent of colour mode. Warm tokens use `--w-*` and `warm-*` utilities; the warm class does not replace the base token family.
-- Dark-warm overrides use `[data-theme='dark'].style-warm`: both selectors belong on the same root element, not nested elements.
 - Text-bearing accent utilities `accent-solid` and `accent-text` map to `--accent-strong`; decorative `accent` maps to `--accent`. Keep this distinction when changing palette mappings.
 - `card` and `control` are static strings, not stateful components or class-building functions.
 - Token CSS declares text/surface contrast as an accessibility contract; this documentation does not independently certify contrast values.

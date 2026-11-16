@@ -13,7 +13,6 @@ Reusable React presentation primitives for dashboard and popup surfaces: actions
 | [Skeleton.tsx](./Skeleton.tsx) | `Skeleton({ className? })` renders a decorative loading block; callers supply dimensions. |
 | [StateMessage.tsx](./StateMessage.tsx) | `StateMessage({ title, message?, tone?, action? })`; `message` accepts a React node, `tone` is `neutral` or `error`, and `action` contains `label` and `onClick`. |
 | [ThemeToggle.tsx](./ThemeToggle.tsx) | `ThemeToggle()` selects `auto`, `light`, or `dark` through the theme context. |
-| [StyleToggle.tsx](./StyleToggle.tsx) | `StyleToggle()` selects `fintech` or `warm` through the style context. |
 | [BarChart.tsx](./BarChart.tsx) | Exports `BarChartProps` and `BarChart({ title, labels, values, labelHeader, valueHeader, formatValue, formatTick })`. Labels and values are arrays; formatters accept numbers and return strings. |
 
 Theme and style consumers rely on [providers](../theme/README.md). Visual classes rely on [shared styles](../styles/README.md). Toggle labels and chart accessibility text use `src/i18n/index.ts`; Radix Toggle Group supplies single-selection interaction, and Chart.js supplies canvas rendering.
@@ -26,7 +25,7 @@ Theme and style consumers rely on [providers](../theme/README.md). Visual classe
 - Preference toggles reject invalid values and the empty selection emitted when clicking an active Radix item, preserving the current choice. They require their corresponding providers.
 - `BarChart` requires `ThemeProvider`. It renders a named canvas plus an expandable table with caption, column headers, row headers, and formatted values.
 - Chart callers must provide labels and values in matching order and lengths; rows index directly into `values` without validation. Labels also serve as React row keys and should be unique.
-- Chart colours are read from root CSS tokens when its effect runs, with fixed fallbacks. Re-creation depends on labels, values, value header, and resolved colour theme, not display style alone. Formatter refs update without independently re-creating the chart.
+- Chart colours are read from root CSS tokens when its effect runs, with fixed fallbacks. Re-creation depends on labels, values, value header, and resolved colour theme. Formatter refs update without independently re-creating the chart.
 - Chart animation is disabled when the reduced-motion query matches at creation.
 
 ## Side Effects

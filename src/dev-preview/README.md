@@ -9,7 +9,7 @@
 - Loads `Dashboard` from `src/dashboard-app/Dashboard.tsx` with `mockHost`.
 - Query parameter `width=tab` selects tab layout; every other value selects `400` width mode.
 - Query parameter `theme=dark` selects dark mode; every other value selects light.
-- Mounts within React `StrictMode`, shared `ThemeProvider`, and `StyleProvider`, after Vietnamese locale initialization.
+- Mounts within React `StrictMode`, and shared `ThemeProvider`, after Vietnamese locale initialization.
 
 ## Invariants
 

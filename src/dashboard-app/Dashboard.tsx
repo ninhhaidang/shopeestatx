@@ -5,15 +5,13 @@ import { t } from '../i18n/index.js';
 import { Button } from '../ui/components/Button';
 import { Logo } from '../ui/components/Logo';
 import { StateMessage } from '../ui/components/StateMessage';
-import { StyleToggle } from '../ui/components/StyleToggle';
 import { ThemeToggle } from '../ui/components/ThemeToggle';
-import { useStyle } from '../ui/theme/StyleProvider';
 import { AccountChip } from './AccountChip';
 import { DashboardContext } from './context';
 import type { DashboardHost } from './host';
 import { OverviewSkeleton } from './OverviewSkeleton';
 import { RangePicker } from './RangePicker';
-import { resolveTabComponent, TABS, type TabId } from './tabs';
+import { TABS, type TabId } from './tabs';
 import { formatUpdated } from './updated';
 import { useOrderData } from './useOrderData';
 
@@ -27,7 +25,6 @@ const currentTime = () => new Date();
  */
 export function Dashboard({ host, now = currentTime }: { host: DashboardHost; now?: () => Date }) {
   const orderData = useOrderData(host);
-  const { style } = useStyle();
   const { phase, data, refreshing, notice, progress, stalled, scanning } = orderData;
   const [tab, setTab] = useState<TabId>('overview');
   const [selection, setSelection] = useState<RangeSelection>(ALL_TIME);
@@ -92,7 +89,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
       <StateMessage title={t('dash.empty.title')} message={t('dash.empty.message')} action={{ label: t('dash.empty.action'), onClick: orderData.refresh }} />
     );
   } else {
-    const Active = resolveTabComponent(tab, style);
+    const Active = TABS.find((def) => def.id === tab)!.component;
     content = (
       <DashboardContext.Provider value={context}>
         <Active />
@@ -153,7 +150,6 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
 
         <div className="col-start-1 row-start-2 flex min-w-0 flex-wrap items-center gap-3 px-2 py-3 @5xl:col-start-3 @5xl:row-start-1 @5xl:px-4 @6xl:col-start-4">
           {data?.user && <AccountChip user={data.user} />}
-          <StyleToggle />
           <ThemeToggle />
         </div>
 

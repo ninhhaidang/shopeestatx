@@ -34,7 +34,7 @@ Chrome Manifest V3 runtime and shared React presentation layer. Popup selects a 
 - Order and supplied seller IDs are strings. Unknown delivery dates stay unknown. Spend excludes cancelled/returned orders; excluded-order amounts are not proof of an actual refund transaction.
 - Complete history stays distinct from range-filtered views. Current-month budget uses complete history independently of global range.
 - Collection must preserve scan identity, account checks, cursor advancement, and cache-write coordination; failed scans must not become complete snapshots.
-- Colour mode and display style remain independent; pre-paint colour resolution mirrors shared theme helpers.
+- Pre-paint colour resolution mirrors shared theme helpers.
 - Manifest filenames must match built outputs. Bridge and collector execute as classic scripts; extension pages allow only self-hosted scripts.
 
 ## Side Effects

@@ -65,7 +65,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Bảng khổ rộng giữ chiều rộng cho mã đơn, ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm cùng dòng với mã đơn và nhãn «Đơn bị loại» không bị bẻ đôi.
 - Ô tìm kiếm lọc ngay theo mã đơn hàng, tên sản phẩm, tên shop, mô tả sản phẩm hoặc trạng thái và không phân biệt chữ hoa với chữ thường.
 - Bộ lọc trạng thái hỗ trợ tất cả, hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán và trả hàng.
-- Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn. Ở cả Fintech và Ấm áp, tên shop dài không đẩy bộ lọc vượt vùng nội dung; danh sách lựa chọn vẫn giữ đầy đủ tên.
+- Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn. Tên shop dài không đẩy bộ lọc vượt vùng nội dung; danh sách lựa chọn vẫn giữ đầy đủ tên.
 - Người dùng có thể sắp xếp tăng hoặc giảm theo ngày giao, trạng thái hoặc số tiền bằng tiêu đề cột ở khổ rộng và bộ chọn ở khổ hẹp.
 - Người dùng có thể chọn 20, 50, 100 hoặc tất cả đơn hàng mỗi trang và chuyển trang trong danh sách kết quả.
 - Danh sách hiển thị số kết quả và có trạng thái không tìm thấy cùng nút đặt lại bộ lọc khi tìm kiếm hoặc lọc không khớp đơn hàng nào.
@@ -112,7 +112,6 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Người dùng có thể thao tác bằng bàn phím với trạng thái focus rõ ràng, chuyển tab bằng phím mũi tên hoặc phím đầu và cuối, và dùng nhãn điều khiển dành cho trình đọc màn hình.
 - Biểu đồ chi tiêu và biểu đồ nhiệt có bảng số liệu thay thế để không buộc người dùng đọc dữ liệu chỉ qua màu sắc hoặc hình vẽ.
 - Giao diện giảm chuyển động theo thiết lập hệ thống và định dạng số tiền, ngày giờ theo cách hiển thị tiếng Việt.
-- Dashboard có bộ chọn kiểu hiển thị Fintech và Ấm áp, độc lập với bộ chọn Sáng/Tối, áp dụng cho cả ba màn hình Tổng quan, Phân tích và Đơn hàng. Mặc định là Fintech; lựa chọn Ấm áp được lưu để áp dụng ở lần mở sau. Kiểu Ấm áp giữ đủ số liệu, chức năng tìm kiếm/lọc/sắp xếp/phân trang/xuất dữ liệu/in như Fintech, chỉ đổi cách trình bày (văn xuôi, số serif, danh sách hoá đơn một cột) và có bảng màu sáng/tối riêng đạt WCAG AA.
 
 ## Trang chào mừng
 
@@ -133,6 +132,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Thay đổi chủ ý trong redesign và giới hạn hiện tại
 
 - Các theme màu cũ đã bị loại bỏ có chủ ý và được thay bằng ba lựa chọn Tự động, Sáng và Tối.
+- Kiểu hiển thị Ấm áp và bộ chọn Fintech/Ấm áp đã bị loại bỏ có chủ ý; dashboard chỉ còn một kiểu hiển thị (trước đây gọi là Fintech), vẫn có ba lựa chọn màu Tự động, Sáng và Tối.
 - Bố cục dashboard một trang cuộn dài đã được thay có chủ ý bằng ba màn hình Tổng quan, Phân tích và Đơn hàng, không phải bỏ các chức năng được liệt kê ở trên.
 - Popup được giữ gọn như nơi khởi chạy phân tích và truy cập liên kết, thay vì lặp lại dashboard.
 - Khả năng thích ứng với vùng hẹp không đồng nghĩa đã có nút mở side panel, vì tùy chọn mở side panel chưa thuộc giao diện hiện tại.

@@ -1,7 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { initLocale } from '../i18n/index.js';
-import { StyleProvider } from '../ui/theme/StyleProvider';
 import { ThemeProvider } from '../ui/theme/ThemeProvider';
 import '../ui/styles/app.css';
 import { Dashboard } from './Dashboard';
@@ -18,9 +17,7 @@ const forceMock = import.meta.env.DEV && new URLSearchParams(window.location.sea
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      <StyleProvider>
-        <Dashboard host={inExtension && !forceMock ? chromeHost : mockHost} />
-      </StyleProvider>
+      <Dashboard host={inExtension && !forceMock ? chromeHost : mockHost} />
     </ThemeProvider>
   </StrictMode>,
 );

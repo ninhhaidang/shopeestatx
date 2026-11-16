@@ -156,7 +156,7 @@ ShopeeStatX chạy trong Chrome Manifest V3: popup chọn tab Shopee, dashboard 
 - Chỉ dùng endpoint lịch sử đơn hiện có; không thêm request Shopee để bổ sung trường còn thiếu. [Ràng buộc API](./docs/shopee-order-api.md) là nguồn đối chiếu dữ liệu.
 - ID đơn và seller là chuỗi; ngày giao thiếu phải giữ chưa biết. Đơn huỷ/trả hàng không tính vào chi tiêu; giá trị đơn bị loại không chứng minh giao dịch hoàn tiền thực tế.
 - Phân biệt toàn bộ lịch sử với tập đơn theo khoảng ngày; ngân sách tháng hiện tại không phụ thuộc bộ lọc toàn cục. Scan lỗi không được ghi thành snapshot hoàn chỉnh.
-- Giao diện dùng host boundary để tách Chrome APIs khỏi React; demo dùng mock host, không gọi Shopee. Màu sáng/tối/tự động độc lập với phong cách fintech/ấm áp.
+- Giao diện dùng host boundary để tách Chrome APIs khỏi React; demo dùng mock host, không gọi Shopee.
 - Collector và bridge phải chạy như classic script. Đường dẫn build phải khớp manifest; không mở rộng origin/quyền truy cập trong thay đổi tài liệu.
 
 ## Side Effects

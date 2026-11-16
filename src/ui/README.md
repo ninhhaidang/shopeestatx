@@ -8,8 +8,8 @@ Shared browser presentation layer for React surfaces. This directory is an archi
 
 | Child boundary | Responsibility and entry points |
 | --- | --- |
-| [Components](./components/README.md) | `Button`, `Logo`, `Skeleton`, `StateMessage`, `ThemeToggle`, `StyleToggle`, `BarChart`, and `BarChartProps`; caller-driven rendering and interactions. |
-| [Theme](./theme/README.md) | Colour-mode and display-style types, validation/storage/application helpers, `ThemeProvider`/`useTheme`, and `StyleProvider`/`useStyle`. |
+| [Components](./components/README.md) | `Button`, `Logo`, `Skeleton`, `StateMessage`, `ThemeToggle`, `BarChart`, and `BarChartProps`; caller-driven rendering and interactions. |
+| [Theme](./theme/README.md) | Colour-mode types, validation/storage/application helpers, and `ThemeProvider`/`useTheme`. |
 | [Styles](./styles/README.md) | Global `app.css` entry, `tokens.css` palettes and Tailwind mappings, plus `card` and `control` class-string exports. |
 
 Consumers import concrete child modules; there is no `src/ui` aggregate entry point. Configuration/storage-key naming comes from `src/config.ts`; localized labels come from `src/i18n/index.ts`.
@@ -17,7 +17,7 @@ Consumers import concrete child modules; there is no `src/ui` aggregate entry po
 ## Invariants
 
 - Theme state, CSS tokens, and visual widgets are separate boundaries. Providers manage browser preferences; styles consume root selectors; widgets render caller-supplied data.
-- Colour mode (`light`, `dark`, `auto`) and display style (`fintech`, `warm`) remain independent. Only resolved light/dark values reach `data-theme`; warm style uses a root class.
+- Colour mode is `light`, `dark`, or `auto`. Only resolved light/dark values reach `data-theme`.
 - Hooks require their matching providers; `BarChart` requires theme context, and each preference toggle requires its corresponding context.
 - Surfaces import the shared CSS entry once. Browser DOM, storage, media-query APIs, and canvas rendering are intentional runtime dependencies, not server-rendering abstractions.
 - Accessibility contracts include native buttons, visible focus, state announcement roles, decorative skeletons, an accompanying chart table, and reduced-motion handling. Callers still own meaningful text and correctly aligned chart data.

@@ -2,12 +2,11 @@
 
 ## Overview
 
-Warm-style overview presentation and shared period-comparison text. Financial calculations belong to `src/dashboard/overview.ts`; these components render their results.
+Period-comparison text for the overview tab. Financial calculations belong to `src/dashboard/overview.ts`; this component renders their results.
 
 ## Interface
 
-- [OverviewTabWarm.tsx](OverviewTabWarm.tsx): `OverviewTabWarm()` reads dashboard context and renders net spend, order/refund/savings summaries, monthly SVG chart with a table alternative, top-shop breakdown, and share-image action.
-- [ChangeLine.tsx](ChangeLine.tsx): `ChangeLine({ unit, change, testId })` accepts `unit: 'month' | 'year'`, a `PeriodChange`, and a test identifier. Used by both overview styles.
+- [ChangeLine.tsx](ChangeLine.tsx): `ChangeLine({ unit, change, testId })` accepts `unit: 'month' | 'year'`, a `PeriodChange`, and a test identifier.
 
 ## Invariants
 

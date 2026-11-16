@@ -13,7 +13,7 @@ React dashboard entry point, host boundary, order-loading state machine, global 
 - [mock-host.ts](mock-host.ts) exports `mockHost`, lazily loading demo order data without Chrome APIs.
 - [useOrderData.ts](useOrderData.ts): `useOrderData(host)` returns `OrderDataState` and `refresh`. State includes phase, retained data, scan progress, stall status, background-refresh status, notices, and errors.
 - [context.ts](context.ts) exports `DashboardContext`, `DashboardContextValue`, and `useDashboard()`: full `data`, filtered `orders`, resolved `range`, `selection`, `resetRange`, `now`, and `refresh`.
-- [tabs.tsx](tabs.tsx) exports `TabId`, `TabDef`, `TABS`, and `resolveTabComponent(tabId, style)`. Tab order is overview, analysis, orders; each has fintech/warm renderers.
+- [tabs.tsx](tabs.tsx) exports `TabId`, `TabDef`, and `TABS`.Tab order is overview, analysis, orders; each has one `component`.
 - [RangePicker.tsx](RangePicker.tsx): `RangePicker({ value, onChange, years, now })` emits range selections. [AccountChip.tsx](AccountChip.tsx) presents a `UserProfile`; [OverviewSkeleton.tsx](OverviewSkeleton.tsx) presents loading state.
 - [format.ts](format.ts) exports `money` and `shortMoney`; [updated.ts](updated.ts) exports `formatUpdated(timestamp, now)` for localized elapsed-time text.
 
