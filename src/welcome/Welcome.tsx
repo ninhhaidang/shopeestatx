@@ -15,8 +15,6 @@ const PERMISSIONS = [
 ] as const;
 const STEPS = [1, 2, 3, 4] as const;
 
-const cardClass = 'rounded-xl border border-line bg-card p-4';
-
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const id = useId();
   return (
@@ -44,8 +42,8 @@ export function Welcome({ host }: { host: WelcomeHost }) {
         </div>
 
         <header className="flex flex-col items-center gap-2 border-b border-line pb-8 text-center">
-          <h1>
-            <Logo className="text-[length:inherit]! text-4xl sm:text-5xl" />
+          <h1 className="text-4xl sm:text-5xl">
+            <Logo className="text-[length:inherit]!" />
           </h1>
           <p className="text-base text-muted sm:text-lg">{t('welcome.tagline')}</p>
           <span className="rounded-full border border-line bg-card px-3 py-0.5 text-xs text-muted">v{manifest.version}</span>
@@ -53,9 +51,9 @@ export function Welcome({ host }: { host: WelcomeHost }) {
 
         <main className="flex flex-col gap-8">
           <Section title={t('welcome.sectionWhatDoes')}>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-3">
               {FEATURES.map((feature) => (
-                <div key={feature} className={cardClass}>
+                <div key={feature} className="bg-card p-4">
                   <h3 className="text-base font-semibold">{t(`welcome.${feature}`)}</h3>
                   <p className="mt-1 text-sm text-muted">{t(`welcome.${feature}Desc`)}</p>
                 </div>
@@ -81,11 +79,11 @@ export function Welcome({ host }: { host: WelcomeHost }) {
           </Section>
 
           <Section title={t('welcome.sectionHowToUse')}>
-            <ol aria-label={t('welcome.sectionHowToUse')} className="flex flex-col gap-3">
+            <ol aria-label={t('welcome.sectionHowToUse')} className="flex flex-col divide-y divide-line rounded-xl border border-line bg-card">
               {STEPS.map((n) => (
-                <li key={n} className={`${cardClass} flex gap-4`}>
-                  <span aria-hidden="true" className="num text-2xl font-semibold text-accent-text">
-                    {String(n).padStart(2, '0')}
+                <li key={n} className="flex gap-4 p-4">
+                  <span aria-hidden="true" className="num w-5 text-2xl font-semibold leading-7 text-accent-text">
+                    {n}
                   </span>
                   <div>
                     <strong className="font-semibold">{t(`welcome.step${n}Title`)}</strong>

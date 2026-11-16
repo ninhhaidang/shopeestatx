@@ -61,8 +61,8 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Đơn hàng
 
-- Danh sách đơn hàng hiển thị mã đơn hàng, ngày giao, trạng thái, sản phẩm, số lượng sản phẩm và số tiền của từng đơn hàng trong khoảng đang chọn.
-- Bảng khổ rộng giữ chiều rộng cho mã đơn, ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm cùng dòng với mã đơn và nhãn «Đơn bị loại» không bị bẻ đôi.
+- Danh sách đơn hàng hiển thị sản phẩm (dòng chính), shop và mã đơn hàng (dòng phụ bên dưới), ngày giao, trạng thái, số lượng sản phẩm và số tiền của từng đơn hàng trong khoảng đang chọn.
+- Bảng khổ rộng giữ chiều rộng cho ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm cùng dòng với tên sản phẩm và nhãn «Đơn bị loại» không bị bẻ đôi.
 - Ô tìm kiếm lọc ngay theo mã đơn hàng, tên sản phẩm, tên shop, mô tả sản phẩm hoặc trạng thái và không phân biệt chữ hoa với chữ thường.
 - Bộ lọc trạng thái hỗ trợ tất cả, hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán và trả hàng.
 - Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn. Tên shop dài không đẩy bộ lọc vượt vùng nội dung; danh sách lựa chọn vẫn giữ đầy đủ tên.
@@ -70,14 +70,14 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Người dùng có thể chọn 20, 50, 100 hoặc tất cả đơn hàng mỗi trang và chuyển trang trong danh sách kết quả.
 - Danh sách hiển thị số kết quả và có trạng thái không tìm thấy cùng nút đặt lại bộ lọc khi tìm kiếm hoặc lọc không khớp đơn hàng nào.
 - Mã đơn hàng là liên kết mở chi tiết đơn hàng trên Shopee trong tab mới.
-- Mỗi đơn hàng có thể mở hoặc đóng chi tiết ngay trong danh sách để xem shop, ngày giờ giao, số tiền và tên, số lượng, đơn giá của từng sản phẩm khi có dữ liệu.
+- Mỗi đơn hàng có thể mở hoặc đóng chi tiết ngay trong danh sách, bằng nút mở chi tiết hoặc bấm vào bất kỳ chỗ nào trên dòng (trừ liên kết mã đơn), để xem shop, ngày giờ giao, số tiền và tên, số lượng, đơn giá của từng sản phẩm khi có dữ liệu.
 - Trạng thái đơn có chấm màu đi kèm chữ (hoàn thành, đang vận chuyển, hủy hoặc trả hàng); màu không phải kênh thông tin duy nhất.
 - Đơn bị loại có nhãn riêng và phần chi tiết giải thích việc không tính vào chi tiêu cùng giá trị Hoàn tiền hoặc giá trị đơn hàng khi thiếu thông tin Hoàn tiền.
 - Khi khổ hẹp, bảng đơn hàng chuyển thành thẻ nhưng vẫn giữ tìm kiếm, bộ lọc, sắp xếp, phân trang, liên kết Shopee và chi tiết đơn hàng.
 
 ## Xuất dữ liệu
 
-- Màn hình Đơn hàng cho tải dữ liệu Excel định dạng XLSX hoặc CSV.
+- Màn hình Đơn hàng có menu «Xuất dữ liệu» chứa ba lựa chọn Excel (XLSX), CSV và In / PDF.
 - Excel và CSV chứa mã đơn hàng, ngày giao, trạng thái, sản phẩm, số lượng, số tiền, shop và mô tả sản phẩm.
 - XLSX lưu mã đơn hàng dưới dạng văn bản để giữ nguyên mã dài. CSV giữ nguyên ký tự mã nhưng không quy định kiểu ô: khi mở bằng Excel, nhập cột mã đơn dưới dạng Text hoặc dùng XLSX. Mã đã bị làm tròn trước khi lưu không thể tự khôi phục.
 - Mô tả sản phẩm nằm ở cột `Details`; CSV giữ dấu phẩy, dấu ngoặc kép và xuống dòng trong một ô, đồng thời vô hiệu hóa văn bản có thể bị bảng tính hiểu thành công thức.

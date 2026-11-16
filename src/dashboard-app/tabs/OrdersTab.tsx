@@ -155,11 +155,20 @@ export function OrdersTab() {
             <option key={`${c.field}:desc`} value={`${c.field}:desc`}>{t('orders.sort.desc', { column: t(c.label) })}</option>,
           ])}
         </select>
-        <div role="group" aria-label={t('orders.export')} className="flex gap-2">
-          <Button variant="outline" disabled={results.length === 0} onClick={() => exportToExcel(results)}>{t('export.excel')}</Button>
-          <Button variant="outline" disabled={results.length === 0} onClick={() => exportToCSV(results)}>{t('export.csv')}</Button>
-          <Button variant="outline" disabled={results.length === 0} onClick={() => setPrinting(true)}>{t('export.pdf')}</Button>
-        </div>
+        {/* One menu instead of three toolbar buttons. It closes when focus leaves it or a format is picked. */}
+        <details className="relative" onBlur={e => !e.currentTarget.contains(e.relatedTarget) && (e.currentTarget.open = false)}>
+          <summary className={`${control} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>{t('orders.export')}</summary>
+          <div
+            role="group"
+            aria-label={t('orders.export')}
+            onClick={e => ((e.currentTarget.parentElement as HTMLDetailsElement).open = false)}
+            className="absolute left-0 z-10 mt-1 flex min-w-40 flex-col gap-1 rounded-xl border border-line bg-card p-1.5 shadow-lg @5xl:left-auto @5xl:right-0"
+          >
+            <Button variant="outline" className="border-transparent text-left" disabled={results.length === 0} onClick={() => exportToExcel(results)}>{t('export.excel')}</Button>
+            <Button variant="outline" className="border-transparent text-left" disabled={results.length === 0} onClick={() => exportToCSV(results)}>{t('export.csv')}</Button>
+            <Button variant="outline" className="border-transparent text-left" disabled={results.length === 0} onClick={() => setPrinting(true)}>{t('export.pdf')}</Button>
+          </div>
+        </details>
       </div>
       {printing && createPortal(<PrintSheet orders={results} />, document.body)}
 
@@ -169,19 +178,17 @@ export function OrdersTab() {
         <>
           <table className="block w-full text-sm @5xl:table @5xl:table-fixed">
             <colgroup className="hidden @5xl:table-column-group">
-              <col className="w-52" />
-              <col className="w-28" />
-              <col className="w-40" />
               <col />
-              <col className="w-16" />
+              <col className="w-28" />
+              <col className="w-44" />
+              <col className="w-24" />
               <col className="w-36" />
             </colgroup>
             <thead className="sr-only @5xl:not-sr-only @5xl:table-header-group">
               <tr className="@5xl:table-row">
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-muted">{t('table.col.orderId')}</th>
+                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-muted">{t('table.col.product')}</th>
                 {sortableHeader('deliveryDate')}
                 {sortableHeader('status')}
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-muted">{t('table.col.product')}</th>
                 <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-muted">{t('table.col.quantity')}</th>
                 {sortableHeader('subTotal', 'text-right')}
               </tr>

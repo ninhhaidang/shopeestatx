@@ -14,7 +14,7 @@ const DAY_LABELS: Record<number, string> = { 1: 'heatmap.day.mon', 3: 'heatmap.d
 
 /** Empty days use a faint line colour; busier days mix in more of the accent. */
 const FILL = [
-  'color-mix(in srgb, var(--line) 45%, var(--card))',
+  'color-mix(in srgb, var(--line) 60%, var(--card))',
   'color-mix(in srgb, var(--accent) 30%, var(--card))',
   'color-mix(in srgb, var(--accent) 55%, var(--card))',
   'color-mix(in srgb, var(--accent) 80%, var(--card))',
