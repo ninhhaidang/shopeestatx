@@ -13,7 +13,7 @@ Chrome Manifest V3 runtime and shared React presentation layer. Popup selects a 
 | [Collector](./content/README.md) | Authenticated order-list collection in the Shopee page's MAIN world. |
 | [Progress bridge](./bridge/README.md) | Validated page progress relay into extension runtime messages. |
 | [Shared types](./types/README.md) | Normalized orders, cache snapshots, user profile, and date-range types. |
-| [Shared UI](./ui/README.md) | Components, independent colour/style preferences, and CSS tokens. |
+| [Shared UI](./ui/README.md) | Components, colour-mode preference, and CSS tokens. |
 | [Localization](./i18n/README.md) | Vietnamese messages, DOM localization, currency/date formatting. |
 | [Popup](./popup/README.md) | Active-tab check and analysis launcher. |
 | [Welcome](./welcome/README.md) | First-install instructions and navigation. |
@@ -23,7 +23,7 @@ Chrome Manifest V3 runtime and shared React presentation layer. Popup selects a 
 
 ### Local configuration and entry points
 
-- [config.ts](./config.ts) exports `getActiveDomainUrl`, `getOrderUrl`, `getLoginUrl`, `getHomeUrl`, `getStorageKey`, `STORAGE_KEYS`, and `MESSAGE_SOURCE`. Active market is `vn`; storage names use `shopeestatx-`; progress source is `shopee-stats`.
+- [config.ts](./config.ts) exports `getActiveDomainUrl`, `getOrderUrl`, `getLoginUrl`, `getHomeUrl`, `getStorageKey`, `STORAGE_KEYS`, and `MESSAGE_SOURCE`. The only domain is `shopee.vn`; `STORAGE_KEYS` holds `STATS`, `TAB_ID`, and `BUDGET`; storage names use `shopeestatx-`; progress source is `shopee-stats`.
 - [background.ts](./background.ts) registers the installation listener: first install opens `welcome/welcome.html`.
 - [manifest.json](./manifest.json) declares Chrome 116+, popup, background worker, `activeTab`/`storage`/`scripting`, and host access limited to `https://shopee.vn/*`. `vite-env.d.ts` supplies Vite client types. `icons/` contains static images, not a code package.
 
@@ -31,7 +31,7 @@ Chrome Manifest V3 runtime and shared React presentation layer. Popup selects a 
 
 - UI components depend on injected hosts; Chrome integration stays at adapter boundaries. Mock/demo execution must not fetch Shopee orders.
 - Keep collection restricted to the existing order-list endpoint. No extra Shopee requests to enrich missing fields. See repository `docs/shopee-order-api.md` for data provenance and limits.
-- Order and supplied seller IDs are strings. Unknown delivery dates stay unknown. Spend excludes cancelled/returned orders; excluded-order amounts are not proof of an actual refund transaction.
+- Order and supplied seller IDs are strings. Unknown delivery dates stay unknown. Spend excludes cancelled, returned, and unpaid orders; excluded-order amounts are not proof of an actual refund transaction.
 - Complete history stays distinct from range-filtered views. Current-month budget uses complete history independently of global range.
 - Collection must preserve scan identity, account checks, cursor advancement, and cache-write coordination; failed scans must not become complete snapshots.
 - Pre-paint colour resolution mirrors shared theme helpers.
@@ -39,7 +39,7 @@ Chrome Manifest V3 runtime and shared React presentation layer. Popup selects a 
 
 ## Side Effects
 
-- Background listeners create browser tabs; importing configuration alone performs no I/O.
+- The background installation listener opens the welcome tab on first install; importing configuration alone performs no I/O.
 - Child adapters read/write Chrome storage, inject scripts, register message listeners, and coordinate cache writes. Collector uses current Shopee login session and posts progress.
 - UI children mount React, manage browser preferences/listeners/timers, draw charts, and trigger user-requested downloads or print. No ShopeeStatX backend or telemetry is introduced here.
 

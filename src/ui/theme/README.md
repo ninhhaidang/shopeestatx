@@ -25,8 +25,8 @@ The storage key comes from `src/config.ts` through `getStorageKey('color-mode')`
 ## Side Effects
 
 - Preference reads/writes access `localStorage`; applying preferences mutates `document.documentElement`.
-- Providers apply selectors in layout effects. Auto colour mode subscribes to system preference changes and removes its listener on mode change or unmount.
-- Setters update React state as well as persistence. Initial overrides do not themselves write storage.
+- The provider applies the selector in a layout effect. Auto colour mode subscribes to system preference changes and removes its listener on mode change or unmount.
+- The setter updates React state as well as persistence. An initial override does not itself write storage.
 - No network or Chrome extension API calls occur here.
 
 ## Verification

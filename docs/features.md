@@ -21,7 +21,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Các chỉ số theo tháng, năm, nhận xét tự động, shop thân thiết, biểu đồ nhiệt, dự đoán và ngân sách có phạm vi riêng được mô tả ở các mục tương ứng thay vì luôn bị cắt theo khoảng ngày.
 - Dashboard có thể hiển thị lịch sử đơn hàng đã lưu cục bộ và có nút làm mới để cập nhật dữ liệu. Tải lại trang dashboard đọc dữ liệu đã lưu thay vì quét lại; nếu lượt quét lúc mở thất bại mà đã có dữ liệu lưu, dashboard hiển thị dữ liệu đó kèm thông báo lỗi.
 - Mỗi lần bắt đầu phân tích từ popup, kết quả mới thay thế cache, kể cả hồ sơ tài khoản cũ; khi kết quả mới không có hồ sơ, tiện ích không gán tên tài khoản cũ cho lịch sử mới. Làm mới giữ các đơn cũ, trừ khi xác định được khác tài khoản: ưu tiên so sánh `userId`, sau đó `uid` khi cả hai hồ sơ cùng có loại ID đó; chỉ so sánh username khi cả hai đều không có ID. Nếu thiếu hồ sơ hoặc không có ID cùng loại để so sánh, làm mới giữ cache để tránh mất lịch sử do chuyển nguồn hồ sơ.
-- Quét theo cursor Shopee trả về và chỉ tính mỗi mã đơn hàng một lần. Nhiều dashboard làm mới đồng thời không được làm mất đơn hoặc ghi đè trạng thái đơn mới hơn; lần phân tích thay thế vô hiệu hóa các kết quả cũ đang chờ. Khi phát hiện đổi tài khoản giữa lúc quét, tiện ích không lưu kết quả một phần. Nếu hồ sơ không đủ để nhận diện thay đổi, tiện ích không tuyên bố có thể phát hiện mọi lần đổi tài khoản.
+- Quét theo cursor Shopee trả về và chỉ tính mỗi mã đơn hàng một lần. Nhiều dashboard làm mới đồng thời không được làm mất đơn hoặc ghi đè trạng thái đơn mới hơn; lần phân tích thay thế vô hiệu hóa các kết quả cũ đang chờ, và chính nó bị từ chối nếu về sau một lượt mới hơn đã lưu. Khi phát hiện đổi tài khoản giữa lúc quét, tiện ích không lưu kết quả một phần. Nếu hồ sơ không đủ để nhận diện thay đổi, tiện ích không tuyên bố có thể phát hiện mọi lần đổi tài khoản.
 - Khi lấy dữ liệu lần đầu, dashboard hiển thị khung chờ, trạng thái kết nối, số đơn hàng đã lấy khi có tiến độ và lời nhắc khi chờ lâu.
 - Khi làm mới, dashboard giữ nội dung đang xem, hiển thị tiến độ rồi thông báo số đơn hàng mới hoặc chưa có đơn hàng mới.
 - Tiến độ đếm đơn hợp lệ, duy nhất đã đọc xong; bản ghi trùng hoặc bị bỏ qua không làm số đếm tăng ảo rồi giảm ở trang cuối. Tiến độ và lời nhắc chờ lâu thuộc từng lượt quét, không bị sự kiện từ tab hay lượt quét khác thay đổi.
@@ -42,7 +42,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - So sánh tháng và năm dùng toàn bộ lịch sử, lấy mốc ở cuối khoảng đang chọn nhưng không vượt quá ngày hiện tại.
 - Biểu đồ cột hiển thị Chi tiêu ròng theo tháng trong khoảng đang chọn và có bảng số liệu thay thế có thể mở hoặc đóng.
 - Danh sách năm shop có Chi tiêu ròng cao nhất hiển thị thứ hạng, tên shop, số đơn hàng, số tiền và thanh so sánh trong khoảng đang chọn.
-- Shop được nhóm theo định danh shop khi có, nếu thiếu dùng định danh người bán trong lịch sử cũ; tên hiển thị trùng nhau không làm gộp hai người bán và tên chứa dấu phân cách được giữ đầy đủ.
+- Shop được nhóm theo định danh shop khi có, nếu thiếu dùng định danh người bán trong lịch sử cũ (đơn cũ thiếu định danh shop được gán định danh của đơn khác cùng người bán khi có); tên hiển thị trùng nhau không làm gộp hai người bán và tên chứa dấu phân cách được giữ đầy đủ.
 - Nút tạo ảnh chia sẻ nằm ở màn hình Tổng quan.
 
 ## Phân tích
@@ -51,7 +51,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Ở khổ rộng, nhận xét và ngân sách chia một hàng; thói quen mua sắm và hai danh sách sản phẩm chia đều hàng tiếp theo, còn biểu đồ nhiệt và shop thân thiết dùng toàn chiều rộng. Khổ hẹp xếp các khối theo một cột.
 - Các thói quen theo ngày và giờ dựa trên ngày giao ghi trong lịch sử, không phải thời điểm đặt đơn hàng.
 - Phân tích xếp hạng sản phẩm mua nhiều theo số lượng và sản phẩm đắt nhất theo đơn giá trong khoảng đang chọn.
-- Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
+- Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu và mức thay đổi khác 0, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
 - Số đơn trung bình mỗi tháng chỉ dùng đơn có ngày hợp lệ ở cả tử số và tập tháng; chỉ sinh nhận xét khi có hơn một tháng thực sự. Giá trị đơn bị loại lấy từ giá trị gốc đã lưu, không được diễn đạt như giao dịch hoàn tiền đã xác minh hoặc Tiết kiệm ước tính.
 - Biểu đồ nhiệt hiển thị số đơn hàng theo ngày trong cửa sổ 12 tháng kết thúc ở mốc cuối khoảng đang chọn, không vượt quá ngày hiện tại.
 - Biểu đồ nhiệt dùng màu để phân biệt mức độ, có nhãn ngày và số đơn hàng, vùng cuộn ngang cùng bảng số liệu thay thế có thể mở hoặc đóng.

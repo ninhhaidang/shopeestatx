@@ -25,7 +25,7 @@ Endpoint: `/api/v4/order/get_all_order_and_checkout_list` (the only Shopee reque
 - Order IDs and supplied shop IDs are normalized as strings. Repeated order IDs use the last occurrence in a scan, and money/product totals are recomputed from unique rows.
 - A delivery date requires the supplied delivery/receipt tracking timestamp. Neither order-ID digits nor an arbitrary status `update_time` establish delivery. Missing dates stay null; old inferred cache dates require a fresh analysis rather than another heuristic.
 - Local account identity is captured before collection and checked during/after fetching. A detectable change rejects the scan without saving partial data. Missing/noncomparable identities are not proof of a change; undetectable transitions remain a limitation.
-- Cache writes use an extension-origin Web Lock plus scan generations/order versions. A replacement fences older results; a slower merge preserves orders and newer per-order values already committed by another dashboard. The bridge forwards only scan-tagged progress; the host checks its tab and generation.
+- Cache writes use an extension-origin Web Lock plus scan generations/order versions. A replacement fences older results and is itself rejected if a newer scan committed first; a slower merge preserves orders and newer per-order values already committed by another dashboard. The bridge forwards only scan-tagged progress; the host checks its tab and generation.
 
 ## Origin investigation (2026-10-25)
 

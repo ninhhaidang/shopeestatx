@@ -2,7 +2,7 @@
 
 ## Overview
 
-[index.ts](./index.ts) provides Vietnamese translation lookup and legacy DOM translation application. [format.ts](./format.ts) provides Vietnamese number and date formatting. Translation data lives in [locales/vi.json](./locales/vi.json); the JSON-only directory has no separate component contract.
+[index.ts](./index.ts) provides Vietnamese translation lookup. [format.ts](./format.ts) provides Vietnamese number and date formatting. Translation data lives in [locales/vi.json](./locales/vi.json); the JSON-only directory has no separate component contract.
 
 ## Interface
 
@@ -14,13 +14,12 @@
 ## Invariants
 
 - Vietnamese is the only locale; no runtime language selector or locale persistence exists here.
-- Each parameter replacement uses string `replace`, replacing only its first matching token.
-- DOM translation applies to elements present when `initLocale()` runs; no mutation observer is installed.
+- Each parameter replacement uses string `replace`, replacing only its first matching token; values are inserted literally.
 - Date formatting uses browser time-zone defaults, not an explicit time zone. Short currency mode is distinct from full `Intl.NumberFormat` currency output.
 
 ## Side Effects
 
-`t` and formatting helpers return strings without DOM/storage writes. `initLocale()` changes document language, text content, input placeholders, and element titles.
+`t` and formatting helpers return strings without DOM/storage writes. `initLocale()` changes document language only.
 
 ## Verification
 

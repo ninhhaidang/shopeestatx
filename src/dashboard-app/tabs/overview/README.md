@@ -14,7 +14,7 @@ Period-comparison text for the overview tab. Financial calculations belong to `s
 - Overview totals use filtered orders. Month/year comparisons use complete history anchored by `rangeEnd(range, now)`, not the range-total amount.
 - Empty filtered orders render the shared range-reset message. Cache rescan detection examines complete history; stale refund/savings values display unavailable text.
 - `ChangeLine` treats a null percentage as no prior-period comparison, not zero change, and names both comparison periods.
-- Top-shop percentages use the sum of displayed top-shop amounts as denominator.
+- Top-shop bar widths are relative to the largest displayed top-shop amount.
 
 ## Side Effects
 

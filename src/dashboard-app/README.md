@@ -6,14 +6,14 @@ React dashboard entry point, host boundary, order-loading state machine, global 
 
 ## Interface
 
-- [main.tsx](main.tsx) initializes locale and mounts `Dashboard` in React strict mode beneath theme/style providers. Chrome host is selected when Chrome storage and scripting APIs exist; otherwise mock host is used. Development-only `?mock=1` forces mock data.
+- [main.tsx](main.tsx) initializes locale and mounts `Dashboard` in React strict mode beneath the theme provider. Chrome host is selected when Chrome storage and scripting APIs exist; otherwise mock host is used. Development-only `?mock=1` forces mock data.
 - [Dashboard.tsx](Dashboard.tsx): `Dashboard({ host: DashboardHost, now?: () => Date })` manages selected tab, range selection, clock, and loading/empty/error/ready presentation.
 - [host.ts](host.ts): `DashboardHost` exposes `scanOnOpen`, `loadCached(): Promise<OrderData | null>`, and `refresh(onProgress, mode: 'replace' | 'merge'): Promise<{ data: OrderData; added: number }>`.
-- [chrome-host.ts](chrome-host.ts) exports `chromeHost`, backed by extension storage, script injection, runtime progress messages, and Web Locks. `?fetch=true` requests an initial scan.
+- [chrome-host.ts](chrome-host.ts) exports `chromeHost`, backed by extension storage, script injection, runtime progress messages, and Web Locks. `?fetch=true` requests an initial scan and is stripped from the URL at load, so a reload reads the cache.
 - [mock-host.ts](mock-host.ts) exports `mockHost`, lazily loading demo order data without Chrome APIs.
 - [useOrderData.ts](useOrderData.ts): `useOrderData(host)` returns `OrderDataState` and `refresh`. State includes phase, retained data, scan progress, stall status, background-refresh status, notices, and errors.
 - [context.ts](context.ts) exports `DashboardContext`, `DashboardContextValue`, and `useDashboard()`: full `data`, filtered `orders`, resolved `range`, `selection`, `resetRange`, `now`, and `refresh`.
-- [tabs.tsx](tabs.tsx) exports `TabId`, `TabDef`, and `TABS`.Tab order is overview, analysis, orders; each has one `component`.
+- [tabs.tsx](tabs.tsx) exports `TabId`, `TabDef`, and `TABS`. Tab order is overview, analysis, orders; each has one `component`.
 - [RangePicker.tsx](RangePicker.tsx): `RangePicker({ value, onChange, years, now })` emits range selections. [AccountChip.tsx](AccountChip.tsx) presents a `UserProfile`; [OverviewSkeleton.tsx](OverviewSkeleton.tsx) presents loading state.
 - [format.ts](format.ts) exports `money` and `shortMoney`; [updated.ts](updated.ts) exports `formatUpdated(timestamp, now)` for localized elapsed-time text.
 
@@ -22,16 +22,16 @@ React dashboard entry point, host boundary, order-loading state machine, global 
 | Contract | Responsibility |
 | --- | --- |
 | [components](components/README.md) | Shared range-empty and rescan notices delegating actions to context. |
-| [tabs](tabs/README.md) | Overview, analysis, and order screens, including style-specific child views. |
+| [tabs](tabs/README.md) | Overview, analysis, and order screens and their child views. |
 
 ## Invariants
 
 - `useDashboard()` throws outside its provider. Full history and globally filtered orders remain separate; tabs do not independently resolve the global range.
 - Host and domain modules own acquisition/persistence and calculations respectively. Dashboard views do not add Shopee request types.
-- Loader permits one scan at a time per hook. Initial scan uses replace mode; refresh with retained data uses merge mode and keeps existing content on screen. Background failures become notices rather than replacing ready content with an error screen.
+- Loader permits one scan at a time per hook. Initial scan uses replace mode; refresh with retained data uses merge mode and keeps existing content on screen. Background failures become notices rather than replacing ready content with an error screen. A failed non-background scan falls back to `host.loadCached()` and shows any saved orders with an error notice; otherwise it shows the error screen.
 - A scan with no progress for 30 seconds is marked stalled; progress re-arms that timer. Cache-first loading is bypassed when `scanOnOpen` is true.
 - Chrome host serializes per-tab script handoff and cache writes with Web Locks. Progress requires matching source, tab, scan token, nonnegative safe-integer count, and current scan state.
-- Cache scan epochs/sequences reject superseded work and protect newer per-order results. Replace mode or an identified account change replaces prior-account history; same-account merge retains older orders through `mergeOrderData`.
+- Cache scan epochs/sequences reject superseded work and protect newer per-order results. Replace mode or an identified account change replaces prior-account history, and such a replacing scan is rejected as superseded when it finishes after a newer commit; same-account merge retains older orders through `mergeOrderData`.
 - Global range defaults to all time. Clock refreshes each minute and on focus/visibility events. Tab navigation supports arrow keys, Home, and End.
 
 ## Side Effects

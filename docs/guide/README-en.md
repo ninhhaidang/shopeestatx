@@ -14,7 +14,7 @@ ShopeeStatX is a Chrome extension that turns your **Shopee Vietnam** order histo
 
 ### See where your money goes
 
-- Track **net spend**, order count and average order value, excluding cancelled and returned orders.
+- Track **net spend**, order count and average order value, excluding cancelled, returned and unpaid orders.
 - Compare months and years, explore monthly spending and see the shops you spend most with.
 - Review refunds and **estimated savings** when the order data supports them.
 
@@ -66,7 +66,7 @@ Open **Chính sách bảo mật** in the popup to read the full privacy policy, 
 
 ## Scope and limitations
 
-- Supports **shopee.vn** with Chrome 116+ and a signed-in Shopee session.
+- Supports exactly **https://shopee.vn** (no subdomains) with Chrome 116+ and a signed-in Shopee session.
 - Results depend on what Shopee returns. Shopee changes and expired sessions can interrupt scans.
 - Date filters and shopping habits use delivery/receipt dates in the history, not checkout times.
 - Savings and forecasts are estimates. Savings do not separately identify vouchers and shipping discounts.

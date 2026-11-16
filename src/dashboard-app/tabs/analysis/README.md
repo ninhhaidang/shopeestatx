@@ -13,7 +13,7 @@ Analysis presentation for insights, shopping activity, repeat shops, current-mon
 
 ## Invariants
 
-- Budget and prediction always describe the calendar month containing `now`, independent of the global date filter. Budget views render nothing until settings load.
+- Budget and prediction always describe the calendar month containing `now`, independent of the global date filter. Budget views render nothing until settings load, and a load-error message when loading fails.
 - Budget edits become component state only after `saveBudgetConfig` succeeds; save failures keep the form visible and show an error. Unmount guards prevent the initial settings load from updating an unmounted view.
 - Heatmap uses complete history within the twelve-month window ending at the selected range's last day, not just the already filtered order list.
 - Domain modules, not these components, define spending, loyalty, prediction, and heatmap calculations.

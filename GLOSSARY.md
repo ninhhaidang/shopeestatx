@@ -13,11 +13,11 @@ _Avoid_: Giao dịch, purchase
 _Avoid_: Đơn lỗi, đơn thất bại
 
 **Chi tiêu ròng**:
-Tổng tiền người dùng thực trả cho các đơn hàng, đã trừ hoàn tiền. Đây là con số "Tổng chi tiêu" hiển thị.
+Tổng tiền của các đơn hàng không bị loại. Đây là con số «Chi tiêu ròng» hiển thị nổi bật ở Tổng quan.
 _Avoid_: Tổng tiền, doanh thu
 
 **Hoàn tiền**:
-Số tiền Shopee trả lại cho người dùng từ một đơn bị loại.
+Giá trị gốc của các đơn bị huỷ hoặc trả hàng. Nguồn dữ liệu không xác nhận khoản hoàn tiền thật, nên đây không phải giao dịch hoàn tiền đã kiểm chứng.
 _Avoid_: Refund (trong giao diện tiếng Việt)
 
 **Tiết kiệm ước tính**:

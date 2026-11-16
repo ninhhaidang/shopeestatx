@@ -7,7 +7,7 @@
 ## Interface
 
 - Reads optional `window.__shopeestatxScanId` and includes it in page progress messages: `{ source: 'shopee-stats', type: 'progress', scanId, count }`.
-- Returns `{ success: true, data }` with user profile, deduplicated orders, product count, total amount, formatted amount, and fetch timestamp; collection errors return `{ success: false, error }`.
+- Returns `{ success: true, data }` with user profile, deduplicated orders, product count, total amount, and fetch timestamp; collection errors return `{ success: false, error }`.
 - Reads profile from `mini-session`, falling back to `@shopee/account-basic-info` in Shopee local storage.
 - Calls only `https://shopee.vn/api/v4/order/get_all_order_and_checkout_list`, with `limit=20` and offset pagination. Supports current `new_data` and legacy `data.order_data.details_list` response shapes.
 - Result data follows shared shapes in `src/types/index.ts`; progress crosses into extension context through `src/bridge/bridge.ts`.
@@ -23,7 +23,7 @@
 
 ## Side Effects
 
-Reads Shopee local storage, performs authenticated page-context fetches, posts progress with `window.postMessage`, and logs profile/collection failures. Does not write extension storage or introduce another Shopee endpoint. Progress count is a collection estimate, not the final deduplicated order count.
+Reads Shopee local storage, performs authenticated page-context fetches, posts progress with `window.postMessage`, and logs profile/collection failures. Does not write extension storage or introduce another Shopee endpoint. Progress count is the running deduplicated order count.
 
 ## Verification
 

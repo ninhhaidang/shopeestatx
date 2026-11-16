@@ -9,8 +9,8 @@
 - `StatusCode`: `0 | 3 | 4 | 7 | 8 | 9 | 12`.
 - `SortDirection`: `'asc' | 'desc'`.
 - `UserProfile`: required `username` and `avatar`; optional account, display-name, and shop identifiers.
-- `Order`: order identity, product count, amounts, status, shop display name, product summary, and nullable delivery date/month/year; optional seller ID, refund amount, item total, and line items.
-- `OrderData`: orders, total product count, total amount and formatted amount, fetch timestamp, optional user and cache timestamp.
+- `Order`: order identity, name, product count, subtotal, status, shop display name, product summary, and nullable delivery date/month/year; optional seller ID, refund amount, item total, and line items.
+- `OrderData`: orders, total product count, total amount, fetch timestamp, optional user and cache timestamp.
 - `DateRange`: nullable `Date` bounds named `start` and `end`.
 
 ## Invariants
