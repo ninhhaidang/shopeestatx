@@ -6,11 +6,11 @@
 
 :root {
   color-scheme: light;
-  --bg: #f6f7f9;
+  --bg: #f3f4f6;
   --card: #ffffff;
   --fg: #14171c;
   --muted: #5b6470;
-  --line: #d6dbe1;
+  --line: #e2e5ea;
   --control-line: #778291;
   --accent: #ee4d2d;
   --accent-strong: #c2371b;
@@ -18,6 +18,9 @@
   --on-accent: #ffffff;
   --good: #13795b;
   --bad: #b42318;
+  --info: #1d4ed8;
+  --violet: #6d28d9;
+  --amber: #92400e;
   --warn-bg: #fff4e5;
   --warn-fg: #7a3a00;
   --warn-line: #f0c28a;
@@ -38,6 +41,9 @@
   --on-accent: #1a0a05;
   --good: #4ade9f;
   --bad: #ff8a7a;
+  --info: #8ab4ff;
+  --violet: #c4b5fd;
+  --amber: #fbbf24;
   --warn-bg: #2b1d0e;
   --warn-fg: #ffd8a8;
   --warn-line: #5a3d1a;
@@ -60,6 +66,9 @@
   --color-on-accent: var(--on-accent);
   --color-good: var(--good);
   --color-bad: var(--bad);
+  --color-info: var(--info);
+  --color-violet: var(--violet);
+  --color-amber: var(--amber);
   --color-warn-bg: var(--warn-bg);
   --color-warn-fg: var(--warn-fg);
   --color-warn-line: var(--warn-line);

@@ -5,10 +5,6 @@ import { renderSurface } from './support/render';
 import { makeData, makeOrder } from './support/orders';
 import { mockColorScheme } from './support/match-media';
 
-vi.mock('chart.js', () => ({
-  Chart: class { static register() {} destroy() {} },
-  BarController: {}, BarElement: {}, CategoryScale: {}, LinearScale: {}, Tooltip: {},
-}));
 afterEach(() => vi.useRealTimers());
 
 it('advances the current month without replacing order data', async () => {

@@ -5,6 +5,7 @@ import { NoOrdersInRange } from '../components/NoOrdersInRange';
 import { RescanBanner } from '../components/RescanBanner';
 import { useDashboard } from '../context';
 import { money } from '../format';
+import { RankList } from '../../ui/components/RankList';
 import { card } from '../../ui/styles/classes';
 
 import { Budget } from './analysis/Budget';
@@ -21,14 +22,16 @@ function Habits({ stats }: { stats: Stats }) {
     { label: t('stats.rate'), value: stats.dailySpendRate ? t('stats.rate.unit', { amount: money(stats.dailySpendRate) }) : none },
   ];
   return (
-    <section aria-labelledby="analysis-habits" className={`${card} min-w-0 @5xl:col-span-2`}>
-      <h3 id="analysis-habits" className="text-base font-semibold">{t('analysis.habits')}</h3>
-      <p className="mb-3 text-xs text-muted">{t('stats.date.hint')}</p>
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5 @5xl:grid-cols-1">
+    <section aria-labelledby="analysis-habits" className="flex min-w-0 flex-col @5xl:col-span-6 @7xl:order-1 @7xl:col-span-2">
+      <div className="mb-2 flex flex-wrap items-baseline gap-x-3">
+        <h3 id="analysis-habits" className="text-base font-semibold">{t('analysis.habits')}</h3>
+        <p className="text-xs text-muted">{t('stats.date.hint')}</p>
+      </div>
+      <dl className="grid flex-1 auto-rows-fr grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line @3xl:grid-cols-4 @7xl:grid-cols-2">
         {tiles.map(item => (
-          <div key={item.label} className="border-t border-line pt-2.5">
+          <div key={item.label} className="flex flex-col justify-center bg-card px-4 py-3.5">
             <dt className="text-xs text-muted">{item.label}</dt>
-            <dd className="num text-lg font-semibold">{item.value}</dd>
+            <dd className="num mt-0.5 text-xl font-semibold">{item.value}</dd>
           </div>
         ))}
       </dl>
@@ -36,22 +39,14 @@ function Habits({ stats }: { stats: Stats }) {
   );
 }
 
-function ProductList({ title, rows }: { title: string; rows: { name: string; value: string }[] }) {
+function ProductList({ title, rows }: { title: string; rows: { name: string; value: string; share: number }[] }) {
   return (
-    <section aria-label={title} className={`${card} min-w-0 @5xl:col-span-2`}>
-      <h3 className="mb-3 text-base font-semibold">{title}</h3>
+    <section aria-label={title} className={`${card} min-w-0 @5xl:col-span-3 @7xl:order-2`}>
+      <h3 className="mb-4 text-base font-semibold">{title}</h3>
       {rows.length === 0 ? (
         <p className="text-sm text-muted">{t('analysis.noProducts')}</p>
       ) : (
-        <ol aria-label={title} className="grid gap-2.5">
-          {rows.map((row, i) => (
-            <li key={row.name} className="grid grid-cols-[1.25rem_1fr_auto] items-baseline gap-2.5 text-sm">
-              <span className="text-muted">{i + 1}</span>
-              <span className="truncate" title={row.name}>{row.name}</span>
-              <span className="num font-semibold">{row.value}</span>
-            </li>
-          ))}
-        </ol>
+        <RankList label={title} rows={rows.map(row => ({ ...row, key: row.name }))} />
       )}
     </section>
   );
@@ -81,15 +76,15 @@ export function AnalysisTab() {
       {stale && <RescanBanner />}
       <Band title={t('analysis.band.range')}>
         <Habits stats={stats} />
+        <Heatmap orders={data.orders} range={range} now={now} />
         <ProductList
           title={t('stats.topQuantity')}
-          rows={stale ? [] : stats.topByQuantity.map(p => ({ name: p.name, value: t('stats.quantity.unit', { n: p.quantity }) }))}
+          rows={stale ? [] : stats.topByQuantity.map(p => ({ name: p.name, value: t('stats.quantity.unit', { n: p.quantity }), share: p.quantity / (stats.topByQuantity[0]?.quantity || 1) }))}
         />
         <ProductList
           title={t('stats.priciest')}
-          rows={stale ? [] : stats.priciest.map(p => ({ name: p.name, value: money(p.unitPrice) }))}
+          rows={stale ? [] : stats.priciest.map(p => ({ name: p.name, value: money(p.unitPrice), share: p.unitPrice / (stats.priciest[0]?.unitPrice || 1) }))}
         />
-        <Heatmap orders={data.orders} range={range} now={now} />
       </Band>
       <Band title={t('analysis.band.history')}>
         <div className="min-w-0 @5xl:col-span-3"><Insights orders={data.orders} now={now} /></div>

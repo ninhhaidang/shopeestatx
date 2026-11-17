@@ -13,9 +13,10 @@ Reusable React presentation primitives for dashboard and popup surfaces: actions
 | [Skeleton.tsx](./Skeleton.tsx) | `Skeleton({ className? })` renders a decorative loading block; callers supply dimensions. |
 | [StateMessage.tsx](./StateMessage.tsx) | `StateMessage({ title, message?, tone?, action? })`; `message` accepts a React node, `tone` is `neutral` or `error`, and `action` contains `label` and `onClick`. |
 | [ThemeToggle.tsx](./ThemeToggle.tsx) | `ThemeToggle()` selects `auto`, `light`, or `dark` through the theme context. |
-| [BarChart.tsx](./BarChart.tsx) | Exports `BarChartProps` and `BarChart({ title, labels, values, labelHeader, valueHeader, formatValue, formatTick })`. Labels and values are arrays; formatters accept numbers and return strings. |
+| [MonthChart.tsx](./MonthChart.tsx) | Exports `MonthPoint`, `MonthChart({ title, points, active, onSelect, formatValue, formatTick })` (SVG bars, one per calendar month) and `MonthMatrix({ title, points, formatTick })` (the same figures as a year-by-month table). |
+| [RankList.tsx](./RankList.tsx) | Exports `RankList({ label, rows })`: a ranked list with a scale bar per row. |
 
-Theme consumers rely on the [provider](../theme/README.md). Visual classes rely on [shared styles](../styles/README.md). Toggle labels and chart accessibility text use `src/i18n/index.ts`; Radix Toggle Group supplies single-selection interaction, and Chart.js supplies canvas rendering.
+Theme consumers rely on the [provider](../theme/README.md). Visual classes rely on [shared styles](../styles/README.md). Toggle labels and chart accessibility text use `src/i18n/index.ts`; Radix Toggle Group supplies single-selection interaction.
 
 ## Invariants
 
@@ -23,14 +24,13 @@ Theme consumers rely on the [provider](../theme/README.md). Visual classes rely 
 - Neutral `StateMessage` uses `role='status'`; error tone uses `role='alert'`. Optional action delegates to caller callback.
 - `Skeleton` is `aria-hidden`; callers remain responsible for communicating overall loading state.
 - `ThemeToggle` rejects invalid values and the empty selection emitted when clicking an active Radix item, preserving the current choice. It requires `ThemeProvider`.
-- `BarChart` requires `ThemeProvider`. It renders a named canvas plus an expandable table with caption, column headers, row headers, and formatted values.
+- `MonthChart` renders a named SVG; hovering or arrowing to a month shows its figure, Enter or a click reports it through `onSelect`. `MonthMatrix` is its table alternative.
 - Chart callers must provide labels and values in matching order and lengths; rows index directly into `values` without validation. Labels also serve as React row keys and should be unique.
 - Chart colours are read from root CSS tokens when its effect runs, with fixed fallbacks. Re-creation depends on labels, values, value header, and resolved colour theme. Formatter refs update without independently re-creating the chart.
 - Chart animation is disabled when the reduced-motion query matches at creation.
 
 ## Side Effects
 
-- Importing `BarChart.tsx` registers its bar controller, element, scales, and tooltip with Chart.js.
 - Mounted charts read computed root styles and browser media preferences, create Chart.js canvas instances, and destroy instances when effect dependencies change or on unmount.
 - Toggle interactions invoke the provider setter, which updates preference state, browser storage, and the root selector. Action buttons invoke caller callbacks.
 - These components do not fetch data or call Chrome extension APIs.

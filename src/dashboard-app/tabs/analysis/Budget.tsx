@@ -78,7 +78,7 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
 
   if (loadFailed) {
     return (
-      <section aria-labelledby="analysis-budget" className={card}>
+      <section aria-labelledby="analysis-budget" className={`${card} h-full`}>
         <h3 id="analysis-budget" className="mb-3 text-base font-semibold">{t('analysis.prediction.title')}</h3>
         <p role="alert" className="text-sm text-bad">{t('analysis.budget.loadError')}</p>
       </section>
@@ -96,7 +96,7 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
   };
 
   return (
-    <section aria-labelledby="analysis-budget" className={card}>
+    <section aria-labelledby="analysis-budget" className={`${card} h-full`}>
       <h3 id="analysis-budget" className="mb-3 text-base font-semibold">{t('analysis.prediction.title')}</h3>
       {prediction > 0 && (
         <div className="mb-4 text-sm">

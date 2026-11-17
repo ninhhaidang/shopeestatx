@@ -1,22 +1,27 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { computeOverview, monthChange, yearChange } from '../../dashboard/overview.js';
 import { rangeEnd } from '../../dashboard/range.js';
-import { downloadShareImage } from '../../dashboard/share-image.js';
 import { needsRescan } from '../../dashboard/stats.js';
 import { t } from '../../i18n/index.js';
-import { BarChart } from '../../ui/components/BarChart';
 import { Button } from '../../ui/components/Button';
+import { MonthChart, MonthMatrix, type MonthPoint } from '../../ui/components/MonthChart';
+import { RankList } from '../../ui/components/RankList';
 import { card } from '../../ui/styles/classes';
 import { NoOrdersInRange } from '../components/NoOrdersInRange';
 import { RescanBanner } from '../components/RescanBanner';
 import { useDashboard } from '../context';
 import { money, shortMoney } from '../format';
 import { ChangeLine } from './overview/ChangeLine';
+import { ShareDialog } from './overview/ShareDialog';
 
+const viewButton = (on: boolean) =>
+  `cursor-pointer rounded-md px-2.5 py-1 text-xs ${on ? 'bg-bg font-semibold text-fg shadow-[0_0_0_1px_var(--line)]' : 'text-muted hover:text-fg'}`;
 
-/** Tổng quan: Chi tiêu ròng, change vs last month, four metric tiles, spend per month, top shops. */
+/** Tổng quan: Chi tiêu ròng with its comparisons and four figures, spend per month, top shops, share image. */
 export function OverviewTab() {
   const { data, orders, range, selection, setSelection, resetRange, now } = useDashboard();
+  const [view, setView] = useState<'chart' | 'table'>('chart');
+  const [sharing, setSharing] = useState(false);
   const overview = useMemo(() => computeOverview(orders), [orders]);
   // The month-over-month figure looks at the whole history, anchored on the range's last day (never in the future).
   const anchor = useMemo(() => rangeEnd(range, now), [range, now]);
@@ -24,26 +29,26 @@ export function OverviewTab() {
   const yearDiff = useMemo(() => yearChange(data.orders, anchor), [data, anchor]);
   // The chart always shows the whole history, so a picked month keeps its neighbours for comparison.
   const series = useMemo(() => {
-    const monthly = computeOverview(data.orders).monthly;
-    // "9/2026" -> the first and last instant of that month, to test against the range.
-    const months = monthly.map(m => m.label.split('/').map(Number) as [number, number]);
+    const points: MonthPoint[] = computeOverview(data.orders).monthly.map(m => {
+      const [month, year] = m.label.split('/').map(Number);
+      return { month, year, total: m.total };
+    });
     return {
-      labels: monthly.map(m => m.label),
-      values: monthly.map(m => m.total),
-      months,
-      active: months.map(([month, year]) =>
+      points,
+      active: points.map(({ month, year }) =>
         !(range.end && new Date(year, month - 1, 1) > range.end) && !(range.start && new Date(year, month, 0, 23, 59, 59, 999) < range.start)),
     };
   }, [data, range]);
-  const pickMonth = (i: number) => {
-    const [month, year] = series.months[i];
-    // Clicking the month already picked goes back to everything.
-    if (selection.preset === 'month' && selection.month === month && selection.year === year) resetRange();
-    else setSelection({ preset: 'month', year, month });
-  };
   const stale = needsRescan(data.orders);
 
   if (orders.length === 0) return <NoOrdersInRange />;
+
+  const pickMonth = (i: number) => {
+    const { month, year } = series.points[i];
+    // Picking the month already picked goes back to everything.
+    if (selection.preset === 'month' && selection.month === month && selection.year === year) resetRange();
+    else setSelection({ preset: 'month', year, month });
+  };
 
   const { stats, topShops } = overview;
   const none = t('stats.none');
@@ -54,28 +59,28 @@ export function OverviewTab() {
     { label: t('stats.refund'), value: stale ? none : shortMoney(stats.refundTotal), note: stats.excludedCount ? t('stats.excluded', { count: stats.excludedCount }) : undefined },
     { label: t('stats.savings'), value: stale ? none : shortMoney(stats.estimatedSavings) },
   ];
+  const chartTitle = t('chart.spendingByMonth');
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 @4xl:grid-cols-[2fr_1fr]">
-      {stale && <RescanBanner className="@4xl:col-span-2" />}
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 @5xl:grid-cols-[minmax(0,1fr)_21rem] @7xl:grid-cols-[minmax(0,1fr)_25rem]">
+      {stale && <RescanBanner className="col-span-full" />}
 
-      <section aria-label={t('stats.netSpend')} className="flex flex-col gap-4 @4xl:col-span-2 @5xl:flex-row @5xl:items-end @5xl:justify-between @5xl:gap-6">
+      <section aria-label={t('stats.netSpend')} className="col-span-full flex flex-col gap-4 @5xl:flex-row @5xl:items-end @5xl:justify-between @5xl:gap-8">
         <div>
           <p className="text-sm font-medium text-muted">{t('stats.netSpend')}</p>
-          <p data-testid="net-spend" className="num my-1 text-[clamp(2.125rem,7cqi,3.5rem)] font-semibold leading-tight tracking-tight">
+          <p data-testid="net-spend" className="num my-1 text-[clamp(2.125rem,7cqi,3.75rem)] font-semibold leading-tight tracking-tight">
             {money(stats.netSpend)}
           </p>
           <div className="grid gap-0.5">
             <ChangeLine unit="month" change={monthDiff} testId="month-change" />
             <ChangeLine unit="year" change={yearDiff} testId="year-change" />
           </div>
-          <Button variant="outline" className="mt-3" onClick={() => downloadShareImage(stats, !stale)}>{t('stats.share')}</Button>
         </div>
-        <dl className="grid flex-1 grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line @2xl:grid-cols-4 @5xl:max-w-xl">
+        <dl className="grid flex-1 grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line @2xl:grid-cols-4 @5xl:max-w-3xl">
           {tiles.map(item => (
-            <div key={item.label} className="bg-card px-3.5 py-3">
+            <div key={item.label} className="bg-card px-4 py-3.5">
               <dt className="text-xs text-muted">{item.label}</dt>
-              <dd className="num text-xl font-semibold">
+              <dd className="num mt-0.5 text-2xl font-semibold">
                 {item.value}
                 {item.note && <span className="mt-0.5 block text-xs font-normal text-muted">{item.note}</span>}
               </dd>
@@ -85,40 +90,49 @@ export function OverviewTab() {
       </section>
 
       <section className={card}>
-        <h2 className="text-base font-semibold">{t('chart.spendingByMonth')}</h2>
-        <p className="mb-3 text-xs text-muted">{t('dash.chart.hint')}</p>
-        <BarChart
-          title={t('chart.spendingByMonth')}
-          labels={series.labels}
-          values={series.values}
-          labelHeader={t('dash.chart.month')}
-          valueHeader={t('dash.chart.spend')}
-          formatValue={money}
-          formatTick={shortMoney}
-          active={series.active}
-          onSelect={pickMonth}
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+          <div>
+            <h2 className="text-base font-semibold">{chartTitle}</h2>
+            <p className="text-xs text-muted">{t('dash.chart.hint')}</p>
+          </div>
+          <div role="group" aria-label={t('dash.chart.view')} className="inline-flex rounded-lg border border-line bg-card p-0.5">
+            <button type="button" aria-pressed={view === 'chart'} onClick={() => setView('chart')} className={viewButton(view === 'chart')}>{t('dash.chart.showChart')}</button>
+            <button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')} className={viewButton(view === 'table')}>{t('dash.chart.showTable')}</button>
+          </div>
+        </div>
+        {view === 'chart' ? (
+          <MonthChart title={chartTitle} points={series.points} active={series.active} onSelect={pickMonth} formatValue={money} formatTick={shortMoney} />
+        ) : (
+          <MonthMatrix title={chartTitle} points={series.points} formatTick={shortMoney} />
+        )}
+      </section>
+
+      <section className={`${card} flex flex-col`}>
+        <h2 className="mb-4 text-base font-semibold">{t('dash.overview.topShops')}</h2>
+        <RankList
+          label={t('dash.overview.topShops')}
+          rows={topShops.map(shop => ({
+            key: shop.shopKey,
+            name: shop.name,
+            note: t('dash.overview.shopOrders', { n: shop.orders }),
+            value: shortMoney(shop.amount),
+            share: shop.amount / topAmount,
+          }))}
         />
+        <div className="mt-auto pt-5">
+          <div className="border-t border-line pt-4">
+          <p className="mb-2 text-xs text-muted">{t('share.pitch')}</p>
+          <Button variant="outline" className="w-full py-2.5 font-medium" onClick={() => setSharing(true)}>{t('stats.share')}</Button>
+          </div>
+        </div>
       </section>
 
-      <section className={card}>
-        <h2 className="mb-3 text-base font-semibold">{t('dash.overview.topShops')}</h2>
-        <ol aria-label={t('dash.overview.topShops')} className="grid gap-3.5">
-          {topShops.map((shop, i) => (
-            <li key={shop.shopKey} className="grid grid-cols-[1.25rem_1fr_auto] items-center gap-2.5 text-sm">
-              <span className="text-muted">{i + 1}</span>
-              <div className="min-w-0">
-                <p className="truncate" title={shop.name}>{shop.name}</p>
-                <div aria-hidden="true" className="mt-1 h-1.5 rounded-full bg-line">
-                  <div className="h-full rounded-full bg-accent" style={{ width: `${(shop.amount / topAmount) * 100}%` }} />
-                </div>
-                <p className="mt-0.5 text-xs text-muted">{t('dash.overview.shopOrders', { n: shop.orders })}</p>
-              </div>
-              <span className="num font-semibold">{shortMoney(shop.amount)}</span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
+      {sharing && (
+        <ShareDialog
+          data={{ stats, financialAvailable: !stale, monthly: overview.monthly.map(m => m.total) }}
+          onClose={() => setSharing(false)}
+        />
+      )}
     </div>
   );
 }

@@ -112,7 +112,7 @@ npm run verify
 
 `verify` chạy typecheck, kiểm tra code thừa bằng Knip, tests với coverage, production build và kiểm tra injected scripts — cùng pipeline với CI.
 
-React 19, Tailwind CSS v4 và Vite dựng giao diện; Chart.js hiển thị biểu đồ, ExcelJS tạo file XLSX. Logic thống kê và Chrome host được tách khỏi các component giao diện.
+React 19, Tailwind CSS v4 và Vite dựng giao diện; biểu đồ vẽ bằng SVG, ExcelJS tạo file XLSX. Logic thống kê và Chrome host được tách khỏi các component giao diện.
 
 - [Danh sách tính năng và giới hạn đã thống nhất](docs/features.md)
 - [Quyết định kiến trúc](docs/adr/)

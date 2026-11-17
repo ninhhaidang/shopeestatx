@@ -9,24 +9,9 @@ import { mockColorScheme } from './support/match-media';
 import { makeData, makeOrder } from './support/orders';
 import { renderSurface } from './support/render';
 
-// jsdom has no canvas. Chart.js is the one boundary we fake; what the chart was given is asserted.
-const charts = vi.hoisted(() => [] as { config: { data: { labels: string[]; datasets: { data: number[] }[] } }; destroyed: boolean }[]);
-vi.mock('chart.js', () => {
-  class Chart {
-    static register() {}
-    destroyed = false;
-    constructor(_canvas: unknown, public config: (typeof charts)[number]['config']) {
-      charts.push(this);
-    }
-    destroy() {
-      this.destroyed = true;
-    }
-  }
-  return { Chart, BarController: {}, BarElement: {}, CategoryScale: {}, LinearScale: {}, Tooltip: {} };
-});
-
-const shareImage = vi.hoisted(() => ({ downloadShareImage: vi.fn() }));
-vi.mock('../src/dashboard/share-image', () => shareImage);
+// The artwork is drawn on a canvas jsdom does not have; what the dialog asks for is asserted.
+const shareImage = vi.hoisted(() => ({ downloadShareImage: vi.fn(), drawShareImage: vi.fn() }));
+vi.mock('../src/dashboard/share-image', async original => ({ ...(await original<typeof import('../src/dashboard/share-image')>()), ...shareImage }));
 
 const NOW = new Date(2026, 9, 24, 12, 0); // 24 Oct 2026, noon
 
@@ -60,7 +45,6 @@ beforeEach(() => {
   localStorage.clear();
   delete document.documentElement.dataset.theme;
   mockColorScheme('light');
-  charts.length = 0;
   shareImage.downloadShareImage.mockClear();
 });
 
@@ -88,48 +72,68 @@ describe('Tổng quan', () => {
     expect(rows[2]).toMatch(/Beta.*100k/);
   });
 
-  it('charts spend per month and offers the same numbers as a table', async () => {
+  const bars = () => [...document.querySelectorAll('[data-month]')];
+  const bar = (month: string) => document.querySelector(`[data-month="${month}"]`)!;
+
+  it('charts spend per month over the whole history and offers the same numbers as a year-by-month table', async () => {
     const { user } = renderDashboard();
 
     await screen.findByRole('heading', { name: 'Chi tiêu theo tháng' });
-    const chart = charts.at(-1)!;
-    // 8/2025 to 10/2026 is 15 months; the twelve without orders are zero bars.
-    const { labels, datasets } = chart.config.data;
-    expect(labels).toHaveLength(15);
-    expect([labels[0], labels[13], labels[14]]).toEqual(['8/2025', '9/2026', '10/2026']);
-    expect(datasets[0].data).toEqual([550_000, ...Array(12).fill(0), 300_000, 450_000]);
-    expect(screen.getByRole('img', { name: /Chi tiêu theo tháng/ })).toBeInTheDocument();
+    // 8/2025 to 10/2026 is 15 months; the twelve without orders still have a column.
+    const months = bars().map(el => el.getAttribute('data-month'));
+    expect(months).toHaveLength(15);
+    expect([months[0], months[13], months[14]]).toEqual(['8/2025', '9/2026', '10/2026']);
+    expect(screen.getByRole('img', { name: /Chi tiêu theo tháng, 15 cột/ })).toBeInTheDocument();
 
-    await user.click(screen.getByText('Xem bảng số liệu'));
-    const row = screen.getByRole('row', { name: /9\/2026/ });
-    expect(row).toHaveTextContent(/300\.000/);
+    await user.click(screen.getByRole('button', { name: 'Bảng số liệu' }));
+    const cells = within(screen.getByRole('row', { name: /^2026/ })).getAllByRole('cell').map(td => td.textContent);
+    // Twelve months then the year total; September is the ninth month.
+    expect(cells).toHaveLength(13);
+    expect(cells[8]).toBe('300k');
+    expect(cells[9]).toBe('450k');
+    expect(cells[10]).toBe('');
+    expect(cells[12]).toBe('750k');
   });
 
-  it('picks a month when its bar is clicked, keeps the other bars dimmed, and clears on a second click', async () => {
-    renderDashboard();
+  it('shows a month\u2019s figure on hover or arrow keys and picks it with Enter', async () => {
+    const { user } = renderDashboard();
     await screen.findByRole('heading', { name: 'Chi tiêu theo tháng' });
-    const click = (index: number) =>
-      act(() => (charts.at(-1)!.config as unknown as { options: { onClick: (e: unknown, hit: { index: number }[]) => void } }).options.onClick({}, [{ index }]));
 
-    click(0); // 8/2025
-    expect(screen.getByTestId('net-spend')).toHaveTextContent(/550\.000/);
-    const chart = charts.at(-1)!;
-    expect(chart.config.data.labels).toHaveLength(15);
-    const fills = (chart.config.data.datasets[0] as unknown as { backgroundColor: string[] }).backgroundColor;
-    expect(new Set(fills.slice(1)).size).toBe(1);
-    expect(fills[0]).not.toBe(fills[1]);
+    await user.hover(bar('9/2026'));
+    expect(screen.getByTestId('chart-tip')).toHaveTextContent(/Tháng 9\/2026.*300\.000/);
 
-    click(0);
-    expect(screen.getByTestId('net-spend')).toHaveTextContent(/1\.300\.000/);
+    screen.getByRole('group', { name: /Chi tiêu theo tháng\. Dùng phím mũi tên/ }).focus();
+    await user.keyboard('{ArrowRight}{Enter}');
+    expect(hero()).toHaveTextContent(/450\.000/);
   });
 
-  it('creates the share image from the aggregate stats of the selected range', async () => {
+  it('picks a month when its bar is clicked and clears on a second click', async () => {
+    const { user } = renderDashboard();
+    await screen.findByRole('heading', { name: 'Chi tiêu theo tháng' });
+
+    await user.click(bar('8/2025'));
+    expect(hero()).toHaveTextContent(/550\.000/);
+    // The other months stay on the chart for comparison.
+    expect(bars()).toHaveLength(15);
+
+    await user.click(bar('8/2025'));
+    expect(hero()).toHaveTextContent(/1\.300\.000/);
+  });
+
+  it('creates the share image from the aggregate stats of the selected range, in the chosen artwork and size', async () => {
     const { user } = renderDashboard();
 
-    await user.click(await screen.findByRole('button', { name: 'Khoe với bạn bè (tạo ảnh)' }));
+    await user.click(await screen.findByRole('button', { name: 'Tạo ảnh chia sẻ' }));
+    const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh chia sẻ' }));
+    await user.click(dialog.getByRole('button', { name: 'Đêm' }));
+    await user.click(dialog.getByRole('button', { name: 'Story 9:16' }));
+    await user.click(dialog.getByRole('button', { name: 'Tải ảnh' }));
 
     expect(shareImage.downloadShareImage).toHaveBeenCalledOnce();
-    expect(shareImage.downloadShareImage.mock.calls[0][0]).toMatchObject({ netSpend: 1_300_000 });
+    const [data, template, ratio] = shareImage.downloadShareImage.mock.calls[0];
+    expect(data).toMatchObject({ stats: { netSpend: 1_300_000 }, financialAvailable: true });
+    expect(data.monthly.at(-1)).toBe(450_000);
+    expect([template, ratio]).toEqual(['night', 'story']);
   });
 
   it('shows "—" and a re-scan prompt for Hoàn tiền and Tiết kiệm when the cache predates them', async () => {

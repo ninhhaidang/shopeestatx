@@ -6,15 +6,6 @@ import { mockColorScheme } from './support/match-media';
 import { makeData, makeOrder } from './support/orders';
 import { renderSurface } from './support/render';
 
-// The Overview chart needs a canvas; this file never reads it but the tab still mounts first.
-vi.mock('chart.js', () => ({
-  Chart: class {
-    static register() {}
-    destroy() {}
-  },
-  BarController: {}, BarElement: {}, CategoryScale: {}, LinearScale: {}, Tooltip: {},
-}));
-
 // The spreadsheet library is the boundary; what was written to the sheet is asserted.
 const sheet = vi.hoisted(() => ({ cells: new Map<string, unknown>() }));
 vi.mock('exceljs', () => ({

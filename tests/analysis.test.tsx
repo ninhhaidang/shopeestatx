@@ -8,14 +8,6 @@ import type { OrderData } from '../src/types';
 import { makeData, makeOrder } from './support/orders';
 import { renderSurface } from './support/render';
 
-vi.mock('chart.js', () => {
-  class Chart {
-    static register() {}
-    destroy() {}
-  }
-  return { Chart, BarController: {}, BarElement: {}, CategoryScale: {}, LinearScale: {}, Tooltip: {} };
-});
-
 const NOW = new Date(2026, 9, 24, 12, 0); // Saturday 24 Oct 2026, noon
 
 // 5 Oct and 12 Oct 2026 are Mondays, delivered at 20:xx; 15 Sep 2026 is a Tuesday.

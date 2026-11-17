@@ -13,7 +13,7 @@ export function OrderDetail({ order, id, excluded }: { order: Order; id: string;
           {t('orders.excludedNote', { amount: money(order.refundAmount || order.subTotal) })}
         </p>
       )}
-      <dl className="grid gap-x-6 gap-y-1 text-sm @2xl:grid-cols-2">
+      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1 text-sm">
         <dt className="text-muted">{t('table.detail.seller')}</dt>
         <dd>{order.shopName}</dd>
         {delivered && (

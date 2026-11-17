@@ -1,102 +1,228 @@
-// Builds a shareable PNG from aggregate stats only (no shop names, order ids or product names)
+// Builds a shareable PNG from aggregate stats only (no shop names, order ids or product names).
+// Three artworks in four sizes; each is a fixed design, not themed, so it looks the same wherever it is posted.
 import type { Stats } from './stats.js';
 import { formatCurrency } from '../i18n/format.js';
 import { t } from '../i18n/index.js';
 
-const W = 720;
-const H = 520;
+export type ShareTemplate = 'label' | 'bold' | 'night';
+export type ShareRatio = 'square' | 'portrait' | 'story' | 'wide';
 
-// The card is a fixed brand artwork, not themed: it must look the same wherever it is shared.
-// Values mirror the Light tokens in src/ui/styles/tokens.css (text pairs pass WCAG AA).
-const COLOR = {
-  bg: '#f6f7f9',
-  card: '#ffffff',
-  line: '#d6dbe1',
-  fg: '#14171c',
-  muted: '#5b6470',
-  accent: '#ee4d2d',
-  accentText: '#c2371b',
+export const SHARE_TEMPLATES: ShareTemplate[] = ['label', 'bold', 'night'];
+/** Pixel sizes the social networks ask for: feed square, feed portrait (4:5), story (9:16), link preview (1.91:1). */
+export const SHARE_RATIOS: Record<ShareRatio, [number, number]> = {
+  square: [1080, 1080],
+  portrait: [1080, 1350],
+  story: [1080, 1920],
+  wide: [1200, 630],
 };
-const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
-const SERIF = 'Georgia, "Times New Roman", serif';
 
-const PAD = 48;
-const CARD_X = 24;
-const CARD_Y = 24;
-
-function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, r);
+export interface ShareData {
+  stats: Stats;
+  /** False when the cache predates refund/savings: those two figures are drawn as unknown. */
+  financialAvailable: boolean;
+  /** Net spend per month of the selected range, oldest first; drawn as a small bar strip on tall sizes. */
+  monthly: number[];
 }
 
-export function drawShareImage(canvas: HTMLCanvasElement, stats: Stats, financialAvailable = true): void {
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d')!;
+const FONT = '"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+const ORANGE = '#ee4d2d';
 
-  ctx.fillStyle = COLOR.bg;
-  ctx.fillRect(0, 0, W, H);
-  roundedRect(ctx, CARD_X, CARD_Y, W - 2 * CARD_X, H - 2 * CARD_Y, 20);
-  ctx.fillStyle = COLOR.card;
-  ctx.fill();
-  ctx.strokeStyle = COLOR.line;
-  ctx.lineWidth = 1;
-  ctx.stroke();
+interface Look {
+  bg: string;
+  fg: string;
+  muted: string;
+  brand: string;
+  bars: string;
+  /** Fill of a figure cell, or null for an outlined / ruled cell. */
+  cell: string | null;
+  rule: string;
+}
 
-  const left = CARD_X + PAD - 8;
-  const right = W - CARD_X - PAD + 8;
-  const inner = right - left;
+const LOOKS: Record<ShareTemplate, Look> = {
+  // "Vận đơn": the parcel label every Shopee order arrives with.
+  label: { bg: '#ffffff', fg: '#14171c', muted: '#5b6470', brand: '#ffffff', bars: '#14171c', cell: null, rule: '#14171c' },
+  bold: { bg: ORANGE, fg: '#ffffff', muted: 'rgba(255,255,255,0.82)', brand: '#ffffff', bars: 'rgba(255,255,255,0.34)', cell: null, rule: 'rgba(255,255,255,0.45)' },
+  night: { bg: '#14171c', fg: '#f5f6f8', muted: '#9aa3af', brand: '#ff6a4d', bars: '#ff6a4d', cell: '#1e2229', rule: '#2b3038' },
+};
 
-  // Header: serif orange wordmark + title.
-  ctx.textBaseline = 'alphabetic';
-  ctx.textAlign = 'left';
-  ctx.fillStyle = COLOR.accentText;
-  ctx.font = `600 30px ${SERIF}`;
-  ctx.fillText('ShopeeStatX', left, 88);
-  ctx.textAlign = 'right';
-  ctx.fillStyle = COLOR.muted;
-  ctx.font = `18px ${SANS}`;
-  ctx.fillText(t('stats.share.title'), right, 88, inner / 2);
+/** Largest size (stepping down from `size`) at which `text` fits `maxWidth`; leaves ctx.font set. */
+function fit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, size: number, weight: number): number {
+  let px = size;
+  for (;;) {
+    ctx.font = `${weight} ${px}px ${FONT}`;
+    if (px <= 18 || ctx.measureText(text).width <= maxWidth) return px;
+    px -= 4;
+  }
+}
 
-  // Hero: net spend.
-  ctx.textAlign = 'left';
-  ctx.fillStyle = COLOR.muted;
-  ctx.font = `600 20px ${SANS}`;
-  ctx.fillText(t('stats.netSpend'), left, 150);
-  ctx.fillStyle = COLOR.fg;
-  ctx.font = `700 64px ${SANS}`;
-  ctx.fillText(formatCurrency(stats.netSpend), left, 220, inner);
-
-  // Four headline figures as a 2x2 grid of tiles.
-  const tiles: [string, string][] = [
-    [t('stats.savings'), financialAvailable ? formatCurrency(stats.estimatedSavings) : t('stats.none')],
-    [t('stats.refund'), financialAvailable ? formatCurrency(stats.refundTotal) : t('stats.none')],
-    [t('stats.weekday'), stats.busiestWeekday === null ? t('stats.none') : t(`stats.weekday.${stats.busiestWeekday}`)],
-    [t('stats.streak'), stats.longestMonthStreak ? t('stats.streak.unit', { n: stats.longestMonthStreak }) : t('stats.none')],
+function figures(data: ShareData): [string, string][] {
+  const { stats, financialAvailable } = data;
+  const none = t('stats.none');
+  return [
+    [t('stats.savings'), financialAvailable ? formatCurrency(stats.estimatedSavings) : none],
+    [t('stats.refund'), financialAvailable ? formatCurrency(stats.refundTotal) : none],
+    [t('stats.weekday'), stats.busiestWeekday === null ? none : t(`stats.weekday.${stats.busiestWeekday}`)],
+    [t('stats.streak'), stats.longestMonthStreak ? t('stats.streak.unit', { n: stats.longestMonthStreak }) : none],
   ];
-  const gap = 16;
-  const tileW = (inner - gap) / 2;
-  const tileH = 96;
-  const gridY = 256;
-  tiles.forEach(([label, value], i) => {
-    const x = left + (i % 2) * (tileW + gap);
-    const y = gridY + Math.floor(i / 2) * (tileH + gap);
-    roundedRect(ctx, x, y, tileW, tileH, 14);
-    ctx.fillStyle = COLOR.bg;
+}
+
+/** Barcode stripes derived from the amount, so the same figure always prints the same code. */
+function barcode(ctx: CanvasRenderingContext2D, seed: number, x: number, y: number, w: number, h: number, color: string): void {
+  ctx.fillStyle = color;
+  let state = Math.max(1, Math.round(seed)) % 2147483647;
+  for (let at = x; at < x + w; ) {
+    state = (state * 48271) % 2147483647;
+    const bar = 3 + (state % 4) * 3;
+    const gap = 3 + ((state >> 3) % 3) * 3;
+    ctx.fillRect(at, y, Math.min(bar, x + w - at), h);
+    at += bar + gap;
+  }
+}
+
+function monthBars(ctx: CanvasRenderingContext2D, values: number[], x: number, y: number, w: number, h: number, color: string): void {
+  const max = Math.max(...values, 1);
+  const step = w / values.length;
+  const barW = Math.max(2, Math.min(step * 0.72, 46));
+  ctx.fillStyle = color;
+  values.forEach((value, i) => {
+    const barH = Math.max(value > 0 ? 6 : 0, (value / max) * h);
+    if (!barH) return;
+    ctx.beginPath();
+    ctx.roundRect(x + i * step + (step - barW) / 2, y + h - barH, barW, barH, [Math.min(8, barW / 2), Math.min(8, barW / 2), 0, 0]);
     ctx.fill();
-    ctx.textAlign = 'left';
-    ctx.fillStyle = COLOR.muted;
-    ctx.font = `16px ${SANS}`;
-    ctx.fillText(label, x + 18, y + 34, tileW - 36);
-    ctx.fillStyle = COLOR.fg;
-    ctx.font = `700 28px ${SANS}`;
-    ctx.fillText(value, x + 18, y + 72, tileW - 36);
   });
 }
 
-export function downloadShareImage(stats: Stats, financialAvailable = true): void {
+function cell(ctx: CanvasRenderingContext2D, look: Look, template: ShareTemplate, [label, value]: [string, string], x: number, y: number, w: number, h: number, u: number): void {
+  const inset = template === 'bold' ? 0 : 26 * u;
+  if (look.cell) {
+    ctx.fillStyle = look.cell;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 22 * u);
+    ctx.fill();
+  } else if (template === 'label') {
+    ctx.strokeStyle = look.rule;
+    ctx.lineWidth = 3 * u;
+    ctx.strokeRect(x, y, w, h);
+  } else {
+    // A rule above each figure, no box.
+    ctx.fillStyle = look.rule;
+    ctx.fillRect(x, y, w, 2 * u);
+  }
+  ctx.textAlign = 'left';
+  ctx.fillStyle = look.muted;
+  ctx.font = `500 ${26 * u}px ${FONT}`;
+  ctx.fillText(label, x + inset, y + h * 0.38, w - 2 * inset);
+  ctx.fillStyle = look.fg;
+  fit(ctx, value, w - 2 * inset, 46 * u, 700);
+  ctx.fillText(value, x + inset, y + h * 0.78, w - 2 * inset);
+}
+
+export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, template: ShareTemplate = 'label', ratio: ShareRatio = 'square'): void {
+  const [W, H] = SHARE_RATIOS[ratio];
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  // jsdom has no canvas; there is nothing to draw on.
+  if (!ctx) return;
+  const look = LOOKS[template];
+  const wide = ratio === 'wide';
+  // One unit is a pixel of the 1080-wide artwork; the link preview is drawn smaller.
+  const u = wide ? 0.62 : 1;
+
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = look.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Frame. The parcel label has a heavy border and an orange header band; stories keep clear of the app chrome.
+  const frame = template === 'label' ? 36 * u : 0;
+  const padX = frame + 64 * u;
+  const padTop = (ratio === 'story' ? 230 : 0) + frame + 64 * u;
+  const padBottom = (ratio === 'story' ? 250 : 0) + frame + 64 * u;
+  const left = padX;
+  const right = W - padX;
+  const inner = right - left;
+  const headerH = 84 * u;
+
+  if (template === 'label') {
+    const top = padTop - 64 * u;
+    const bottom = H - padBottom + 64 * u;
+    if (ratio === 'story') {
+      // The label sits on an orange ground, like a sticker on a parcel.
+      ctx.fillStyle = ORANGE;
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = look.bg;
+      ctx.fillRect(frame, top, W - 2 * frame, bottom - top);
+    }
+    ctx.fillStyle = ORANGE;
+    ctx.fillRect(frame, top, W - 2 * frame, headerH + 44 * u);
+    ctx.strokeStyle = look.rule;
+    ctx.lineWidth = 8 * u;
+    ctx.strokeRect(frame, top, W - 2 * frame, bottom - top);
+    ctx.fillStyle = look.rule;
+    ctx.fillRect(frame, top + headerH + 44 * u, W - 2 * frame, 8 * u);
+  }
+
+  // Header: wordmark and what this is.
+  let y = padTop;
+  const headY = y + (template === 'label' ? 16 : 44) * u;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = look.brand;
+  ctx.font = `700 ${44 * u}px ${FONT}`;
+  ctx.fillText('ShopeeStatX', left, headY);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = template === 'label' ? '#ffffff' : look.muted;
+  ctx.font = `500 ${28 * u}px ${FONT}`;
+  ctx.fillText(t('stats.share.title'), right, headY - 2 * u, inner * 0.55);
+  y += headerH + (template === 'label' ? 44 * u : 0);
+
+  // What is left is shared out between the hero, the figures and (on tall sizes) the month strip.
+  const cells = figures(data);
+  const columns = wide ? 4 : 2;
+  const cellGap = 20 * u;
+  const cellH = (wide ? 150 : 172) * u;
+  const gridH = (cells.length / columns) * cellH + (cells.length / columns - 1) * cellGap;
+  const heroH = 236 * u;
+  const codeH = template === 'label' && !wide ? 92 * u : 0;
+  const free = H - padBottom - y - heroH - gridH - codeH;
+  const showBars = !wide && data.monthly.length > 1 && free > 300 * u;
+  const barsH = showBars ? Math.min(560 * u, free - 150 * u) : 0;
+  const gap = (free - barsH) / (2 + (showBars ? 1 : 0) + (codeH ? 1 : 0));
+
+  // Hero: net spend.
+  y += gap;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = look.muted;
+  ctx.font = `500 ${34 * u}px ${FONT}`;
+  ctx.fillText(t('stats.netSpend'), left, y + 34 * u);
+  ctx.fillStyle = look.fg;
+  const amount = formatCurrency(data.stats.netSpend);
+  fit(ctx, amount, inner, 152 * u, 700);
+  ctx.fillText(amount, left, y + 200 * u, inner);
+  y += heroH;
+
+  if (showBars) {
+    y += gap;
+    monthBars(ctx, data.monthly, left, y, inner, barsH, look.bars);
+    ctx.fillStyle = look.rule;
+    ctx.fillRect(left, y + barsH, inner, 3 * u);
+    y += barsH;
+  }
+
+  // Four headline figures.
+  y += gap;
+  const cellW = (inner - (columns - 1) * cellGap) / columns;
+  cells.forEach((figure, i) => {
+    cell(ctx, look, template, figure, left + (i % columns) * (cellW + cellGap), y + Math.floor(i / columns) * (cellH + cellGap), cellW, cellH, u);
+  });
+  y += gridH;
+
+  if (codeH) barcode(ctx, data.stats.netSpend, left, y + gap, inner, codeH, look.bars);
+}
+
+export function downloadShareImage(data: ShareData, template: ShareTemplate, ratio: ShareRatio): void {
   const canvas = document.createElement('canvas');
-  drawShareImage(canvas, stats, financialAvailable);
+  drawShareImage(canvas, data, template, ratio);
   const a = document.createElement('a');
   a.href = canvas.toDataURL('image/png');
   a.download = t('stats.share.file');

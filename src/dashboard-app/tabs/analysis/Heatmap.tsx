@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { buildHeatmapGrid, heatmapWindow } from '../../../dashboard/heatmap.js';
 import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
@@ -6,10 +6,10 @@ import type { DateRange, Order } from '../../../types/index.js';
 import { card } from '../../../ui/styles/classes';
 
 const CELL = 12;
-const GAP = 3;
+const GAP = 2.5;
 const STEP = CELL + GAP;
-const LEFT = 24;
-const TOP = 20;
+const LEFT = 20;
+const TOP = 18;
 const DAY_LABELS: Record<number, string> = { 1: 'heatmap.day.mon', 3: 'heatmap.day.wed', 5: 'heatmap.day.fri' };
 
 /** Empty days use a faint line colour; busier days mix in more of the accent. */
@@ -30,6 +30,7 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
     return buildHeatmapGrid(orders, start, end);
   }, [orders, range, now]);
 
+  const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(null);
   const title = t('analysis.heatmap.title');
   const from = formatDate(grid.start);
   const to = formatDate(grid.end);
@@ -38,40 +39,55 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
   const height = 7 * STEP + TOP;
 
   return (
-    <section aria-labelledby="analysis-heatmap" className={`${card} min-w-0 @5xl:col-span-6`}>
+    <section aria-labelledby="analysis-heatmap" className={`${card} min-w-0 @5xl:col-span-6 @7xl:col-span-4`}>
       <h3 id="analysis-heatmap" className="text-base font-semibold">{title}</h3>
       <p className="mb-3 text-xs text-muted">{t('analysis.heatmap.period', { from, to })}</p>
-      {/* Wide grids scroll sideways inside the card; focusable so the keyboard can scroll it. */}
+      {/* The grid grows with the card; below its minimum width it scrolls sideways (focusable for the keyboard). */}
       <div role="region" aria-label={t('analysis.heatmap.scroll')} tabIndex={0} className="overflow-x-auto rounded-lg pb-2">
-        <svg role="img" aria-label={summary} width={width} height={height} className="block max-w-none">
-          {Object.entries(DAY_LABELS).map(([row, key]) => (
-            <text key={row} x={0} y={TOP + Number(row) * STEP + CELL - 1} fontSize={10} fill="var(--muted)">{t(key)}</text>
-          ))}
-          {grid.monthLabels.map(m => (
-            <text key={`${m.col}-${m.month}`} x={LEFT + m.col * STEP} y={12} fontSize={10} fill="var(--muted)">
-              {t('analysis.heatmap.month', { n: m.month + 1 })}
-            </text>
-          ))}
-          {grid.weeks.map((week, col) =>
-            week.map((cell, row) =>
-              cell && (
-                <rect
-                  key={cell.date}
-                  data-date={cell.date}
-                  data-level={cell.intensity}
-                  x={LEFT + col * STEP}
-                  y={TOP + row * STEP}
-                  width={CELL}
-                  height={CELL}
-                  rx={2}
-                  fill={FILL[cell.intensity]}
-                >
-                  <title>{cell.orderCount ? t('analysis.heatmap.tip', { date: dayOf(cell.date), n: cell.orderCount }) : dayOf(cell.date)}</title>
-                </rect>
-              ),
-            ),
+        <div className="relative min-w-[40rem] max-w-[72rem]" onMouseLeave={() => setTip(null)}>
+          <svg role="img" aria-label={summary} viewBox={`0 0 ${width} ${height}`} className="block h-auto w-full">
+            {Object.entries(DAY_LABELS).map(([row, key]) => (
+              <text key={row} x={0} y={TOP + Number(row) * STEP + CELL - 2} fontSize={9} fill="var(--muted)">{t(key)}</text>
+            ))}
+            {grid.monthLabels.map(m => (
+              <text key={`${m.col}-${m.month}`} x={LEFT + m.col * STEP} y={11} fontSize={9} fill="var(--muted)">
+                {t('analysis.heatmap.month', { n: m.month + 1 })}
+              </text>
+            ))}
+            {grid.weeks.map((week, col) =>
+              week.map((cell, row) => {
+                if (!cell) return null;
+                const text = cell.orderCount ? t('analysis.heatmap.tip', { date: dayOf(cell.date), n: cell.orderCount }) : dayOf(cell.date);
+                const x = LEFT + col * STEP;
+                const y = TOP + row * STEP;
+                return (
+                  <rect
+                    key={cell.date}
+                    data-date={cell.date}
+                    data-level={cell.intensity}
+                    x={x}
+                    y={y}
+                    width={CELL}
+                    height={CELL}
+                    rx={2.5}
+                    fill={FILL[cell.intensity]}
+                    onMouseEnter={() => setTip({ text, x: ((x + CELL / 2) / width) * 100, y: (y / height) * 100 })}
+                  >
+                    <title>{text}</title>
+                  </rect>
+                );
+              }),
+            )}
+          </svg>
+          {tip && (
+            <div
+              className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md border border-line bg-card px-2 py-1 text-xs shadow-lg"
+              style={{ left: `clamp(4.5rem, ${tip.x}%, calc(100% - 4.5rem))`, top: `calc(${tip.y}% - 4px)` }}
+            >
+              {tip.text}
+            </div>
           )}
-        </svg>
+        </div>
       </div>
       <p aria-hidden="true" className="mt-1 flex items-center gap-1 text-xs text-muted">
         {t('analysis.heatmap.less')}
@@ -81,11 +97,12 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
         {t('analysis.heatmap.more')}
       </p>
       <details className="mt-2 text-sm">
-        <summary className="w-fit cursor-pointer rounded text-muted hover:text-fg">{t('dash.chart.showTable')}</summary>
+        <summary className="w-fit cursor-pointer rounded text-muted hover:text-fg">{t('analysis.heatmap.showTable')}</summary>
         {grid.days.length === 0 ? (
           <p className="mt-2 text-muted">{t('analysis.heatmap.empty')}</p>
         ) : (
-          <table className="num mt-2 w-full text-left">
+          <div className="mt-2 max-h-64 max-w-md overflow-y-auto rounded-lg border border-line px-3">
+          <table className="num w-full text-left">
             <caption className="sr-only">{title}</caption>
             <thead>
               <tr className="text-muted">
@@ -102,6 +119,7 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </details>
     </section>

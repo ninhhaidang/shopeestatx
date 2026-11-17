@@ -8,8 +8,8 @@ import type { Order } from '../../../types/index.js';
 import { money } from '../../format';
 import { OrderDetail } from './OrderDetail';
 
-/** Dot colour per status code: done, in transit, cancelled/returned; anything else is neutral. */
-const STATUS_DOT: Record<number, string> = { 3: 'bg-good', 7: 'bg-warn-fg', 8: 'bg-warn-fg', 4: 'bg-bad', 12: 'bg-bad' };
+/** Badge hue per status code, one each so they tell apart at a glance; the label always says the status too. */
+const STATUS_TONE: Record<number, string> = { 3: 'text-good', 8: 'text-info', 7: 'text-amber', 4: 'text-bad', 12: 'text-violet' };
 
 const cell = '@5xl:table-cell @5xl:px-3 @5xl:py-2.5 @5xl:align-top';
 
@@ -56,8 +56,10 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
         <td className={`${cell} whitespace-nowrap`}>{formatDeliveryDate(order, t('table.noDate'))}</td>
         <td className={cell}>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${STATUS_DOT[order.statusCode] ?? 'bg-muted'}`} />
-            <span>{order.status}</span>
+            <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[color-mix(in_srgb,currentColor_13%,transparent)] px-2.5 py-0.5 text-xs font-medium ${STATUS_TONE[order.statusCode] ?? 'text-muted'}`}>
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+              {order.status}
+            </span>
             {excluded && <span className="inline-block whitespace-nowrap rounded border border-bad px-1.5 text-xs text-bad">{t('orders.excluded')}</span>}
           </div>
         </td>

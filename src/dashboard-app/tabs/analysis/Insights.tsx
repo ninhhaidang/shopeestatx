@@ -8,15 +8,15 @@ import { card } from '../../../ui/styles/classes';
 export function Insights({ orders, now }: { orders: Order[]; now: Date }) {
   const insights = useMemo(() => generateInsights(orders, now), [orders, now]);
   return (
-    <section aria-labelledby="analysis-insights" className={card}>
+    <section aria-labelledby="analysis-insights" className={`${card} h-full`}>
       <h3 id="analysis-insights" className="text-base font-semibold">{t('insights.title')}</h3>
       <p className="mb-3 text-xs text-muted">{t('insights.scope')}</p>
       {insights.length === 0 ? (
         <p className="text-sm text-muted">{t('insights.empty')}</p>
       ) : (
-        <ul aria-label={t('insights.title')} className="grid gap-2.5 text-sm">
+        <ul aria-label={t('insights.title')} className="divide-y divide-line text-sm">
           {insights.map(text => (
-            <li key={text} className="rounded-lg bg-bg px-3 py-2">{text}</li>
+            <li key={text} className="py-2.5 first:pt-0 last:pb-0">{text}</li>
           ))}
         </ul>
       )}

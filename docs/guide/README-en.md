@@ -101,7 +101,7 @@ npm run verify
 
 The CI-equivalent command runs typechecking, Knip unused-code checks, tests with coverage, the production build and injected-script checks.
 
-Built with React 19, Tailwind CSS v4 and Vite, with Chart.js for charts and ExcelJS for XLSX exports. See the [feature inventory](../features.md), [architecture decisions](../adr/), [Shopee API constraints](../shopee-order-api.md) and [screenshot guidelines](../../store-assets/screenshots/README.md).
+Built with React 19, Tailwind CSS v4 and Vite, with hand-drawn SVG charts and ExcelJS for XLSX exports. See the [feature inventory](../features.md), [architecture decisions](../adr/), [Shopee API constraints](../shopee-order-api.md) and [screenshot guidelines](../../store-assets/screenshots/README.md).
 
 ## Feedback and support
 

@@ -40,21 +40,23 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Tổng quan hiển thị chi tiêu của tháng được đối chiếu và phần trăm tăng hoặc giảm so với tháng trước, kèm tên cả hai tháng hoặc thông báo thiếu dữ liệu đối chiếu.
 - Tổng quan hiển thị chi tiêu của năm được đối chiếu và phần trăm tăng hoặc giảm so với năm trước, kèm tên cả hai năm hoặc thông báo thiếu dữ liệu đối chiếu.
 - So sánh tháng và năm dùng toàn bộ lịch sử, lấy mốc ở cuối khoảng đang chọn nhưng không vượt quá ngày hiện tại.
-- Biểu đồ cột hiển thị Chi tiêu ròng theo tháng của toàn bộ lịch sử: cột thuộc khoảng đang chọn tô đậm, cột ngoài khoảng tô nhạt, tháng không có đơn nằm giữa vẫn có cột bằng 0. Mỗi cột là tổng cả tháng, kể cả khi khoảng đang chọn chỉ chạm một phần tháng đó. Bấm một cột chọn riêng tháng đó (tương đương «Theo tháng» trong bộ chọn khoảng thời gian); bấm lại cột đang chọn trở về Tất cả. Biểu đồ có bảng số liệu thay thế có thể mở hoặc đóng.
+- Biểu đồ cột hiển thị Chi tiêu ròng theo tháng của toàn bộ lịch sử: cột thuộc khoảng đang chọn tô đậm, cột ngoài khoảng tô nhạt, tháng không có đơn nằm giữa vẫn có cột bằng 0, các năm được tách dải và ghi nhãn, tháng cao nhất có nhãn số. Mỗi cột là tổng cả tháng, kể cả khi khoảng đang chọn chỉ chạm một phần tháng đó. Rê chuột hoặc dùng phím mũi tên hiện số tiền của tháng; bấm cột hoặc Enter chọn riêng tháng đó (tương đương «Theo tháng» trong bộ chọn khoảng thời gian), chọn lại tháng đang chọn trở về Tất cả.
+- Nút chuyển «Biểu đồ / Bảng số liệu» đổi biểu đồ thành bảng năm × 12 tháng kèm tổng cả năm ngay tại chỗ, không kéo dài trang.
 - Danh sách năm shop có Chi tiêu ròng cao nhất hiển thị thứ hạng, tên shop, số đơn hàng, số tiền và thanh so sánh trong khoảng đang chọn.
 - Shop được nhóm theo định danh shop khi có, nếu thiếu dùng định danh người bán trong lịch sử cũ (đơn cũ thiếu định danh shop được gán định danh của đơn khác cùng người bán khi có); tên hiển thị trùng nhau không làm gộp hai người bán và tên chứa dấu phân cách được giữ đầy đủ.
-- Nút tạo ảnh chia sẻ nằm ở màn hình Tổng quan.
+- Nút «Tạo ảnh chia sẻ» nằm trong khối Top shop của màn hình Tổng quan và mở hộp chọn mẫu, tỉ lệ kèm xem trước.
 
 ## Phân tích
 
 - Phân tích hiển thị thứ trong tuần và khung giờ có nhiều đơn hàng nhất, chuỗi tháng liên tiếp có đơn hàng dài nhất và Chi tiêu ròng trung bình mỗi ngày trong khoảng đang chọn.
-- Phân tích chia thành hai nhóm có tiêu đề: «Trong khoảng thời gian đã chọn» (thói quen mua sắm, hai danh sách sản phẩm, biểu đồ nhiệt) và «Không phụ thuộc khoảng thời gian đã chọn» (nhận xét, dự đoán và ngân sách, shop thân thiết). Ở khổ rộng, thói quen và hai danh sách sản phẩm chia đều một hàng, nhận xét và ngân sách chia một hàng, còn biểu đồ nhiệt và shop thân thiết dùng toàn chiều rộng. Khổ hẹp xếp các khối theo một cột.
+- Phân tích chia thành hai nhóm có tiêu đề: «Trong khoảng thời gian đã chọn» (thói quen mua sắm, biểu đồ nhiệt, hai danh sách sản phẩm) và «Không phụ thuộc khoảng thời gian đã chọn» (nhận xét, dự đoán và ngân sách, shop thân thiết). Nội dung dùng gần hết chiều rộng cửa sổ; ở khổ rất rộng biểu đồ nhiệt đứng cạnh thói quen mua sắm, hai danh sách sản phẩm chia đôi một hàng, nhận xét và ngân sách chia đôi một hàng, shop thân thiết dùng toàn chiều rộng. Khổ hẹp xếp các khối theo một cột.
+- Hai danh sách sản phẩm hiện tên đầy đủ tối đa hai dòng kèm thanh so sánh.
 - Các thói quen theo ngày và giờ dựa trên ngày giao ghi trong lịch sử, không phải thời điểm đặt đơn hàng.
 - Phân tích xếp hạng sản phẩm mua nhiều theo số lượng và sản phẩm đắt nhất theo đơn giá trong khoảng đang chọn.
 - Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu và mức thay đổi khác 0, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
 - Số đơn trung bình mỗi tháng chỉ dùng đơn có ngày hợp lệ ở cả tử số và tập tháng; chỉ sinh nhận xét khi có hơn một tháng thực sự. Giá trị đơn bị loại lấy từ giá trị gốc đã lưu, không được diễn đạt như giao dịch hoàn tiền đã xác minh hoặc Tiết kiệm ước tính.
 - Biểu đồ nhiệt hiển thị số đơn hàng theo ngày trong cửa sổ 12 tháng kết thúc ở mốc cuối khoảng đang chọn, không vượt quá ngày hiện tại.
-- Biểu đồ nhiệt dùng màu để phân biệt mức độ, có nhãn ngày và số đơn hàng, vùng cuộn ngang cùng bảng số liệu thay thế có thể mở hoặc đóng.
+- Biểu đồ nhiệt dùng màu để phân biệt mức độ, có chú giải Ít–Nhiều, nhãn ngày và số đơn hàng khi rê chuột, tự giãn theo chiều rộng khối và cuộn ngang khi hẹp. Bảng số liệu thay thế mở hoặc đóng được và cuộn trong khung cao cố định thay vì kéo dài trang.
 - Shop thân thiết dùng toàn bộ lịch sử và hiển thị tối đa mười shop có ít nhất ba đơn hàng không bị loại, ưu tiên shop có nhiều đơn hàng nhất.
 - Bảng shop thân thiết hiển thị số đơn hàng, Chi tiêu ròng, Chi tiêu ròng trung bình mỗi đơn hàng, tần suất đơn hàng mỗi tháng và ngày mua gần nhất. Tần suất chỉ tính trên đơn có ngày giao; shop không có đơn nào có ngày hiển thị dấu thiếu dữ liệu.
 - Khi chưa có sản phẩm, shop thân thiết hoặc nhận xét phù hợp, Phân tích hiển thị lời giải thích thay cho danh sách trống.
@@ -71,7 +73,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Danh sách hiển thị số kết quả và có trạng thái không tìm thấy cùng nút đặt lại bộ lọc khi tìm kiếm hoặc lọc không khớp đơn hàng nào.
 - Mã đơn hàng là liên kết mở chi tiết đơn hàng trên Shopee trong tab mới.
 - Mỗi đơn hàng có thể mở hoặc đóng chi tiết ngay trong danh sách, bằng nút mở chi tiết hoặc bấm vào bất kỳ chỗ nào trên dòng (trừ liên kết mã đơn), để xem shop, ngày giờ giao, số tiền và tên, số lượng, đơn giá của từng sản phẩm khi có dữ liệu.
-- Trạng thái đơn có chấm màu đi kèm chữ (hoàn thành, đang vận chuyển, hủy hoặc trả hàng); màu không phải kênh thông tin duy nhất.
+- Trạng thái đơn là nhãn màu kèm chữ, mỗi trạng thái một màu riêng: hoàn thành xanh lá, đang giao xanh dương, chờ vận chuyển hổ phách, đã hủy đỏ, trả hàng tím, chờ thanh toán xám; màu không phải kênh thông tin duy nhất.
 - Đơn bị loại có nhãn riêng và phần chi tiết giải thích việc không tính vào chi tiêu cùng giá trị Hoàn tiền hoặc giá trị đơn hàng khi thiếu thông tin Hoàn tiền.
 - Khi khổ hẹp, bảng đơn hàng chuyển thành thẻ nhưng vẫn giữ tìm kiếm, bộ lọc, sắp xếp, phân trang, liên kết Shopee và chi tiết đơn hàng.
 
@@ -87,10 +89,10 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Chia sẻ ảnh
 
-- Nút tạo ảnh tải về ảnh PNG gồm Chi tiêu ròng, Hoàn tiền, Tiết kiệm ước tính, thứ có nhiều đơn hàng nhất và chuỗi tháng có đơn hàng dài nhất của khoảng đang chọn.
+- Hộp tạo ảnh cho chọn một trong ba mẫu (Vận đơn, Cam, Đêm) và một trong bốn tỉ lệ: vuông 1080×1080, dọc 1080×1350, story 1080×1920, ngang 1200×630, rồi tải về ảnh PNG. Ảnh gồm Chi tiêu ròng, Hoàn tiền, Tiết kiệm ước tính, thứ có nhiều đơn hàng nhất và chuỗi tháng có đơn hàng dài nhất của khoảng đang chọn; các tỉ lệ dọc có thêm dải cột chi tiêu theo tháng (chỉ hình, không có số).
 - Khi lịch sử cũ thiếu số liệu Hoàn tiền hoặc Tiết kiệm ước tính, ảnh cũng hiển thị dấu thiếu dữ liệu thay vì 0₫.
 - Ảnh chia sẻ chỉ chứa số liệu tổng hợp, không chứa tên tài khoản, tên shop, mã đơn hàng hoặc tên sản phẩm.
-- Ảnh chia sẻ dùng thương hiệu ShopeeStatX và diện mạo sáng cố định, không đổi theo chế độ giao diện đang chọn.
+- Ảnh chia sẻ dùng thương hiệu ShopeeStatX; mỗi mẫu có diện mạo cố định, không đổi theo chế độ giao diện đang chọn.
 - Tạo ảnh chỉ tải ảnh về máy, không tự đăng hoặc gửi dữ liệu lên mạng xã hội.
 
 ## Ngân sách và dự đoán
@@ -107,7 +109,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Giao diện và khả năng tiếp cận
 
-- Mọi màn hình dùng phông Be Vietnam Pro đóng gói sẵn trong tiện ích, không tải phông từ mạng; ảnh chia sẻ giữ phông riêng của nó.
+- Mọi màn hình và ảnh chia sẻ dùng phông Be Vietnam Pro đóng gói sẵn trong tiện ích, không tải phông từ mạng.
 - Popup, dashboard, trang chào mừng và chính sách bảo mật đều có lựa chọn Tự động, Sáng và Tối.
 - Chế độ mặc định là Tự động, theo màu hệ thống và cập nhật khi hệ thống đổi giữa sáng với tối.
 - Lựa chọn giao diện được lưu để áp dụng ở lần mở sau và được áp dụng trước khi hiển thị nội dung.
