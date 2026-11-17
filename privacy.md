@@ -1,8 +1,4 @@
----
-title: Chính sách bảo mật — ShopeeStatX
----
-
-<!-- Public copy of src/privacy/Privacy.tsx, served by GitHub Pages at /privacy.html (the Chrome Web Store privacy URL). Keep the two identical. -->
+<!-- Public copy of src/privacy/Privacy.tsx, deployed by scripts/deploy-landing.sh to https://shopeestatx.ninhhaidang.com/privacy.html (the Chrome Web Store privacy URL). Keep the two identical. -->
 
 # Chính sách bảo mật
 

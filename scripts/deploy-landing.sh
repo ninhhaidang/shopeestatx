@@ -14,8 +14,8 @@ cp -R site "$OUT/"
 cp store-assets/screenshots/*.png "$OUT/store-assets/screenshots/"
 cp src/icons/icon48.png src/icons/icon128.png "$OUT/src/icons/"
 
-# privacy.md minus its front matter, rendered by GitHub's Markdown API (the repo already lives there).
-body="$(awk 'NR==1 && /^---$/ {fm=1; next} fm && /^---$/ {fm=0; next} !fm' privacy.md | gh api markdown -f mode=gfm -F text=@-)"
+# privacy.md rendered by GitHub's Markdown API (the repo already lives there).
+body="$(gh api markdown -f mode=gfm -F text=@privacy.md)"
 cat > "$OUT/privacy.html" <<EOF
 <!doctype html>
 <html lang="vi">

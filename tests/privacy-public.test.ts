@@ -1,4 +1,4 @@
-// The public policy (privacy.md → GitHub Pages /privacy.html, the Store's privacy URL) must not drift from the in-extension page.
+// The public policy (privacy.md → shopeestatx.ninhhaidang.com/privacy.html, the Store's privacy URL) must not drift from the in-extension page.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
