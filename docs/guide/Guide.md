@@ -1,6 +1,6 @@
 # ShopeeStatX User Guide
 
-The dashboard has three screens in the top navigation: **Overview** (Tổng quan), **Analysis** (Phân tích) and **Orders** (Đơn hàng). On narrow widths the navigation moves to the bottom and the orders table becomes a card list. Pick **Auto / Light / Dark** colors at the top.
+The dashboard has three screens in the top navigation: **Overview** (Tổng quan), **Analysis** (Phân tích) and **Orders** (Đơn hàng). On narrow widths the navigation moves to the bottom and the orders table becomes a card list. Pick **Light** (default) or **Dark** at the top.
 
 ## Getting started
 
@@ -16,7 +16,8 @@ The **Time range** picker at the top applies to all three screens: quick choices
 
 - **Net spend**: total of valid orders, with the change against last month and last year.
 - Four tiles: orders, average per order, refunds, estimated savings.
-- **Spend per month** chart (with a data table) and **Top shops**.
+- **Spend per month** chart with an average-month line; click a bar to view that month, or switch to the data table.
+- **Top shops**: click a shop to open its orders.
 - The share button creates a PNG with aggregate figures only (no shop names, order IDs or product names).
 
 Cancelled, returned and unpaid orders are not counted as spending. Estimated savings is items total minus amount paid; Shopee does not expose vouchers or free shipping separately (see [docs/shopee-order-api.md](../shopee-order-api.md)). If refunds or savings show "—", the cache comes from an older version: use the re-scan button.
@@ -24,15 +25,15 @@ Cancelled, returned and unpaid orders are not counted as spending. Estimated sav
 ## Orders
 
 - Search by order ID, product or shop (results update as you type).
-- Filter by status and shop; sort by delivery date, status or total; paginate; open an order for its product details.
-- Export to Excel (.xlsx), CSV or Print / PDF. Exports follow the active range and filters.
+- Filter by status (chips with counts) and shop; sort by delivery date, status or total. Orders are grouped by month with a total at the foot; paginate; open an order for its products and estimated savings.
+- The **Export** menu offers Excel (.xlsx), CSV or Print / PDF. Exports follow the active range and filters.
 
 ## Analysis
 
 - Daily order **heatmap** (up to the latest 12 months of the selected range).
-- **Buying habits**: busiest weekday and hour, longest monthly streak, most-bought and priciest products, and a **repeat shops** table.
+- **Buying habits**: busiest weekday and hour, longest monthly streak, most-bought and priciest products, and a **repeat shops** table; click a shop or product to open its orders.
 - Automatic **insights**.
-- **Prediction and budget**: set a monthly limit and warning threshold; the end-of-month projection warns if you may exceed it.
+- **Prediction and budget**: this month against an average month; set a monthly limit and warning threshold; the end-of-month projection warns if you may exceed it.
 
 ## Refreshing data
 

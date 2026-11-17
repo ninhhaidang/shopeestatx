@@ -1,6 +1,6 @@
 # Hướng dẫn sử dụng ShopeeStatX
 
-Dashboard có ba màn hình ở thanh điều hướng phía trên: **Tổng quan**, **Phân tích** và **Đơn hàng**. Khi cửa sổ hẹp, thanh này chuyển xuống dưới cùng và bảng đơn hàng chuyển thành danh sách thẻ. Giao diện có ba chế độ màu **Tự động / Sáng / Tối**, chọn ở góc trên.
+Dashboard có ba màn hình ở thanh điều hướng phía trên: **Tổng quan**, **Phân tích** và **Đơn hàng**. Khi cửa sổ hẹp, thanh này chuyển xuống dưới cùng và bảng đơn hàng chuyển thành danh sách thẻ. Giao diện có hai chế độ màu **Sáng** (mặc định) và **Tối**, chọn ở góc trên.
 
 ## 🚀 Bắt đầu
 
@@ -16,8 +16,9 @@ Bộ chọn **Khoảng thời gian** ở đầu trang áp dụng cho cả ba mà
 
 - **Chi tiêu ròng**: tổng chi tiêu của các đơn hợp lệ, kèm mức tăng/giảm so với tháng trước và năm trước.
 - Bốn ô số liệu: **Số đơn**, **Trung bình/đơn**, **Hoàn tiền**, **Tiết kiệm ước tính**.
-- Biểu đồ **Chi tiêu theo tháng** (bấm **Xem bảng số liệu** để xem dạng bảng) và danh sách **Top shop**.
-- **Khoe với bạn bè (tạo ảnh)** tạo ảnh PNG chỉ gồm số liệu tổng hợp, không có tên shop, mã đơn hay tên sản phẩm.
+- Biểu đồ **Chi tiêu theo tháng** với đường trung bình mỗi tháng; bấm một cột để xem riêng tháng đó, hoặc chọn **Bảng số liệu** để xem dạng bảng.
+- **Top shop**: bấm một shop để mở danh sách đơn của shop đó.
+- **Tạo ảnh chia sẻ** tạo ảnh PNG chỉ gồm số liệu tổng hợp, không có tên shop, mã đơn hay tên sản phẩm.
 
 > Đơn **đã hủy**, **trả hàng** và **chờ thanh toán** không tính vào chi tiêu. **Tiết kiệm ước tính** là tổng giá sản phẩm trừ số đã trả; Shopee không cho biết riêng voucher hay freeship (xem [docs/shopee-order-api.md](../shopee-order-api.md)).
 
@@ -26,16 +27,16 @@ Nếu thấy "—" ở **Hoàn tiền** hoặc **Tiết kiệm**, dữ liệu đ
 ## 📋 Đơn hàng
 
 - **Tìm kiếm** theo mã đơn, tên sản phẩm hoặc shop (kết quả hiện ngay).
-- Lọc theo **trạng thái** và **shop**; **sắp xếp** theo ngày giao, trạng thái hoặc tổng tiền.
-- Phân trang; bấm một đơn để xem chi tiết sản phẩm. Đơn bị loại được ghi rõ cùng giá trị gốc.
-- **Xuất dữ liệu**: Excel (.xlsx), CSV hoặc In / PDF. File xuất đúng theo khoảng thời gian và bộ lọc đang áp dụng.
+- Lọc theo **trạng thái** (hàng nút kèm số đơn) và **shop**; **sắp xếp** theo ngày giao, trạng thái hoặc tổng tiền.
+- Đơn được nhóm theo tháng, có tổng tiền ở cuối danh sách; phân trang; bấm một đơn để xem chi tiết sản phẩm và tiết kiệm ước tính của đơn. Đơn bị loại được ghi rõ cùng giá trị gốc.
+- Menu **Xuất dữ liệu**: Excel (.xlsx), CSV hoặc In / PDF. File xuất đúng theo khoảng thời gian và bộ lọc đang áp dụng.
 
 ## 🔎 Phân tích
 
 - **Biểu đồ nhiệt** số đơn mỗi ngày (tối đa 12 tháng gần nhất của khoảng đã chọn), có thể cuộn ngang.
-- **Thói quen mua sắm**: ngày trong tuần và giờ mua nhiều nhất, chuỗi tháng liên tiếp, sản phẩm mua nhiều nhất và đắt nhất, cùng bảng **shop thân thiết**.
+- **Thói quen mua sắm**: ngày trong tuần và giờ mua nhiều nhất, chuỗi tháng liên tiếp, sản phẩm mua nhiều nhất và đắt nhất, cùng bảng **shop thân thiết**; bấm một shop hoặc sản phẩm để mở các đơn liên quan.
 - **Nhận xét** tự động từ dữ liệu của bạn.
-- **Dự đoán và ngân sách**: đặt hạn mức hàng tháng và ngưỡng cảnh báo; ShopeeStatX dự kiến chi tiêu cuối tháng và báo nếu có thể vượt ngân sách.
+- **Dự đoán và ngân sách**: so chi tiêu tháng này với một tháng trung bình; đặt hạn mức hàng tháng và ngưỡng cảnh báo; ShopeeStatX dự kiến chi tiêu cuối tháng và báo nếu có thể vượt ngân sách.
 
 ## 🔄 Cập nhật dữ liệu
 

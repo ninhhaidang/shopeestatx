@@ -44,7 +44,7 @@ ShopeeStatX is a Chrome extension that turns your **Shopee Vietnam** order histo
 
 </details>
 
-Choose **Light, Dark or Auto**. On narrow containers, orders become cards while filters and details remain available. The interface is currently in Vietnamese.
+Choose **Light** (default) or **Dark**. On narrow containers, orders become cards while filters and details remain available. The interface is currently in Vietnamese.
 
 ## Get started
 

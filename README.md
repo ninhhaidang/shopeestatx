@@ -48,7 +48,7 @@ ShopeeStatX là tiện ích Chrome giúp tổng hợp lịch sử mua hàng trê
 
 </details>
 
-Giao diện có **Sáng, Tối và Tự động** theo hệ thống. Khi vùng hiển thị hẹp, bảng đơn chuyển thành thẻ; các bộ lọc và chi tiết đơn vẫn dùng được.
+Giao diện có hai chế độ **Sáng** (mặc định) và **Tối**. Khi vùng hiển thị hẹp, bảng đơn chuyển thành thẻ; các bộ lọc và chi tiết đơn vẫn dùng được.
 
 ## Bắt đầu trong ba bước
 
