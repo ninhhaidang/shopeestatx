@@ -14,7 +14,7 @@
 
 - Source explicitly marks wording as legal text that must remain identical to the published policy. Treat copy changes as policy changes, not routine UI cleanup.
 - Policy text is embedded Vietnamese content, not translation-key lookup; the entrypoint does not call `initLocale()`.
-- Sections have accessible generated heading IDs; permission explanations render as a table with headers.
+- Sections have accessible generated heading IDs; permission explanations render as a description list (`dt` permission, `dd` reason).
 - The component has no Chrome API, order-fetch, or data-deletion implementation. Those policy claims must stay aligned with their owning subsystems.
 
 ## Side Effects

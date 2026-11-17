@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { Privacy } from '../src/privacy/Privacy';
 import { renderSurface } from './support/render';
 import { mockColorScheme } from './support/match-media';
@@ -34,14 +34,12 @@ describe('Privacy', () => {
     ]);
   });
 
-  it('lists the four permissions with their reasons in a table', () => {
+  it('lists the four permissions, each paired with its reason', () => {
     renderSurface(<Privacy />);
 
-    const table = screen.getByRole('table');
-    expect(within(table).getAllByRole('row')).toHaveLength(5);
-    for (const name of ['activeTab', 'storage', 'scripting', 'https://shopee.vn/*']) {
-      expect(within(table).getByRole('cell', { name })).toBeInTheDocument();
-    }
+    const terms = screen.getAllByRole('term');
+    expect(terms.map((dt) => dt.textContent)).toEqual(['activeTab', 'storage', 'scripting', 'https://shopee.vn/*']);
+    expect(terms[2].nextElementSibling).toHaveTextContent(/^Inject script vào tab Shopee/);
   });
 
   it('states the no-sharing promise and the data-storage rules', () => {

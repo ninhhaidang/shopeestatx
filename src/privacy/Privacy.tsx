@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from 'react';
 import { Logo } from '../ui/components/Logo';
 import { ThemeToggle } from '../ui/components/ThemeToggle';
+import { card, chip } from '../ui/styles/classes';
 
 const REPO = 'https://github.com/ninhhaidang/shopeestatx';
 
@@ -16,14 +17,21 @@ const PERMISSIONS = [
 
 const linkClass = 'text-accent-text underline underline-offset-4 hover:text-accent-hover';
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+/** A numbered policy section; the heading still reads "1. Tổng quan (Overview)" as one string. */
+function Section({ n, title, en, children }: { n: number; title: string; en: string; children: ReactNode }) {
   const id = useId();
   return (
-    <section aria-labelledby={id} className="rounded-xl border border-line bg-card p-4 sm:p-6">
-      <h2 id={id} className="mb-3 text-lg font-semibold">
-        {title}
-      </h2>
-      <div className="flex flex-col gap-2 text-sm leading-relaxed text-muted [&_strong]:text-fg">{children}</div>
+    <section aria-labelledby={id} className={`${card} grid gap-x-4 sm:grid-cols-[2rem_minmax(0,1fr)]`}>
+      <span aria-hidden="true" className="num text-lg font-semibold leading-7 text-accent-text">
+        {n}
+      </span>
+      <div className="min-w-0">
+        <h2 id={id} className="mb-3 text-lg font-semibold">
+          <span className="sr-only">{n}. </span>
+          {title} <span className="text-sm font-normal text-muted">({en})</span>
+        </h2>
+        <div className="flex flex-col gap-2 text-sm leading-relaxed text-muted [&_strong]:text-fg">{children}</div>
+      </div>
     </section>
   );
 }
@@ -44,22 +52,24 @@ const code = (text: string) => <code className="rounded bg-bg px-1 font-mono tex
 export function Privacy() {
   return (
     <div className="min-h-screen bg-bg text-fg">
-      <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-10">
-        <div className="flex justify-end">
+      <div className="border-b border-line bg-card">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <Logo />
           <ThemeToggle />
         </div>
+      </div>
 
-        <header className="mb-4 flex flex-col items-center gap-1 border-b border-line pb-6 text-center">
-          <Logo className="text-lg" />
+      <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-10">
+        <header className="mb-2 flex flex-col gap-2">
           <h1 className="text-3xl font-semibold">Chính sách bảo mật</h1>
-          <p className="text-sm text-muted">ShopeeStatX &nbsp;•&nbsp; Cập nhật lần cuối: 05/03/2026</p>
-          <p className="text-sm text-muted">
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+            <span className={chip}>Cập nhật lần cuối: 05/03/2026</span>
             <em>Privacy Policy / Politique de confidentialité</em>
           </p>
         </header>
 
         <main className="flex flex-col gap-4">
-          <Section title="1. Tổng quan (Overview)">
+          <Section n={1} title="Tổng quan" en="Overview">
             <p>
               ShopeeStatX là Chrome Extension giúp người dùng phân tích lịch sử chi tiêu trên Shopee. Extension hoạt động hoàn toàn cục bộ — không có
               server, không có cơ sở dữ liệu bên ngoài, không thu thập hay truyền dữ liệu cá nhân ra bên ngoài.
@@ -72,7 +82,7 @@ export function Privacy() {
             </p>
           </Section>
 
-          <Section title="2. Dữ liệu được truy cập (Data Accessed)">
+          <Section n={2} title="Dữ liệu được truy cập" en="Data Accessed">
             <p>Extension chỉ truy cập dữ liệu khi người dùng chủ động nhấn "Bắt đầu phân tích":</p>
             <List
               items={[
@@ -86,28 +96,23 @@ export function Privacy() {
             </p>
           </Section>
 
-          <Section title="3. Quyền truy cập và lý do (Permissions)">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-left text-sm">
-                <thead>
-                  <tr>
-                    <th className="border border-line bg-bg p-2.5 font-semibold text-fg">Quyền</th>
-                    <th className="border border-line bg-bg p-2.5 font-semibold text-fg">Lý do sử dụng</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {PERMISSIONS.map(([name, reason]) => (
-                    <tr key={name}>
-                      <td className="border border-line p-2.5 align-top font-mono font-semibold break-all text-accent-text sm:whitespace-nowrap">{name}</td>
-                      <td className="border border-line p-2.5 align-top">{reason}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <Section n={3} title="Quyền truy cập và lý do" en="Permissions">
+            <dl className="flex flex-col divide-y divide-line rounded-xl border border-line">
+              {/* Column labels; the dt/dd pairs already carry the meaning for screen readers. */}
+              <div aria-hidden="true" className="hidden gap-4 px-3 py-2 text-xs font-medium sm:flex">
+                <span className="w-44 shrink-0">Quyền</span>
+                <span>Lý do sử dụng</span>
+              </div>
+              {PERMISSIONS.map(([name, reason]) => (
+                <div key={name} className="flex flex-col gap-1 p-3 sm:flex-row sm:gap-4">
+                  <dt className="shrink-0 font-mono font-semibold break-all text-accent-text sm:w-44 sm:whitespace-nowrap">{name}</dt>
+                  <dd>{reason}</dd>
+                </div>
+              ))}
+            </dl>
           </Section>
 
-          <Section title="4. Dữ liệu không được chia sẻ (No Data Sharing)">
+          <Section n={4} title="Dữ liệu không được chia sẻ" en="No Data Sharing">
             <p>
               ShopeeStatX <strong>không</strong>:
             </p>
@@ -120,12 +125,12 @@ export function Privacy() {
                 'Chia sẻ dữ liệu với bên thứ ba',
               ]}
             />
-            <div className="mt-2 rounded-lg border border-good bg-bg p-3 text-good">
+            <div className="mt-2 rounded-lg bg-[color-mix(in_srgb,var(--good)_var(--tint),transparent)] p-3 font-medium text-good">
               Toàn bộ dữ liệu đơn hàng chỉ tồn tại trên máy của bạn và bị xóa hoàn toàn khi bạn gỡ cài đặt extension.
             </div>
           </Section>
 
-          <Section title="5. Lưu trữ dữ liệu (Data Storage)">
+          <Section n={5} title="Lưu trữ dữ liệu" en="Data Storage">
             <p>
               Dữ liệu được lưu tại {code('chrome.storage.local')} — bộ nhớ cục bộ của Chrome, chỉ truy cập được từ extension này, không đồng bộ lên
               cloud. Xóa khi:
@@ -139,14 +144,14 @@ export function Privacy() {
             />
           </Section>
 
-          <Section title="6. Tuyên bố miễn trừ (Disclaimer)">
+          <Section n={6} title="Tuyên bố miễn trừ" en="Disclaimer">
             <p>
               ShopeeStatX là dự án mã nguồn mở độc lập, <strong>không liên kết chính thức với Shopee</strong>. Extension sử dụng API Shopee theo cách
               tương tự trình duyệt web bình thường (dùng session đăng nhập sẵn có).
             </p>
           </Section>
 
-          <Section title="7. Liên hệ (Contact)">
+          <Section n={7} title="Liên hệ" en="Contact">
             <p>Nếu có câu hỏi về chính sách bảo mật:</p>
             <List
               items={[

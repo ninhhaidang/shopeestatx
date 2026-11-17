@@ -2,7 +2,7 @@
 
 ## Overview
 
-[Popup.tsx](./Popup.tsx) renders the extension launcher: cached greeting, analysis action, Shopee warning, external links, help/privacy actions, and shared theme toggle. Chrome behavior stays behind a host interface.
+[Popup.tsx](./Popup.tsx) renders the extension launcher: cached greeting, analysis action (or Open Shopee with a warning), external links, help/privacy actions, and shared theme toggle. Chrome behavior stays behind a host interface.
 
 ## Interface
 
@@ -14,7 +14,7 @@
 
 ## Invariants
 
-- Analysis remains disabled until `isOnShopee()` resolves `true`. The warning appears only after an explicit `false`, avoiding an initial warning flash.
+- Analysis remains disabled until `isOnShopee()` resolves `true`. Only an explicit `false` shows the warning and swaps the start button for Open Shopee, avoiding an initial warning flash.
 - Active-tab detection accepts only HTTPS on exactly the configured hostname; malformed/missing URLs return false.
 - Async user/tab results are ignored after component cleanup.
 - Cached user lookup prefers `username` over `name`; missing data or storage errors produce no greeting.

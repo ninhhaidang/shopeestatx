@@ -6,9 +6,9 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 - Popup hiển thị lời chào cùng tên và ảnh đại diện khi có thông tin tài khoản, hoặc giới thiệu ngắn khi chưa có thông tin này.
 - Nút «Bắt đầu phân tích» mở dashboard ở tab mới để lấy lịch sử đơn hàng từ phiên đăng nhập Shopee đang có.
-- Popup chỉ cho bắt đầu khi URL tab hiện tại dùng HTTPS và hostname đúng là `shopee.vn` (không nhận HTTP hay tên miền con, vì bộ thu thập chỉ đọc được từ origin này); chuỗi `shopee.vn` trong đường dẫn, query hoặc hostname giả không đủ. Khi chưa ở trang phù hợp, popup hiển thị lời nhắc mở Shopee, đăng nhập cùng nút mở Shopee.
+- Popup chỉ cho bắt đầu khi URL tab hiện tại dùng HTTPS và hostname đúng là `shopee.vn` (không nhận HTTP hay tên miền con, vì bộ thu thập chỉ đọc được từ origin này); chuỗi `shopee.vn` trong đường dẫn, query hoặc hostname giả không đủ. Khi chưa ở trang phù hợp, popup hiển thị lời nhắc mở Shopee, đăng nhập và thay nút bắt đầu bằng nút mở Shopee.
 - Popup có liên kết ủng hộ, GitHub, đánh giá tiện ích, hướng dẫn và chính sách bảo mật.
-- Popup có bộ chọn giao diện Tự động, Sáng và Tối.
+- Popup có bộ chọn giao diện Sáng và Tối.
 
 ## Dashboard và khoảng thời gian
 
@@ -115,8 +115,8 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Giao diện và khả năng tiếp cận
 
 - Mọi màn hình và ảnh chia sẻ dùng phông Be Vietnam Pro đóng gói sẵn trong tiện ích, không tải phông từ mạng.
-- Popup, dashboard, trang chào mừng và chính sách bảo mật đều có lựa chọn Tự động, Sáng và Tối.
-- Chế độ mặc định là Tự động, theo màu hệ thống và cập nhật khi hệ thống đổi giữa sáng với tối.
+- Popup, dashboard, trang chào mừng và chính sách bảo mật đều có lựa chọn Sáng và Tối.
+- Chế độ mặc định là Sáng, kể cả khi hệ thống đang dùng màu tối.
 - Lựa chọn giao diện được lưu để áp dụng ở lần mở sau và được áp dụng trước khi hiển thị nội dung.
 - Dashboard tự xếp lại theo chiều rộng vùng hiển thị, chuyển thanh điều hướng xuống dưới và giữ các chỉ số thành lưới gọn khi khổ hẹp.
 - Người dùng có thể thao tác bằng bàn phím với trạng thái focus rõ ràng, chuyển tab bằng phím mũi tên hoặc phím đầu và cuối, và dùng nhãn điều khiển dành cho trình đọc màn hình.
@@ -142,7 +142,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Thay đổi chủ ý trong redesign và giới hạn hiện tại
 
 - Các theme màu cũ đã bị loại bỏ có chủ ý và được thay bằng hai lựa chọn Sáng và Tối (mặc định Sáng, không có chế độ tự động theo hệ thống).
-- Kiểu hiển thị Ấm áp và bộ chọn Fintech/Ấm áp đã bị loại bỏ có chủ ý; dashboard chỉ còn một kiểu hiển thị (trước đây gọi là Fintech), vẫn có ba lựa chọn màu Tự động, Sáng và Tối.
+- Kiểu hiển thị Ấm áp và bộ chọn Fintech/Ấm áp đã bị loại bỏ có chủ ý; dashboard chỉ còn một kiểu hiển thị (trước đây gọi là Fintech), vẫn có hai lựa chọn màu Sáng và Tối.
 - Bố cục dashboard một trang cuộn dài đã được thay có chủ ý bằng ba màn hình Tổng quan, Phân tích và Đơn hàng, không phải bỏ các chức năng được liệt kê ở trên.
 - Popup được giữ gọn như nơi khởi chạy phân tích và truy cập liên kết, thay vì lặp lại dashboard.
 - Khả năng thích ứng với vùng hẹp không đồng nghĩa đã có nút mở side panel, vì tùy chọn mở side panel chưa thuộc giao diện hiện tại.

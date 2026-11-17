@@ -42,12 +42,20 @@ describe('Popup', () => {
     expect(screen.queryByText(/Xin chào/)).not.toBeInTheDocument();
   });
 
-  it('warns and disables the start button when Shopee is not open', async () => {
+  it('keeps the start button disabled while the tab check is pending', () => {
+    renderSurface(<Popup host={makeHost({ isOnShopee: () => new Promise<boolean>(() => {}) })} />);
+
+    expect(screen.getByRole('button', { name: 'Bắt đầu phân tích' })).toBeDisabled();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('replaces the start button with Open Shopee when Shopee is not open', async () => {
     const host = makeHost({ isOnShopee: vi.fn().mockResolvedValue(false) });
     renderSurface(<Popup host={host} />);
 
     expect(await screen.findByRole('status')).toHaveTextContent('Vui lòng mở Shopee và đăng nhập trước.');
-    expect(screen.getByRole('button', { name: 'Bắt đầu phân tích' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Bắt đầu phân tích' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mở Shopee và đăng nhập' })).toBeEnabled();
   });
 
   it.each([
@@ -78,7 +86,7 @@ describe('Popup', () => {
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
     } else {
       expect(await screen.findByRole('status')).toHaveTextContent('Vui lòng mở Shopee và đăng nhập trước.');
-      expect(start).toBeDisabled();
+      expect(start).not.toBeInTheDocument();
     }
   });
 
