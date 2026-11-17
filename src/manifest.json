@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ShopeeStatX",
-  "description": "Thống kê tổng số tiền bạn đã tiêu trên Shopee",
+  "description": "Theo dõi và phân tích toàn bộ lịch sử chi tiêu Shopee bằng biểu đồ trực quan. Không cần tài khoản, dữ liệu không rời máy.",
   "version": "3.5.0",
   "minimum_chrome_version": "116",
   "content_security_policy": {
