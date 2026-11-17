@@ -53,7 +53,7 @@ describe('share image', () => {
     expect(drawn.some(text => text.includes('1.800.000'))).toBe(true);
     expect(drawn).toContain('Hoàn tiền');
     expect(drawn.some(text => text.includes('250.000'))).toBe(true);
-    expect(drawn).toContain('Ngày hay mua nhất');
+    expect(drawn).toContain('Ngày hay nhận hàng');
     expect(drawn).toContain('Thứ 7');
     expect(drawn).toContain('Chuỗi tháng liên tục');
     expect(drawn).toContain('5 tháng');

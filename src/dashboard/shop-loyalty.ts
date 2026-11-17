@@ -21,7 +21,7 @@ const MIN_ORDERS = 3;
 const MAX_SHOPS = 10;
 const MAX_SPAN_MONTHS = 12;
 
-/** Shops with at least 3 orders that count towards spend, most orders first. */
+/** Shops with at least 3 orders that count towards spend, most orders first, then most spent. */
 export function analyzeShopLoyalty(allOrders: Order[]): ShopLoyalty[] {
   const shopMap = new Map<string, { name: string; orders: number; spent: number; dates: string[] }>();
 
@@ -62,6 +62,6 @@ export function analyzeShopLoyalty(allOrders: Order[]): ShopLoyalty[] {
         repeatRate: sorted.length ? parseFloat((sorted.length / monthsSpan).toFixed(1)) : null,
       };
     })
-    .sort((a, b) => b.orderCount - a.orderCount)
+    .sort((a, b) => b.orderCount - a.orderCount || b.totalSpent - a.totalSpent)
     .slice(0, MAX_SHOPS);
 }

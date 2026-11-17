@@ -5,7 +5,7 @@ import { buildHeatmapGrid, heatmapWindow } from '../src/dashboard/heatmap';
 import { computeOverview, monthChange } from '../src/dashboard/overview';
 import { predictMonthEnd } from '../src/dashboard/predictions';
 import { filterByRange, resolveRange } from '../src/dashboard/range';
-import { monthSpend } from '../src/dashboard/month';
+import { averageMonthSpend, monthSpend } from '../src/dashboard/month';
 import { makeOrder } from './support/orders';
 
 // The cached month/year fields can disagree with the delivery date (cache saved in another time zone).
@@ -73,5 +73,22 @@ describe('one month basis: the delivery date', () => {
     ], start, end);
     expect(grid.days.map(day => day.date)).toEqual(['2023-03-01', '2024-02-29']);
     expect(grid.totalOrders).toBe(2);
+  });
+});
+
+describe('averageMonthSpend', () => {
+  it('spreads net spend over every month from the first order to the last, empty ones included', () => {
+    const orders = [
+      makeOrder('2026-07-10T10:00:00', { subTotal: 300_000 }),
+      makeOrder('2026-09-10T10:00:00', { subTotal: 600_000 }),
+      makeOrder('2026-09-11T10:00:00', { subTotal: 500_000, statusCode: 4, refundAmount: 500_000 }),
+      makeOrder(null, { subTotal: 900_000 }),
+    ];
+    // July, August (empty) and September: 900k / 3. The cancelled and the undated orders are left out.
+    expect(averageMonthSpend(orders)).toBe(300_000);
+    // The month chart's dashed line averages the same bars.
+    const bars = computeOverview(orders).monthly;
+    expect(bars.reduce((sum, m) => sum + m.total, 0) / bars.length).toBe(300_000);
+    expect(averageMonthSpend([])).toBe(0);
   });
 });

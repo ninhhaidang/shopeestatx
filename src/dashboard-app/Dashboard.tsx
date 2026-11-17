@@ -7,7 +7,7 @@ import { Logo } from '../ui/components/Logo';
 import { StateMessage } from '../ui/components/StateMessage';
 import { ThemeToggle } from '../ui/components/ThemeToggle';
 import { AccountChip } from './AccountChip';
-import { DashboardContext } from './context';
+import { DashboardContext, type OrdersFilter } from './context';
 import type { DashboardHost } from './host';
 import { OverviewSkeleton } from './OverviewSkeleton';
 import { RangePicker } from './RangePicker';
@@ -27,10 +27,10 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const orderData = useOrderData(host);
   const { phase, data, refreshing, notice, progress, stalled, scanning } = orderData;
   const [tab, setTab] = useState<TabId>('overview');
-  // Set only by "open this shop's orders"; any other way into a tab starts unfiltered.
-  const [ordersShop, setOrdersShop] = useState('');
+  // Set only by "open these orders" links; any other way into a tab starts unfiltered.
+  const [ordersFilter, setOrdersFilter] = useState<OrdersFilter>({});
   const openTab = (id: TabId) => {
-    setOrdersShop('');
+    setOrdersFilter({});
     setTab(id);
   };
   const [selection, setSelection] = useState<RangeSelection>(ALL_TIME);
@@ -54,14 +54,14 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const orders = useMemo(() => (data ? filterByRange(data.orders, range) : []), [data, range]);
   const context = useMemo(() => {
     if (!data) return null;
-    const showShopOrders = (shopKey: string) => {
-      setOrdersShop(shopKey);
+    const showOrders = (filter: OrdersFilter) => {
+      setOrdersFilter(filter);
       setTab('orders');
       // The clicked row unmounts with the tab; keep focus on the tab it led to.
       tabRefs.current.orders?.focus();
     };
-    return { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh, ordersShop, showShopOrders };
-  }, [data, orders, range, selection, clock, ordersShop]);
+    return { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh, ordersFilter, showOrders };
+  }, [data, orders, range, selection, clock, ordersFilter]);
 
   const onTabKeyDown = (e: KeyboardEvent, index: number) => {
     const last = TABS.length - 1;

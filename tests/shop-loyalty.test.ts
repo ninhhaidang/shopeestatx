@@ -17,6 +17,12 @@ describe('analyzeShopLoyalty', () => {
     ]);
   });
 
+  it('puts the shop that spent more first when the order counts tie', () => {
+    const beta = (day: number) => makeOrder(`2026-10-0${day}T10:00:00`, { shopName: 'b - Beta', subTotal: 500_000 });
+    const orders = [alpha('2026-09-01T10:00:00'), alpha('2026-09-02T10:00:00'), alpha('2026-09-03T10:00:00'), beta(1), beta(2), beta(3)];
+    expect(analyzeShopLoyalty(orders).map(s => s.shopName)).toEqual(['Beta', 'Alpha']);
+  });
+
   it('handles prototype seller names, stable identities and local calendar boundaries', () => {
     const orders = [
       makeOrder(null, { shopId: '1', shopName: 'a - __proto__' }),

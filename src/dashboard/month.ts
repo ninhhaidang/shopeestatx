@@ -29,6 +29,25 @@ export function monthSpend(orders: Order[], month: number, year: number): number
   }, 0);
 }
 
+/**
+ * Net spend of an average month: the total over every month from the first dated order to the last,
+ * empty months included (the same figure as the dashed line on the month chart). 0 without dated orders.
+ */
+export function averageMonthSpend(orders: Order[]): number {
+  let first = Infinity;
+  let last = -Infinity;
+  let total = 0;
+  for (const o of orders) {
+    const m = monthOf(o);
+    if (!m || isExcludedOrder(o)) continue;
+    const key = m.year * 12 + m.month;
+    first = Math.min(first, key);
+    last = Math.max(last, key);
+    total += o.subTotal;
+  }
+  return Number.isFinite(first) ? total / (last - first + 1) : 0;
+}
+
 /** The years that have a dated order, newest first. */
 export function orderYears(orders: Order[]): number[] {
   const years = new Set<number>();

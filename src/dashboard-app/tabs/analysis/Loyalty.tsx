@@ -8,8 +8,11 @@ import { money } from '../../format';
 
 const dayOf = (key: string) => (key ? formatDate(new Date(`${key}T00:00:00`)) : t('stats.none'));
 
-/** Shops the user keeps coming back to, over the whole history (like insights, not cut by the date range). */
-export function Loyalty({ orders }: { orders: Order[] }) {
+/**
+ * Shops the user keeps coming back to, over the whole history (like insights, not cut by the date range).
+ * A row opens that shop's orders: the name is the button, a click anywhere else on the row presses it.
+ */
+export function Loyalty({ orders, onSelect }: { orders: Order[]; onSelect: (shopKey: string) => void }) {
   const shops = useMemo(() => analyzeShopLoyalty(orders), [orders]);
   const title = t('analysis.loyalty.title');
   return (
@@ -23,7 +26,7 @@ export function Loyalty({ orders }: { orders: Order[] }) {
         <p className="text-sm text-muted">{t('analysis.loyalty.empty')}</p>
       ) : (
         <div role="region" aria-label={title} tabIndex={0} className="overflow-x-auto rounded-lg">
-          <table className="num w-full min-w-max text-left text-sm [&_tbody_tr:hover]:bg-bg">
+          <table className="num w-full min-w-max text-left text-sm">
             <thead>
               <tr className="text-xs text-muted">
                 <th scope="col" className="py-1 pr-3 font-medium">{t('analysis.loyalty.shop')}</th>
@@ -32,17 +35,32 @@ export function Loyalty({ orders }: { orders: Order[] }) {
                 <th scope="col" className="px-3 py-1 text-right font-medium">{t('analysis.loyalty.average')}</th>
                 <th scope="col" className="px-3 py-1 text-right font-medium">{t('analysis.loyalty.rate')}</th>
                 <th scope="col" className="py-1 pl-3 text-right font-medium">{t('analysis.loyalty.last')}</th>
+                <th scope="col" className="w-5"><span className="sr-only">{t('orders.open')}</span></th>
               </tr>
             </thead>
             <tbody>
               {shops.map(shop => (
-                <tr key={shop.shopKey} className="border-t border-line">
-                  <th scope="row" className="max-w-56 truncate py-1.5 pr-3 font-normal" title={shop.shopName}>{shop.shopName}</th>
+                <tr key={shop.shopKey} onClick={() => onSelect(shop.shopKey)} className="cursor-pointer border-t border-line hover:bg-bg">
+                  <th scope="row" className="max-w-56 py-1.5 pr-3 font-normal">
+                    <button
+                      type="button"
+                      onClick={e => {
+                        e.stopPropagation();
+                        onSelect(shop.shopKey);
+                      }}
+                      title={shop.shopName}
+                      aria-label={`${shop.shopName}, ${t('orders.open')}`}
+                      className="block max-w-full cursor-pointer truncate rounded text-left hover:underline"
+                    >
+                      {shop.shopName}
+                    </button>
+                  </th>
                   <td className="px-3 py-1.5 text-right">{shop.orderCount}</td>
                   <td className="px-3 py-1.5 text-right">{money(shop.totalSpent)}</td>
                   <td className="px-3 py-1.5 text-right">{money(shop.avgOrderValue)}</td>
                   <td className="px-3 py-1.5 text-right">{shop.repeatRate === null ? t('stats.none') : t('analysis.loyalty.rate.unit', { n: shop.repeatRate.toLocaleString('vi-VN') })}</td>
                   <td className="py-1.5 pl-3 text-right">{dayOf(shop.lastOrder)}</td>
+                  <td aria-hidden="true" className="pl-2 text-right text-muted">›</td>
                 </tr>
               ))}
             </tbody>

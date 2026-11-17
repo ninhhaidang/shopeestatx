@@ -51,11 +51,11 @@ const monthLabel = (key: string) => {
  * Sorted by date (the default, newest first), the list is grouped under month headings.
  */
 export function OrdersTab() {
-  const { orders, ordersShop } = useDashboard();
+  const { orders, ordersFilter } = useDashboard();
   const [open, setOpen] = useState<ReadonlySet<string>>(new Set());
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(ordersFilter.search ?? '');
   const [status, setStatus] = useState<number | null>(null);
-  const [shop, setShop] = useState(ordersShop);
+  const [shop, setShop] = useState(ordersFilter.shop ?? '');
   const [sort, setSort] = useState<Sort>({ field: 'deliveryDate', direction: 'desc' });
   const [pageSize, setPageSize] = useState<number | null>(PAGE_SIZES[0]);
   const [requestedPage, setRequestedPage] = useState(1);

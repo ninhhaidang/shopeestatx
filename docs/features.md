@@ -50,16 +50,17 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Phân tích
 
-- Phân tích hiển thị thứ trong tuần và khung giờ có nhiều đơn hàng nhất, chuỗi tháng liên tiếp có đơn hàng dài nhất và Chi tiêu ròng trung bình mỗi ngày trong khoảng đang chọn.
+- Phân tích hiển thị thứ trong tuần và khung giờ có nhiều đơn hàng nhất (nhãn «Ngày hay nhận hàng», «Giờ hay nhận hàng», vì dữ liệu chỉ có thời điểm giao/nhận hàng, không có thời điểm đặt; ảnh chia sẻ dùng cùng nhãn), chuỗi tháng liên tiếp có đơn hàng dài nhất và Chi tiêu ròng trung bình mỗi ngày trong khoảng đang chọn.
 - Phân tích không còn hai tiêu đề nhóm theo phạm vi; thay vào đó thẻ nào không theo khoảng đang chọn có nhãn nhỏ cạnh tiêu đề («Toàn bộ lịch sử» cho nhận xét và shop thân thiết, «Tháng này» cho dự đoán và ngân sách, «12 tháng» cho biểu đồ nhiệt). Ở khổ rộng trang xếp ba hàng, mỗi hàng một thẻ rộng và một thẻ hẹp: nhận xét cạnh dự đoán và ngân sách, biểu đồ nhiệt cạnh thói quen mua sắm (ở khổ rất rộng; hẹp hơn thì thói quen là một dải bốn số bên dưới biểu đồ nhiệt), shop thân thiết cạnh sản phẩm. Khổ hẹp xếp các khối theo một cột.
-- Hai danh sách sản phẩm hiện tên đầy đủ tối đa hai dòng kèm thanh so sánh.
+- Hai danh sách sản phẩm hiện tên đầy đủ tối đa hai dòng kèm thanh so sánh. Bấm một sản phẩm mở tab Đơn hàng với ô tìm kiếm điền sẵn tên sản phẩm; rê chuột hoặc focus thay dòng phụ bằng «Xem đơn hàng ›».
 - Các thói quen theo ngày và giờ dựa trên ngày giao ghi trong lịch sử, không phải thời điểm đặt đơn hàng.
 - Phân tích xếp hạng sản phẩm mua nhiều theo số lượng và sản phẩm đắt nhất theo đơn giá trong khoảng đang chọn. Hai bảng xếp hạng dùng chung một thẻ «Sản phẩm» với nút đổi «Mua nhiều nhất / Đắt nhất»; thẻ hiện năm dòng đầu và có nút «Xem cả …» để mở đủ danh sách, «Thu gọn» để đóng lại.
 - Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu và mức thay đổi khác 0, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
 - Số đơn trung bình mỗi tháng chỉ dùng đơn có ngày hợp lệ ở cả tử số và tập tháng; chỉ sinh nhận xét khi có hơn một tháng thực sự. Giá trị đơn bị loại lấy từ giá trị gốc đã lưu, không được diễn đạt như giao dịch hoàn tiền đã xác minh hoặc Tiết kiệm ước tính.
 - Biểu đồ nhiệt hiển thị số đơn hàng theo ngày trong cửa sổ 12 tháng kết thúc ở mốc cuối khoảng đang chọn, không vượt quá ngày hiện tại.
 - Biểu đồ nhiệt dùng màu để phân biệt mức độ, có chú giải Ít–Nhiều, nhãn ngày và số đơn hàng khi rê chuột, tự giãn theo chiều rộng khối và cuộn ngang khi hẹp. Không có bảng số liệu hiển thị; số đơn từng ngày đọc qua nhãn khi rê chuột, và trình đọc màn hình có một bảng ẩn liệt kê các ngày có đơn.
-- Shop thân thiết dùng toàn bộ lịch sử và hiển thị tối đa mười shop có ít nhất ba đơn hàng không bị loại, ưu tiên shop có nhiều đơn hàng nhất.
+- Shop thân thiết dùng toàn bộ lịch sử và hiển thị tối đa mười shop có ít nhất ba đơn hàng không bị loại, ưu tiên shop có nhiều đơn hàng nhất; shop cùng số đơn xếp theo Chi tiêu ròng, nhiều hơn trước.
+- Mỗi dòng shop thân thiết mở tab Đơn hàng lọc sẵn theo shop đó: tên shop là nút (cho bàn phím và trình đọc màn hình), bấm chỗ khác trên dòng cũng vậy; dòng sáng lên khi rê chuột và có dấu › ở cuối.
 - Bảng shop thân thiết hiển thị số đơn hàng, Chi tiêu ròng, Chi tiêu ròng trung bình mỗi đơn hàng, tần suất đơn hàng mỗi tháng và ngày mua gần nhất. Tần suất chỉ tính trên đơn có ngày giao; shop không có đơn nào có ngày hiển thị dấu thiếu dữ liệu.
 - Khi chưa có sản phẩm, shop thân thiết hoặc nhận xét phù hợp, Phân tích hiển thị lời giải thích thay cho danh sách trống.
 
@@ -106,6 +107,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Người dùng có thể lưu cấu hình ngân sách để dùng lại hoặc đóng biểu mẫu mà không lưu thay đổi.
 - Nếu lưu cấu hình ngân sách thất bại, biểu mẫu giữ lại giá trị đã nhập và hiển thị thông báo lỗi.
 - Khi bật ngân sách, Phân tích hiển thị Chi tiêu ròng tháng hiện tại so với hạn mức, tỷ lệ đã dùng và thanh tiến độ đổi màu theo mức sử dụng.
+- Khi chưa bật ngân sách, thẻ vẫn hiển thị «Đã chi 1–N/tháng» (Chi tiêu ròng tháng hiện tại đến hôm nay), «Dự kiến cuối tháng» khi có, và một thanh so với tháng trung bình: phần đậm là đã chi, phần nhạt là dự kiến, vạch dọc là tháng trung bình (cùng con số với đường trung bình trên biểu đồ tháng ở Tổng quan), kèm câu «Dự kiến cao hơn/thấp hơn tháng trung bình N%». Nút «Thiết lập» ngân sách vẫn ở dưới.
 - Khi chạm ngưỡng cảnh báo, Phân tích hiển thị cảnh báo ngân sách ngay trong màn hình.
 - Nếu không đọc được cấu hình ngân sách đã lưu, Phân tích báo lỗi thay vì hiển thị như chưa thiết lập.
 - Khi ngân sách chưa bật, Phân tích hiển thị trạng thái chưa thiết lập cùng nút thiết lập ngân sách.

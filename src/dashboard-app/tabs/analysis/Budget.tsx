@@ -6,11 +6,12 @@ import {
   saveBudgetConfig,
   type BudgetConfig,
 } from '../../../dashboard/budget.js';
+import { averageMonthSpend } from '../../../dashboard/month.js';
 import { predictMonthEnd } from '../../../dashboard/predictions.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { Button } from '../../../ui/components/Button';
-import { money } from '../../format';
+import { money, shortMoney } from '../../format';
 import { card, chip } from '../../../ui/styles/classes';
 
 const LEVEL_BAR = { ok: 'bg-good', warn: 'bg-warn-fg', danger: 'bg-bad' } as const;
@@ -59,6 +60,33 @@ function BudgetForm({ initial, onSave, onCancel }: { initial: BudgetConfig; onSa
 }
 
 /**
+ * Without a budget, this month against an average month: spent so far (solid), the month-end
+ * prediction (faint) and a mark at the average month, with a sentence saying how far apart they are.
+ */
+function VersusAverage({ spent, prediction, average }: { spent: number; prediction: number; average: number }) {
+  const scale = Math.max(spent, prediction, average) * 1.15;
+  const at = (value: number) => `${(value / scale) * 100}%`;
+  const diff = prediction > 0 ? Math.round(((prediction - average) / average) * 100) : null;
+  return (
+    <div className="mb-4 text-sm">
+      <div aria-hidden="true" className="relative mt-3 h-2.5 rounded-full bg-line">
+        <div className="absolute inset-y-0 left-0 rounded-full bg-accent-fill opacity-30" style={{ width: at(Math.max(spent, prediction)) }} />
+        <div className="absolute inset-y-0 left-0 rounded-full bg-accent-fill" style={{ width: at(spent) }} />
+        <div className="absolute -inset-y-1.5 w-0.5 bg-fg" style={{ left: at(average) }} />
+      </div>
+      <p className="mt-1.5 text-xs text-muted">{t('analysis.prediction.average', { amount: shortMoney(average) })}</p>
+      {diff !== null && (
+        <p data-testid="versus-average" className={`mt-2 font-medium ${diff > 0 ? 'text-bad' : diff < 0 ? 'text-good' : ''}`}>
+          {diff === 0
+            ? t('analysis.prediction.vsAverageSame')
+            : t(diff > 0 ? 'analysis.prediction.vsAverageUp' : 'analysis.prediction.vsAverageDown', { n: Math.abs(diff) })}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
  * Month-end prediction and the monthly budget. Both look at the calendar month of "now" over the whole
  * history, not at the global date range: a budget is always for this month.
  */
@@ -75,6 +103,7 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
 
   const spent = useMemo(() => currentMonthSpend(allOrders, now), [allOrders, now]);
   const prediction = useMemo(() => predictMonthEnd(allOrders, now), [allOrders, now]);
+  const average = useMemo(() => averageMonthSpend(allOrders), [allOrders]);
 
   if (loadFailed) {
     return (
@@ -101,12 +130,25 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
         <h3 id="analysis-budget" className="text-base font-semibold">{t('analysis.prediction.title')}</h3>
         <span className={chip}>{t('analysis.scope.month')}</span>
       </div>
-      {prediction > 0 && (
-        <div className="mb-4 text-sm">
-          <p>{t('analysis.prediction.label')} <strong className="num">{money(prediction)}</strong></p>
-          {progress.predictedOver > 0 && <p className="mt-1 font-medium text-bad">{t('analysis.prediction.over', { amount: money(progress.predictedOver) })}</p>}
-        </div>
+      {/* With a budget, what was spent is in the budget figures below. */}
+      {(!config.enabled || prediction > 0) && (
+        <dl className="mb-3 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 text-sm">
+          {!config.enabled && (
+            <>
+              <dt className="text-muted">{t('analysis.prediction.spent', { day: now.getDate(), month: now.getMonth() + 1 })}</dt>
+              <dd className="num text-right font-semibold">{money(spent)}</dd>
+            </>
+          )}
+          {prediction > 0 && (
+            <>
+              <dt className="text-muted">{t('analysis.prediction.label')}</dt>
+              <dd className="num text-right font-semibold">{money(prediction)}</dd>
+            </>
+          )}
+        </dl>
       )}
+      {progress.predictedOver > 0 && <p className="mb-4 text-sm font-medium text-bad">{t('analysis.prediction.over', { amount: money(progress.predictedOver) })}</p>}
+      {!config.enabled && average > 0 && <VersusAverage spent={spent} prediction={prediction} average={average} />}
 
       <h4 className="mb-2 text-sm font-semibold">{t('comparison.budget')}</h4>
       {editing ? (

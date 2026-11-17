@@ -47,7 +47,7 @@ interface ProductRows {
 }
 
 /** Most bought and priciest share one card: a switch picks the ranking, and it starts short. */
-function Products({ quantity, price }: { quantity: ProductRows; price: ProductRows }) {
+function Products({ quantity, price, onSelect }: { quantity: ProductRows; price: ProductRows; onSelect: (name: string) => void }) {
   const [by, setBy] = useState<'quantity' | 'price'>('quantity');
   const [all, setAll] = useState(false);
   const { title, rows } = by === 'quantity' ? quantity : price;
@@ -64,7 +64,12 @@ function Products({ quantity, price }: { quantity: ProductRows; price: ProductRo
         <p className="text-sm text-muted">{t('analysis.noProducts')}</p>
       ) : (
         <>
-          <RankList label={title} rows={(all ? rows : rows.slice(0, SHORT_LIST)).map(row => ({ ...row, key: row.name }))} />
+          <RankList
+            label={title}
+            rows={(all ? rows : rows.slice(0, SHORT_LIST)).map(row => ({ ...row, key: row.name }))}
+            onSelect={onSelect}
+            action={t('orders.open')}
+          />
           {rows.length > SHORT_LIST && (
             <button type="button" aria-expanded={all} onClick={() => setAll(!all)} className="mt-4 cursor-pointer rounded text-sm text-muted underline underline-offset-2 hover:text-fg">
               {all ? t('analysis.products.less') : t('analysis.products.more', { n: rows.length })}
@@ -82,7 +87,7 @@ function Products({ quantity, price }: { quantity: ProductRows; price: ProductRo
  * Habits and products follow the selected range; the other cards say which period they cover.
  */
 export function AnalysisTab() {
-  const { data, orders, range, now } = useDashboard();
+  const { data, orders, range, now, showOrders } = useDashboard();
   const stats = useMemo(() => computeStats(orders), [orders]);
   const stale = needsRescan(data.orders);
 
@@ -95,8 +100,9 @@ export function AnalysisTab() {
       <div className="min-w-0 @5xl:col-span-2"><Budget allOrders={data.orders} now={now} /></div>
       <Heatmap orders={data.orders} range={range} now={now} />
       <Habits stats={stats} />
-      <Loyalty orders={data.orders} />
+      <Loyalty orders={data.orders} onSelect={shop => showOrders({ shop })} />
       <Products
+        onSelect={name => showOrders({ search: name })}
         quantity={{
           title: t('stats.topQuantity'),
           rows: stale ? [] : stats.topByQuantity.map(p => ({ name: p.name, value: t('stats.quantity.unit', { n: p.quantity }), share: p.quantity / (stats.topByQuantity[0]?.quantity || 1) })),

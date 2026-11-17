@@ -43,8 +43,8 @@ describe('Phân tích: thói quen và sản phẩm', () => {
   it('shows the busiest weekday and hour, month streak and daily spend', async () => {
     await openAnalysis();
 
-    expect(tile('Ngày hay mua nhất')).toHaveTextContent('Thứ 2');
-    expect(tile('Giờ hay mua nhất')).toHaveTextContent('20:00 – 21:00');
+    expect(tile('Ngày hay nhận hàng')).toHaveTextContent('Thứ 2');
+    expect(tile('Giờ hay nhận hàng')).toHaveTextContent('20:00 – 21:00');
     expect(tile('Chuỗi tháng liên tục')).toHaveTextContent('2 tháng');
     // 790k net over 10 Aug 2025 .. 12 Oct 2026 = 429 days (1841.49)
     expect(tile('Tốc độ chi tiêu')).toHaveTextContent(/1\.841/);
@@ -118,6 +118,30 @@ describe('Phân tích: shop thân thiết', () => {
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
     expect(row()).toHaveTextContent(/Alpha.*3.*600\.000/); // September alone holds one of the three
+  });
+
+  it('opens a repeat shop’s orders in Đơn hàng, from the name or anywhere on the row', async () => {
+    const repeat = makeData([1, 2, 3].map(day => makeOrder(`2026-10-0${day}T10:00:00`, { subTotal: 100_000, shopName: 'a - Alpha' })));
+    const { user } = await openAnalysis(repeat);
+
+    await user.click(within(screen.getByRole('row', { name: /Alpha/ })).getByText('300.000 ₫'));
+    expect(screen.getByRole('tab', { name: 'Đơn hàng' })).toHaveAttribute('aria-selected', 'true');
+    expect((screen.getByRole('combobox', { name: 'Lọc theo shop' }) as HTMLSelectElement).selectedOptions[0].textContent).toBe('a - Alpha');
+
+    await user.click(screen.getByRole('tab', { name: 'Phân tích' }));
+    await user.click(screen.getByRole('button', { name: 'Alpha, Xem đơn hàng' }));
+    expect(screen.getByRole('tab', { name: 'Đơn hàng' })).toHaveAttribute('aria-selected', 'true');
+  });
+});
+
+describe('Phân tích: sản phẩm', () => {
+  it('opens the orders of a product in Đơn hàng, searched by its name', async () => {
+    const { user } = await openAnalysis();
+    const list = within(screen.getByRole('list', { name: 'Sản phẩm mua nhiều nhất' }));
+
+    await user.click(list.getByRole('button', { name: /Áo thun/ }));
+    expect(screen.getByRole('tab', { name: 'Đơn hàng' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm đơn hàng' })).toHaveValue('Áo thun');
   });
 });
 
@@ -222,7 +246,16 @@ describe('Phân tích: dự đoán và ngân sách', () => {
     await openAnalysis();
 
     // 600k in 24 days of a 31-day month
-    expect(screen.getByText(/Dự kiến cuối tháng/)).toHaveTextContent(/775\.000/);
+    expect(screen.getByText('Dự kiến cuối tháng').nextElementSibling).toHaveTextContent(/775\.000/);
+  });
+
+  it('without a budget, sets this month against an average month', async () => {
+    await openAnalysis();
+
+    expect(screen.getByText('Đã chi 1–24/10').nextElementSibling).toHaveTextContent(/600\.000/);
+    // 790k over the 15 months from 8/2025 to 10/2026 is about 52.667 ₫ a month.
+    expect(screen.getByText(/Vạch dọc: tháng trung bình 53k/)).toBeInTheDocument();
+    expect(screen.getByTestId('versus-average')).toHaveTextContent('Dự kiến cao hơn tháng trung bình 1372%');
   });
 
   it('invites to set a budget, then shows spend against it and keeps it after a reload', async () => {
