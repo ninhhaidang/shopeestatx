@@ -1,4 +1,6 @@
 import { getActiveDomainUrl, getLoginUrl, STORAGE_KEYS } from '../config.js';
+import { isExcludedOrder } from '../dashboard/order-status.js';
+import type { OrderData } from '../types/index.js';
 import type { PopupHost, PopupUser } from './host';
 
 export const chromeHost: PopupHost = {
@@ -13,6 +15,19 @@ export const chromeHost: PopupHost = {
       return user && name ? ({ name, avatar: user.avatar } satisfies PopupUser) : null;
     } catch (error) {
       console.warn('Failed to load user info from storage:', error);
+      return null;
+    }
+  },
+
+  async getCache() {
+    try {
+      const result = await chrome.storage.local.get(STORAGE_KEYS.STATS);
+      const stats = result[STORAGE_KEYS.STATS] as OrderData | undefined;
+      if (!stats?.orders?.length) return null;
+      // Same count as the dashboard's "Số đơn": cancelled, returned and unpaid orders are left out.
+      return { orders: stats.orders.filter((o) => !isExcludedOrder(o)).length, updatedAt: stats.cachedAt ?? stats.fetchedAt };
+    } catch (error) {
+      console.warn('Failed to load cached orders from storage:', error);
       return null;
     }
   },
@@ -37,6 +52,11 @@ export const chromeHost: PopupHost = {
 
   openLogin() {
     void chrome.tabs.create({ url: getLoginUrl() });
+    window.close();
+  },
+
+  openDashboard() {
+    void chrome.tabs.create({ url: chrome.runtime.getURL('dashboard-app/dashboard.html') });
     window.close();
   },
 

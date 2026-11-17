@@ -3,14 +3,17 @@ import { screen } from '@testing-library/react';
 import { Popup } from '../src/popup/Popup';
 import type { PopupHost } from '../src/popup/host';
 import { chromeHost } from '../src/popup/chrome-host';
+import { STORAGE_KEYS } from '../src/config';
 import { renderSurface } from './support/render';
 import { mockColorScheme } from './support/match-media';
 
 function makeHost(overrides: Partial<PopupHost> = {}): PopupHost {
   return {
     getUser: vi.fn().mockResolvedValue(null),
+    getCache: vi.fn().mockResolvedValue(null),
     isOnShopee: vi.fn().mockResolvedValue(true),
     startAnalysis: vi.fn().mockResolvedValue(undefined),
+    openDashboard: vi.fn(),
     openLogin: vi.fn(),
     openHelp: vi.fn(),
     openPrivacy: vi.fn(),
@@ -114,14 +117,53 @@ describe('Popup', () => {
     const host = makeHost();
     const { user } = renderSurface(<Popup host={host} />);
 
-    expect(await screen.findByRole('link', { name: 'Ủng hộ' })).toHaveAttribute('href', expect.stringContaining('buymeacoffee'));
+    expect(await screen.findByRole('link', { name: 'Ủng hộ tác giả' })).toHaveAttribute('href', expect.stringContaining('buymeacoffee'));
     expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', expect.stringContaining('github.com'));
-    expect(screen.getByRole('link', { name: 'Đánh giá' })).toHaveAttribute('href', expect.stringContaining('chromewebstore'));
+    expect(screen.getByRole('link', { name: 'Đánh giá trên Chrome Web Store' })).toHaveAttribute('href', expect.stringContaining('chromewebstore'));
 
     await user.click(screen.getByRole('button', { name: 'Hướng dẫn' }));
     await user.click(screen.getByRole('button', { name: 'Chính sách bảo mật' }));
     expect(host.openHelp).toHaveBeenCalledOnce();
     expect(host.openPrivacy).toHaveBeenCalledOnce();
+  });
+
+  it('summarises the cached orders and opens the dashboard on them without scanning', async () => {
+    const now = new Date('2026-11-17T12:00:00Z');
+    const host = makeHost({
+      getUser: vi.fn().mockResolvedValue({ name: 'minh_anh' }),
+      getCache: vi.fn().mockResolvedValue({ orders: 1234, updatedAt: '2026-11-17T10:00:00Z' }),
+    });
+    const { user } = renderSurface(<Popup host={host} now={now} />);
+
+    expect(await screen.findByText('1.234 đơn · Cập nhật: 2 giờ trước')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Mở dashboard (dữ liệu đã lưu)' }));
+    expect(host.openDashboard).toHaveBeenCalledOnce();
+    expect(host.startAnalysis).not.toHaveBeenCalled();
+  });
+
+  it('offers the saved dashboard off Shopee too, and not at all without cached orders', async () => {
+    const offShopee = makeHost({
+      isOnShopee: vi.fn().mockResolvedValue(false),
+      getCache: vi.fn().mockResolvedValue({ orders: 3, updatedAt: '2026-11-17T10:00:00Z' }),
+    });
+    const { unmount } = renderSurface(<Popup host={offShopee} />);
+    expect(await screen.findByRole('button', { name: 'Mở dashboard (dữ liệu đã lưu)' })).toBeEnabled();
+    unmount();
+
+    renderSurface(<Popup host={makeHost()} />);
+    await screen.findByRole('button', { name: 'Bắt đầu phân tích' });
+    expect(screen.queryByRole('button', { name: 'Mở dashboard (dữ liệu đã lưu)' })).not.toBeInTheDocument();
+  });
+
+  it('counts cached orders as the dashboard does and reads the cache time', async () => {
+    const orders = [3, 3, 4, 12, 9, 7].map((statusCode, i) => ({ orderId: String(i), statusCode }));
+    const get = vi.fn().mockResolvedValue({ [STORAGE_KEYS.STATS]: { orders, fetchedAt: 'old', cachedAt: '2026-11-17T10:00:00Z' } });
+    vi.stubGlobal('chrome', { storage: { local: { get } } });
+
+    expect(await chromeHost.getCache()).toEqual({ orders: 3, updatedAt: '2026-11-17T10:00:00Z' });
+
+    get.mockResolvedValue({ [STORAGE_KEYS.STATS]: { orders: [], fetchedAt: 'x' } });
+    expect(await chromeHost.getCache()).toBeNull();
   });
 
   it('is operable by keyboard: Tab reaches the start button and Enter activates it', async () => {

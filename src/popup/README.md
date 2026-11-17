@@ -2,12 +2,12 @@
 
 ## Overview
 
-[Popup.tsx](./Popup.tsx) renders the extension launcher: cached greeting, analysis action (or Open Shopee with a warning), external links, help/privacy actions, and shared theme toggle. Chrome behavior stays behind a host interface.
+[Popup.tsx](./Popup.tsx) renders the extension launcher: cached greeting and order summary, analysis action (or Open Shopee with a warning), open-the-saved-dashboard action, external links, help/privacy actions, and shared theme toggle. Chrome behavior stays behind a host interface.
 
 ## Interface
 
 - `Popup({ host })` consumes `PopupHost` from [host.ts](./host.ts).
-- `PopupHost` exposes `getUser()`, `isOnShopee()`, `startAnalysis()`, `openLogin()`, `openHelp()`, and `openPrivacy()`; `PopupUser` contains name and optional avatar.
+- `PopupHost` exposes `getUser()`, `getCache()`, `isOnShopee()`, `startAnalysis()`, `openDashboard()`, `openLogin()`, `openHelp()`, and `openPrivacy()`; `PopupUser` contains name and optional avatar; `PopupCache` holds the dashboard's order count (excluded statuses left out) and the cache time.
 - [chrome-host.ts](./chrome-host.ts) exports `chromeHost`, backed by Chrome tabs, runtime URLs, and local storage.
 - [main.tsx](./main.tsx) initializes Vietnamese locale and mounts the popup under React `StrictMode` and shared `ThemeProvider`. [popup.html](./popup.html) is the HTML entry.
 - Shared rendering dependencies live in `src/ui`; domain and storage-key configuration lives in `src/config.ts`.
@@ -22,7 +22,7 @@
 
 ## Side Effects
 
-Chrome host reads cached stats and queries active tabs. Starting analysis saves the tab ID, opens `dashboard-app/dashboard.html?fetch=true`, then closes the popup. Login opens configured Shopee login and closes the popup; help/privacy open extension pages. External anchors open new tabs with `noopener noreferrer`; avatar rendering may load its image URL. Shared locale/theme initialization affects DOM and theme behavior.
+Chrome host reads cached stats and queries active tabs. Starting analysis saves the tab ID, opens `dashboard-app/dashboard.html?fetch=true`, then closes the popup. Opening the saved dashboard opens `dashboard-app/dashboard.html` without `fetch`, so no Shopee request is made, then closes the popup. Login opens configured Shopee login and closes the popup; help/privacy open extension pages. External anchors open new tabs with `noopener noreferrer`; avatar rendering may load its image URL. Shared locale/theme initialization affects DOM and theme behavior.
 
 ## Verification
 

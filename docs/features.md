@@ -7,7 +7,8 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Popup hiển thị lời chào cùng tên và ảnh đại diện khi có thông tin tài khoản, hoặc giới thiệu ngắn khi chưa có thông tin này.
 - Nút «Bắt đầu phân tích» mở dashboard ở tab mới để lấy lịch sử đơn hàng từ phiên đăng nhập Shopee đang có.
 - Popup chỉ cho bắt đầu khi URL tab hiện tại dùng HTTPS và hostname đúng là `shopee.vn` (không nhận HTTP hay tên miền con, vì bộ thu thập chỉ đọc được từ origin này); chuỗi `shopee.vn` trong đường dẫn, query hoặc hostname giả không đủ. Khi chưa ở trang phù hợp, popup hiển thị lời nhắc mở Shopee, đăng nhập và thay nút bắt đầu bằng nút mở Shopee.
-- Popup có liên kết ủng hộ, GitHub, đánh giá tiện ích, hướng dẫn và chính sách bảo mật.
+- Khi đã có dữ liệu lưu trên máy, popup hiện số đơn (đếm như ô «Số đơn» của dashboard, không tính đơn huỷ, trả hàng, chưa thanh toán) cùng thời điểm cập nhật, và có nút «Mở dashboard (dữ liệu đã lưu)» mở dashboard trên dữ liệu đó mà không quét lại Shopee, kể cả khi tab hiện tại không phải Shopee.
+- Popup có liên kết ủng hộ, GitHub, đánh giá tiện ích, hướng dẫn và chính sách bảo mật, xếp thành danh sách: › mở trang trong tiện ích, ↗ mở trang ngoài.
 - Popup có bộ chọn giao diện Sáng và Tối.
 
 ## Dashboard và khoảng thời gian

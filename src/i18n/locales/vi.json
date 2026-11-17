@@ -7,8 +7,10 @@
   "popup.privacy": "Chính sách bảo mật",
   "popup.hello": "Xin chào",
   "popup.openShopee": "Mở Shopee và đăng nhập",
-  "popup.support": "Ủng hộ",
-  "popup.rate": "Đánh giá",
+  "popup.support": "Ủng hộ tác giả",
+  "popup.rate": "Đánh giá trên Chrome Web Store",
+  "popup.openDashboard": "Mở dashboard (dữ liệu đã lưu)",
+  "popup.orders": "{n} đơn",
   "popup.links": "Liên kết",
 
   "colorMode.label": "Giao diện",
