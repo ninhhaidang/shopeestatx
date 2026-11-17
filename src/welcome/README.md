@@ -2,7 +2,7 @@
 
 ## Overview
 
-[Welcome.tsx](./Welcome.tsx) renders first-run guidance: extension version, history/analytics/export features, permission explanations, four usage steps, Shopee action, privacy/source links, and theme toggle.
+[Welcome.tsx](./Welcome.tsx) renders first-run guidance: extension version, history/analytics/export features, permission explanations, four usage steps, a single Shopee action at the top, privacy/source links, and theme toggle.
 
 ## Interface
 

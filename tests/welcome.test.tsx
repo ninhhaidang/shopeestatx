@@ -21,7 +21,12 @@ describe('Welcome', () => {
     const host = makeHost();
     const { user } = renderSurface(<Welcome host={host} />);
 
-    await user.click(screen.getByRole('button', { name: 'Mở Shopee ngay' }));
+    const cta = screen.getByRole('button', { name: 'Mở Shopee ngay' });
+    // The only call to action sits above the first section, not at the foot of the page.
+    const firstSection = screen.getAllByRole('heading', { level: 2 })[0];
+    expect(cta.compareDocumentPosition(firstSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    await user.click(cta);
     expect(host.openShopee).toHaveBeenCalledOnce();
   });
 

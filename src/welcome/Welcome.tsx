@@ -4,6 +4,7 @@ import { t } from '../i18n/index.js';
 import { Button } from '../ui/components/Button';
 import { Logo } from '../ui/components/Logo';
 import { ThemeToggle } from '../ui/components/ThemeToggle';
+import { card, chip } from '../ui/styles/classes';
 import type { WelcomeHost } from './host';
 
 const FEATURES = ['featureGetHistory', 'featureAnalytics', 'featureExport'] as const;
@@ -18,8 +19,8 @@ const STEPS = [1, 2, 3, 4] as const;
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const id = useId();
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-3">
-      <h2 id={id} className="text-xl font-semibold">
+    <section aria-labelledby={id} className={`${card} flex flex-col gap-4`}>
+      <h2 id={id} className="text-lg font-semibold">
         {title}
       </h2>
       {children}
@@ -36,25 +37,31 @@ export function Welcome({ host }: { host: WelcomeHost }) {
 
   return (
     <div className="min-h-screen bg-bg text-fg">
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-6 sm:px-6 sm:py-10">
-        <div className="flex justify-end">
+      <div className="border-b border-line bg-card">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <Logo />
           <ThemeToggle />
         </div>
+      </div>
 
-        <header className="flex flex-col items-center gap-2 border-b border-line pb-8 text-center">
-          <h1 className="text-4xl sm:text-5xl">
-            <Logo className="text-[length:inherit]!" />
-          </h1>
-          <p className="text-base text-muted sm:text-lg">{t('welcome.tagline')}</p>
-          <span className="rounded-full border border-line bg-card px-3 py-0.5 text-xs text-muted">v{manifest.version}</span>
+      <div className="mx-auto flex max-w-3xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-10">
+        <header className="mb-2 flex flex-col items-start gap-3">
+          <span className={chip}>v{manifest.version}</span>
+          <h1 className="text-3xl font-semibold text-balance">{t('welcome.tagline')}</h1>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Button className="sm:w-auto sm:px-8" onClick={() => host.openShopee()}>
+              {t('welcome.ctaButton')}
+            </Button>
+            <p className="text-sm text-muted">{t('welcome.ctaNote')}</p>
+          </div>
         </header>
 
-        <main className="flex flex-col gap-8">
+        <main className="flex flex-col gap-4">
           <Section title={t('welcome.sectionWhatDoes')}>
             <div className="grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-3">
               {FEATURES.map((feature) => (
-                <div key={feature} className="bg-card p-4">
-                  <h3 className="text-base font-semibold">{t(`welcome.${feature}`)}</h3>
+                <div key={feature} className="bg-card p-3">
+                  <h3 className="text-sm font-semibold">{t(`welcome.${feature}`)}</h3>
                   <p className="mt-1 text-sm text-muted">{t(`welcome.${feature}Desc`)}</p>
                 </div>
               ))}
@@ -62,27 +69,27 @@ export function Welcome({ host }: { host: WelcomeHost }) {
           </Section>
 
           <Section title={t('welcome.sectionWhyPermissions')}>
-            <ul className="flex flex-col divide-y divide-line rounded-xl border border-line bg-card">
+            <dl className="flex flex-col divide-y divide-line rounded-xl border border-line text-sm">
               {PERMISSIONS.map((p) => (
-                <li key={p.name} className="flex flex-col gap-1 p-3 sm:flex-row sm:gap-4">
-                  <code className="shrink-0 font-mono text-sm font-semibold text-accent-text sm:w-28">{p.name}</code>
-                  <span className="text-sm text-muted">{t(p.key)}</span>
-                </li>
+                <div key={p.name} className="flex flex-col gap-1 p-3 sm:flex-row sm:gap-4">
+                  <dt className="shrink-0 font-mono font-semibold text-accent-text sm:w-28">{p.name}</dt>
+                  <dd className="text-muted">{t(p.key)}</dd>
+                </div>
               ))}
-            </ul>
-            <p className="text-sm text-muted">
-              {t('welcome.privacyNote')}{' '}
-              <a className="text-accent-text underline underline-offset-4 hover:text-accent-hover" href="/privacy.html" onClick={openPrivacy}>
+            </dl>
+            <p className="rounded-lg bg-[color-mix(in_srgb,var(--good)_var(--tint),transparent)] p-3 text-sm text-good">
+              <span className="font-medium">{t('welcome.privacyNote')}</span>{' '}
+              <a className="underline underline-offset-4" href="/privacy.html" onClick={openPrivacy}>
                 {t('popup.privacy')}
               </a>
             </p>
           </Section>
 
           <Section title={t('welcome.sectionHowToUse')}>
-            <ol aria-label={t('welcome.sectionHowToUse')} className="flex flex-col divide-y divide-line rounded-xl border border-line bg-card">
+            <ol aria-label={t('welcome.sectionHowToUse')} className="flex flex-col gap-4">
               {STEPS.map((n) => (
-                <li key={n} className="flex gap-4 p-4">
-                  <span aria-hidden="true" className="num w-5 text-2xl font-semibold leading-7 text-accent-text">
+                <li key={n} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-2">
+                  <span aria-hidden="true" className="num text-lg font-semibold leading-6 text-accent-text">
                     {n}
                   </span>
                   <div>
@@ -93,26 +100,14 @@ export function Welcome({ host }: { host: WelcomeHost }) {
               ))}
             </ol>
           </Section>
-
-          <div className="flex flex-col items-center gap-2 text-center">
-            <Button className="sm:w-auto sm:px-8" onClick={() => host.openShopee()}>
-              {t('welcome.ctaButton')}
-            </Button>
-            <p className="text-sm text-muted">{t('welcome.ctaNote')}</p>
-          </div>
         </main>
 
-        <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t border-line pt-6 text-sm text-muted">
+        <footer className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line pt-4 text-xs text-muted">
           <span>{t('welcome.footerDisclaimer')}</span>
-          <a className="underline underline-offset-4 hover:text-fg" href="/privacy.html" onClick={openPrivacy}>
+          <a className="underline-offset-4 hover:text-fg hover:underline" href="/privacy.html" onClick={openPrivacy}>
             {t('popup.privacy')}
           </a>
-          <a
-            className="underline underline-offset-4 hover:text-fg"
-            href="https://github.com/ninhhaidang/shopeestatx"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a className="underline-offset-4 hover:text-fg hover:underline" href="https://github.com/ninhhaidang/shopeestatx" target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
         </footer>
