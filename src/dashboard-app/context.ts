@@ -15,6 +15,10 @@ export interface DashboardContextValue {
   now: Date;
   /** Scan Shopee again (the existing read). */
   refresh: () => void;
+  /** The shop (its shopIdentity) the Đơn hàng tab opens filtered by; empty for none. */
+  ordersShop: string;
+  /** Switch to Đơn hàng, filtered by one shop. */
+  showShopOrders: (shopKey: string) => void;
 }
 
 export const DashboardContext = createContext<DashboardContextValue | null>(null);

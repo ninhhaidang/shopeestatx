@@ -136,7 +136,7 @@ describe('Phân tích: khoảng ngày toàn cục', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
 
     const list = within(screen.getByRole('list', { name: 'Phân tích chi tiêu' }));
-    expect(list.getAllByRole('listitem')[0]).toHaveTextContent(/Tháng này bạn đã chi 600\.000.*tăng 500% so với tháng trước/);
+    expect(list.getAllByRole('listitem')[0]).toHaveTextContent(/Tháng này bạn đã chi 600\.000.*tăng 500% so với cùng kỳ tháng trước/);
   });
 
   it('draws the heatmap over 12 months of the whole history ending at the range end', async () => {

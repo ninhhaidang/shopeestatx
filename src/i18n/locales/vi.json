@@ -75,6 +75,14 @@
   "comparison.vsLastYearDown": "↓ {change}% so với năm {period}",
   "comparison.noLastYear": "Chưa có dữ liệu năm {period}",
   "comparison.noLastMonth": "Chưa có dữ liệu tháng {period}",
+  "comparison.monthThrough": "Tháng {period}, đến ngày {day}: {amount}",
+  "comparison.yearThrough": "Năm {period}, đến {date}: {amount}",
+  "comparison.vsSameMonthUp": "↑ {change}% so với cùng kỳ tháng {period}",
+  "comparison.vsSameMonthDown": "↓ {change}% so với cùng kỳ tháng {period}",
+  "comparison.vsSameYearUp": "↑ {change}% so với cùng kỳ năm {period}",
+  "comparison.vsSameYearDown": "↓ {change}% so với cùng kỳ năm {period}",
+  "comparison.noSameMonth": "Chưa có chi tiêu cùng kỳ tháng {period}",
+  "comparison.noSameYear": "Chưa có chi tiêu cùng kỳ năm {period}",
 
   "chart.spendingByMonth": "Chi tiêu theo tháng",
 
@@ -268,6 +276,7 @@
   "dash.overview.average": "Trung bình/đơn",
   "dash.overview.topShops": "Top shop",
   "dash.overview.shopOrders": "{n} đơn",
+  "dash.overview.shopOrdersLink": "Xem đơn hàng",
   "dash.chart.showTable": "Bảng số liệu",
   "dash.chart.showChart": "Biểu đồ",
   "dash.chart.view": "Cách xem",
@@ -296,5 +305,6 @@
   "share.close": "Đóng",
   "dash.chart.month": "Tháng",
   "dash.chart.spend": "Chi tiêu",
-  "dash.chart.summary": "Biểu đồ cột {title}, {count} cột"
+  "dash.chart.summary": "Biểu đồ cột {title}, {count} cột, trung bình {average} mỗi tháng",
+  "dash.chart.average": "Trung bình {amount}/tháng"
 }

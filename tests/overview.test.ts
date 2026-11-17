@@ -88,8 +88,18 @@ describe('monthChange', () => {
     makeOrder('2026-10-03T10:00:00', { subTotal: 400_000, statusCode: 12, refundAmount: 400_000 }),
   ];
 
-  it('compares the anchor month with the one before, as a percentage', () => {
-    expect(monthChange(orders, new Date(2026, 9, 24))).toEqual({ label: '10/2026', previousLabel: '9/2026', current: 300_000, previous: 200_000, percent: 50 });
+  it('compares a finished month with the whole month before, as a percentage', () => {
+    expect(monthChange(orders, new Date(2026, 9, 31))).toEqual({ label: '10/2026', previousLabel: '9/2026', current: 300_000, previous: 200_000, percent: 50, through: null });
+  });
+
+  it('compares a month still running with the same days of the month before', () => {
+    const anchor = new Date(2026, 9, 24, 12, 0);
+    expect(monthChange(orders, anchor)).toEqual({ label: '10/2026', previousLabel: '9/2026', current: 300_000, previous: 200_000, percent: 50, through: anchor });
+    // 10/9 is past 1–8/9, so on 8/10 September has nothing to compare yet.
+    expect(monthChange(orders, new Date(2026, 9, 8)).percent).toBeNull();
+    // 30/3 against February stops at February's last day.
+    const feb = [makeOrder('2026-02-28T10:00:00', { subTotal: 100_000 }), makeOrder('2026-03-30T10:00:00', { subTotal: 150_000 })];
+    expect(monthChange(feb, new Date(2026, 2, 30)).percent).toBe(50);
   });
 
   it('rounds to one decimal', () => {
@@ -98,7 +108,7 @@ describe('monthChange', () => {
   });
 
   it('has no percentage when the previous month had no spend', () => {
-    expect(monthChange(orders, new Date(2026, 10, 5))).toEqual({ label: '11/2026', previousLabel: '10/2026', current: 0, previous: 300_000, percent: -100 });
+    expect(monthChange(orders, new Date(2026, 10, 5))).toMatchObject({ label: '11/2026', previousLabel: '10/2026', current: 0, previous: 300_000, percent: -100 });
     expect(monthChange(orders, new Date(2026, 8, 5)).percent).toBeNull();
   });
 
@@ -116,8 +126,14 @@ describe('yearChange', () => {
     makeOrder('2026-03-01T10:00:00', { subTotal: 250_000, statusCode: 4, refundAmount: 250_000 }),
   ];
 
-  it('compares the anchor year with the one before', () => {
-    expect(yearChange(orders, new Date(2026, 9, 24))).toEqual({ label: '2026', previousLabel: '2025', current: 750_000, previous: 500_000, percent: 50 });
+  it('compares a finished year with the whole year before', () => {
+    expect(yearChange(orders, new Date(2026, 11, 31))).toEqual({ label: '2026', previousLabel: '2025', current: 750_000, previous: 500_000, percent: 50, through: null });
+  });
+
+  it('compares a year still running with the same days of the year before', () => {
+    const anchor = new Date(2026, 9, 24);
+    // 31/12/2025 is past 24/10, so 2025 counts only the March order.
+    expect(yearChange(orders, anchor)).toEqual({ label: '2026', previousLabel: '2025', current: 750_000, previous: 400_000, percent: 87.5, through: anchor });
   });
 
   it('has no percentage when the previous year had no spend', () => {

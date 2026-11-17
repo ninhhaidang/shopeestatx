@@ -16,7 +16,7 @@ import { ShareDialog } from './overview/ShareDialog';
 
 /** Tổng quan: Chi tiêu ròng with its comparisons and four figures, spend per month, top shops, share image. */
 export function OverviewTab() {
-  const { data, orders, range, selection, setSelection, resetRange, now } = useDashboard();
+  const { data, orders, range, selection, setSelection, resetRange, now, showShopOrders } = useDashboard();
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [sharing, setSharing] = useState(false);
   const overview = useMemo(() => computeOverview(orders), [orders]);
@@ -86,7 +86,7 @@ export function OverviewTab() {
         </dl>
       </section>
 
-      <section className={card}>
+      <section className={`${card} flex flex-col`}>
         <div className="mb-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div>
             <h2 className="text-base font-semibold">{chartTitle}</h2>
@@ -108,6 +108,8 @@ export function OverviewTab() {
         <h2 className="mb-4 text-base font-semibold">{t('dash.overview.topShops')}</h2>
         <RankList
           label={t('dash.overview.topShops')}
+          onSelect={showShopOrders}
+          action={t('dash.overview.shopOrdersLink')}
           rows={topShops.map(shop => ({
             key: shop.shopKey,
             name: shop.name,

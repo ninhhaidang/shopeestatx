@@ -54,8 +54,9 @@ describe('Tổng quan', () => {
 
     expect(await screen.findByText('Chi tiêu ròng')).toBeInTheDocument();
     expect(hero()).toHaveTextContent(/1\.300\.000/);
-    expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 10/2026: 450.000 ₫ · ↑ 50% so với tháng 9/2026');
-    expect(screen.getByTestId('year-change')).toHaveTextContent('Năm 2026: 750.000 ₫ · ↑ 36,4% so với năm 2025');
+    // October and 2026 are still running on 24/10, so both compare the same days of the period before.
+    expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 10/2026, đến ngày 24: 450.000 ₫ · ↑ 50% so với cùng kỳ tháng 9/2026');
+    expect(screen.getByTestId('year-change')).toHaveTextContent('Năm 2026, đến 24/10: 750.000 ₫ · ↑ 36,4% so với cùng kỳ năm 2025');
     expect(tile('Số đơn')).toHaveTextContent('4');
     expect(tile('Trung bình/đơn')).toHaveTextContent('325k');
     expect(tile('Hoàn tiền')).toHaveTextContent('900k');
@@ -72,6 +73,23 @@ describe('Tổng quan', () => {
     expect(rows[2]).toMatch(/Beta.*100k/);
   });
 
+  it('opens a top shop’s orders in Đơn hàng, filtered by that shop', async () => {
+    const { user } = renderDashboard();
+    const list = within(await screen.findByRole('list', { name: 'Top shop' }));
+
+    await user.click(list.getByRole('button', { name: /Alpha/ }));
+    const ordersTab = screen.getByRole('tab', { name: 'Đơn hàng' });
+    expect(ordersTab).toHaveAttribute('aria-selected', 'true');
+    expect(ordersTab).toHaveFocus();
+    const shop = screen.getByRole('combobox', { name: 'Lọc theo shop' }) as HTMLSelectElement;
+    expect(shop.selectedOptions[0].textContent).toBe('a - Alpha');
+
+    // Coming back through the tab bar starts unfiltered again.
+    await user.click(screen.getByRole('tab', { name: 'Tổng quan' }));
+    await user.click(screen.getByRole('tab', { name: 'Đơn hàng' }));
+    expect((screen.getByRole('combobox', { name: 'Lọc theo shop' }) as HTMLSelectElement).value).toBe('');
+  });
+
   const bars = () => [...document.querySelectorAll('[data-month]')];
   const bar = (month: string) => document.querySelector(`[data-month="${month}"]`)!;
 
@@ -83,7 +101,9 @@ describe('Tổng quan', () => {
     const months = bars().map(el => el.getAttribute('data-month'));
     expect(months).toHaveLength(15);
     expect([months[0], months[13], months[14]]).toEqual(['8/2025', '9/2026', '10/2026']);
-    expect(screen.getByRole('img', { name: /Chi tiêu theo tháng, 15 cột/ })).toBeInTheDocument();
+    // 1.3M over 15 months: the dashed average line and the summary both say so.
+    expect(screen.getByRole('img', { name: /Chi tiêu theo tháng, 15 cột, trung bình 86\.667\s₫ mỗi tháng/ })).toBeInTheDocument();
+    expect(screen.getByTestId('chart-average')).toHaveTextContent('Trung bình 87k/tháng');
 
     await user.click(screen.getByRole('button', { name: 'Bảng số liệu' }));
     const cells = within(screen.getByRole('row', { name: /^2026/ })).getAllByRole('cell').map(td => td.textContent);
@@ -188,9 +208,9 @@ describe('khoảng ngày toàn cục', () => {
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Năm nay');
     expect(hero()).toHaveTextContent(/750\.000/);
-    expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 10/2026: 450.000 ₫ · ↑ 50% so với tháng 9/2026');
+    expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 10/2026, đến ngày 24: 450.000 ₫ · ↑ 50% so với cùng kỳ tháng 9/2026');
 
-    // The comparison follows the range's last month: September against August.
+    // The comparison follows the range's last month: September, which is over, against all of August.
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
     expect(hero()).toHaveTextContent(/300\.000/);
     expect(screen.getByTestId('month-change')).toHaveTextContent('Tháng 9/2026: 300.000 ₫ · Chưa có dữ liệu tháng 8/2026');

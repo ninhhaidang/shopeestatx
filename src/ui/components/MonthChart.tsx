@@ -17,10 +17,11 @@ interface MonthChartProps {
   active: boolean[];
   onSelect: (index: number) => void;
   formatValue: (value: number) => string;
-  /** Compact form for the axis and the peak label. */
+  /** Compact form for the axis, the peak label and the average. */
   formatTick: (value: number) => string;
 }
 
+/** Minimum height; the chart grows to fill a taller container. */
 const HEIGHT = 340;
 const TOP = 26;
 const BOTTOM = 46;
@@ -37,27 +38,32 @@ function axis(max: number): { top: number; step: number } {
 }
 
 /**
- * Net spend per month as bars: years are banded on the axis, the peak is labelled, hovering or
+ * Net spend per month as bars: years are banded on the axis, the peak is labelled, a dashed line
+ * marks the average month (every month shown, empty ones included), hovering or
  * arrowing to a month shows its figure and Enter/click picks it. Drawn in SVG so it follows the
  * theme tokens and the UI typeface without a chart library.
  */
 export function MonthChart({ title, points, active, onSelect, formatValue, formatTick }: MonthChartProps) {
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(760);
+  const [height, setHeight] = useState(HEIGHT);
   const [hover, setHover] = useState<number | null>(null);
 
   useEffect(() => {
     const el = wrap.current;
     // jsdom has no ResizeObserver; the default width is fine there.
     if (!el || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(([entry]) => setWidth(Math.max(280, entry.contentRect.width)));
+    const observer = new ResizeObserver(([entry]) => {
+      setWidth(Math.max(280, entry.contentRect.width));
+      setHeight(Math.max(HEIGHT, entry.contentRect.height));
+    });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
   const geometry = useMemo(() => {
     const plotW = width - LEFT - RIGHT;
-    const plotH = HEIGHT - TOP - BOTTOM;
+    const plotH = height - TOP - BOTTOM;
     const step = plotW / Math.max(points.length, 1);
     const barW = Math.min(34, Math.max(2, step - (step > 8 ? 2 : 1)));
     const { top, step: tickStep } = axis(Math.max(0, ...points.map(p => p.total)));
@@ -74,10 +80,11 @@ export function MonthChart({ title, points, active, onSelect, formatValue, forma
     points.forEach((p, i) => {
       if (active[i] && p.total > 0 && (peak < 0 || p.total > points[peak].total)) peak = i;
     });
-    return { plotW, plotH, step, barW, ticks, y, years, peak };
-  }, [width, points, active]);
+    const average = points.reduce((sum, p) => sum + p.total, 0) / Math.max(points.length, 1);
+    return { plotW, plotH, step, barW, ticks, y, years, peak, average };
+  }, [width, height, points, active]);
 
-  const { plotH, step, barW, ticks, y, years, peak } = geometry;
+  const { plotH, step, barW, ticks, y, years, peak, average } = geometry;
   const centre = (i: number) => LEFT + i * step + step / 2;
   const baseline = TOP + plotH;
 
@@ -104,9 +111,16 @@ export function MonthChart({ title, points, active, onSelect, formatValue, forma
       onKeyDown={onKeyDown}
       onMouseLeave={() => setHover(null)}
       onBlur={() => setHover(null)}
-      className="relative rounded-lg"
+      className="relative min-h-[340px] flex-1 rounded-lg"
     >
-      <svg role="img" aria-label={t('dash.chart.summary', { title, count: points.length })} width={width} height={HEIGHT} className="block">
+      {/* Absolute, so the drawing never props its container open: the container's own height drives it. */}
+      <svg
+        role="img"
+        aria-label={t('dash.chart.summary', { title, count: points.length, average: formatValue(Math.round(average)) })}
+        width={width}
+        height={height}
+        className="absolute inset-0 block"
+      >
         {ticks.map(tick => (
           <g key={tick}>
             <line x1={LEFT} x2={width - RIGHT} y1={y(tick)} y2={y(tick)} stroke="var(--line)" strokeWidth={1} />
@@ -160,6 +174,16 @@ export function MonthChart({ title, points, active, onSelect, formatValue, forma
           >
             {formatTick(points[peak].total)}
           </text>
+        )}
+
+        {average > 0 && (
+          <g data-testid="chart-average">
+            <line x1={LEFT} x2={width - RIGHT} y1={y(average)} y2={y(average)} stroke="var(--fg)" strokeWidth={1.25} strokeDasharray="5 4" opacity={0.7} />
+            {/* The halo keeps the label legible where it crosses a bar. */}
+            <text x={LEFT + 6} y={y(average) - 6} fontSize={11} fontWeight={600} fill="var(--fg)" stroke="var(--card)" strokeWidth={4} paintOrder="stroke">
+              {t('dash.chart.average', { amount: formatTick(average) })}
+            </text>
+          </g>
         )}
 
         {/* Hit targets: the whole column, not just the bar. */}

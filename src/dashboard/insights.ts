@@ -5,12 +5,11 @@ import { deliveryDateOf } from './delivery-date.js';
 import { shopDisplayName, shopIdentity } from './shop.js';
 import { localDateKey, monthOf } from './month.js';
 import { isExcludedOrder } from './order-status.js';
+import { monthChange } from './overview.js';
 
 export function generateInsights(allOrders: Order[], now: Date = new Date()): string[] {
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
-  const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-  const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
   const completed = (os: Order[]) => os.filter(o => !isExcludedOrder(o));
   const sum = (os: Order[]) => os.reduce((s, o) => s + o.subTotal, 0);
@@ -22,16 +21,16 @@ export function generateInsights(allOrders: Order[], now: Date = new Date()): st
       return m?.month === month && m.year === year;
     });
   const thisMonth = inMonth(currentMonth, currentYear);
-  const lastMonthOrders = inMonth(lastMonth, lastMonthYear);
 
   const insights: string[] = [];
 
-  // Month-over-month spending change
+  // Month-over-month spending change, day for day while the month is still running (same rule as Tổng quan)
   const thisMonthTotal = sum(thisMonth);
-  const lastMonthTotal = sum(lastMonthOrders);
-  const pct = lastMonthTotal > 0 ? Math.round((thisMonthTotal - lastMonthTotal) / lastMonthTotal * 100) : 0;
+  const month = monthChange(allOrders, now);
+  const pct = month.previous > 0 ? Math.round((month.current - month.previous) / month.previous * 100) : 0;
   if (thisMonthTotal > 0 && pct !== 0) {
-    insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)}, ${pct > 0 ? 'tăng' : 'giảm'} ${Math.abs(pct)}% so với tháng trước.`);
+    const versus = month.through ? 'cùng kỳ tháng trước' : 'tháng trước';
+    insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)}, ${pct > 0 ? 'tăng' : 'giảm'} ${Math.abs(pct)}% so với ${versus}.`);
   } else if (thisMonthTotal > 0) {
     insights.push(`Tháng này bạn đã chi ${formatCurrency(thisMonthTotal)} trên Shopee.`);
   }

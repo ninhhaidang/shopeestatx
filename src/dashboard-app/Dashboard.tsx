@@ -27,6 +27,12 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const orderData = useOrderData(host);
   const { phase, data, refreshing, notice, progress, stalled, scanning } = orderData;
   const [tab, setTab] = useState<TabId>('overview');
+  // Set only by "open this shop's orders"; any other way into a tab starts unfiltered.
+  const [ordersShop, setOrdersShop] = useState('');
+  const openTab = (id: TabId) => {
+    setOrdersShop('');
+    setTab(id);
+  };
   const [selection, setSelection] = useState<RangeSelection>(ALL_TIME);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
@@ -46,10 +52,16 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const range = useMemo(() => resolveRange(selection, clock), [selection, clock]);
   const years = useMemo(() => (data ? orderYears(data.orders) : []), [data]);
   const orders = useMemo(() => (data ? filterByRange(data.orders, range) : []), [data, range]);
-  const context = useMemo(
-    () => (data ? { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh } : null),
-      [data, orders, range, selection, clock],
-  );
+  const context = useMemo(() => {
+    if (!data) return null;
+    const showShopOrders = (shopKey: string) => {
+      setOrdersShop(shopKey);
+      setTab('orders');
+      // The clicked row unmounts with the tab; keep focus on the tab it led to.
+      tabRefs.current.orders?.focus();
+    };
+    return { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh, ordersShop, showShopOrders };
+  }, [data, orders, range, selection, clock, ordersShop]);
 
   const onTabKeyDown = (e: KeyboardEvent, index: number) => {
     const last = TABS.length - 1;
@@ -61,7 +73,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
       : null;
     if (next === null) return;
     e.preventDefault();
-    setTab(TABS[next].id);
+    openTab(TABS[next].id);
     tabRefs.current[TABS[next].id]?.focus();
   };
 
@@ -122,7 +134,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
                   aria-selected={selected}
                   aria-controls={`panel-${def.id}`}
                   tabIndex={selected ? 0 : -1}
-                  onClick={() => setTab(def.id)}
+                  onClick={() => openTab(def.id)}
                   onKeyDown={e => onTabKeyDown(e, i)}
                   className={`flex-1 cursor-pointer px-3 py-3 text-sm @3xl:flex-none @3xl:rounded-lg @3xl:py-1.5 ${
                     selected
