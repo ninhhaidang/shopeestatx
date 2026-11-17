@@ -141,7 +141,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Thay đổi chủ ý trong redesign và giới hạn hiện tại
 
-- Các theme màu cũ đã bị loại bỏ có chủ ý và được thay bằng ba lựa chọn Tự động, Sáng và Tối.
+- Các theme màu cũ đã bị loại bỏ có chủ ý và được thay bằng hai lựa chọn Sáng và Tối (mặc định Sáng, không có chế độ tự động theo hệ thống).
 - Kiểu hiển thị Ấm áp và bộ chọn Fintech/Ấm áp đã bị loại bỏ có chủ ý; dashboard chỉ còn một kiểu hiển thị (trước đây gọi là Fintech), vẫn có ba lựa chọn màu Tự động, Sáng và Tối.
 - Bố cục dashboard một trang cuộn dài đã được thay có chủ ý bằng ba màn hình Tổng quan, Phân tích và Đơn hàng, không phải bỏ các chức năng được liệt kê ở trên.
 - Popup được giữ gọn như nơi khởi chạy phân tích và truy cập liên kết, thay vì lặp lại dashboard.

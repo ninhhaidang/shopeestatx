@@ -3,9 +3,9 @@ import { t } from '../../i18n/index.js';
 import { isColorMode, type ColorMode } from '../theme/theme';
 import { useTheme } from '../theme/ThemeProvider';
 
-const OPTIONS: ColorMode[] = ['auto', 'light', 'dark'];
+const OPTIONS: ColorMode[] = ['light', 'dark'];
 
-/** Light / Dark / Auto switch. Radix gives arrow-key roving focus and radio semantics. */
+/** Light / Dark switch. Radix gives arrow-key roving focus and radio semantics. */
 export function ThemeToggle() {
   const { mode, setMode } = useTheme();
   return (

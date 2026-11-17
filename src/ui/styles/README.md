@@ -14,7 +14,7 @@ Global stylesheet entry, design tokens, and reusable class strings for React sur
 
 ## Invariants
 
-- `data-theme` is resolved `light` or `dark`, not `auto`. Base `:root` values provide the light palette.
+- `data-theme` is `light` or `dark`. Base `:root` values provide the light palette.
 - Text-bearing accent utilities `accent-solid` and `accent-text` map to `--accent-strong`; decorative `accent` maps to `--accent`. Keep this distinction when changing palette mappings.
 - `card` and `control` are static strings, not stateful components or class-building functions.
 - Token CSS declares text/surface contrast as an accessibility contract; this documentation does not independently certify contrast values.

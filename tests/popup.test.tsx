@@ -129,15 +129,13 @@ describe('Popup', () => {
 });
 
 describe('Popup theme', () => {
-  it('defaults to Auto and follows the system scheme', async () => {
-    const scheme = mockColorScheme('dark');
+  it('defaults to Light even when the system prefers dark', async () => {
+    mockColorScheme('dark');
     renderSurface(<Popup host={makeHost()} />);
 
-    expect(await screen.findByRole('radio', { name: 'Tự động' })).toBeChecked();
-    expect(document.documentElement.dataset.theme).toBe('dark');
-
-    scheme.set('light');
-    await vi.waitFor(() => expect(document.documentElement.dataset.theme).toBe('light'));
+    expect(await screen.findByRole('radio', { name: 'Sáng' })).toBeChecked();
+    expect(screen.queryByRole('radio', { name: 'Tự động' })).not.toBeInTheDocument();
+    expect(document.documentElement.dataset.theme).toBe('light');
   });
 
   it('switches to Dark, applies it and remembers the choice', async () => {
@@ -158,10 +156,10 @@ describe('Popup theme', () => {
     expect(document.documentElement.dataset.theme).toBe('dark');
   });
 
-  it('ignores a corrupt stored value and falls back to Auto', async () => {
+  it('ignores a corrupt stored value and falls back to Light', async () => {
     localStorage.setItem('shopeestatx-color-mode', 'orange');
     renderSurface(<Popup host={makeHost()} />);
 
-    expect(await screen.findByRole('radio', { name: 'Tự động' })).toBeChecked();
+    expect(await screen.findByRole('radio', { name: 'Sáng' })).toBeChecked();
   });
 });

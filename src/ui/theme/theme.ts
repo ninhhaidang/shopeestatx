@@ -1,25 +1,23 @@
-// Colour mode: the user's choice (light | dark | auto) and the theme actually shown (light | dark).
-// `auto` follows prefers-color-scheme. src/public/theme-init.js repeats readMode/resolve in plain JS
-// so the theme is applied before first paint; keep the two in step (tests/theme-init.test.ts).
+// Colour mode: light (the default) or dark, chosen by the user. There is no system-following mode.
+// src/public/theme-init.js repeats readMode in plain JS so the theme is applied before first
+// paint; keep the two in step (tests/theme-init.test.ts).
 
 import { getStorageKey } from '../../config.js';
 
-export type ColorMode = 'light' | 'dark' | 'auto';
-export type ResolvedTheme = 'light' | 'dark';
+export type ColorMode = 'light' | 'dark';
 
 const COLOR_MODE_KEY = getStorageKey('color-mode');
-export const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 export function isColorMode(value: unknown): value is ColorMode {
-  return value === 'light' || value === 'dark' || value === 'auto';
+  return value === 'light' || value === 'dark';
 }
 
+/** Anything stored other than 'dark' (nothing, garbage, the retired 'auto') is light. */
 export function readMode(): ColorMode {
   try {
-    const stored = localStorage.getItem(COLOR_MODE_KEY);
-    return isColorMode(stored) ? stored : 'auto';
+    return localStorage.getItem(COLOR_MODE_KEY) === 'dark' ? 'dark' : 'light';
   } catch {
-    return 'auto';
+    return 'light';
   }
 }
 
@@ -31,15 +29,7 @@ export function writeMode(mode: ColorMode): void {
   }
 }
 
-function systemTheme(): ResolvedTheme {
-  return window.matchMedia?.(DARK_QUERY).matches ? 'dark' : 'light';
-}
-
-export function resolveTheme(mode: ColorMode): ResolvedTheme {
-  return mode === 'auto' ? systemTheme() : mode;
-}
-
 /** Tokens in styles/tokens.css switch on this attribute. */
-export function applyTheme(theme: ResolvedTheme): void {
-  document.documentElement.dataset.theme = theme;
+export function applyTheme(mode: ColorMode): void {
+  document.documentElement.dataset.theme = mode;
 }

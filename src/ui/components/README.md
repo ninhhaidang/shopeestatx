@@ -12,7 +12,7 @@ Reusable React presentation primitives for dashboard and popup surfaces: actions
 | [Logo.tsx](./Logo.tsx) | `Logo({ className? })` renders the `ShopeeStatX` wordmark. |
 | [Skeleton.tsx](./Skeleton.tsx) | `Skeleton({ className? })` renders a decorative loading block; callers supply dimensions. |
 | [StateMessage.tsx](./StateMessage.tsx) | `StateMessage({ title, message?, tone?, action? })`; `message` accepts a React node, `tone` is `neutral` or `error`, and `action` contains `label` and `onClick`. |
-| [ThemeToggle.tsx](./ThemeToggle.tsx) | `ThemeToggle()` selects `auto`, `light`, or `dark` through the theme context. |
+| [ThemeToggle.tsx](./ThemeToggle.tsx) | `ThemeToggle()` selects `light` or `dark` through the theme context. |
 | [MonthChart.tsx](./MonthChart.tsx) | Exports `MonthPoint`, `MonthChart({ title, points, active, onSelect, formatValue, formatTick })` (SVG bars, one per calendar month) and `MonthMatrix({ title, points, formatTick })` (the same figures as a year-by-month table). |
 | [RankList.tsx](./RankList.tsx) | Exports `RankList({ label, rows })`: a ranked list with a scale bar per row. |
 

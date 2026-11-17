@@ -496,11 +496,4 @@ describe('giao diện sáng/tối', () => {
     expect(localStorage.getItem('shopeestatx-color-mode')).toBe('dark');
   });
 
-  it('follows the system scheme in Auto', async () => {
-    mockColorScheme('dark');
-    renderDashboard();
-    await screen.findByText('Chi tiêu ròng');
-    expect(document.documentElement.dataset.theme).toBe('dark');
-  });
-
 });

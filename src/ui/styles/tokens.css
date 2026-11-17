@@ -1,5 +1,5 @@
 /* Design tokens: the single place colours live. Light is :root, Dark is [data-theme='dark'].
-   `data-theme` is always the resolved theme (Auto is resolved in JS, see ui/theme/theme.ts).
+   `data-theme` is always `light` or `dark` (see ui/theme/theme.ts); there is no auto mode.
    Contrast of the text/surface pairs is asserted in tests/tokens.test.ts (WCAG 2.2 AA).
    Shopee orange is an accent, not a surface: decorative fills use --accent; anything that
    carries text uses --accent-strong / --on-accent, which are tuned to pass AA. Large fills

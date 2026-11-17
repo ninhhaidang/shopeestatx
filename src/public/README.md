@@ -14,7 +14,7 @@
 ## Invariants
 
 - All declarations live inside an IIFE; no imports, exports, or top-level lexical bindings are required.
-- Explicit light/dark overrides system preference. Automatic mode checks `prefers-color-scheme: dark` when `matchMedia` is available, otherwise resolves light.
+- Light unless `dark` is stored; the system colour preference is ignored.
 - Storage-read failures must not prevent first-paint theme resolution.
 - This is a one-time initialization, not a media-query listener or persistent theme controller. Keep resolution semantics aligned with the shared theme module.
 

@@ -17,7 +17,7 @@ Consumers import concrete child modules; there is no `src/ui` aggregate entry po
 ## Invariants
 
 - Theme state, CSS tokens, and visual widgets are separate boundaries. The provider manages the browser preference; styles consume root selectors; widgets render caller-supplied data.
-- Colour mode is `light`, `dark`, or `auto`. Only resolved light/dark values reach `data-theme`.
+- Colour mode is `light` (default) or `dark`; it is written to `data-theme`.
 - `useTheme` requires `ThemeProvider`; `ThemeToggle` requires theme context.
 - Surfaces import the shared CSS entry once. Browser DOM, storage, media-query APIs, and canvas rendering are intentional runtime dependencies, not server-rendering abstractions.
 - Accessibility contracts include native buttons, visible focus, state announcement roles, decorative skeletons, an accompanying chart table, and reduced-motion handling. Callers still own meaningful text and correctly aligned chart data.
@@ -25,7 +25,7 @@ Consumers import concrete child modules; there is no `src/ui` aggregate entry po
 
 ## Side Effects
 
-- Theme helpers and the provider access `localStorage`, mutate the `<html>` `data-theme` selector, and subscribe to system colour preference changes in auto mode.
+- Theme helpers and the provider access `localStorage`, mutate the `<html>` `data-theme` selector.
 - Shared CSS affects document-level appearance, focus, motion, and order-print visibility.
 - Charts are plain SVG drawn by React from the theme tokens; user actions delegate to supplied callbacks or the colour-mode setter.
 - This grouping introduces no additional runtime effects beyond its child modules.
