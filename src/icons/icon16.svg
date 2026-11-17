@@ -1,0 +1,7 @@
+<!-- Source of icon16.png, drawn for 16px (fewer points, a larger end dot): rsvg-convert -w 16 -h 16 icon16.svg -o icon16.png -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <rect width="16" height="16" rx="3.5" fill="#ee4d2d"/>
+  <path d="M3 13L3 11.5L6 8.5L8.5 10L12 5L12 13Z" fill="#fff" opacity=".3"/>
+  <polyline points="3,11.5 6,8.5 8.5,10 12,5" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="12" cy="5" r="2" fill="#fff"/>
+</svg>

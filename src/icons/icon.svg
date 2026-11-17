@@ -1,0 +1,8 @@
+<!-- Source of icon48.png and icon128.png: rsvg-convert -w 128 -h 128 icon.svg -o icon128.png
+     Spending over time, as on the dashboard: a rising line, a soft area under it, the latest month marked. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="#ee4d2d"/>
+  <path d="M24 98L24 84L44 68L62 76L82 52L100 38L100 98Z" fill="#fff" opacity=".3"/>
+  <polyline points="24,84 44,68 62,76 82,52 100,38" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="100" cy="38" r="8" fill="#fff"/>
+</svg>
