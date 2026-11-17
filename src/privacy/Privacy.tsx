@@ -63,7 +63,7 @@ export function Privacy() {
         <header className="mb-2 flex flex-col gap-2">
           <h1 className="text-3xl font-semibold">Chính sách bảo mật</h1>
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
-            <span className={chip}>Cập nhật lần cuối: 05/03/2026</span>
+            <span className={chip}>Cập nhật lần cuối: 17/11/2026</span>
             <em>Privacy Policy / Politique de confidentialité</em>
           </p>
         </header>
@@ -83,11 +83,12 @@ export function Privacy() {
           </Section>
 
           <Section n={2} title="Dữ liệu được truy cập" en="Data Accessed">
-            <p>Extension chỉ truy cập dữ liệu khi người dùng chủ động nhấn "Bắt đầu phân tích":</p>
+            <p>Extension chỉ truy cập dữ liệu khi người dùng chủ động nhấn "Bắt đầu phân tích" hoặc "Làm mới":</p>
             <List
               items={[
                 'Lịch sử đơn hàng Shopee (qua API Shopee, sử dụng session trình duyệt)',
-                'Thông tin đơn hàng: mã đơn, tên sản phẩm, ngày giao, trạng thái, tổng tiền, tên shop',
+                'Thông tin đơn hàng: mã đơn, tên sản phẩm, số lượng, đơn giá, ngày giao, trạng thái, tổng tiền, tên shop',
+                'Thông tin tài khoản Shopee: mã người dùng, tên đăng nhập, tên hiển thị và ảnh đại diện (để hiện lời chào và nhận biết khi đổi tài khoản)',
               ]}
             />
             <p>
@@ -133,13 +134,12 @@ export function Privacy() {
           <Section n={5} title="Lưu trữ dữ liệu" en="Data Storage">
             <p>
               Dữ liệu được lưu tại {code('chrome.storage.local')} — bộ nhớ cục bộ của Chrome, chỉ truy cập được từ extension này, không đồng bộ lên
-              cloud. Xóa khi:
+              cloud. Cài đặt ngân sách và chế độ Sáng/Tối cũng chỉ được lưu trên máy. Dữ liệu bị xóa hoặc thay thế khi:
             </p>
             <List
               items={[
                 'Gỡ cài đặt extension',
-                <>Xóa dữ liệu Chrome tại {code('chrome://settings/clearBrowserData')}</>,
-                'Nhấn "Làm mới dữ liệu" trong extension (xóa cache cũ, tải lại)',
+                'Nhấn "Bắt đầu phân tích" trong popup: lịch sử vừa tải thay thế toàn bộ dữ liệu đã lưu trước đó ("Làm mới" trong dashboard chỉ thêm đơn mới, không xóa đơn cũ)',
               ]}
             />
           </Section>

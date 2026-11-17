@@ -15,7 +15,7 @@ describe('Privacy', () => {
     renderSurface(<Privacy />);
 
     expect(screen.getByRole('heading', { level: 1, name: 'Chính sách bảo mật' })).toBeInTheDocument();
-    expect(screen.getByText(/Cập nhật lần cuối: 05\/03\/2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Cập nhật lần cuối: 17\/11\/2026/)).toBeInTheDocument();
     expect(screen.getByText('Privacy Policy / Politique de confidentialité')).toBeInTheDocument();
   });
 

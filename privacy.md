@@ -6,7 +6,7 @@ title: Chính sách bảo mật — ShopeeStatX
 
 # Chính sách bảo mật
 
-*Cập nhật lần cuối: 05/03/2026 · Privacy Policy / Politique de confidentialité*
+*Cập nhật lần cuối: 17/11/2026 · Privacy Policy / Politique de confidentialité*
 
 ## 1. Tổng quan (Overview)
 
@@ -16,10 +16,11 @@ ShopeeStatX là Chrome Extension giúp người dùng phân tích lịch sử ch
 
 ## 2. Dữ liệu được truy cập (Data Accessed)
 
-Extension chỉ truy cập dữ liệu khi người dùng chủ động nhấn "Bắt đầu phân tích":
+Extension chỉ truy cập dữ liệu khi người dùng chủ động nhấn "Bắt đầu phân tích" hoặc "Làm mới":
 
 - Lịch sử đơn hàng Shopee (qua API Shopee, sử dụng session trình duyệt)
-- Thông tin đơn hàng: mã đơn, tên sản phẩm, ngày giao, trạng thái, tổng tiền, tên shop
+- Thông tin đơn hàng: mã đơn, tên sản phẩm, số lượng, đơn giá, ngày giao, trạng thái, tổng tiền, tên shop
+- Thông tin tài khoản Shopee: mã người dùng, tên đăng nhập, tên hiển thị và ảnh đại diện (để hiện lời chào và nhận biết khi đổi tài khoản)
 
 Dữ liệu này **chỉ được lưu trên máy người dùng** trong `chrome.storage.local` và **không bao giờ được gửi đến server hay bên thứ ba nào**.
 
@@ -46,11 +47,10 @@ ShopeeStatX **không**:
 
 ## 5. Lưu trữ dữ liệu (Data Storage)
 
-Dữ liệu được lưu tại `chrome.storage.local` — bộ nhớ cục bộ của Chrome, chỉ truy cập được từ extension này, không đồng bộ lên cloud. Xóa khi:
+Dữ liệu được lưu tại `chrome.storage.local` — bộ nhớ cục bộ của Chrome, chỉ truy cập được từ extension này, không đồng bộ lên cloud. Cài đặt ngân sách và chế độ Sáng/Tối cũng chỉ được lưu trên máy. Dữ liệu bị xóa hoặc thay thế khi:
 
 - Gỡ cài đặt extension
-- Xóa dữ liệu Chrome tại `chrome://settings/clearBrowserData`
-- Nhấn "Làm mới dữ liệu" trong extension (xóa cache cũ, tải lại)
+- Nhấn "Bắt đầu phân tích" trong popup: lịch sử vừa tải thay thế toàn bộ dữ liệu đã lưu trước đó ("Làm mới" trong dashboard chỉ thêm đơn mới, không xóa đơn cũ)
 
 ## 6. Tuyên bố miễn trừ (Disclaimer)
 
