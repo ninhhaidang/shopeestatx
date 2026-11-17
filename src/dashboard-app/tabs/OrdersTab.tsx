@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { matchesStatusAndSearch, sortOrders } from '../../dashboard/order-query.js';
 import { exportToCSV, exportToExcel } from '../../dashboard/export.js';
+import { monthOf } from '../../dashboard/month.js';
 import { isExcludedOrder, ORDER_STATUSES } from '../../dashboard/order-status.js';
 import { t } from '../../i18n/index.js';
 import { shopIdentity } from '../../dashboard/shop.js';
-import type { SortDirection } from '../../types/index.js';
+import type { Order, SortDirection } from '../../types/index.js';
 import { Button } from '../../ui/components/Button';
 import { StateMessage } from '../../ui/components/StateMessage';
 import { control } from '../../ui/styles/classes';
@@ -29,14 +30,25 @@ const SORT_COLUMNS: { field: SortField; label: string }[] = [
 /** Header cells stay in view while the list scrolls; the inset shadow is their bottom rule (a border would not stick). */
 const th = 'px-3 py-2.5 text-xs font-medium text-muted first:pl-5 @5xl:sticky @5xl:top-0 @5xl:z-[1] @5xl:bg-card @5xl:shadow-[inset_0_-1px_0_var(--line)]';
 interface Sort {
-  field: SortField | null;
+  field: SortField;
   direction: SortDirection;
 }
+
+/** Month heading key of an order; undated orders share one group. */
+const monthKey = (order: Order) => {
+  const m = monthOf(order);
+  return m ? `${m.year}-${m.month}` : '';
+};
+const monthLabel = (key: string) => {
+  const [year, month] = key.split('-');
+  return key ? t('orders.month', { month, year }) : t('orders.month.none');
+};
 
 /**
  * Đơn hàng: the orders of the global date range with search, status and shop filters, sorting,
  * pagination and inline detail. A single table; on narrow containers its rows become cards.
  * The status filter is a row of counted chips, which also serves as the legend of the badge colours.
+ * Sorted by date (the default, newest first), the list is grouped under month headings.
  */
 export function OrdersTab() {
   const { orders } = useDashboard();
@@ -44,7 +56,7 @@ export function OrdersTab() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<number | null>(null);
   const [shop, setShop] = useState('');
-  const [sort, setSort] = useState<Sort>({ field: null, direction: 'asc' });
+  const [sort, setSort] = useState<Sort>({ field: 'deliveryDate', direction: 'desc' });
   const [pageSize, setPageSize] = useState<number | null>(PAGE_SIZES[0]);
   const [requestedPage, setRequestedPage] = useState(1);
   const [printing, setPrinting] = useState(false);
@@ -72,9 +84,22 @@ export function OrdersTab() {
   );
   const results = useMemo(() => {
     const matching = status === null ? searched : searched.filter(o => o.statusCode === status);
-    return sort.field ? sortOrders(matching, sort.field, sort.direction) : matching;
+    return sortOrders(matching, sort.field, sort.direction);
   }, [searched, status, sort]);
   const spend = useMemo(() => results.reduce((sum, o) => (isExcludedOrder(o) ? sum : sum + o.subTotal), 0), [results]);
+  const hasExcluded = results.some(isExcludedOrder);
+  // Month headings count every matching order of that month, not just the ones on this page.
+  const months = useMemo(() => {
+    const totals = new Map<string, { count: number; spend: number }>();
+    for (const o of results) {
+      const m = totals.get(monthKey(o)) ?? { count: 0, spend: 0 };
+      m.count++;
+      if (!isExcludedOrder(o)) m.spend += o.subTotal;
+      totals.set(monthKey(o), m);
+    }
+    return totals;
+  }, [results]);
+  const grouped = sort.field === 'deliveryDate';
   // A chip per status the date range holds, so they stay put while searching.
   const statuses = ORDER_STATUSES.filter(s => s.code === status || orders.some(o => o.statusCode === s.code));
 
@@ -161,14 +186,13 @@ export function OrdersTab() {
         {/* The header row is only for screen readers when rows are cards, so sorting moves here. */}
         <select
           aria-label={t('orders.sort')}
-          value={sort.field ? `${sort.field}:${sort.direction}` : ''}
+          value={`${sort.field}:${sort.direction}`}
           onChange={e => {
-            const [field, direction] = e.target.value.split(':') as [SortField | '', SortDirection | undefined];
-            changeFilter(() => setSort({ field: field || null, direction: direction ?? 'asc' }));
+            const [field, direction] = e.target.value.split(':') as [SortField, SortDirection];
+            changeFilter(() => setSort({ field, direction }));
           }}
           className={`${control} @5xl:hidden`}
         >
-          <option value="">{t('orders.sort.default')}</option>
           {SORT_COLUMNS.flatMap(c => [
             <option key={`${c.field}:asc`} value={`${c.field}:asc`}>{t('orders.sort.asc', { column: t(c.label) })}</option>,
             <option key={`${c.field}:desc`} value={`${c.field}:desc`}>{t('orders.sort.desc', { column: t(c.label) })}</option>,
@@ -189,12 +213,9 @@ export function OrdersTab() {
           </div>
         </details>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div role="group" aria-label={t('orders.filter.status')} className="flex flex-wrap gap-1.5">
-          {statusChip(null, t('orders.status.all'), searched.length)}
-          {statuses.map(s => statusChip(s.code, t(s.label), searched.filter(o => o.statusCode === s.code).length))}
-        </div>
-        {results.length > 0 && <p className="text-sm text-muted">{t('orders.summary', { count: results.length, amount: money(spend) })}</p>}
+      <div role="group" aria-label={t('orders.filter.status')} className="flex flex-wrap gap-1.5">
+        {statusChip(null, t('orders.status.all'), searched.length)}
+        {statuses.map(s => statusChip(s.code, t(s.label), searched.filter(o => o.statusCode === s.code).length))}
       </div>
       {printing && createPortal(<PrintSheet orders={results} />, document.body)}
 
@@ -209,7 +230,6 @@ export function OrdersTab() {
                 <col className="w-32" />
                 <col />
                 <col className="w-44" />
-                <col className="w-24" />
                 <col className="w-36" />
                 <col className="w-12" />
               </colgroup>
@@ -218,16 +238,42 @@ export function OrdersTab() {
                   {sortableHeader('deliveryDate')}
                   <th scope="col" className={`${th} text-left`}>{t('table.col.product')}</th>
                   {sortableHeader('status')}
-                  <th scope="col" className={`${th} text-right`}>{t('table.col.quantity')}</th>
                   {sortableHeader('subTotal', 'text-right')}
                   <th scope="col" className={th}><span className="sr-only">{t('table.col.detail')}</span></th>
                 </tr>
               </thead>
               <tbody className="block space-y-2 @5xl:table-row-group @5xl:space-y-0">
-                {pageOrders.map(order => (
-                  <OrderRow key={order.orderId} order={order} expanded={open.has(order.orderId)} onToggle={() => toggle(order.orderId)} />
-                ))}
+                {pageOrders.map((order, i) => {
+                  const key = monthKey(order);
+                  const month = grouped && (i === 0 || key !== monthKey(pageOrders[i - 1])) ? months.get(key) : undefined;
+                  return (
+                    <Fragment key={order.orderId}>
+                      {month && (
+                        <tr className="flex flex-wrap items-baseline justify-between gap-x-3 px-1 pt-2 @5xl:table-row @5xl:p-0">
+                          <th scope="colgroup" colSpan={2} className="text-left text-sm font-semibold @5xl:border-t @5xl:border-line @5xl:bg-bg/60 @5xl:py-2 @5xl:pl-5">
+                            {monthLabel(key)}
+                          </th>
+                          <td colSpan={3} className="num text-sm text-muted @5xl:border-t @5xl:border-line @5xl:bg-bg/60 @5xl:py-2 @5xl:pr-15 @5xl:text-right">
+                            {t('orders.month.summary', { count: month.count, amount: money(month.spend) })}
+                          </td>
+                        </tr>
+                      )}
+                      <OrderRow order={order} expanded={open.has(order.orderId)} onToggle={() => toggle(order.orderId)} />
+                    </Fragment>
+                  );
+                })}
               </tbody>
+              {/* The sum of every matching order, all pages included. */}
+              <tfoot className="block @5xl:table-footer-group">
+                <tr className="flex items-baseline justify-between gap-3 px-1 pt-3 @5xl:table-row @5xl:p-0">
+                  <th scope="row" colSpan={3} className="text-left font-semibold @5xl:border-t-2 @5xl:border-line @5xl:py-3.5 @5xl:pl-5">
+                    {t('orders.total', { count: results.length })}
+                    {hasExcluded && <span className="ml-1.5 text-xs font-normal text-muted">{t('orders.total.note')}</span>}
+                  </th>
+                  <td className="num whitespace-nowrap text-right text-base font-semibold @5xl:border-t-2 @5xl:border-line @5xl:px-3 @5xl:py-3.5">{money(spend)}</td>
+                  <td className="hidden @5xl:table-cell @5xl:border-t-2 @5xl:border-line" />
+                </tr>
+              </tfoot>
             </table>
           </div>
 

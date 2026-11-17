@@ -16,8 +16,8 @@ export const STATUS_TINT = 'bg-[color-mix(in_srgb,currentColor_var(--tint),trans
 const cell = '@5xl:table-cell @5xl:px-3 @5xl:py-3 @5xl:align-top @5xl:first:pl-5';
 
 /**
- * One order. Wide: a table row reading date, what was bought (with shop and order id under it), status,
- * quantity, total. Narrow: a card that leads with the product; `order-*` only applies to that card grid.
+ * One order. Wide: a table row reading date, what was bought (with shop, order id and, past one, the item
+ * count under it), status, total. Narrow: a card that leads with the product; `order-*` only applies to that card grid.
  */
 export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded: boolean; onToggle: () => void }) {
   const excluded = isExcludedOrder(order);
@@ -38,12 +38,14 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
           {formatDeliveryDate(order, t('table.noDate')).replace(/\b(\d)\//g, '0$1/')}
         </td>
         <td className={`order-1 min-w-0 ${cell}`}>
-          <p className="font-medium [overflow-wrap:anywhere]">{order.name}</p>
+          {/* Long names stop at two lines; the detail lists every item in full. */}
+          <p className="line-clamp-2 font-medium [overflow-wrap:anywhere]">{order.name}</p>
           <p className="flex flex-wrap gap-x-2 text-xs text-muted">
             <span className="[overflow-wrap:anywhere]">{shopDisplayName(order.shopName)}</span>
             <a href={getOrderUrl(order.orderId)} target="_blank" rel="noopener noreferrer" className="num underline-offset-2 hover:text-fg hover:underline focus-visible:underline">
               {order.orderId}
             </a>
+            {order.productCount > 1 && <span>{t('orders.products', { n: order.productCount })}</span>}
           </p>
         </td>
         <td className={`order-4 justify-self-end ${cell}`}>
@@ -52,11 +54,7 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
             {order.status}
           </span>
         </td>
-        <td className={`num order-5 whitespace-nowrap ${cell} @5xl:text-right`}>
-          <span className="text-muted @5xl:hidden">{t('table.col.quantity')}: </span>
-          {order.productCount}
-        </td>
-        <td className={`num order-6 whitespace-nowrap text-right ${cell}`}>
+        <td className={`num order-5 col-span-2 whitespace-nowrap text-right ${cell}`}>
           <span className={excluded ? 'text-muted line-through' : 'font-medium'}>{money(order.subTotal)}</span>
           {excluded && <span className="block text-xs text-bad">{t('orders.excluded')}</span>}
         </td>
@@ -77,7 +75,7 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
       </tr>
       {expanded && (
         <tr className="block @5xl:table-row">
-          <td colSpan={6} className="block @5xl:table-cell @5xl:px-5 @5xl:pb-4">
+          <td colSpan={5} className="block @5xl:table-cell @5xl:px-5 @5xl:pt-2 @5xl:pb-5">
             <OrderDetail order={order} id={detailId} excluded={excluded} />
           </td>
         </tr>

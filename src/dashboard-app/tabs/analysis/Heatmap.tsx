@@ -23,7 +23,7 @@ const FILL = [
 
 const dayOf = (key: string) => formatDate(new Date(`${key}T00:00:00`));
 
-/** Orders per day over the 12 months ending at the range's last day, from the whole history (calendar view), with the same numbers as a table. */
+/** Orders per day over the 12 months ending at the range's last day, from the whole history (calendar view), with the same numbers as a screen-reader table. */
 export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRange; now: Date }) {
   const grid = useMemo(() => {
     const { start, end } = heatmapWindow(range, now);
@@ -99,32 +99,26 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
         ))}
         {t('analysis.heatmap.more')}
       </p>
-      <details className="mt-2 text-sm">
-        <summary className="w-fit cursor-pointer rounded text-muted hover:text-fg">{t('analysis.heatmap.showTable')}</summary>
-        {grid.days.length === 0 ? (
-          <p className="mt-2 text-muted">{t('analysis.heatmap.empty')}</p>
-        ) : (
-          <div className="mt-2 max-h-64 max-w-md overflow-y-auto rounded-lg border border-line px-3">
-          <table className="num w-full text-left">
-            <caption className="sr-only">{title}</caption>
-            <thead>
-              <tr className="text-muted">
-                <th scope="col" className="py-1 font-medium">{t('analysis.heatmap.date')}</th>
-                <th scope="col" className="py-1 text-right font-medium">{t('analysis.heatmap.orders')}</th>
+      {/* Screen readers get the per-day numbers; sighted users read them from the hover tip. */}
+      {grid.days.length > 0 && (
+        <table className="sr-only">
+          <caption>{title}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t('analysis.heatmap.date')}</th>
+              <th scope="col">{t('analysis.heatmap.orders')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {grid.days.map(day => (
+              <tr key={day.date}>
+                <th scope="row">{dayOf(day.date)}</th>
+                <td>{day.orderCount}</td>
               </tr>
-            </thead>
-            <tbody>
-              {grid.days.map(day => (
-                <tr key={day.date} className="border-t border-line">
-                  <th scope="row" className="py-1 font-normal">{dayOf(day.date)}</th>
-                  <td className="py-1 text-right">{day.orderCount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </div>
-        )}
-      </details>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 }

@@ -76,13 +76,12 @@ describe('Phân tích: thói quen và sản phẩm', () => {
 });
 
 describe('Phân tích: heatmap', () => {
-  it('summarises the heatmap and offers every day with orders as a table', async () => {
-    const { user } = await openAnalysis();
+  it('summarises the heatmap and lists every day with orders for screen readers', async () => {
+    await openAnalysis();
 
     const heatmap = screen.getByRole('img', { name: /Số đơn theo ngày.*3 ngày có đơn.*3 đơn/ });
     expect(heatmap).toBeInTheDocument();
 
-    await user.click(screen.getByText('Xem bảng số liệu'));
     const rows = screen.getAllByRole('row').map(r => r.textContent);
     expect(rows.some(r => /15\/9\/2026.*1/.test(r!))).toBe(true);
     expect(rows.some(r => /12\/10\/2026.*1/.test(r!))).toBe(true);
@@ -147,7 +146,6 @@ describe('Phân tích: khoảng ngày toàn cục', () => {
 
     // Last month ends 30/9/2026: the window is 1/10/2025 to 30/9/2026, so 15/9 shows and October does not.
     expect(screen.getByText(/Từ 1\/10\/2025 đến 30\/9\/2026/)).toBeInTheDocument();
-    await user.click(screen.getByText('Xem bảng số liệu'));
     expect(screen.getByRole('row', { name: /15\/9\/2026/ })).toBeInTheDocument();
     expect(screen.queryByRole('row', { name: /5\/10\/2026/ })).not.toBeInTheDocument();
   });

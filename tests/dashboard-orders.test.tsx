@@ -58,13 +58,29 @@ beforeEach(() => {
 });
 
 describe('Đơn hàng: danh sách và chi tiết', () => {
-  it('lists the orders of the global date range with a link to each order on Shopee', async () => {
+  it('lists the orders of the global date range, newest delivery first, with a link to each order on Shopee', async () => {
     const { user } = await openOrders();
-    expect(ids()).toEqual(['1001', '1002', '1003', '1004', '1005']);
+    expect(ids()).toEqual(['1004', '1001', '1002', '1003', '1005']);
     expect(screen.getByRole('link', { name: '1001' })).toHaveAttribute('href', expect.stringMatching(/\/user\/purchase\/order\/1001$/));
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Năm nay');
-    expect(ids()).toEqual(['1001', '1002', '1003', '1004']);
+    expect(ids()).toEqual(['1004', '1001', '1002', '1003']);
+  });
+
+  it('groups the orders under month headings that count the whole month', async () => {
+    const { user } = await openOrders();
+    const headings = () => screen.queryAllByRole('columnheader', { name: /^Tháng/ }).map(h => h.closest('tr')!.textContent!.replace(/\s+/g, ' '));
+    // October holds a cancelled 900k order: counted, but not spend.
+    expect(headings()).toEqual(['Tháng 10/20262 đơn · 450.000 ₫', 'Tháng 9/20262 đơn · 300.000 ₫', 'Tháng 8/20251 đơn · 550.000 ₫']);
+
+    await user.click(within(screen.getByRole('columnheader', { name: /Tổng tiền/ })).getByRole('button'));
+    expect(headings()).toEqual([]);
+  });
+
+  it('notes the item count beside the shop only when there is more than one', async () => {
+    await openOrders();
+    expect(within(screen.getByRole('link', { name: '1001' }).closest('tr')!).getByText('2 sản phẩm')).toBeInTheDocument();
+    expect(within(screen.getByRole('link', { name: '1002' }).closest('tr')!).queryByText(/sản phẩm/)).not.toBeInTheDocument();
   });
 
   it('opens an order to show what was bought, and closes it again', async () => {
@@ -77,7 +93,9 @@ describe('Đơn hàng: danh sách và chi tiết', () => {
     const detail = within(screen.getByRole('region', { name: 'Chi tiết đơn 1001' }));
     expect(detail.getByText('Dây sạc')).toBeInTheDocument();
     expect(detail.getByText('Tai nghe Bluetooth')).toBeInTheDocument();
-    expect(detail.getByText('a - Alpha')).toBeInTheDocument();
+    expect(detail.getByText('100.000 ₫', { selector: '.w-28' })).toBeInTheDocument(); // line total
+    // Items cost 500k, the order cost 450k.
+    expect(detail.getByText('Tiết kiệm ước tính').nextElementSibling).toHaveTextContent('50.000 ₫ (10%)');
 
     await user.click(open);
     expect(screen.queryByRole('region', { name: 'Chi tiết đơn 1001' })).not.toBeInTheDocument();
@@ -167,11 +185,12 @@ describe('Đơn hàng: tìm kiếm và lọc', () => {
     const { user } = await openOrders();
     const chips = within(screen.getByRole('group', { name: 'Lọc theo trạng thái' }));
     expect(chips.getAllByRole('button').map(b => b.textContent)).toEqual(['Tất cả 5', 'Hoàn thành 4', 'Đã hủy 1']);
-    // The cancelled 900k is not spend.
-    expect(screen.getByText(/^5 đơn, tổng 1\.300\.000/)).toBeInTheDocument();
+    const total = () => screen.getByRole('rowheader', { name: /^Tổng/ }).closest('tr')!;
+    // The cancelled 900k is not spend, and the total says so.
+    expect(total()).toHaveTextContent('Tổng 5 đơn(không tính đơn bị loại)1.300.000 ₫');
 
     await user.click(chips.getByRole('button', { name: 'Hoàn thành 4' }));
-    expect(screen.getByText(/^4 đơn, tổng 1\.300\.000/)).toBeInTheDocument();
+    expect(total()).toHaveTextContent(/^Tổng 4 đơn1\.300\.000 ₫$/);
   });
 
   it('offers only the shops inside the date range and resets the filters from the empty state', async () => {

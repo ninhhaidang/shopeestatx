@@ -56,23 +56,24 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu và mức thay đổi khác 0, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
 - Số đơn trung bình mỗi tháng chỉ dùng đơn có ngày hợp lệ ở cả tử số và tập tháng; chỉ sinh nhận xét khi có hơn một tháng thực sự. Giá trị đơn bị loại lấy từ giá trị gốc đã lưu, không được diễn đạt như giao dịch hoàn tiền đã xác minh hoặc Tiết kiệm ước tính.
 - Biểu đồ nhiệt hiển thị số đơn hàng theo ngày trong cửa sổ 12 tháng kết thúc ở mốc cuối khoảng đang chọn, không vượt quá ngày hiện tại.
-- Biểu đồ nhiệt dùng màu để phân biệt mức độ, có chú giải Ít–Nhiều, nhãn ngày và số đơn hàng khi rê chuột, tự giãn theo chiều rộng khối và cuộn ngang khi hẹp. Bảng số liệu thay thế mở hoặc đóng được và cuộn trong khung cao cố định thay vì kéo dài trang.
+- Biểu đồ nhiệt dùng màu để phân biệt mức độ, có chú giải Ít–Nhiều, nhãn ngày và số đơn hàng khi rê chuột, tự giãn theo chiều rộng khối và cuộn ngang khi hẹp. Không có bảng số liệu hiển thị; số đơn từng ngày đọc qua nhãn khi rê chuột, và trình đọc màn hình có một bảng ẩn liệt kê các ngày có đơn.
 - Shop thân thiết dùng toàn bộ lịch sử và hiển thị tối đa mười shop có ít nhất ba đơn hàng không bị loại, ưu tiên shop có nhiều đơn hàng nhất.
 - Bảng shop thân thiết hiển thị số đơn hàng, Chi tiêu ròng, Chi tiêu ròng trung bình mỗi đơn hàng, tần suất đơn hàng mỗi tháng và ngày mua gần nhất. Tần suất chỉ tính trên đơn có ngày giao; shop không có đơn nào có ngày hiển thị dấu thiếu dữ liệu.
 - Khi chưa có sản phẩm, shop thân thiết hoặc nhận xét phù hợp, Phân tích hiển thị lời giải thích thay cho danh sách trống.
 
 ## Đơn hàng
 
-- Danh sách đơn hàng hiển thị ngày giao, sản phẩm (dòng chính) với shop và mã đơn hàng (dòng phụ bên dưới), trạng thái, số lượng sản phẩm và số tiền của từng đơn hàng trong khoảng đang chọn. Ngày giao trong danh sách viết đủ hai chữ số ngày và tháng để thẳng cột.
+- Danh sách đơn hàng hiển thị ngày giao, sản phẩm (dòng chính, tối đa hai dòng) với shop và mã đơn hàng (dòng phụ bên dưới), trạng thái và số tiền của từng đơn hàng trong khoảng đang chọn. Không còn cột số lượng: đơn có từ hai sản phẩm trở lên ghi «N sản phẩm» ở dòng phụ. Ngày giao trong danh sách viết đủ hai chữ số ngày và tháng để thẳng cột.
+- Mặc định danh sách xếp theo ngày giao, mới nhất trước, và chia theo tháng: mỗi tháng có dòng tiêu đề kèm số đơn và chi tiêu của cả tháng trong kết quả đang lọc (kể cả phần nằm ở trang khác). Đơn chưa có ngày giao nằm cuối, dưới tiêu đề «Chưa có ngày giao». Khi sắp xếp theo trạng thái hoặc số tiền thì không chia theo tháng.
 - Bảng khổ rộng nằm trong một thẻ, tiêu đề cột dính ở đầu khi cuộn, và giữ chiều rộng cho ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm ở cuối hàng. Khổ hẹp mỗi đơn là một thẻ mở đầu bằng tên sản phẩm.
 - Ô tìm kiếm lọc ngay theo mã đơn hàng, tên sản phẩm, tên shop, mô tả sản phẩm hoặc trạng thái và không phân biệt chữ hoa với chữ thường.
 - Bộ lọc trạng thái là một hàng nút kèm số đơn, gồm «Tất cả» và mỗi trạng thái có trong khoảng đang chọn (hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán, trả hàng). Số đơn trên mỗi nút tính theo ô tìm kiếm và bộ lọc shop hiện tại; mỗi nút mang chấm màu của trạng thái đó nên hàng nút cũng là chú giải màu.
 - Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn. Tên shop dài không đẩy bộ lọc vượt vùng nội dung; danh sách lựa chọn vẫn giữ đầy đủ tên.
-- Người dùng có thể sắp xếp tăng hoặc giảm theo ngày giao, trạng thái hoặc số tiền bằng tiêu đề cột ở khổ rộng (cột sắp xếp được luôn có mũi tên mờ) và bộ chọn ở khổ hẹp.
+- Người dùng có thể sắp xếp tăng hoặc giảm theo ngày giao, trạng thái hoặc số tiền bằng tiêu đề cột ở khổ rộng (cột sắp xếp được luôn có mũi tên mờ) và bộ chọn ở khổ hẹp. Không còn lựa chọn «Mặc định» theo thứ tự Shopee trả về.
 - Người dùng có thể chọn 20, 50, 100 hoặc tất cả đơn hàng mỗi trang và chuyển trang trong danh sách kết quả.
-- Danh sách hiển thị số kết quả, và phía trên bảng có dòng tóm tắt số đơn đang liệt kê cùng tổng tiền của chúng (không tính đơn bị loại). Khi tìm kiếm hoặc lọc không khớp đơn hàng nào, có trạng thái không tìm thấy cùng nút đặt lại bộ lọc.
+- Danh sách hiển thị số kết quả, và dòng cuối bảng ghi «Tổng N đơn» cùng tổng tiền của mọi đơn đang lọc, chữ đậm, thẳng cột số tiền (không tính đơn bị loại; có ghi chú khi kết quả có đơn bị loại). Khi tìm kiếm hoặc lọc không khớp đơn hàng nào, có trạng thái không tìm thấy cùng nút đặt lại bộ lọc.
 - Mã đơn hàng là liên kết mở chi tiết đơn hàng trên Shopee trong tab mới.
-- Mỗi đơn hàng có thể mở hoặc đóng chi tiết ngay trong danh sách, bằng nút mở chi tiết hoặc bấm vào bất kỳ chỗ nào trên dòng (trừ liên kết mã đơn), để xem shop, ngày giờ giao, số tiền và tên, số lượng, đơn giá của từng sản phẩm khi có dữ liệu.
+- Mỗi đơn hàng có thể mở hoặc đóng chi tiết ngay trong danh sách, bằng nút mở chi tiết hoặc bấm vào bất kỳ chỗ nào trên dòng (trừ liên kết mã đơn), để xem ngày giờ giao và tên, số lượng, đơn giá, thành tiền của từng sản phẩm khi có dữ liệu. Shop và số tiền không lặp lại vì dòng phía trên đã có. Khi tiền hàng lớn hơn số tiền đơn (và đơn không bị loại), chi tiết ghi thêm Tiền hàng, Tổng tiền và Tiết kiệm ước tính của đơn đó kèm phần trăm.
 - Trạng thái đơn là nhãn màu kèm chữ, mỗi trạng thái một màu riêng: hoàn thành xanh lá, đang giao xanh dương, chờ vận chuyển hổ phách, đã hủy đỏ, trả hàng tím, chờ thanh toán xám; màu không phải kênh thông tin duy nhất.
 - Đơn bị loại có số tiền gạch ngang kèm chữ «Đơn bị loại» bên dưới, và phần chi tiết giải thích việc không tính vào chi tiêu cùng giá trị Hoàn tiền hoặc giá trị đơn hàng khi thiếu thông tin Hoàn tiền.
 - Khi khổ hẹp, bảng đơn hàng chuyển thành thẻ nhưng vẫn giữ tìm kiếm, bộ lọc, sắp xếp, phân trang, liên kết Shopee và chi tiết đơn hàng.
@@ -115,7 +116,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Lựa chọn giao diện được lưu để áp dụng ở lần mở sau và được áp dụng trước khi hiển thị nội dung.
 - Dashboard tự xếp lại theo chiều rộng vùng hiển thị, chuyển thanh điều hướng xuống dưới và giữ các chỉ số thành lưới gọn khi khổ hẹp.
 - Người dùng có thể thao tác bằng bàn phím với trạng thái focus rõ ràng, chuyển tab bằng phím mũi tên hoặc phím đầu và cuối, và dùng nhãn điều khiển dành cho trình đọc màn hình.
-- Biểu đồ chi tiêu và biểu đồ nhiệt có bảng số liệu thay thế để không buộc người dùng đọc dữ liệu chỉ qua màu sắc hoặc hình vẽ.
+- Biểu đồ chi tiêu có bảng số liệu thay thế và biểu đồ nhiệt có bảng chỉ dành cho trình đọc màn hình, để không buộc người dùng đọc dữ liệu chỉ qua màu sắc hoặc hình vẽ.
 - Giao diện giảm chuyển động theo thiết lập hệ thống và định dạng số tiền, ngày giờ theo cách hiển thị tiếng Việt.
 
 ## Trang chào mừng
