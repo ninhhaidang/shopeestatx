@@ -50,17 +50,30 @@ describe('Phân tích: thói quen và sản phẩm', () => {
     expect(tile('Tốc độ chi tiêu')).toHaveTextContent(/1\.841/);
   });
 
-  it('lists the most bought and the priciest products', async () => {
-    await openAnalysis();
+  it('lists the most bought products, and the priciest on request', async () => {
+    const { user } = await openAnalysis();
 
     const top = within(screen.getByRole('list', { name: 'Sản phẩm mua nhiều nhất' })).getAllByRole('listitem');
     expect(top[0]).toHaveTextContent(/Áo thun.*x3/);
+
+    await user.click(screen.getByRole('button', { name: 'Đắt nhất' }));
     const priciest = within(screen.getByRole('list', { name: 'Sản phẩm đắt nhất' })).getAllByRole('listitem');
     expect(priciest[0]).toHaveTextContent(/Giày.*300\.000/);
     expect(screen.queryByText('Laptop')).not.toBeInTheDocument(); // cancelled order
   });
-});
 
+  it('shows five products until asked for all of them', async () => {
+    const items = Array.from({ length: 8 }, (_, i) => ({ name: `Món ${i}`, quantity: 8 - i, unitPrice: 10_000 }));
+    const { user } = await openAnalysis(makeData([makeOrder('2026-10-05T20:30:00', { subTotal: 360_000, items })]));
+    const rows = () => within(screen.getByRole('list', { name: 'Sản phẩm mua nhiều nhất' })).getAllByRole('listitem');
+    expect(rows()).toHaveLength(5);
+
+    await user.click(screen.getByRole('button', { name: 'Xem cả 8' }));
+    expect(rows()).toHaveLength(8);
+    await user.click(screen.getByRole('button', { name: 'Thu gọn' }));
+    expect(rows()).toHaveLength(5);
+  });
+});
 
 describe('Phân tích: heatmap', () => {
   it('summarises the heatmap and offers every day with orders as a table', async () => {
@@ -133,7 +146,7 @@ describe('Phân tích: khoảng ngày toàn cục', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
 
     // Last month ends 30/9/2026: the window is 1/10/2025 to 30/9/2026, so 15/9 shows and October does not.
-    expect(screen.getByText(/từ 1\/10\/2025 đến 30\/9\/2026/)).toBeInTheDocument();
+    expect(screen.getByText(/Từ 1\/10\/2025 đến 30\/9\/2026/)).toBeInTheDocument();
     await user.click(screen.getByText('Xem bảng số liệu'));
     expect(screen.getByRole('row', { name: /15\/9\/2026/ })).toBeInTheDocument();
     expect(screen.queryByRole('row', { name: /5\/10\/2026/ })).not.toBeInTheDocument();

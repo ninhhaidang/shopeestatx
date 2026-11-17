@@ -148,16 +148,30 @@ describe('Đơn hàng: tìm kiếm và lọc', () => {
 
   it('filters by status and by shop, and the two combine', async () => {
     const { user } = await openOrders();
+    const chips = within(screen.getByRole('group', { name: 'Lọc theo trạng thái' }));
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }), 'Đã hủy');
+    await user.click(chips.getByRole('button', { name: 'Đã hủy 1' }));
     expect(ids()).toEqual(['1004']);
+    expect(chips.getByRole('button', { name: 'Đã hủy 1' })).toHaveAttribute('aria-pressed', 'true');
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }), 'Tất cả trạng thái');
+    await user.click(chips.getByRole('button', { name: 'Tất cả 5' }));
     await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc theo shop' }), 'a - Alpha');
     expect(ids()).toEqual(['1001', '1003']);
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }), 'Đã hủy');
+    // The chips count what the other filters leave: no cancelled order from this shop.
+    await user.click(chips.getByRole('button', { name: 'Đã hủy 0' }));
     expect(screen.getByText('Không tìm thấy đơn hàng nào')).toBeInTheDocument();
+  });
+
+  it('offers a chip only for the statuses in the date range, and sums what is listed', async () => {
+    const { user } = await openOrders();
+    const chips = within(screen.getByRole('group', { name: 'Lọc theo trạng thái' }));
+    expect(chips.getAllByRole('button').map(b => b.textContent)).toEqual(['Tất cả 5', 'Hoàn thành 4', 'Đã hủy 1']);
+    // The cancelled 900k is not spend.
+    expect(screen.getByText(/^5 đơn, tổng 1\.300\.000/)).toBeInTheDocument();
+
+    await user.click(chips.getByRole('button', { name: 'Hoàn thành 4' }));
+    expect(screen.getByText(/^4 đơn, tổng 1\.300\.000/)).toBeInTheDocument();
   });
 
   it('offers only the shops inside the date range and resets the filters from the empty state', async () => {
@@ -334,7 +348,7 @@ describe('Đơn hàng: xuất dữ liệu', () => {
 
   it('exports the filtered orders to Excel', async () => {
     const { user } = await openOrders();
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc theo trạng thái' }), 'Đã hủy');
+    await user.click(screen.getByRole('button', { name: 'Đã hủy 1' }));
 
     await user.click(screen.getByRole('button', { name: 'Excel (.xlsx)' }));
 

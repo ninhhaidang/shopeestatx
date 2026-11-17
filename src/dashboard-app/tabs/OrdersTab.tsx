@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { matchesStatusAndSearch, sortOrders } from '../../dashboard/order-query.js';
 import { exportToCSV, exportToExcel } from '../../dashboard/export.js';
-import { ORDER_STATUSES } from '../../dashboard/order-status.js';
+import { isExcludedOrder, ORDER_STATUSES } from '../../dashboard/order-status.js';
 import { t } from '../../i18n/index.js';
 import { shopIdentity } from '../../dashboard/shop.js';
 import type { SortDirection } from '../../types/index.js';
@@ -11,7 +11,8 @@ import { StateMessage } from '../../ui/components/StateMessage';
 import { control } from '../../ui/styles/classes';
 import { NoOrdersInRange } from '../components/NoOrdersInRange';
 import { useDashboard } from '../context';
-import { OrderRow } from './orders/OrderRow';
+import { money } from '../format';
+import { OrderRow, STATUS_TINT, STATUS_TONE } from './orders/OrderRow';
 import { Pagination } from './orders/Pagination';
 import { PrintSheet } from './orders/PrintSheet';
 
@@ -25,6 +26,8 @@ const SORT_COLUMNS: { field: SortField; label: string }[] = [
   { field: 'status', label: 'table.col.status' },
   { field: 'subTotal', label: 'table.col.total' },
 ];
+/** Header cells stay in view while the list scrolls; the inset shadow is their bottom rule (a border would not stick). */
+const th = 'px-3 py-2.5 text-xs font-medium text-muted first:pl-5 @5xl:sticky @5xl:top-0 @5xl:z-[1] @5xl:bg-card @5xl:shadow-[inset_0_-1px_0_var(--line)]';
 interface Sort {
   field: SortField | null;
   direction: SortDirection;
@@ -32,7 +35,8 @@ interface Sort {
 
 /**
  * Đơn hàng: the orders of the global date range with search, status and shop filters, sorting,
- * pagination and inline detail. A single table; below the container's 42rem its rows become cards.
+ * pagination and inline detail. A single table; on narrow containers its rows become cards.
+ * The status filter is a row of counted chips, which also serves as the legend of the badge colours.
  */
 export function OrdersTab() {
   const { orders } = useDashboard();
@@ -61,10 +65,18 @@ export function OrdersTab() {
   const activeShop = shops.some(([id]) => id === shop) ? shop : '';
   const term = search.toLowerCase().trim();
 
+  // Everything but the status filter: what the status chips count.
+  const searched = useMemo(
+    () => orders.filter(o => (!activeShop || shopIdentity(o) === activeShop) && matchesStatusAndSearch(o, null, term)),
+    [orders, activeShop, term],
+  );
   const results = useMemo(() => {
-    const matching = orders.filter(o => (!activeShop || shopIdentity(o) === activeShop) && matchesStatusAndSearch(o, status, term));
+    const matching = status === null ? searched : searched.filter(o => o.statusCode === status);
     return sort.field ? sortOrders(matching, sort.field, sort.direction) : matching;
-  }, [orders, activeShop, status, term, sort]);
+  }, [searched, status, sort]);
+  const spend = useMemo(() => results.reduce((sum, o) => (isExcludedOrder(o) ? sum : sum + o.subTotal), 0), [results]);
+  // A chip per status the date range holds, so they stay put while searching.
+  const statuses = ORDER_STATUSES.filter(s => s.code === status || orders.some(o => o.statusCode === s.code));
 
   const pages = pageSize === null ? 1 : Math.max(1, Math.ceil(results.length / pageSize));
   const page = Math.min(requestedPage, pages);
@@ -93,6 +105,24 @@ export function OrdersTab() {
   const sortBy = (field: SortField) =>
     changeFilter(() => setSort(prev => ({ field, direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc' })));
 
+  const statusChip = (code: number | null, label: string, count: number) => {
+    const on = status === code;
+    const tone = code === null ? 'text-fg' : (STATUS_TONE[code] ?? 'text-muted');
+    return (
+      <button
+        key={code ?? 'all'}
+        type="button"
+        aria-pressed={on}
+        onClick={() => changeFilter(() => setStatus(code))}
+        className={`inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-sm ${on ? `border-current font-semibold ${tone} ${STATUS_TINT}` : 'border-line bg-card text-fg hover:border-control-line'}`}
+      >
+        {code !== null && <span aria-hidden="true" className={`size-1.5 rounded-full bg-current ${tone}`} />}
+        {label}{' '}
+        <span className={`num text-xs ${on ? '' : 'text-muted'}`}>{count}</span>
+      </button>
+    );
+  };
+
   const sortableHeader = (field: SortField, align = 'text-left') => {
     const column = SORT_COLUMNS.find(c => c.field === field)!;
     const active = sort.field === field;
@@ -100,12 +130,12 @@ export function OrdersTab() {
       <th
         scope="col"
         aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
-        className={`px-3 py-2 text-xs font-medium text-muted ${align}`}
+        className={`${th} ${align}`}
       >
         <span className="@5xl:hidden">{t(column.label)}</span>
         <button type="button" onClick={() => sortBy(field)} className="hidden cursor-pointer hover:text-fg @5xl:inline">
           {t(column.label)}
-          <span aria-hidden="true" className="ml-1">{active ? (sort.direction === 'asc' ? '▲' : '▼') : ''}</span>
+          <span aria-hidden="true" className={`ml-1 ${active ? '' : 'opacity-40'}`}>{active ? (sort.direction === 'asc' ? '▲' : '▼') : '↕'}</span>
         </button>
       </th>
     );
@@ -122,17 +152,6 @@ export function OrdersTab() {
           onChange={e => changeFilter(() => setSearch(e.target.value))}
           className={`${control} min-w-48 flex-1 placeholder:text-muted`}
         />
-        <select
-          aria-label={t('orders.filter.status')}
-          value={status ?? ''}
-          onChange={e => changeFilter(() => setStatus(e.target.value === '' ? null : Number(e.target.value)))}
-          className={control}
-        >
-          <option value="">{t('filter.allStatus')}</option>
-          {ORDER_STATUSES.map(s => (
-            <option key={s.code} value={s.code}>{t(s.label)}</option>
-          ))}
-        </select>
         <select aria-label={t('orders.filter.shop')} value={activeShop} onChange={e => changeFilter(() => setShop(e.target.value))} className={`${control} max-w-56`}>
           <option value="">{t('orders.allShops')}</option>
           {shops.map(([id, name]) => (
@@ -170,35 +189,47 @@ export function OrdersTab() {
           </div>
         </details>
       </div>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div role="group" aria-label={t('orders.filter.status')} className="flex flex-wrap gap-1.5">
+          {statusChip(null, t('orders.status.all'), searched.length)}
+          {statuses.map(s => statusChip(s.code, t(s.label), searched.filter(o => o.statusCode === s.code).length))}
+        </div>
+        {results.length > 0 && <p className="text-sm text-muted">{t('orders.summary', { count: results.length, amount: money(spend) })}</p>}
+      </div>
       {printing && createPortal(<PrintSheet orders={results} />, document.body)}
 
       {results.length === 0 ? (
         <StateMessage title={t('empty.title')} message={t('empty.message')} action={{ label: t('filter.reset'), onClick: reset }} />
       ) : (
         <>
-          <table className="block w-full text-sm @5xl:table @5xl:table-fixed">
-            <colgroup className="hidden @5xl:table-column-group">
-              <col />
-              <col className="w-28" />
-              <col className="w-44" />
-              <col className="w-24" />
-              <col className="w-36" />
-            </colgroup>
-            <thead className="sr-only @5xl:not-sr-only @5xl:table-header-group">
-              <tr className="@5xl:table-row">
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-muted">{t('table.col.product')}</th>
-                {sortableHeader('deliveryDate')}
-                {sortableHeader('status')}
-                <th scope="col" className="px-3 py-2 text-right text-xs font-medium text-muted">{t('table.col.quantity')}</th>
-                {sortableHeader('subTotal', 'text-right')}
-              </tr>
-            </thead>
-            <tbody className="block space-y-2 @5xl:table-row-group @5xl:space-y-0">
-              {pageOrders.map(order => (
-                <OrderRow key={order.orderId} order={order} expanded={open.has(order.orderId)} onToggle={() => toggle(order.orderId)} />
-              ))}
-            </tbody>
-          </table>
+          {/* overflow-clip rounds the corners without becoming the scroller, so the header can stick to <main>. */}
+          <div className="@5xl:overflow-clip @5xl:rounded-2xl @5xl:border @5xl:border-line @5xl:bg-card">
+            <table className="block w-full text-sm @5xl:table @5xl:table-fixed">
+              <colgroup className="hidden @5xl:table-column-group">
+                <col className="w-32" />
+                <col />
+                <col className="w-44" />
+                <col className="w-24" />
+                <col className="w-36" />
+                <col className="w-12" />
+              </colgroup>
+              <thead className="sr-only @5xl:not-sr-only @5xl:table-header-group">
+                <tr className="@5xl:table-row">
+                  {sortableHeader('deliveryDate')}
+                  <th scope="col" className={`${th} text-left`}>{t('table.col.product')}</th>
+                  {sortableHeader('status')}
+                  <th scope="col" className={`${th} text-right`}>{t('table.col.quantity')}</th>
+                  {sortableHeader('subTotal', 'text-right')}
+                  <th scope="col" className={th}><span className="sr-only">{t('table.col.detail')}</span></th>
+                </tr>
+              </thead>
+              <tbody className="block space-y-2 @5xl:table-row-group @5xl:space-y-0">
+                {pageOrders.map(order => (
+                  <OrderRow key={order.orderId} order={order} expanded={open.has(order.orderId)} onToggle={() => toggle(order.orderId)} />
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted">
             <p>{t('orders.showing', { from: from + 1, to: from + pageOrders.length, total: results.length })}</p>

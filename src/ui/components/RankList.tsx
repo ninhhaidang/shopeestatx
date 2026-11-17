@@ -18,7 +18,7 @@ export function RankList({ label, rows }: { label: string; rows: RankRow[] }) {
           <div className="min-w-0">
             <p className="line-clamp-2 [overflow-wrap:anywhere]" title={row.name}>{row.name}</p>
             <div aria-hidden="true" className="mt-1.5 h-1 rounded-full bg-line">
-              <div className="h-full rounded-full bg-accent" style={{ width: `${Math.max(2, row.share * 100)}%` }} />
+              <div className="h-full rounded-full bg-accent-fill" style={{ width: `${Math.max(2, row.share * 100)}%` }} />
             </div>
             {row.note && <p className="mt-1 text-xs text-muted">{row.note}</p>}
           </div>

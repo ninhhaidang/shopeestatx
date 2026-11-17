@@ -11,7 +11,7 @@ import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
 import { Button } from '../../../ui/components/Button';
 import { money } from '../../format';
-import { card } from '../../../ui/styles/classes';
+import { card, chip } from '../../../ui/styles/classes';
 
 const LEVEL_BAR = { ok: 'bg-good', warn: 'bg-warn-fg', danger: 'bg-bad' } as const;
 const input = 'w-full rounded-lg border border-control-line bg-bg px-3 py-2 text-base';
@@ -97,7 +97,10 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
 
   return (
     <section aria-labelledby="analysis-budget" className={`${card} h-full`}>
-      <h3 id="analysis-budget" className="mb-3 text-base font-semibold">{t('analysis.prediction.title')}</h3>
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <h3 id="analysis-budget" className="text-base font-semibold">{t('analysis.prediction.title')}</h3>
+        <span className={chip}>{t('analysis.scope.month')}</span>
+      </div>
       {prediction > 0 && (
         <div className="mb-4 text-sm">
           <p>{t('analysis.prediction.label')} <strong className="num">{money(prediction)}</strong></p>

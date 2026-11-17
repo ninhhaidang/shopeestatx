@@ -43,6 +43,7 @@ const PAIRS: Array<[string, string, number]> = [
   ['violet', 'card', 4.5],
   ['amber', 'card', 4.5],
   ['accent', 'card', 3],
+  ['accent-fill', 'card', 3],
   ['focus', 'bg', 3],
   ['focus', 'card', 3],
   ['control-line', 'bg', 3],

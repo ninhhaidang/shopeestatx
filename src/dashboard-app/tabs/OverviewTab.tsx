@@ -6,16 +6,13 @@ import { t } from '../../i18n/index.js';
 import { Button } from '../../ui/components/Button';
 import { MonthChart, MonthMatrix, type MonthPoint } from '../../ui/components/MonthChart';
 import { RankList } from '../../ui/components/RankList';
-import { card } from '../../ui/styles/classes';
+import { card, segment, segments } from '../../ui/styles/classes';
 import { NoOrdersInRange } from '../components/NoOrdersInRange';
 import { RescanBanner } from '../components/RescanBanner';
 import { useDashboard } from '../context';
 import { money, shortMoney } from '../format';
 import { ChangeLine } from './overview/ChangeLine';
 import { ShareDialog } from './overview/ShareDialog';
-
-const viewButton = (on: boolean) =>
-  `cursor-pointer rounded-md px-2.5 py-1 text-xs ${on ? 'bg-bg font-semibold text-fg shadow-[0_0_0_1px_var(--line)]' : 'text-muted hover:text-fg'}`;
 
 /** Tổng quan: Chi tiêu ròng with its comparisons and four figures, spend per month, top shops, share image. */
 export function OverviewTab() {
@@ -95,9 +92,9 @@ export function OverviewTab() {
             <h2 className="text-base font-semibold">{chartTitle}</h2>
             <p className="text-xs text-muted">{t('dash.chart.hint')}</p>
           </div>
-          <div role="group" aria-label={t('dash.chart.view')} className="inline-flex rounded-lg border border-line bg-card p-0.5">
-            <button type="button" aria-pressed={view === 'chart'} onClick={() => setView('chart')} className={viewButton(view === 'chart')}>{t('dash.chart.showChart')}</button>
-            <button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')} className={viewButton(view === 'table')}>{t('dash.chart.showTable')}</button>
+          <div role="group" aria-label={t('dash.chart.view')} className={segments}>
+            <button type="button" aria-pressed={view === 'chart'} onClick={() => setView('chart')} className={segment(view === 'chart')}>{t('dash.chart.showChart')}</button>
+            <button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')} className={segment(view === 'table')}>{t('dash.chart.showTable')}</button>
           </div>
         </div>
         {view === 'chart' ? (

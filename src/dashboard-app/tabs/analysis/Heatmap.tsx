@@ -3,7 +3,7 @@ import { buildHeatmapGrid, heatmapWindow } from '../../../dashboard/heatmap.js';
 import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { DateRange, Order } from '../../../types/index.js';
-import { card } from '../../../ui/styles/classes';
+import { card, chip } from '../../../ui/styles/classes';
 
 const CELL = 12;
 const GAP = 2.5;
@@ -40,7 +40,10 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
 
   return (
     <section aria-labelledby="analysis-heatmap" className={`${card} min-w-0 @5xl:col-span-6 @7xl:col-span-4`}>
-      <h3 id="analysis-heatmap" className="text-base font-semibold">{title}</h3>
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 id="analysis-heatmap" className="text-base font-semibold">{title}</h3>
+        <span className={chip}>{t('analysis.scope.year')}</span>
+      </div>
       <p className="mb-3 text-xs text-muted">{t('analysis.heatmap.period', { from, to })}</p>
       {/* The grid grows with the card; below its minimum width it scrolls sideways (focusable for the keyboard). */}
       <div role="region" aria-label={t('analysis.heatmap.scroll')} tabIndex={0} className="overflow-x-auto rounded-lg pb-2">

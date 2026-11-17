@@ -138,7 +138,7 @@ export function MonthChart({ title, points, active, onSelect, formatValue, forma
               {h > 0 && (
                 <path
                   d={`M${x},${baseline}v${-(h - r)}q0,${-r} ${r},${-r}h${barW - 2 * r}q${r},0 ${r},${r}v${h - r}z`}
-                  fill={hover === i ? 'var(--accent-strong)' : 'var(--accent)'}
+                  fill={hover === i ? 'var(--accent-strong)' : 'var(--accent-fill)'}
                   opacity={active[i] ? 1 : 0.28}
                 />
               )}

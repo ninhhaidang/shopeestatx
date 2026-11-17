@@ -2,7 +2,9 @@
    `data-theme` is always the resolved theme (Auto is resolved in JS, see ui/theme/theme.ts).
    Contrast of the text/surface pairs is asserted in tests/tokens.test.ts (WCAG 2.2 AA).
    Shopee orange is an accent, not a surface: decorative fills use --accent; anything that
-   carries text uses --accent-strong / --on-accent, which are tuned to pass AA. */
+   carries text uses --accent-strong / --on-accent, which are tuned to pass AA. Large fills
+   (chart bars, scale bars) use --accent-fill, which is calmer on the dark surfaces.
+   --tint is how much of a status colour its badge background mixes in. */
 
 :root {
   color-scheme: light;
@@ -13,6 +15,7 @@
   --line: #e2e5ea;
   --control-line: #778291;
   --accent: #ee4d2d;
+  --accent-fill: #ee4d2d;
   --accent-strong: #c2371b;
   --accent-hover: #a82e15;
   --on-accent: #ffffff;
@@ -25,17 +28,19 @@
   --warn-fg: #7a3a00;
   --warn-line: #f0c28a;
   --focus: #1d4ed8;
+  --tint: 13%;
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0e1013;
-  --card: #171a1f;
-  --fg: #eef0f3;
-  --muted: #9aa3af;
-  --line: #2b3038;
-  --control-line: #808b98;
+  --bg: #15171c;
+  --card: #1e2127;
+  --fg: #dfe2e7;
+  --muted: #a3acb8;
+  --line: #353b45;
+  --control-line: #8792a0;
   --accent: #ff6a4d;
+  --accent-fill: #dd5f43;
   --accent-strong: #ff7a5c;
   --accent-hover: #ff8f75;
   --on-accent: #1a0a05;
@@ -44,10 +49,11 @@
   --info: #8ab4ff;
   --violet: #c4b5fd;
   --amber: #fbbf24;
-  --warn-bg: #2b1d0e;
+  --warn-bg: #33240f;
   --warn-fg: #ffd8a8;
   --warn-line: #5a3d1a;
   --focus: #8ab4ff;
+  --tint: 20%;
 }
 
 /* Expose the tokens as Tailwind utilities (bg-card, text-muted, ...). `inline` keeps the
@@ -60,6 +66,7 @@
   --color-line: var(--line);
   --color-control-line: var(--control-line);
   --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
   --color-accent-solid: var(--accent-strong);
   --color-accent-text: var(--accent-strong);
   --color-accent-hover: var(--accent-hover);

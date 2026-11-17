@@ -9,11 +9,16 @@ import { money } from '../../format';
 import { OrderDetail } from './OrderDetail';
 
 /** Badge hue per status code, one each so they tell apart at a glance; the label always says the status too. */
-const STATUS_TONE: Record<number, string> = { 3: 'text-good', 8: 'text-info', 7: 'text-amber', 4: 'text-bad', 12: 'text-violet' };
+export const STATUS_TONE: Record<number, string> = { 3: 'text-good', 8: 'text-info', 7: 'text-amber', 4: 'text-bad', 12: 'text-violet' };
+/** Background of a status badge: a wash of its own text colour (stronger on the dark theme). */
+export const STATUS_TINT = 'bg-[color-mix(in_srgb,currentColor_var(--tint),transparent)]';
 
-const cell = '@5xl:table-cell @5xl:px-3 @5xl:py-2.5 @5xl:align-top';
+const cell = '@5xl:table-cell @5xl:px-3 @5xl:py-3 @5xl:align-top @5xl:first:pl-5';
 
-/** One order: what was bought leads (that is what people recognise), the shop and order id sit under it. */
+/**
+ * One order. Wide: a table row reading date, what was bought (with shop and order id under it), status,
+ * quantity, total. Narrow: a card that leads with the product; `order-*` only applies to that card grid.
+ */
 export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded: boolean; onToggle: () => void }) {
   const excluded = isExcludedOrder(order);
   const detailId = `order-detail-${order.orderId}`;
@@ -26,52 +31,53 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
     <Fragment>
       <tr
         onClick={onRowClick}
-        className="grid cursor-pointer grid-cols-[1fr_auto] gap-x-3 gap-y-1 rounded-xl border border-line bg-card p-3 @5xl:table-row @5xl:rounded-none @5xl:border-0 @5xl:border-b @5xl:bg-transparent @5xl:p-0 @5xl:hover:bg-card"
+        className="grid cursor-pointer grid-cols-[1fr_auto] gap-x-3 gap-y-1 rounded-xl border border-line bg-card p-3 @5xl:table-row @5xl:rounded-none @5xl:border-0 @5xl:border-t @5xl:p-0 @5xl:first:border-t-0 @5xl:hover:bg-bg"
       >
-        <td className={`col-span-2 min-w-0 ${cell}`}>
-          <div className="flex items-start gap-2">
-            <button
-              type="button"
-              aria-expanded={expanded}
-              aria-controls={expanded ? detailId : undefined}
-              aria-label={t('orders.viewDetail', { id: order.orderId })}
-              onClick={onToggle}
-              className="inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded text-muted hover:text-fg"
-            >
-              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`size-4 transition-transform ${expanded ? 'rotate-90' : ''}`}>
-                <path d="M6 3l5 5-5 5" />
-              </svg>
-            </button>
-            <div className="min-w-0">
-              <p className="font-medium [overflow-wrap:anywhere]">{order.name}</p>
-              <p className="flex flex-wrap gap-x-2 text-xs text-muted">
-                <span className="[overflow-wrap:anywhere]">{shopDisplayName(order.shopName)}</span>
-                <a href={getOrderUrl(order.orderId)} target="_blank" rel="noopener noreferrer" className="num underline decoration-muted underline-offset-2 hover:text-fg">
-                  {order.orderId}
-                </a>
-              </p>
-            </div>
-          </div>
+        {/* Two-digit day and month, so the dates line up down the column. */}
+        <td className={`num order-3 whitespace-nowrap text-muted ${cell}`}>
+          {formatDeliveryDate(order, t('table.noDate')).replace(/\b(\d)\//g, '0$1/')}
         </td>
-        <td className={`${cell} whitespace-nowrap`}>{formatDeliveryDate(order, t('table.noDate'))}</td>
-        <td className={cell}>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[color-mix(in_srgb,currentColor_13%,transparent)] px-2.5 py-0.5 text-xs font-medium ${STATUS_TONE[order.statusCode] ?? 'text-muted'}`}>
-              <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
-              {order.status}
-            </span>
-            {excluded && <span className="inline-block whitespace-nowrap rounded border border-bad px-1.5 text-xs text-bad">{t('orders.excluded')}</span>}
-          </div>
+        <td className={`order-1 min-w-0 ${cell}`}>
+          <p className="font-medium [overflow-wrap:anywhere]">{order.name}</p>
+          <p className="flex flex-wrap gap-x-2 text-xs text-muted">
+            <span className="[overflow-wrap:anywhere]">{shopDisplayName(order.shopName)}</span>
+            <a href={getOrderUrl(order.orderId)} target="_blank" rel="noopener noreferrer" className="num underline-offset-2 hover:text-fg hover:underline focus-visible:underline">
+              {order.orderId}
+            </a>
+          </p>
         </td>
-        <td className={`num whitespace-nowrap ${cell} @5xl:text-right`}>
+        <td className={`order-4 justify-self-end ${cell}`}>
+          <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_TINT} ${STATUS_TONE[order.statusCode] ?? 'text-muted'}`}>
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+            {order.status}
+          </span>
+        </td>
+        <td className={`num order-5 whitespace-nowrap ${cell} @5xl:text-right`}>
           <span className="text-muted @5xl:hidden">{t('table.col.quantity')}: </span>
           {order.productCount}
         </td>
-        <td className={`num whitespace-nowrap ${cell} @5xl:text-right ${excluded ? 'text-muted line-through' : 'font-medium'}`}>{money(order.subTotal)}</td>
+        <td className={`num order-6 whitespace-nowrap text-right ${cell}`}>
+          <span className={excluded ? 'text-muted line-through' : 'font-medium'}>{money(order.subTotal)}</span>
+          {excluded && <span className="block text-xs text-bad">{t('orders.excluded')}</span>}
+        </td>
+        <td className={`order-2 justify-self-end ${cell} @5xl:pl-0 @5xl:pr-3`}>
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-controls={expanded ? detailId : undefined}
+            aria-label={t('orders.viewDetail', { id: order.orderId })}
+            onClick={onToggle}
+            className="inline-flex size-6 cursor-pointer items-center justify-center rounded text-muted hover:text-fg"
+          >
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`size-4 transition-transform ${expanded ? 'rotate-180' : ''}`}>
+              <path d="M3 6l5 5 5-5" />
+            </svg>
+          </button>
+        </td>
       </tr>
       {expanded && (
         <tr className="block @5xl:table-row">
-          <td colSpan={5} className="block @5xl:table-cell">
+          <td colSpan={6} className="block @5xl:table-cell @5xl:px-5 @5xl:pb-4">
             <OrderDetail order={order} id={detailId} excluded={excluded} />
           </td>
         </tr>

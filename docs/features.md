@@ -49,10 +49,10 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Phân tích
 
 - Phân tích hiển thị thứ trong tuần và khung giờ có nhiều đơn hàng nhất, chuỗi tháng liên tiếp có đơn hàng dài nhất và Chi tiêu ròng trung bình mỗi ngày trong khoảng đang chọn.
-- Phân tích chia thành hai nhóm có tiêu đề: «Trong khoảng thời gian đã chọn» (thói quen mua sắm, biểu đồ nhiệt, hai danh sách sản phẩm) và «Không phụ thuộc khoảng thời gian đã chọn» (nhận xét, dự đoán và ngân sách, shop thân thiết). Nội dung dùng gần hết chiều rộng cửa sổ; ở khổ rất rộng biểu đồ nhiệt đứng cạnh thói quen mua sắm, hai danh sách sản phẩm chia đôi một hàng, nhận xét và ngân sách chia đôi một hàng, shop thân thiết dùng toàn chiều rộng. Khổ hẹp xếp các khối theo một cột.
+- Phân tích không còn hai tiêu đề nhóm theo phạm vi; thay vào đó thẻ nào không theo khoảng đang chọn có nhãn nhỏ cạnh tiêu đề («Toàn bộ lịch sử» cho nhận xét và shop thân thiết, «Tháng này» cho dự đoán và ngân sách, «12 tháng» cho biểu đồ nhiệt). Ở khổ rộng trang xếp ba hàng, mỗi hàng một thẻ rộng và một thẻ hẹp: nhận xét cạnh dự đoán và ngân sách, biểu đồ nhiệt cạnh thói quen mua sắm (ở khổ rất rộng; hẹp hơn thì thói quen là một dải bốn số bên dưới biểu đồ nhiệt), shop thân thiết cạnh sản phẩm. Khổ hẹp xếp các khối theo một cột.
 - Hai danh sách sản phẩm hiện tên đầy đủ tối đa hai dòng kèm thanh so sánh.
 - Các thói quen theo ngày và giờ dựa trên ngày giao ghi trong lịch sử, không phải thời điểm đặt đơn hàng.
-- Phân tích xếp hạng sản phẩm mua nhiều theo số lượng và sản phẩm đắt nhất theo đơn giá trong khoảng đang chọn.
+- Phân tích xếp hạng sản phẩm mua nhiều theo số lượng và sản phẩm đắt nhất theo đơn giá trong khoảng đang chọn. Hai bảng xếp hạng dùng chung một thẻ «Sản phẩm» với nút đổi «Mua nhiều nhất / Đắt nhất»; thẻ hiện năm dòng đầu và có nút «Xem cả …» để mở đủ danh sách, «Thu gọn» để đóng lại.
 - Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu và mức thay đổi khác 0, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
 - Số đơn trung bình mỗi tháng chỉ dùng đơn có ngày hợp lệ ở cả tử số và tập tháng; chỉ sinh nhận xét khi có hơn một tháng thực sự. Giá trị đơn bị loại lấy từ giá trị gốc đã lưu, không được diễn đạt như giao dịch hoàn tiền đã xác minh hoặc Tiết kiệm ước tính.
 - Biểu đồ nhiệt hiển thị số đơn hàng theo ngày trong cửa sổ 12 tháng kết thúc ở mốc cuối khoảng đang chọn, không vượt quá ngày hiện tại.
@@ -63,18 +63,18 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Đơn hàng
 
-- Danh sách đơn hàng hiển thị sản phẩm (dòng chính), shop và mã đơn hàng (dòng phụ bên dưới), ngày giao, trạng thái, số lượng sản phẩm và số tiền của từng đơn hàng trong khoảng đang chọn.
-- Bảng khổ rộng giữ chiều rộng cho ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm cùng dòng với tên sản phẩm và nhãn «Đơn bị loại» không bị bẻ đôi.
+- Danh sách đơn hàng hiển thị ngày giao, sản phẩm (dòng chính) với shop và mã đơn hàng (dòng phụ bên dưới), trạng thái, số lượng sản phẩm và số tiền của từng đơn hàng trong khoảng đang chọn. Ngày giao trong danh sách viết đủ hai chữ số ngày và tháng để thẳng cột.
+- Bảng khổ rộng nằm trong một thẻ, tiêu đề cột dính ở đầu khi cuộn, và giữ chiều rộng cho ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm ở cuối hàng. Khổ hẹp mỗi đơn là một thẻ mở đầu bằng tên sản phẩm.
 - Ô tìm kiếm lọc ngay theo mã đơn hàng, tên sản phẩm, tên shop, mô tả sản phẩm hoặc trạng thái và không phân biệt chữ hoa với chữ thường.
-- Bộ lọc trạng thái hỗ trợ tất cả, hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán và trả hàng.
+- Bộ lọc trạng thái là một hàng nút kèm số đơn, gồm «Tất cả» và mỗi trạng thái có trong khoảng đang chọn (hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán, trả hàng). Số đơn trên mỗi nút tính theo ô tìm kiếm và bộ lọc shop hiện tại; mỗi nút mang chấm màu của trạng thái đó nên hàng nút cũng là chú giải màu.
 - Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn. Tên shop dài không đẩy bộ lọc vượt vùng nội dung; danh sách lựa chọn vẫn giữ đầy đủ tên.
-- Người dùng có thể sắp xếp tăng hoặc giảm theo ngày giao, trạng thái hoặc số tiền bằng tiêu đề cột ở khổ rộng và bộ chọn ở khổ hẹp.
+- Người dùng có thể sắp xếp tăng hoặc giảm theo ngày giao, trạng thái hoặc số tiền bằng tiêu đề cột ở khổ rộng (cột sắp xếp được luôn có mũi tên mờ) và bộ chọn ở khổ hẹp.
 - Người dùng có thể chọn 20, 50, 100 hoặc tất cả đơn hàng mỗi trang và chuyển trang trong danh sách kết quả.
-- Danh sách hiển thị số kết quả và có trạng thái không tìm thấy cùng nút đặt lại bộ lọc khi tìm kiếm hoặc lọc không khớp đơn hàng nào.
+- Danh sách hiển thị số kết quả, và phía trên bảng có dòng tóm tắt số đơn đang liệt kê cùng tổng tiền của chúng (không tính đơn bị loại). Khi tìm kiếm hoặc lọc không khớp đơn hàng nào, có trạng thái không tìm thấy cùng nút đặt lại bộ lọc.
 - Mã đơn hàng là liên kết mở chi tiết đơn hàng trên Shopee trong tab mới.
 - Mỗi đơn hàng có thể mở hoặc đóng chi tiết ngay trong danh sách, bằng nút mở chi tiết hoặc bấm vào bất kỳ chỗ nào trên dòng (trừ liên kết mã đơn), để xem shop, ngày giờ giao, số tiền và tên, số lượng, đơn giá của từng sản phẩm khi có dữ liệu.
 - Trạng thái đơn là nhãn màu kèm chữ, mỗi trạng thái một màu riêng: hoàn thành xanh lá, đang giao xanh dương, chờ vận chuyển hổ phách, đã hủy đỏ, trả hàng tím, chờ thanh toán xám; màu không phải kênh thông tin duy nhất.
-- Đơn bị loại có nhãn riêng và phần chi tiết giải thích việc không tính vào chi tiêu cùng giá trị Hoàn tiền hoặc giá trị đơn hàng khi thiếu thông tin Hoàn tiền.
+- Đơn bị loại có số tiền gạch ngang kèm chữ «Đơn bị loại» bên dưới, và phần chi tiết giải thích việc không tính vào chi tiêu cùng giá trị Hoàn tiền hoặc giá trị đơn hàng khi thiếu thông tin Hoàn tiền.
 - Khi khổ hẹp, bảng đơn hàng chuyển thành thẻ nhưng vẫn giữ tìm kiếm, bộ lọc, sắp xếp, phân trang, liên kết Shopee và chi tiết đơn hàng.
 
 ## Xuất dữ liệu

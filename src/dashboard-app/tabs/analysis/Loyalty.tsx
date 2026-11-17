@@ -3,7 +3,7 @@ import { analyzeShopLoyalty } from '../../../dashboard/shop-loyalty.js';
 import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
 import type { Order } from '../../../types/index.js';
-import { card } from '../../../ui/styles/classes';
+import { card, chip } from '../../../ui/styles/classes';
 import { money } from '../../format';
 
 const dayOf = (key: string) => (key ? formatDate(new Date(`${key}T00:00:00`)) : t('stats.none'));
@@ -13,14 +13,17 @@ export function Loyalty({ orders }: { orders: Order[] }) {
   const shops = useMemo(() => analyzeShopLoyalty(orders), [orders]);
   const title = t('analysis.loyalty.title');
   return (
-    <section aria-labelledby="analysis-loyalty" className={`${card} min-w-0 @5xl:col-span-6`}>
-      <h3 id="analysis-loyalty" className="text-base font-semibold">{title}</h3>
+    <section aria-labelledby="analysis-loyalty" className={`${card} min-w-0 @5xl:col-span-4`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 id="analysis-loyalty" className="text-base font-semibold">{title}</h3>
+        <span className={chip}>{t('analysis.scope.all')}</span>
+      </div>
       <p className="mb-3 text-xs text-muted">{t('analysis.loyalty.scope')}</p>
       {shops.length === 0 ? (
         <p className="text-sm text-muted">{t('analysis.loyalty.empty')}</p>
       ) : (
         <div role="region" aria-label={title} tabIndex={0} className="overflow-x-auto rounded-lg">
-          <table className="num w-full min-w-max text-left text-sm">
+          <table className="num w-full min-w-max text-left text-sm [&_tbody_tr:hover]:bg-bg">
             <thead>
               <tr className="text-xs text-muted">
                 <th scope="col" className="py-1 pr-3 font-medium">{t('analysis.loyalty.shop')}</th>
