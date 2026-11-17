@@ -36,11 +36,11 @@ ShopeeStatX là tiện ích Chrome giúp tổng hợp lịch sử mua hàng trê
 ![Chi tiết đơn hàng: người bán, ngày giao, tổng tiền và từng sản phẩm trong đơn](store-assets/screenshots/03-order-details.png)
 
 <details>
-<summary>Xem thêm: danh sách đơn hàng và popup</summary>
+<summary>Xem thêm: ảnh chia sẻ và popup</summary>
 
-**Danh sách đơn hàng** — bộ lọc, sắp xếp và xuất dữ liệu ở cùng một nơi.
+**Ảnh chia sẻ** — chọn mẫu và tỉ lệ, tải về ảnh PNG chỉ có số liệu tổng hợp.
 
-![Danh sách đơn hàng đã lọc theo trạng thái Hoàn thành và sắp xếp theo tổng tiền](store-assets/screenshots/04-orders-table.png)
+![Hộp Tạo ảnh chia sẻ với mẫu Vận đơn, tỉ lệ vuông: chi tiêu ròng, tiết kiệm, hoàn tiền, ngày hay nhận hàng và chuỗi tháng](store-assets/screenshots/04-share-image.png)
 
 **Popup** — bắt đầu phân tích từ tab Shopee đang đăng nhập.
 

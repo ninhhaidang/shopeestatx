@@ -36,9 +36,9 @@ ShopeeStatX is a Chrome extension that turns your **Shopee Vietnam** order histo
 ![Expanded order details showing seller, delivery time, total and line items](../../store-assets/screenshots/03-order-details.png)
 
 <details>
-<summary>More screenshots: order list and popup</summary>
+<summary>More screenshots: share image and popup</summary>
 
-![Completed orders filtered and sorted by total](../../store-assets/screenshots/04-orders-table.png)
+![Share image dialog: Vận đơn template, square ratio, with net spend, savings, refunds, busiest day and month streak](../../store-assets/screenshots/04-share-image.png)
 
 ![ShopeeStatX popup on a neutral canvas, explicitly marked as a demo](../../store-assets/screenshots/05-popup.png)
 
