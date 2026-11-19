@@ -36,18 +36,46 @@ function Choice<T extends string>({ label, options, value, onChange, name }: { l
   );
 }
 
-/** Keeps a canvas showing the share image for these choices. */
-export function useShareCanvas(canvas: RefObject<HTMLCanvasElement | null>, data: ShareData, template: ShareTemplate, ratio: ShareRatio): void {
+/** Keeps a canvas showing the share image for these choices; `scale` below 1 for a thumbnail. */
+export function useShareCanvas(canvas: RefObject<HTMLCanvasElement | null>, data: ShareData, template: ShareTemplate, ratio: ShareRatio, scale = 1): void {
   useEffect(() => {
     let live = true;
-    const draw = () => live && canvas.current && drawShareImage(canvas.current, data, template, ratio);
+    const draw = () => live && canvas.current && drawShareImage(canvas.current, data, template, ratio, scale);
     draw();
     // Draw again once the bundled typeface is ready for canvas use.
     void document.fonts?.load('700 40px "Be Vietnam Pro"').then(draw, () => {});
     return () => {
       live = false;
     };
-  }, [canvas, data, template, ratio]);
+  }, [canvas, data, template, ratio, scale]);
+}
+
+function Thumbnail({ data, template, ratio }: { data: ShareData; template: ShareTemplate; ratio: ShareRatio }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  useShareCanvas(canvas, data, template, ratio, 0.12);
+  return <canvas ref={canvas} aria-hidden="true" className="h-14 w-auto max-w-full rounded-sm shadow-sm" />;
+}
+
+/** The artworks as a grid of live thumbnails of this very image. */
+function TemplatePicker({ data, ratio, value, onChange }: { data: ShareData; ratio: ShareRatio; value: ShareTemplate; onChange: (next: ShareTemplate) => void }) {
+  const id = useId();
+  return (
+    <div>
+      <p id={id} className="mb-1.5 text-sm font-medium">{t('share.template')}</p>
+      <SegmentedControl aria-labelledby={id} value={value} onValueChange={next => next && onChange(next)} className="grid grid-cols-4 gap-1.5">
+        {SHARE_TEMPLATES.map(option => (
+          <SegmentedControlItem
+            key={option}
+            value={option}
+            className="flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-line bg-card p-1 pb-1.5 text-xs leading-tight text-fg hover:border-muted data-checked:border-fg data-checked:bg-bg data-checked:font-semibold"
+          >
+            <Thumbnail data={data} template={option} ratio={ratio} />
+            {t(`share.template.${option}`)}
+          </SegmentedControlItem>
+        ))}
+      </SegmentedControl>
+    </div>
+  );
 }
 
 /** A period the image can sum up: the latest year, or the dashboard's selected range. */
@@ -84,7 +112,7 @@ export function ShareDialog({ options, onClose }: { options: ShareOption[]; onCl
             {options.length > 1 && (
               <Choice label={t('share.period')} options={options.map(o => o.key)} value={period} onChange={setPeriod} name={key => options.find(o => o.key === key)!.label} />
             )}
-            <Choice label={t('share.template')} options={SHARE_TEMPLATES} value={template} onChange={setTemplate} name={o => t(`share.template.${o}`)} />
+            <TemplatePicker data={data} ratio={ratio} value={template} onChange={setTemplate} />
             <div>
               <Choice label={t('share.ratio')} options={RATIOS} value={ratio} onChange={setRatio} name={o => t(`share.ratio.${o}`)} />
               <p className="mt-1.5 text-xs text-muted">

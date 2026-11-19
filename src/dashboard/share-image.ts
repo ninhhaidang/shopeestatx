@@ -1,17 +1,17 @@
 // Builds a shareable PNG from aggregate stats only (no shop names, order ids or product names).
-// Three artworks in four sizes; each is a fixed design, not themed, so it looks the same wherever it is posted.
+// Several artworks (share-art.ts) in four sizes; each is a fixed design, not themed, so it looks the same wherever it is posted.
 import type { Order } from '../types/index.js';
 import { computeOverview } from './overview.js';
+import { LOOKS, ORANGE, type Look, type ShareTemplate } from './share-art.js';
 import type { Stats } from './stats.js';
 import { STORE_QR } from './store-qr.js';
 import type { Tier } from './tier.js';
 import { formatCurrency } from '../i18n/format.js';
 import { t } from '../i18n/index.js';
 
-export type ShareTemplate = 'label' | 'bold' | 'night';
+export { SHARE_TEMPLATES, type ShareTemplate } from './share-art.js';
 export type ShareRatio = 'square' | 'portrait' | 'story' | 'wide';
 
-export const SHARE_TEMPLATES: ShareTemplate[] = ['label', 'bold', 'night'];
 /** Pixel sizes the social networks ask for: feed square, feed portrait (4:5), story (9:16), link preview (1.91:1). */
 export const SHARE_RATIOS: Record<ShareRatio, [number, number]> = {
   square: [1080, 1080],
@@ -35,25 +35,6 @@ export interface ShareData {
 }
 
 const FONT = '"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
-const ORANGE = '#ee4d2d';
-
-interface Look {
-  bg: string;
-  fg: string;
-  muted: string;
-  brand: string;
-  bars: string;
-  /** Fill of a figure cell, or null for an outlined / ruled cell. */
-  cell: string | null;
-  rule: string;
-}
-
-const LOOKS: Record<ShareTemplate, Look> = {
-  // "Vận đơn": the parcel label every Shopee order arrives with.
-  label: { bg: '#ffffff', fg: '#14171c', muted: '#5b6470', brand: '#ffffff', bars: '#14171c', cell: null, rule: '#14171c' },
-  bold: { bg: ORANGE, fg: '#ffffff', muted: 'rgba(255,255,255,0.82)', brand: '#ffffff', bars: 'rgba(255,255,255,0.34)', cell: null, rule: 'rgba(255,255,255,0.45)' },
-  night: { bg: '#14171c', fg: '#f5f6f8', muted: '#9aa3af', brand: '#ff6a4d', bars: '#ff6a4d', cell: '#1e2229', rule: '#2b3038' },
-};
 
 /** Largest size (stepping down from `size`) at which `text` fits `maxWidth`; leaves ctx.font set. */
 function fit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, size: number, weight: number): number {
@@ -105,8 +86,8 @@ function tierBadge(ctx: CanvasRenderingContext2D, tier: Tier, right: number, bas
   ctx.fillText(text, right - w / 2, baseline - 1 * u, w - 40 * u);
 }
 
-/** The store's QR code on a white tile (scanners need light around it), with an invitation beside it. */
-function storeFooter(ctx: CanvasRenderingContext2D, look: Look, x: number, y: number, w: number, size: number, u: number): void {
+/** The store's QR code on a white tile (scanners need light around it), with an invitation beside it; `reserve` is kept free at the right. */
+function storeFooter(ctx: CanvasRenderingContext2D, look: Look, x: number, y: number, w: number, size: number, u: number, reserve: number): void {
   const quiet = 2;
   const count = STORE_QR.length + 2 * quiet;
   ctx.fillStyle = '#ffffff';
@@ -122,7 +103,7 @@ function storeFooter(ctx: CanvasRenderingContext2D, look: Look, x: number, y: nu
     }
   });
   const textX = x + size + 28 * u;
-  const textW = w - size - 28 * u;
+  const textW = w - size - 28 * u - reserve;
   ctx.textAlign = 'left';
   ctx.fillStyle = look.fg;
   ctx.font = `700 ${32 * u}px ${FONT}`;
@@ -146,21 +127,31 @@ function monthBars(ctx: CanvasRenderingContext2D, values: number[], x: number, y
   });
 }
 
-function cell(ctx: CanvasRenderingContext2D, look: Look, template: ShareTemplate, [label, value]: [string, string], x: number, y: number, w: number, h: number, u: number): void {
-  const inset = template === 'bold' ? 0 : 26 * u;
-  if (look.cell) {
-    ctx.fillStyle = look.cell;
-    ctx.beginPath();
-    ctx.roundRect(x, y, w, h, 22 * u);
-    ctx.fill();
-  } else if (template === 'label') {
+function cell(ctx: CanvasRenderingContext2D, look: Look, [label, value]: [string, string], x: number, y: number, w: number, h: number, u: number): void {
+  const ruled = look.cell === 'rule' || look.cell === 'dashed';
+  const inset = ruled ? 0 : 26 * u;
+  if (look.cell === 'box') {
     ctx.strokeStyle = look.rule;
     ctx.lineWidth = 3 * u;
     ctx.strokeRect(x, y, w, h);
-  } else {
+  } else if (look.cell === 'rule') {
     // A rule above each figure, no box.
     ctx.fillStyle = look.rule;
     ctx.fillRect(x, y, w, 2 * u);
+  } else if (look.cell === 'dashed') {
+    ctx.strokeStyle = look.rule;
+    ctx.lineWidth = 2 * u;
+    ctx.setLineDash([10 * u, 8 * u]);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + w, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  } else {
+    ctx.fillStyle = look.cell.fill;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, look.cell.radius * u);
+    ctx.fill();
   }
   ctx.textAlign = 'left';
   ctx.fillStyle = look.muted;
@@ -171,13 +162,15 @@ function cell(ctx: CanvasRenderingContext2D, look: Look, template: ShareTemplate
   ctx.fillText(value, x + inset, y + h * 0.78, w - 2 * inset);
 }
 
-export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, template: ShareTemplate = 'label', ratio: ShareRatio = 'square'): void {
+/** Draws the artwork; `scale` below 1 makes a smaller copy (a picker thumbnail) of the same design. */
+export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', scale = 1): void {
   const [W, H] = SHARE_RATIOS[ratio];
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = Math.round(W * scale);
+  canvas.height = Math.round(H * scale);
   const ctx = canvas.getContext('2d');
   // jsdom has no canvas; there is nothing to draw on.
   if (!ctx) return;
+  ctx.scale(scale, scale);
   const look = LOOKS[template];
   const wide = ratio === 'wide';
   // One unit is a pixel of the 1080-wide artwork; the link preview is drawn smaller.
@@ -186,6 +179,7 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = look.bg;
   ctx.fillRect(0, 0, W, H);
+  look.backdrop?.(ctx, W, H, u);
 
   // Frame. The parcel label has a heavy border and an orange header band; stories keep clear of the app chrome.
   const frame = template === 'label' ? 36 * u : 0;
@@ -256,7 +250,12 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   ctx.fillStyle = look.fg;
   const amount = formatCurrency(data.stats.netSpend);
   fit(ctx, amount, inner, 152 * u, 700);
+  if (look.glow) {
+    ctx.shadowColor = look.glow;
+    ctx.shadowBlur = 40 * u;
+  }
   ctx.fillText(amount, left, y + heroH - 36 * u, inner);
+  ctx.shadowBlur = 0;
   y += heroH;
 
   if (showBars) {
@@ -272,11 +271,13 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   const cellW = (inner - (columns - 1) * cellGap) / columns;
   cells.forEach((figure, i) => {
     const w = i === cells.length - 1 && i % columns === 0 ? inner : cellW;
-    cell(ctx, look, template, figure, left + (i % columns) * (cellW + cellGap), y + Math.floor(i / columns) * (cellH + cellGap), w, cellH, u);
+    cell(ctx, look, figure, left + (i % columns) * (cellW + cellGap), y + Math.floor(i / columns) * (cellH + cellGap), w, cellH, u);
   });
   y += gridH;
 
-  storeFooter(ctx, look, left, y + gap, inner, footerH, u);
+  const mascot = look.mascot;
+  storeFooter(ctx, look, left, y + gap, inner, footerH, u, mascot ? footerH + 16 * u : 0);
+  mascot?.(ctx, right - footerH, y + gap, footerH);
 }
 
 /** Puts the PNG on the clipboard, ready to paste into a chat. Rejects where the browser refuses. */

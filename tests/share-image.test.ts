@@ -23,7 +23,7 @@ const monthly = [100_000, 0, 300_000];
 function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', orders = 42, year?: number, tier: Tier | null = null) {
   const texts: string[] = [];
   const ctx = new Proxy({} as Record<string, unknown>, {
-    get: (_, key) => (key === 'fillText' ? (text: string) => texts.push(text) : key === 'measureText' ? () => ({ width: 100 }) : () => {}),
+    get: (_, key) => (key === 'fillText' ? (text: string) => texts.push(text) : key === 'measureText' ? () => ({ width: 100 }) : () => ({ addColorStop: () => {} })),
     set: () => true,
   }) as unknown as CanvasRenderingContext2D;
   const canvas = { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement;
@@ -90,6 +90,18 @@ describe('share image', () => {
   ] as const)('prints the %s tier badge in place of the title', (tier, name) => {
     const { texts } = draw(stats, true, 'night', 'story', 42, 2026, tier);
     expect(texts.slice(0, 3)).toEqual(['ShopeeStatX', `Thành viên ${name}`, 'Chi tiêu ròng năm 2026']);
+  });
+
+  it('draws a smaller copy for thumbnails', () => {
+    const texts: string[] = [];
+    const ctx = new Proxy({} as Record<string, unknown>, {
+      get: (_, key) => (key === 'fillText' ? (text: string) => texts.push(text) : key === 'measureText' ? () => ({ width: 100 }) : () => ({ addColorStop: () => {} })),
+      set: () => true,
+    }) as unknown as CanvasRenderingContext2D;
+    const canvas = { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement;
+    drawShareImage(canvas, { stats, financialAvailable: true, monthly, orders: 1, tier: null }, 'cat', 'story', 0.12);
+    expect([canvas.width, canvas.height]).toEqual([130, 230]);
+    expect(texts).toContain('ShopeeStatX');
   });
 
   it('sizes the artwork for social feeds, stories and link previews', () => {
