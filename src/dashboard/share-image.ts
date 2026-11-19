@@ -87,7 +87,7 @@ function figures(data: ShareData): [string, string][] {
 const TIER_LOOK: Record<Tier, { bg: string; fg: string }> = {
   silver: { bg: '#dfe3e8', fg: '#14171c' },
   gold: { bg: '#f6c343', fg: '#14171c' },
-  diamond: { bg: '#3d6bf0', fg: '#ffffff' },
+  diamond: { bg: '#c7e7ff', fg: '#14171c' },
 };
 
 /** The tier badge, right-aligned at (right, baseline). */
