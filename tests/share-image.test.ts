@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { drawShareImage, SHARE_RATIOS, SHARE_TEMPLATES, type ShareRatio, type ShareTemplate } from '../src/dashboard/share-image';
+import { drawShareImage, SHARE_RATIOS, SHARE_TEMPLATES, type ShareAccount, type ShareRatio, type ShareTemplate } from '../src/dashboard/share-image';
 import type { Stats } from '../src/dashboard/stats';
 import type { Tier } from '../src/dashboard/tier';
 
@@ -20,14 +20,14 @@ const stats: Stats = {
 const monthly = [100_000, 0, 300_000];
 
 /** Canvas stand-in that records every string drawn; every other drawing call is accepted and ignored. */
-function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', orders = 42, year?: number, tier: Tier | null = null) {
+function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', orders = 42, year?: number, tier: Tier | null = null, account: ShareAccount | null = null) {
   const texts: string[] = [];
   const ctx = new Proxy({} as Record<string, unknown>, {
     get: (_, key) => (key === 'fillText' ? (text: string) => texts.push(text) : key === 'measureText' ? () => ({ width: 100 }) : () => ({ addColorStop: () => {} })),
     set: () => true,
   }) as unknown as CanvasRenderingContext2D;
   const canvas = { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement;
-  drawShareImage(canvas, { stats: s, financialAvailable, monthly, orders, year, tier }, template, ratio);
+  drawShareImage(canvas, { stats: s, financialAvailable, monthly, orders, year, tier, account }, template, ratio);
   return { canvas, texts };
 }
 
@@ -90,6 +90,16 @@ describe('share image', () => {
   ] as const)('prints the %s tier badge in place of the title', (tier, name) => {
     const { texts } = draw(stats, true, 'night', 'story', 42, 2026, tier);
     expect(texts.slice(0, 3)).toEqual(['ShopeeStatX', `Thành viên ${name}`, 'Chi tiêu ròng năm 2026']);
+  });
+
+  it.each([
+    ['the username', { name: 'minh.anh', avatar: false, image: null }, ['minh.anh']],
+    ['the initial when the avatar picture is missing', { name: 'minh.anh', avatar: true, image: null }, ['M', 'minh.anh']],
+  ] as const)('puts %s in place of the wordmark when the account is shown', (_, account, header) => {
+    const { texts } = draw(stats, true, 'sale', 'square', 42, 2026, null, account);
+    expect(texts.slice(0, header.length + 1)).toEqual([...header, 'Tổng kết Shopee 2026']);
+    expect(texts).not.toContain('ShopeeStatX');
+    expect(texts).toEqual(expect.arrayContaining(FOOTER));
   });
 
   it('draws a smaller copy for thumbnails', () => {

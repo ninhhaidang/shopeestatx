@@ -13,7 +13,7 @@ import {
 } from '../../../dashboard/share-image.js';
 import { t } from '../../../i18n/index.js';
 import { Button } from '../../../ui/components/Button';
-import type { ShareStyle } from '../../share-style';
+import { SHARE_ACCOUNT_MODES, type ShareStyle } from '../../share-style';
 
 const RATIOS = Object.keys(SHARE_RATIOS) as ShareRatio[];
 
@@ -97,14 +97,15 @@ export interface ShareOption {
 
 /**
  * Pick a period, an artwork and a size, see it, copy or download it. The image only goes to the clipboard or the computer.
- * The artwork and size are the dashboard's remembered `style`; changing them updates it.
+ * The artwork, size and account display are the dashboard's remembered `style`; changing them updates it.
+ * The account choice shows only when the orders came with a Shopee account (`hasAccount`).
  */
-export function ShareDialog({ options, style, onStyle, onClose }: { options: ShareOption[]; style: ShareStyle; onStyle: (next: ShareStyle) => void; onClose: () => void }) {
+export function ShareDialog({ options, hasAccount, style, onStyle, onClose }: { options: ShareOption[]; hasAccount: boolean; style: ShareStyle; onStyle: (next: ShareStyle) => void; onClose: () => void }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [period, setPeriod] = useState(options[0].key);
   const { template, ratio } = style;
-  const setTemplate = (next: ShareTemplate) => onStyle({ template: next, ratio });
-  const setRatio = (next: ShareRatio) => onStyle({ template, ratio: next });
+  const setTemplate = (next: ShareTemplate) => onStyle({ ...style, template: next });
+  const setRatio = (next: ShareRatio) => onStyle({ ...style, ratio: next });
   const [copied, setCopied] = useState<'done' | 'failed' | null>(null);
   const data = (options.find(o => o.key === period) ?? options[0]).data;
 
@@ -134,7 +135,9 @@ export function ShareDialog({ options, style, onStyle, onClose }: { options: Sha
                 {t(`share.ratio.${ratio}.use`)} <span className="num">{SHARE_RATIOS[ratio].join(' × ')} px</span>
               </p>
             </div>
-            <p className="text-xs text-muted">{t('share.privacy')}</p>
+            {hasAccount && (
+              <Choice label={t('share.account')} options={SHARE_ACCOUNT_MODES} value={style.account} onChange={account => onStyle({ ...style, account })} name={o => t(`share.account.${o}`)} />
+            )}
             <div className="mt-auto flex flex-col gap-2">
               <p role="status" className={`text-sm ${copied === 'failed' ? 'text-bad' : 'text-good'}`}>{copied && t(`share.copy.${copied}`)}</p>
               <Button onClick={() => downloadShareImage(data, template, ratio)}>{t('share.download')}</Button>

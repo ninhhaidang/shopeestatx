@@ -228,6 +228,26 @@ describe('Tổng quan', () => {
     expect(dialog.getByRole('radio', { name: 'Story 9:16' })).toBeChecked();
   });
 
+  it('puts the account on the image only when chosen, and offers it only when the orders have one', async () => {
+    const withUser = makeData(ORDERS, { user: { username: 'minh.anh', avatar: '' } });
+    const { user, unmount } = renderDashboard(makeHost({ loadCached: vi.fn().mockResolvedValue(withUser) }));
+
+    await user.click(await screen.findByRole('button', { name: 'Tạo ảnh khoe' }));
+    const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' }));
+    expect(dialog.getByRole('radio', { name: 'Ẩn' })).toBeChecked();
+    await user.click(dialog.getByRole('button', { name: 'Lưu ảnh' }));
+    expect(shareImage.downloadShareImage).toHaveBeenLastCalledWith(expect.objectContaining({ account: null }), 'sale', 'square');
+
+    await user.click(dialog.getByRole('radio', { name: 'Ảnh và tên' }));
+    await user.click(dialog.getByRole('button', { name: 'Lưu ảnh' }));
+    expect(shareImage.downloadShareImage).toHaveBeenLastCalledWith(expect.objectContaining({ account: { name: 'minh.anh', avatar: true, image: null } }), 'sale', 'square');
+    unmount();
+
+    renderDashboard();
+    await user.click(await screen.findByRole('button', { name: 'Tạo ảnh khoe' }));
+    expect(within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' })).queryByRole('radio', { name: 'Ẩn' })).toBeNull();
+  });
+
   it('carries a Kim Cương tier from 2025 into the 2026 year card', async () => {
     const history = [
       ...Array.from({ length: 75 }, (_, i) => makeOrder(`2025-08-${String((i % 28) + 1).padStart(2, '0')}T10:00:00`, { subTotal: 200_000 })),

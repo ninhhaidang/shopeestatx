@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@ui-sdk/react/tabs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { monthOf, orderYears } from '../dashboard/month.js';
-import { shareDataOf } from '../dashboard/share-image.js';
+import { shareDataOf, type ShareAccount } from '../dashboard/share-image.js';
 import { tierBetween } from '../dashboard/tier.js';
 import { needsRescan } from '../dashboard/stats.js';
 import { filterByRange, resolveRange, type RangeSelection } from '../dashboard/range.js';
@@ -22,6 +22,23 @@ import { formatUpdated } from './updated';
 import { useOrderData } from './useOrderData';
 
 const ALL_TIME: RangeSelection = { preset: 'all' };
+
+/** The picture at `src` once loaded, requested with CORS (Shopee's image CDN allows it) so a canvas drawing it can still be saved. */
+function useCorsImage(src: string | undefined): HTMLImageElement | null {
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  useEffect(() => {
+    setImage(null);
+    if (!src) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => setImage(img);
+    img.src = src;
+    return () => {
+      img.onload = null;
+    };
+  }, [src]);
+  return image;
+}
 const currentTime = () => new Date();
 
 /**
@@ -64,20 +81,27 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const orders = useMemo(() => (data ? filterByRange(data.orders, range) : []), [data, range]);
   const stale = useMemo(() => (data ? needsRescan(data.orders) : false), [data]);
   // The image leads with the latest year that has orders: a year-end summary.
-  const yearShare = useMemo(() => {
-    const year = years[0];
-    if (!data || year === undefined) return null;
-    const tier = tierBetween(data.orders, new Date(year, 0, 1), new Date(year, 11, 31));
-    const share = shareDataOf(data.orders.filter(o => monthOf(o)?.year === year), !stale, tier, year);
-    return share.orders > 0 ? { year, data: share } : null;
-  }, [data, years, stale]);
-  const canShare = phase === 'ready' && (yearShare !== null || orders.length > 0);
-  const [sharing, setSharing] = useState(false);
   const [shareStyle, setShareStyleState] = useState(loadShareStyle);
   const setShareStyle = (next: ShareStyle) => {
     setShareStyleState(next);
     saveShareStyle(next);
   };
+  // The account goes on the image only when the user picked it; the avatar is loaded only then.
+  const accountName = data?.user?.username || data?.user?.name || '';
+  const avatar = useCorsImage(shareStyle.account === 'avatar' ? data?.user?.avatar || undefined : undefined);
+  const shareAccount = useMemo<ShareAccount | null>(
+    () => (accountName && shareStyle.account !== 'none' ? { name: accountName, avatar: shareStyle.account === 'avatar', image: avatar } : null),
+    [accountName, shareStyle.account, avatar],
+  );
+  const yearShare = useMemo(() => {
+    const year = years[0];
+    if (!data || year === undefined) return null;
+    const tier = tierBetween(data.orders, new Date(year, 0, 1), new Date(year, 11, 31));
+    const share = shareDataOf(data.orders.filter(o => monthOf(o)?.year === year), !stale, tier, year);
+    return share.orders > 0 ? { year, data: { ...share, account: shareAccount } } : null;
+  }, [data, years, stale, shareAccount]);
+  const canShare = phase === 'ready' && (yearShare !== null || orders.length > 0);
+  const [sharing, setSharing] = useState(false);
   const sharedOnOpen = useRef(false);
   useEffect(() => {
     if (!host.shareOnOpen || sharedOnOpen.current || !canShare) return;
@@ -88,9 +112,9 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
     if (!sharing || !canShare) return null;
     const options: ShareOption[] = [];
     if (yearShare) options.push({ key: 'year', label: t('share.period.year', { year: yearShare.year }), data: yearShare.data });
-    if (orders.length > 0) options.push({ key: 'range', label: t('share.period.range'), data: shareDataOf(orders, !stale, data ? tierBetween(data.orders, range.start, range.end) : null) });
+    if (orders.length > 0) options.push({ key: 'range', label: t('share.period.range'), data: { ...shareDataOf(orders, !stale, data ? tierBetween(data.orders, range.start, range.end) : null), account: shareAccount } });
     return options;
-  }, [sharing, canShare, yearShare, orders, stale, data, range]);
+  }, [sharing, canShare, yearShare, orders, stale, data, range, shareAccount]);
   const context = useMemo(() => {
     if (!data) return null;
     const showOrders = (filter: OrdersFilter) => {
@@ -218,7 +242,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
           ))}
         </main>
       </Tabs>
-      {shareOptions && <ShareDialog options={shareOptions} style={shareStyle} onStyle={setShareStyle} onClose={() => setSharing(false)} />}
+      {shareOptions && <ShareDialog options={shareOptions} hasAccount={accountName !== ''} style={shareStyle} onStyle={setShareStyle} onClose={() => setSharing(false)} />}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-// Builds a shareable PNG from aggregate stats only (no shop names, order ids or product names).
+// Builds a shareable PNG from aggregate stats (no shop names, order ids or product names), plus the Shopee account only when the user opts in.
 // Several artworks (share-art.ts) in four sizes; each is a fixed design, not themed, so it looks the same wherever it is posted.
 import type { Order } from '../types/index.js';
 import { computeOverview } from './overview.js';
@@ -32,6 +32,15 @@ export interface ShareData {
   year?: number;
   /** The Shopee membership tier the orders meet (estimated), printed as a badge; null below Bạc. */
   tier: Tier | null;
+  /** The Shopee account, when the user chose to show it: drawn in place of the wordmark. */
+  account?: ShareAccount | null;
+}
+
+export interface ShareAccount {
+  name: string;
+  /** Draw the avatar circle: the picture once loaded (from a CORS-enabled source, so the canvas stays exportable), else the name's initial. */
+  avatar: boolean;
+  image: CanvasImageSource | null;
 }
 
 const FONT = '"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
@@ -84,6 +93,42 @@ function tierBadge(ctx: CanvasRenderingContext2D, tier: Tier, right: number, bas
   ctx.fillStyle = TIER_LOOK[tier].fg;
   ctx.textAlign = 'center';
   ctx.fillText(text, right - w / 2, baseline - 1 * u, w - 40 * u);
+}
+
+/** The account's avatar and username, left-aligned at (left, baseline) within maxWidth. */
+function accountHeader(ctx: CanvasRenderingContext2D, look: Look, account: ShareAccount, left: number, baseline: number, maxWidth: number, u: number): void {
+  let x = left;
+  if (account.avatar) {
+    const r = 32 * u;
+    const cx = left + r;
+    const cy = baseline - 15 * u;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.clip();
+    if (account.image) ctx.drawImage(account.image, cx - r, cy - r, 2 * r, 2 * r);
+    else {
+      ctx.fillStyle = ORANGE;
+      ctx.textAlign = 'center';
+      ctx.font = `700 ${34 * u}px ${FONT}`;
+      ctx.fillText(account.name.charAt(0).toUpperCase(), cx, cy + 12 * u);
+    }
+    ctx.restore();
+    // A ring in the artwork's brand colour keeps a white or matching circle visible on any background.
+    ctx.strokeStyle = look.brand;
+    ctx.lineWidth = 3 * u;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    x += 2 * r + 18 * u;
+  }
+  const width = maxWidth - (x - left);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = look.brand;
+  fit(ctx, account.name, width, 40 * u, 700);
+  ctx.fillText(account.name, x, baseline, width);
 }
 
 /** The store's QR code on a white tile (scanners need light around it), with an invitation beside it; `reserve` is kept free at the right. */
@@ -230,13 +275,16 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
     ctx.fillRect(frame, top + headerH + 44 * u, W - 2 * frame, 8 * u);
   }
 
-  // Header: wordmark and what this is.
+  // Header: wordmark (or the account, when shown; the footer still names ShopeeStatX) and what this is.
   let y = padTop;
   const headY = y + (template === 'label' ? 16 : 44) * u;
-  ctx.textAlign = 'left';
-  ctx.fillStyle = look.brand;
-  ctx.font = `700 ${44 * u}px ${FONT}`;
-  ctx.fillText('ShopeeStatX', left, headY);
+  if (data.account) accountHeader(ctx, look, data.account, left, headY, inner * 0.42, u);
+  else {
+    ctx.textAlign = 'left';
+    ctx.fillStyle = look.brand;
+    ctx.font = `700 ${44 * u}px ${FONT}`;
+    ctx.fillText('ShopeeStatX', left, headY);
+  }
   ctx.textAlign = 'right';
   ctx.fillStyle = template === 'label' ? '#ffffff' : look.muted;
   ctx.font = `500 ${28 * u}px ${FONT}`;
