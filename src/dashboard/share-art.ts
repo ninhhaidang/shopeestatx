@@ -2,9 +2,13 @@
 // Doodles are drawn as shapes (never emoji or text), so every artwork looks the same on every computer
 // and the image keeps to its few aggregate strings.
 
-export type ShareTemplate = 'label' | 'bold' | 'night' | 'candy' | 'sky' | 'cat' | 'matcha' | 'tet' | 'receipt' | 'neon' | 'minimal';
+export type ShareTemplate =
+  | 'label' | 'bold' | 'night' | 'sale' | 'voucher' | 'coins' | 'parcel'
+  | 'candy' | 'sky' | 'cat' | 'matcha' | 'tet' | 'receipt' | 'neon' | 'minimal';
 
-export const SHARE_TEMPLATES: ShareTemplate[] = ['label', 'bold', 'night', 'candy', 'sky', 'cat', 'matcha', 'tet', 'receipt', 'neon', 'minimal'];
+export const SHARE_TEMPLATES: ShareTemplate[] = [
+  'label', 'bold', 'night', 'sale', 'voucher', 'coins', 'parcel', 'candy', 'sky', 'cat', 'matcha', 'tet', 'receipt', 'neon', 'minimal',
+];
 
 export const ORANGE = '#ee4d2d';
 
@@ -17,8 +21,11 @@ export interface Look {
   brand: string;
   bars: string;
   rule: string;
-  /** How a figure sits: an outlined box, a filled card, or a rule (solid or dashed) above it. */
-  cell: 'box' | 'rule' | 'dashed' | { fill: string; radius: number };
+  /**
+   * How a figure sits: an outlined box, a rule (solid or dashed) above it, or a filled card,
+   * optionally with a dashed border and voucher notches (circles in the background colour) on its sides.
+   */
+  cell: 'box' | 'rule' | 'dashed' | { fill: string; radius: number; border?: string; notch?: string };
   /** A glow behind the net spend. */
   glow?: string;
   /** Painted over the plain background, before the content: gradients, paper, doodles in the margins. */
@@ -262,6 +269,171 @@ function twinkles(ctx: Ctx, x: number, y: number, s: number): void {
   sparkle(ctx, x + s * 0.85, y + s * 0.82, s * 0.1, '#ffffff');
 }
 
+/** A five-point star. */
+function star(ctx: Ctx, x: number, y: number, r: number, color: string): void {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+    const d = i % 2 ? r * 0.45 : r;
+    ctx.lineTo(x + Math.cos(a) * d, y + Math.sin(a) * d);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+function bolt(ctx: Ctx, x: number, y: number, s: number, color: string): void {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  for (const [dx, dy] of [[0.12, -0.5], [-0.28, 0.06], [-0.02, 0.06], [-0.14, 0.5], [0.28, -0.1], [0.02, -0.1]]) ctx.lineTo(x + dx * s, y + dy * s);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function confetti(ctx: Ctx, x: number, y: number, s: number, color: string, turn: number): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(turn);
+  ctx.fillStyle = color;
+  ctx.fillRect(-s * 0.4, -s * 0.15, s * 0.8, s * 0.3);
+  ctx.restore();
+}
+
+/** A plain shopping bag (no logo). */
+function bag(ctx: Ctx, x: number, y: number, s: number, body: string, handle: string): void {
+  ctx.strokeStyle = handle;
+  ctx.lineWidth = s * 0.07;
+  ctx.beginPath();
+  ctx.arc(x, y - s * 0.18, s * 0.2, Math.PI, 0);
+  ctx.stroke();
+  ctx.fillStyle = body;
+  ctx.beginPath();
+  ctx.moveTo(x - s * 0.4, y - s * 0.2);
+  ctx.lineTo(x + s * 0.4, y - s * 0.2);
+  ctx.lineTo(x + s * 0.46, y + s * 0.45);
+  ctx.lineTo(x - s * 0.46, y + s * 0.45);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/** A % sign made of shapes. */
+function percent(ctx: Ctx, x: number, y: number, s: number, color: string): void {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = s * 0.14;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x + s * 0.32, y - s * 0.38);
+  ctx.lineTo(x - s * 0.32, y + s * 0.38);
+  ctx.stroke();
+  ctx.lineWidth = s * 0.1;
+  for (const [dx, dy] of [[-0.24, -0.24], [0.24, 0.24]]) {
+    ctx.beginPath();
+    ctx.arc(x + dx * s, y + dy * s, s * 0.14, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+}
+
+/** A voucher ticket: notched sides, a dashed tear line, a % on the stub. */
+function ticket(ctx: Ctx, x: number, y: number, w: number, h: number, fill: string, ink: string, ground: string, turn = 0): void {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(turn);
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.roundRect(-w / 2, -h / 2, w, h, h * 0.12);
+  ctx.fill();
+  circle(ctx, -w / 2, 0, h * 0.16, ground);
+  circle(ctx, w / 2, 0, h * 0.16, ground);
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = h * 0.04;
+  ctx.setLineDash([h * 0.08, h * 0.07]);
+  ctx.beginPath();
+  ctx.moveTo(-w / 2 + w * 0.36, -h * 0.38);
+  ctx.lineTo(-w / 2 + w * 0.36, h * 0.38);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  percent(ctx, -w / 2 + w * 0.18, 0, h * 0.42, ink);
+  ctx.fillStyle = ink;
+  for (const [dy, len] of [[-0.14, 0.42], [0.1, 0.3]]) ctx.fillRect(-w / 2 + w * 0.46, dy * h, w * len, h * 0.09);
+  ctx.restore();
+}
+
+/** A gold coin with a star, the in-app kind. */
+function starCoin(ctx: Ctx, x: number, y: number, r: number): void {
+  circle(ctx, x, y, r, '#ffc233');
+  ctx.strokeStyle = '#e09a00';
+  ctx.lineWidth = r * 0.12;
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.78, 0, Math.PI * 2);
+  ctx.stroke();
+  star(ctx, x, y, r * 0.48, '#fff1b8');
+}
+
+function coinStack(ctx: Ctx, x: number, y: number, s: number): void {
+  const cx = x + s * 0.38;
+  for (let i = 0; i < 4; i++) {
+    const cy = y + s * (0.8 - i * 0.11);
+    ctx.fillStyle = '#e09a00';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + s * 0.04, s * 0.28, s * 0.09, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ffc233';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, s * 0.28, s * 0.09, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  starCoin(ctx, x + s * 0.74, y + s * 0.5, s * 0.22);
+}
+
+/** A cardboard parcel, taped, with a heart sticker. */
+function parcel(ctx: Ctx, x: number, y: number, s: number): void {
+  const l = x + s * 0.1;
+  const t = y + s * 0.3;
+  const w = s * 0.62;
+  const h = s * 0.55;
+  const d = s * 0.2;
+  ctx.fillStyle = '#c48b52';
+  ctx.beginPath();
+  ctx.moveTo(l, t);
+  ctx.lineTo(l + d, t - d * 0.7);
+  ctx.lineTo(l + w + d, t - d * 0.7);
+  ctx.lineTo(l + w, t);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#a8713d';
+  ctx.beginPath();
+  ctx.moveTo(l + w, t);
+  ctx.lineTo(l + w + d, t - d * 0.7);
+  ctx.lineTo(l + w + d, t + h - d * 0.7);
+  ctx.lineTo(l + w, t + h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#d9a066';
+  ctx.fillRect(l, t, w, h);
+  ctx.fillStyle = 'rgba(255,248,230,0.75)';
+  ctx.fillRect(l + w * 0.42, t, w * 0.16, h);
+  heart(ctx, l + w * 0.22, t + h * 0.62, s * 0.16, ORANGE);
+}
+
+/** "This side up": two arrows over a bar. */
+function upArrows(ctx: Ctx, x: number, y: number, s: number, color: string): void {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = s * 0.1;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  for (const dx of [-0.2, 0.2]) {
+    ctx.beginPath();
+    ctx.moveTo(x + dx * s, y + s * 0.3);
+    ctx.lineTo(x + dx * s, y - s * 0.3);
+    ctx.moveTo(x + dx * s - s * 0.14, y - s * 0.14);
+    ctx.lineTo(x + dx * s, y - s * 0.3);
+    ctx.lineTo(x + dx * s + s * 0.14, y - s * 0.14);
+    ctx.stroke();
+  }
+  ctx.fillStyle = color;
+  ctx.fillRect(x - s * 0.36, y + s * 0.38, s * 0.72, s * 0.08);
+}
+
 /** Doodles scattered round the edges, clear of the content column. */
 function corners(W: number, H: number, u: number, draw: (x: number, y: number, s: number, i: number) => void): void {
   const m = 34 * u;
@@ -275,6 +447,47 @@ export const LOOKS: Record<ShareTemplate, Look> = {
   label: { bg: '#ffffff', fg: '#14171c', muted: '#5b6470', brand: '#ffffff', bars: '#14171c', rule: '#14171c', cell: 'box' },
   bold: { bg: ORANGE, fg: '#ffffff', muted: 'rgba(255,255,255,0.82)', brand: '#ffffff', bars: 'rgba(255,255,255,0.34)', rule: 'rgba(255,255,255,0.45)', cell: 'rule' },
   night: { bg: '#14171c', fg: '#f5f6f8', muted: '#9aa3af', brand: '#ff6a4d', bars: '#ff6a4d', rule: '#2b3038', cell: { fill: '#1e2229', radius: 22 } },
+  // Shopee-flavoured artworks: sale days, vouchers, coins, parcels. Generic shapes only, never Shopee's logo or marks.
+  sale: {
+    bg: '#ff5722', fg: '#ffffff', muted: 'rgba(255,255,255,0.86)', brand: '#fff3b0', bars: '#fff3b0', rule: 'rgba(255,255,255,0.4)', cell: { fill: 'rgba(255,255,255,0.16)', radius: 22 },
+    backdrop: (ctx, W, H, u) => {
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, '#ff3d1f');
+      g.addColorStop(1, '#ff9a1f');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      const colors = ['#fff3b0', '#ffffff', '#ffd23f', '#ffb3a1'];
+      corners(W, H, u, (x, y, s, i) => (i % 2 ? bolt(ctx, x, y, s * 1.6, '#fff3b0') : confetti(ctx, x, y, s, colors[i % 4], i)));
+      for (let i = 0; i < 6; i++) confetti(ctx, W * (0.1 + i * 0.16), (i % 2 ? 14 : 30) * u, 18 * u, colors[i % 4], i * 0.9);
+    },
+    mascot: (ctx, x, y, s) => {
+      bag(ctx, x + s * 0.45, y + s * 0.5, s * 0.8, '#ffffff', '#fff3b0');
+      bolt(ctx, x + s * 0.47, y + s * 0.62, s * 0.38, '#ff5722');
+      star(ctx, x + s * 0.88, y + s * 0.18, s * 0.1, '#fff3b0');
+    },
+  },
+  voucher: {
+    bg: '#fff1e8', fg: '#3d1f12', muted: '#a0603f', brand: ORANGE, bars: '#ff8a65', rule: '#ffd3c2',
+    cell: { fill: '#ffffff', radius: 16, border: '#ffb59a', notch: '#fff1e8' },
+    backdrop: (ctx, W, H, u) => corners(W, H, u, (x, y, s, i) => ticket(ctx, x, y, s * 2.2, s * 1.1, '#ffd9c7', '#ff8a65', '#fff1e8', (i - 2) * 0.35)),
+    mascot: (ctx, x, y, s) => ticket(ctx, x + s * 0.5, y + s * 0.5, s * 0.95, s * 0.5, ORANGE, '#ffffff', '#fff1e8', -0.18),
+  },
+  coins: {
+    bg: '#fff6d8', fg: '#4a3200', muted: '#9a7a2e', brand: '#e08a00', bars: '#ffc233', rule: '#f3dc9a', cell: { fill: '#ffffff', radius: 26, border: '#ffd36b' },
+    backdrop: (ctx, W, H, u) => corners(W, H, u, (x, y, s) => starCoin(ctx, x, y, s * 0.75)),
+    mascot: coinStack,
+  },
+  parcel: {
+    bg: '#d8b48a', fg: '#3b2614', muted: '#6e4f30', brand: '#3b2614', bars: '#8a5a2b', rule: '#b98f62', cell: { fill: '#efdcc2', radius: 6 },
+    backdrop: (ctx, W, H, u) => {
+      // Packing tape over the top and bottom edges, and "this side up" marks.
+      ctx.fillStyle = 'rgba(255,248,230,0.55)';
+      ctx.fillRect(W / 2 - 70 * u, 0, 140 * u, 40 * u);
+      ctx.fillRect(W / 2 - 70 * u, H - 40 * u, 140 * u, 40 * u);
+      corners(W, H, u, (x, y, s, i) => (i === 0 || i === 2) && upArrows(ctx, x, y, s * 1.2, 'rgba(59,38,20,0.45)'));
+    },
+    mascot: parcel,
+  },
   candy: {
     bg: '#ffe4ee', fg: '#4a1f33', muted: '#a35d7b', brand: '#ff4f8b', bars: '#ff9cbf', rule: '#ffc2d6', cell: { fill: '#ffffff', radius: 36 },
     backdrop: (ctx, W, H, u) => corners(W, H, u, (x, y, s, i) => (i % 2 ? sparkle(ctx, x, y, s, '#ffb3cd') : heart(ctx, x, y, s * 1.6, '#ff8fb5'))),

@@ -90,9 +90,11 @@ function tierBadge(ctx: CanvasRenderingContext2D, tier: Tier, right: number, bas
 function storeFooter(ctx: CanvasRenderingContext2D, look: Look, x: number, y: number, w: number, size: number, u: number, reserve: number): void {
   const quiet = 2;
   const count = STORE_QR.length + 2 * quiet;
+  // The white reaches a little past the code, so dark artworks keep a clear quiet zone round it.
+  const pad = 6 * u;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.roundRect(x, y, size, size, 10 * u);
+  ctx.roundRect(x - pad, y - pad, size + 2 * pad, size + 2 * pad, 12 * u);
   ctx.fill();
   ctx.fillStyle = '#14171c';
   // Whole-pixel edges, so neighbouring modules never leave hairline seams.
@@ -148,10 +150,28 @@ function cell(ctx: CanvasRenderingContext2D, look: Look, [label, value]: [string
     ctx.stroke();
     ctx.setLineDash([]);
   } else {
-    ctx.fillStyle = look.cell.fill;
+    const { fill, radius, border, notch } = look.cell;
+    ctx.fillStyle = fill;
     ctx.beginPath();
-    ctx.roundRect(x, y, w, h, look.cell.radius * u);
+    ctx.roundRect(x, y, w, h, radius * u);
     ctx.fill();
+    if (border) {
+      ctx.strokeStyle = border;
+      ctx.lineWidth = 3 * u;
+      ctx.setLineDash([12 * u, 8 * u]);
+      ctx.beginPath();
+      ctx.roundRect(x + 8 * u, y + 8 * u, w - 16 * u, h - 16 * u, Math.max(0, radius - 8) * u);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if (notch) {
+      ctx.fillStyle = notch;
+      for (const nx of [x, x + w]) {
+        ctx.beginPath();
+        ctx.arc(nx, y + h / 2, 16 * u, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   }
   ctx.textAlign = 'left';
   ctx.fillStyle = look.muted;
@@ -235,7 +255,8 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   const cellH = (wide || square ? 150 : 172) * u;
   const gridH = rows ? rows * cellH + (rows - 1) * cellGap : 0;
   const heroH = (square ? 210 : 236) * u;
-  const footerH = 140 * u;
+  // The link preview is small, so its code gets a bigger share of it to stay scannable.
+  const footerH = (wide ? 170 : 140) * u;
   const free = H - padBottom - y - heroH - gridH - footerH;
   const showBars = !wide && data.monthly.length > 1 && free > 300 * u;
   const barsH = showBars ? Math.min(560 * u, free - 150 * u) : 0;
