@@ -89,7 +89,7 @@ describe('share image', () => {
     ['diamond', 'Kim Cương'],
   ] as const)('prints the %s tier badge in place of the title', (tier, name) => {
     const { texts } = draw(stats, true, 'night', 'story', 42, 2026, tier);
-    expect(texts.slice(0, 3)).toEqual(['ShopeeStatX', `Đạt chuẩn hạng ${name}`, 'Chi tiêu ròng năm 2026']);
+    expect(texts.slice(0, 3)).toEqual(['ShopeeStatX', `Thành viên ${name}`, 'Chi tiêu ròng năm 2026']);
   });
 
   it('sizes the artwork for social feeds, stories and link previews', () => {

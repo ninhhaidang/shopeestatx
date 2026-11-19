@@ -17,7 +17,7 @@ Bộ chọn **Khoảng thời gian** ở đầu trang áp dụng cho cả ba mà
 - Màn **Tổng quan** có sẵn thẻ **Tổng kết Shopee** của năm gần nhất: bấm **Lưu ảnh** là xong, hoặc **Tuỳ chỉnh…** để đổi mẫu, tỉ lệ.
 - Bấm **Tạo ảnh khoe** trên thanh công cụ của dashboard, hoặc trong popup khi đã có dữ liệu lưu; trong hộp có thể chọn ảnh theo năm hoặc theo khoảng thời gian đang xem.
 - Chọn mẫu và tỉ lệ, rồi **Lưu ảnh** để tải về máy, hoặc **Sao chép ảnh** để dán thẳng vào Zalo, Messenger hay bài đăng.
-- Ảnh có nhãn **Đạt chuẩn hạng Bạc/Vàng/Kim Cương** khi đơn hàng đạt điều kiện hạng thành viên Shopee công bố (ước tính, hạng thật trên Shopee có thể khác), và mã QR dẫn tới ShopeeStatX trên Chrome Web Store.
+- Ảnh có nhãn **Thành viên Bạc/Vàng/Kim Cương** khi đơn hàng đạt điều kiện hạng thành viên Shopee công bố (ước tính, hạng thật trên Shopee có thể khác), và mã QR dẫn tới ShopeeStatX trên Chrome Web Store.
 - Ảnh chỉ gồm số liệu tổng hợp, không có tên shop, mã đơn hay tên sản phẩm; ô bằng 0 hoặc thiếu dữ liệu không được in lên ảnh.
 
 ## 📊 Tổng quan
