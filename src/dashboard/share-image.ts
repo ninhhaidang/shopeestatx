@@ -4,7 +4,7 @@ import type { Order } from '../types/index.js';
 import { computeOverview } from './overview.js';
 import type { Stats } from './stats.js';
 import { STORE_QR } from './store-qr.js';
-import { bestTier, type Tier } from './tier.js';
+import type { Tier } from './tier.js';
 import { formatCurrency } from '../i18n/format.js';
 import { t } from '../i18n/index.js';
 
@@ -65,10 +65,10 @@ function fit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, size
   }
 }
 
-/** What the image shows for these orders; `year` when they are exactly that year's. */
-export function shareDataOf(orders: Order[], financialAvailable: boolean, year?: number): ShareData {
+/** What the image shows for these orders; `year` when they are exactly that year's. The tier needs the whole history. */
+export function shareDataOf(orders: Order[], financialAvailable: boolean, tier: Tier | null, year?: number): ShareData {
   const overview = computeOverview(orders);
-  return { stats: overview.stats, financialAvailable, monthly: overview.monthly.map(m => m.total), orders: overview.orderCount, year, tier: bestTier(orders) };
+  return { stats: overview.stats, financialAvailable, monthly: overview.monthly.map(m => m.total), orders: overview.orderCount, year, tier };
 }
 
 /** Up to four figures worth showing off: a zero or unknown one is left out, and Số đơn takes its place. */

@@ -207,6 +207,18 @@ describe('Tổng quan', () => {
     expect(dialog.getByRole('radio', { name: 'Năm 2026' })).toBeChecked();
   });
 
+  it('carries a Kim Cương tier from 2025 into the 2026 year card', async () => {
+    const history = [
+      ...Array.from({ length: 75 }, (_, i) => makeOrder(`2025-08-${String((i % 28) + 1).padStart(2, '0')}T10:00:00`, { subTotal: 200_000 })),
+      makeOrder('2026-02-10T10:00:00', { subTotal: 100_000 }),
+    ];
+    const { user } = renderDashboard(makeHost({ loadCached: vi.fn().mockResolvedValue(makeData(history)) }));
+
+    const card = within(await screen.findByRole('region', { name: 'Tổng kết Shopee 2026 của bạn' }));
+    await user.click(card.getByRole('button', { name: 'Lưu ảnh' }));
+    expect(shareImage.downloadShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026, orders: 1, tier: 'diamond' }), 'label', 'square');
+  });
+
   it('opens the share dialog by itself when the popup asked for it', async () => {
     renderDashboard(makeHost({ shareOnOpen: true }));
 

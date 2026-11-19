@@ -2,6 +2,7 @@ import { Tabs, TabsList, TabsPanel, TabsTab } from '@ui-sdk/react/tabs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { monthOf, orderYears } from '../dashboard/month.js';
 import { shareDataOf } from '../dashboard/share-image.js';
+import { tierBetween } from '../dashboard/tier.js';
 import { needsRescan } from '../dashboard/stats.js';
 import { filterByRange, resolveRange, type RangeSelection } from '../dashboard/range.js';
 import { t } from '../i18n/index.js';
@@ -65,7 +66,8 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const yearShare = useMemo(() => {
     const year = years[0];
     if (!data || year === undefined) return null;
-    const share = shareDataOf(data.orders.filter(o => monthOf(o)?.year === year), !stale, year);
+    const tier = tierBetween(data.orders, new Date(year, 0, 1), new Date(year, 11, 31));
+    const share = shareDataOf(data.orders.filter(o => monthOf(o)?.year === year), !stale, tier, year);
     return share.orders > 0 ? { year, data: share } : null;
   }, [data, years, stale]);
   const canShare = phase === 'ready' && (yearShare !== null || orders.length > 0);
@@ -80,9 +82,9 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
     if (!sharing || !canShare) return null;
     const options: ShareOption[] = [];
     if (yearShare) options.push({ key: 'year', label: t('share.period.year', { year: yearShare.year }), data: yearShare.data });
-    if (orders.length > 0) options.push({ key: 'range', label: t('share.period.range'), data: shareDataOf(orders, !stale) });
+    if (orders.length > 0) options.push({ key: 'range', label: t('share.period.range'), data: shareDataOf(orders, !stale, data ? tierBetween(data.orders, range.start, range.end) : null) });
     return options;
-  }, [sharing, canShare, yearShare, orders, stale]);
+  }, [sharing, canShare, yearShare, orders, stale, data, range]);
   const context = useMemo(() => {
     if (!data) return null;
     const showOrders = (filter: OrdersFilter) => {
