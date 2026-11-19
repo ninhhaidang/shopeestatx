@@ -74,133 +74,62 @@ function figures(data: ShareData): [string, string][] {
   return all.filter((figure): figure is [string, string] => figure[1] !== null).slice(0, 4);
 }
 
-/** Each tier looks like its material: banded metal for Bạc and Vàng, an icy cut stone for Kim Cương. */
-interface Material {
-  /** Gradient stops: top to bottom for metal, corner to corner for the stone. */
-  stops: string[];
-  edge: string;
-  fg: string;
-  emblem: 'sparkle' | 'star' | 'gem';
-}
-
-const TIER_LOOK: Record<Tier, Material> = {
-  silver: { stops: ['#fbfcfd', '#dde1e6', '#a9b1bb', '#e8ebef', '#c1c7ce'], edge: '#7f8994', fg: '#1d232b', emblem: 'sparkle' },
-  gold: { stops: ['#fff4c7', '#f7cd4f', '#d39615', '#f9da74', '#c08710'], edge: '#946406', fg: '#3a2700', emblem: 'star' },
-  diamond: { stops: ['#eefaff', '#9fdcff', '#dccfff', '#8edfff', '#e3f6ff'], edge: '#3b8ccc', fg: '#0b2b45', emblem: 'gem' },
+/** Each tier in a soft two-tone of its material (light to deep), the ink that reads on it, and its small stone. */
+const TIER_LOOK: Record<Tier, { from: string; to: string; fg: string; stone: [string, string] }> = {
+  silver: { from: '#f4f6f8', to: '#cfd4db', fg: '#20262e', stone: ['#ffffff', '#aab2bc'] },
+  gold: { from: '#fbe7a6', to: '#e6b24a', fg: '#3a2905', stone: ['#fff1bf', '#d9a12c'] },
+  diamond: { from: '#c9eefc', to: '#7fcdf0', fg: '#0b2b45', stone: ['#ffffff', '#5ab9e6'] },
 };
 
-/** The tier's small emblem, centred on (x, y) with size s: a four-point glint, a star, or a cut gem. */
-function emblem(ctx: CanvasRenderingContext2D, kind: Material['emblem'], x: number, y: number, s: number, edge: string, u: number): void {
-  const r = s / 2;
-  ctx.beginPath();
-  if (kind === 'sparkle') {
-    ctx.moveTo(x, y - r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.quadraticCurveTo(x, y, x, y + r);
-    ctx.quadraticCurveTo(x, y, x - r, y);
-    ctx.quadraticCurveTo(x, y, x, y - r);
-  } else if (kind === 'star') {
-    for (let i = 0; i < 10; i++) {
-      const a = -Math.PI / 2 + (i * Math.PI) / 5;
-      const d = i % 2 ? r * 0.45 : r;
-      ctx.lineTo(x + d * Math.cos(a), y + d * Math.sin(a));
-    }
-    ctx.closePath();
-  } else {
-    // Crown on top, pavilion to the point below.
-    ctx.moveTo(x - r * 0.55, y - r * 0.6);
-    ctx.lineTo(x + r * 0.55, y - r * 0.6);
-    ctx.lineTo(x + r, y - r * 0.1);
-    ctx.lineTo(x, y + r * 0.85);
-    ctx.lineTo(x - r, y - r * 0.1);
-    ctx.closePath();
-  }
-  ctx.fillStyle = '#ffffff';
-  ctx.fill();
-  ctx.strokeStyle = edge;
-  ctx.lineWidth = 2 * u;
-  ctx.lineJoin = 'round';
-  ctx.stroke();
-  if (kind === 'gem') {
-    ctx.beginPath();
-    ctx.moveTo(x - r, y - r * 0.1);
-    ctx.lineTo(x + r, y - r * 0.1);
-    ctx.moveTo(x - r * 0.25, y - r * 0.6);
-    ctx.lineTo(x - r * 0.4, y - r * 0.1);
-    ctx.lineTo(x, y + r * 0.85);
-    ctx.lineTo(x + r * 0.4, y - r * 0.1);
-    ctx.lineTo(x + r * 0.25, y - r * 0.6);
-    ctx.lineWidth = 1.5 * u;
-    ctx.stroke();
-  }
-}
-
-/** The tier badge, right-aligned at (right, baseline): a material-coloured pill with a sheen, an emblem and the tier's name. */
+/** The tier badge, right-aligned at (right, baseline): a material-coloured pill, a small faceted stone, the tier's name. */
 function tierBadge(ctx: CanvasRenderingContext2D, tier: Tier, right: number, baseline: number, maxWidth: number, u: number): void {
-  const m = TIER_LOOK[tier];
+  const look = TIER_LOOK[tier];
   const text = t('share.image.tier', { tier: t(`share.tier.${tier}`) });
-  ctx.font = `700 ${28 * u}px ${FONT}`;
-  const pad = 22 * u;
-  const icon = 30 * u;
-  const gap = 10 * u;
-  const w = Math.min(maxWidth, ctx.measureText(text).width + 2 * pad + icon + gap);
-  const h = 56 * u;
+  ctx.font = `600 ${28 * u}px ${FONT}`;
+  const textX = 54 * u;
+  const w = Math.min(maxWidth, ctx.measureText(text).width + textX + 22 * u);
+  const h = 54 * u;
   const x = right - w;
-  const y = baseline - 39 * u;
-  const pill = (inset: number) => {
-    ctx.beginPath();
-    ctx.roundRect(x + inset, y + inset, w - 2 * inset, h - 2 * inset, h / 2 - inset);
-  };
-
-  ctx.save();
-  const fill = tier === 'diamond' ? ctx.createLinearGradient(x, y, x + w, y + h) : ctx.createLinearGradient(x, y, x, y + h);
-  m.stops.forEach((color, i) => fill.addColorStop(i / (m.stops.length - 1), color));
-  ctx.shadowColor = 'rgba(0,0,0,0.28)';
-  ctx.shadowBlur = 12 * u;
-  ctx.shadowOffsetY = 4 * u;
-  pill(0);
-  ctx.fillStyle = fill;
+  const cy = baseline - 11 * u;
+  const pill = ctx.createLinearGradient(x, cy - h / 2, x + w, cy + h / 2);
+  pill.addColorStop(0, look.from);
+  pill.addColorStop(1, look.to);
+  ctx.fillStyle = pill;
+  ctx.beginPath();
+  ctx.roundRect(x, cy - h / 2, w, h, h / 2);
   ctx.fill();
-  ctx.shadowColor = 'transparent';
-  ctx.clip();
-  // Polish: light catching the upper half evenly, so it never cuts through the name; the stone also gets facets.
-  const gloss = ctx.createLinearGradient(x, y, x, y + h * 0.55);
-  gloss.addColorStop(0, 'rgba(255,255,255,0.7)');
-  gloss.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = gloss;
-  ctx.fillRect(x, y, w, h * 0.55);
-  if (tier === 'diamond') {
-    ctx.fillStyle = 'rgba(255,255,255,0.42)';
-    for (const [a, b, c] of [[0.38, 0.55, 0.47], [0.62, 0.8, 0.7], [0.84, 1, 0.93]]) {
-      ctx.beginPath();
-      ctx.moveTo(x + w * a, y);
-      ctx.lineTo(x + w * b, y);
-      ctx.lineTo(x + w * c, y + h);
-      ctx.fill();
-    }
-  }
-  ctx.restore();
 
-  pill(0);
-  ctx.strokeStyle = m.edge;
-  ctx.lineWidth = 2 * u;
+  // The stone: a rhombus in the tier's colours, its upper right facet catching the light.
+  const sx = x + 32 * u;
+  const r = 11 * u;
+  const rhombus = () => {
+    ctx.beginPath();
+    ctx.moveTo(sx, cy - r);
+    ctx.lineTo(sx + r, cy);
+    ctx.lineTo(sx, cy + r);
+    ctx.lineTo(sx - r, cy);
+    ctx.closePath();
+  };
+  const stone = ctx.createLinearGradient(sx - r, cy - r, sx + r, cy + r);
+  stone.addColorStop(0, look.stone[0]);
+  stone.addColorStop(1, look.stone[1]);
+  rhombus();
+  ctx.fillStyle = stone;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+  ctx.lineWidth = 1 * u;
   ctx.stroke();
-  pill(4 * u);
-  ctx.strokeStyle = 'rgba(255,255,255,0.75)';
-  ctx.lineWidth = 1.5 * u;
-  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(sx, cy - r);
+  ctx.lineTo(sx + r, cy);
+  ctx.lineTo(sx, cy);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.fill();
 
-  emblem(ctx, m.emblem, x + pad + icon / 2, y + h / 2, icon, m.edge, u);
-
-  // A light emboss under the letters.
-  ctx.save();
-  ctx.shadowColor = 'rgba(255,255,255,0.8)';
-  ctx.shadowOffsetY = 1.5 * u;
-  ctx.fillStyle = m.fg;
+  ctx.fillStyle = look.fg;
   ctx.textAlign = 'left';
-  ctx.font = `700 ${28 * u}px ${FONT}`;
-  ctx.fillText(text, x + pad + icon + gap, baseline, w - 2 * pad - icon - gap);
-  ctx.restore();
+  ctx.fillText(text, x + textX, cy + 9 * u, w - textX - 22 * u);
 }
 
 /** The account's avatar and username, left-aligned at (left, baseline) within maxWidth. */
