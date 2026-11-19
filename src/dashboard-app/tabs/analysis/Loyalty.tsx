@@ -6,8 +6,8 @@ import type { Order } from '../../../types/index.js';
 import { card, chip } from '../../../ui/styles/classes';
 import { money } from '../../format';
 
-/** Narrow: one running line of figures under the shop name, dot-separated. Wide: a right-aligned cell. */
-const detail = 'inline text-xs text-muted @3xl:table-cell @3xl:px-3 @3xl:py-1.5 @3xl:text-right @3xl:text-sm @3xl:text-fg';
+/** Narrow: figures run under the shop name, dot-separated, each label kept with its value. Wide: a right-aligned cell. */
+const detail = 'inline-block whitespace-nowrap text-xs text-muted @3xl:table-cell @3xl:px-3 @3xl:py-1.5 @3xl:text-right @3xl:text-sm @3xl:text-fg';
 const dot = "after:mx-1 after:content-['·'] @3xl:after:content-none";
 const label = (key: 'orders' | 'average' | 'rate' | 'last') => <span className="@3xl:hidden">{t(`analysis.loyalty.${key}`)} </span>;
 

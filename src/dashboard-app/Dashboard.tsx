@@ -139,8 +139,12 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
 
         <div className="col-span-full row-start-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 pt-3 pb-3 @3xl:row-start-2 @3xl:pt-0 @6xl:[grid-column:3] @6xl:row-start-1 @6xl:p-3">
           <RangePicker value={selection} onChange={setSelection} years={years} now={clock} />
-          <Button variant="outline" disabled={phase === 'loading' || refreshing} onClick={orderData.refresh}>
-            {t('dash.refresh')}
+          {/* Under 28rem (side panel) the label hides so the update time fits on the same row. */}
+          <Button variant="outline" className="inline-flex items-center gap-1.5 @max-md:p-1.5" title={t('dash.refresh')} disabled={phase === 'loading' || refreshing} onClick={orderData.refresh}>
+            <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={`size-4 ${refreshing ? 'motion-safe:animate-spin' : ''}`}>
+              <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" />
+            </svg>
+            <span className="@max-md:sr-only">{t('dash.refresh')}</span>
           </Button>
           <div className="order-2 flex flex-col text-xs text-muted @3xl:order-none">
             {stamp && <span>{formatUpdated(stamp, clock)}</span>}

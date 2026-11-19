@@ -134,8 +134,19 @@ export function MonthChart({ title, points, active, onSelect, formatValue, forma
           return (
             <g key={band.year}>
               {i > 0 && <line x1={x0} x2={x0} y1={TOP} y2={baseline + 30} stroke="var(--line)" strokeWidth={1} />}
-              {x1 - x0 >= 34 && (
-                <text x={(x0 + x1) / 2} y={baseline + 34} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--fg)">{band.year}</text>
+              {/* A band too narrow for the full year (side-panel width) gets the short form, ’26; the newest year
+                  always shows, flush with the right edge when its band is narrower than the label. */}
+              {(x1 - x0 >= 16 || i === years.length - 1) && (
+                <text
+                  x={x1 - x0 >= 16 ? (x0 + x1) / 2 : x1}
+                  y={baseline + 34}
+                  textAnchor={x1 - x0 >= 16 ? 'middle' : 'end'}
+                  fontSize={12}
+                  fontWeight={600}
+                  fill="var(--fg)"
+                >
+                  {x1 - x0 >= 34 ? band.year : `’${String(band.year).slice(2)}`}
+                </text>
               )}
             </g>
           );

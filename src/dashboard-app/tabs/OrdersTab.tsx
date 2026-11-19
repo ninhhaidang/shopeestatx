@@ -206,9 +206,10 @@ export function OrdersTab() {
             }}
             className={`${control} min-w-0 @5xl:hidden`}
           >
+            {/* The same ▲▼ as the wide column headers, so the half-width select is not cut off; screen readers get the words. */}
             {SORT_COLUMNS.flatMap(c => [
-              <option key={`${c.field}:asc`} value={`${c.field}:asc`}>{t('orders.sort.asc', { column: t(c.label) })}</option>,
-              <option key={`${c.field}:desc`} value={`${c.field}:desc`}>{t('orders.sort.desc', { column: t(c.label) })}</option>,
+              <option key={`${c.field}:asc`} value={`${c.field}:asc`} aria-label={t('orders.sort.asc', { column: t(c.label) })}>{t(c.label)} ▲</option>,
+              <option key={`${c.field}:desc`} value={`${c.field}:desc`} aria-label={t('orders.sort.desc', { column: t(c.label) })}>{t(c.label)} ▼</option>,
             ])}
           </select>
         </div>

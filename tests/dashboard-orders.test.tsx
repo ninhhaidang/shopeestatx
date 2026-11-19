@@ -235,7 +235,7 @@ describe('Đơn hàng: sắp xếp', () => {
 
   it('sorts from a list on narrow containers, where the header row is hidden', async () => {
     const { user } = await openOrders();
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Sắp xếp theo' }), 'Tổng tiền (giảm dần)');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Sắp xếp theo' }), 'Tổng tiền ▼');
     expect(ids()).toEqual(['1004', '1005', '1001', '1003', '1002']);
   });
 

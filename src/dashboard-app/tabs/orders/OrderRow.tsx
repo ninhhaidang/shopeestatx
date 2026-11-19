@@ -18,7 +18,7 @@ const cell = '@5xl:table-cell @5xl:px-3 @5xl:py-3 @5xl:align-top @5xl:first:pl-5
 /**
  * One order. Wide: a table row reading date, what was bought (with shop, order id and, past one, the item
  * count under it), status, total. Narrow: a card that leads with the product; `order-*` and `col-span-*` only apply to
- * that card grid, where the status spans the last two columns so it never narrows the product name.
+ * that card, which wraps: name and chevron, shop line, then date, status and total on one line when they fit.
  */
 export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded: boolean; onToggle: () => void }) {
   const excluded = isExcludedOrder(order);
@@ -32,13 +32,13 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
     <Fragment>
       <tr
         onClick={onRowClick}
-        className="grid cursor-pointer grid-cols-[minmax(0,1fr)_auto_auto] gap-x-3 gap-y-1 rounded-xl border border-line bg-card p-3 @5xl:table-row @5xl:rounded-none @5xl:border-0 @5xl:border-t @5xl:p-0 @5xl:first:border-t-0 @5xl:hover:bg-bg"
+        className="flex cursor-pointer flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-line bg-card p-3 @5xl:table-row @5xl:rounded-none @5xl:border-0 @5xl:border-t @5xl:p-0 @5xl:first:border-t-0 @5xl:hover:bg-bg"
       >
         {/* Two-digit day and month, so the dates line up down the column. */}
-        <td className={`num order-3 whitespace-nowrap text-muted ${cell}`}>
+        <td className={`num order-3 whitespace-nowrap text-xs text-muted @5xl:text-sm ${cell}`}>
           {formatDeliveryDate(order, t('table.noDate')).replace(/\b(\d)\//g, '0$1/')}
         </td>
-        <td className={`order-1 col-span-2 min-w-0 ${cell}`}>
+        <td className={`order-1 min-w-0 basis-[calc(100%-2rem)] self-start ${cell}`}>
           {/* Long names stop at two lines; the detail lists every item in full. */}
           <p className="line-clamp-2 font-medium [overflow-wrap:anywhere]">{order.name}</p>
           <p className="flex flex-wrap gap-x-2 text-xs text-muted">
@@ -49,17 +49,17 @@ export function OrderRow({ order, expanded, onToggle }: { order: Order; expanded
             {order.productCount > 1 && <span>{t('orders.products', { n: order.productCount })}</span>}
           </p>
         </td>
-        <td className={`order-4 col-span-2 justify-self-end ${cell}`}>
+        <td className={`order-4 ${cell}`}>
           <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_TINT} ${STATUS_TONE[order.statusCode] ?? 'text-muted'}`}>
             <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
             {order.status}
           </span>
         </td>
-        <td className={`num order-5 col-span-3 whitespace-nowrap text-right ${cell}`}>
+        <td className={`num order-5 ml-auto whitespace-nowrap text-right ${cell}`}>
           <span className={excluded ? 'text-muted line-through' : 'font-medium'}>{money(order.subTotal)}</span>
-          {excluded && <span className="block text-xs text-bad">{t('orders.excluded')}</span>}
+          {excluded && <span className="ml-2 text-xs text-bad @5xl:ml-0 @5xl:block">{t('orders.excluded')}</span>}
         </td>
-        <td className={`order-2 justify-self-end ${cell} @5xl:pl-0 @5xl:pr-3`}>
+        <td className={`order-2 self-start ${cell} @5xl:pl-0 @5xl:pr-3`}>
           <button
             type="button"
             aria-expanded={expanded}
