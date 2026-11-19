@@ -170,7 +170,8 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
           id={`panel-${tab}`}
           aria-labelledby={`tab-${tab}`}
           tabIndex={-1}
-          className="col-span-full row-start-4 min-h-0 min-w-0 overflow-y-auto px-4 pb-8 pt-2 outline-none @3xl:row-start-3 @3xl:px-6 @6xl:row-start-2"
+          // relative: absolute children (sr-only labels) must be clipped here, or they stretch the page and add a 2nd scrollbar.
+          className="relative col-span-full row-start-4 min-h-0 min-w-0 overflow-y-auto px-4 pb-8 pt-2 outline-none @3xl:row-start-3 @3xl:px-6 @6xl:row-start-2"
         >
           <div className="mx-auto max-w-[104rem]">{content}</div>
         </main>
