@@ -8,9 +8,9 @@ const VARIANTS: Record<Variant, string> = {
   // Bordered, the same size as primary, for the actions stacked under it; the 1px border comes out of the padding.
   secondary:
     'w-full cursor-pointer rounded-xl border border-line bg-card px-4 py-[calc(0.75rem-1px)] text-base font-medium text-fg hover:border-muted disabled:cursor-not-allowed disabled:opacity-50',
-  // Primary colours at toolbar size, for the one action a toolbar leads with.
+  // Primary colours at toolbar size, for the one action a toolbar leads with. The transparent border matches outline's height.
   solid:
-    'cursor-pointer rounded-lg bg-accent-solid px-3 py-1.5 text-sm font-semibold text-on-accent hover:bg-accent-hover',
+    'cursor-pointer rounded-lg border border-transparent bg-accent-solid px-3 py-1.5 text-sm font-semibold text-on-accent hover:bg-accent-hover',
   // Compact bordered button for toolbars.
   outline:
     'cursor-pointer rounded-lg border border-line bg-card px-3 py-1.5 text-sm text-fg hover:border-muted disabled:cursor-not-allowed disabled:opacity-50',

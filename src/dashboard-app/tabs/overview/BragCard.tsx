@@ -4,7 +4,7 @@ import { t } from '../../../i18n/index.js';
 import type { ShareStyle } from '../../share-style';
 import { useShareCanvas } from './ShareDialog';
 
-const action = 'cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold';
+const action = 'cursor-pointer rounded-xl border px-4 py-2 text-sm font-semibold';
 
 /** The year's share image in the artwork and size picked last: a live thumbnail, one-click save, and a way into the full dialog. */
 export function BragCard({ data, year, style, onCustomize }: { data: ShareData; year: number; style: ShareStyle; onCustomize: () => void }) {
@@ -26,10 +26,10 @@ export function BragCard({ data, year, style, onCustomize }: { data: ShareData; 
         <h2 className="text-lg font-bold leading-snug">{t('share.card.title', { year })}</h2>
         <p className="mt-0.5 text-sm text-white/85">{t('share.card.sub')}</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button type="button" className={`${action} bg-white text-[#c8331a] hover:bg-white/90`} onClick={() => downloadShareImage(data, style.template, style.ratio)}>
+          <button type="button" className={`${action} border-white bg-white text-[#c8331a] hover:bg-white/90`} onClick={() => downloadShareImage(data, style.template, style.ratio)}>
             {t('share.download')}
           </button>
-          <button type="button" className={`${action} border border-white/60 hover:bg-white/10`} onClick={onCustomize}>
+          <button type="button" className={`${action} border-white/60 hover:bg-white/10`} onClick={onCustomize}>
             {t('share.customize')}
           </button>
         </div>

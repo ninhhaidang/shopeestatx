@@ -54,7 +54,7 @@ function BudgetForm({ initial, onSave, onCancel }: { initial: BudgetConfig; onSa
       {failed && <p role="alert" className="text-bad">{t('analysis.budget.saveError')}</p>}
       <div className="flex gap-2">
         <Button variant="outline" onClick={onCancel}>{t('budget.btn.close')}</Button>
-        <Button type="submit" className="!w-auto !px-5 !py-1.5 !text-sm">{t('budget.btn.save')}</Button>
+        <Button type="submit" variant="solid">{t('budget.btn.save')}</Button>
       </div>
     </form>
   );
