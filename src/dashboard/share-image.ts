@@ -3,6 +3,8 @@
 import type { Order } from '../types/index.js';
 import { computeOverview } from './overview.js';
 import type { Stats } from './stats.js';
+import { STORE_QR } from './store-qr.js';
+import { bestTier, type Tier } from './tier.js';
 import { formatCurrency } from '../i18n/format.js';
 import { t } from '../i18n/index.js';
 
@@ -28,6 +30,8 @@ export interface ShareData {
   orders: number;
   /** Set when the image sums up one calendar year: the header and hero say so. */
   year?: number;
+  /** The Shopee membership tier the orders meet (estimated), printed as a badge; null below Bạc. */
+  tier: Tier | null;
 }
 
 const FONT = '"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
@@ -64,7 +68,7 @@ function fit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, size
 /** What the image shows for these orders; `year` when they are exactly that year's. */
 export function shareDataOf(orders: Order[], financialAvailable: boolean, year?: number): ShareData {
   const overview = computeOverview(orders);
-  return { stats: overview.stats, financialAvailable, monthly: overview.monthly.map(m => m.total), orders: overview.orderCount, year };
+  return { stats: overview.stats, financialAvailable, monthly: overview.monthly.map(m => m.total), orders: overview.orderCount, year, tier: bestTier(orders) };
 }
 
 /** Up to four figures worth showing off: a zero or unknown one is left out, and Số đơn takes its place. */
@@ -80,17 +84,52 @@ function figures(data: ShareData): [string, string][] {
   return all.filter((figure): figure is [string, string] => figure[1] !== null).slice(0, 4);
 }
 
-/** Barcode stripes derived from the amount, so the same figure always prints the same code. */
-function barcode(ctx: CanvasRenderingContext2D, seed: number, x: number, y: number, w: number, h: number, color: string): void {
-  ctx.fillStyle = color;
-  let state = Math.max(1, Math.round(seed)) % 2147483647;
-  for (let at = x; at < x + w; ) {
-    state = (state * 48271) % 2147483647;
-    const bar = 3 + (state % 4) * 3;
-    const gap = 3 + ((state >> 3) % 3) * 3;
-    ctx.fillRect(at, y, Math.min(bar, x + w - at), h);
-    at += bar + gap;
-  }
+const TIER_LOOK: Record<Tier, { bg: string; fg: string }> = {
+  silver: { bg: '#dfe3e8', fg: '#14171c' },
+  gold: { bg: '#f6c343', fg: '#14171c' },
+  diamond: { bg: '#3d6bf0', fg: '#ffffff' },
+};
+
+/** The tier badge, right-aligned at (right, baseline). */
+function tierBadge(ctx: CanvasRenderingContext2D, tier: Tier, right: number, baseline: number, maxWidth: number, u: number): void {
+  const text = t('share.image.tier', { tier: t(`share.tier.${tier}`) });
+  ctx.font = `700 ${28 * u}px ${FONT}`;
+  const w = Math.min(maxWidth, ctx.measureText(text).width + 40 * u);
+  const h = 52 * u;
+  ctx.fillStyle = TIER_LOOK[tier].bg;
+  ctx.beginPath();
+  ctx.roundRect(right - w, baseline - 37 * u, w, h, h / 2);
+  ctx.fill();
+  ctx.fillStyle = TIER_LOOK[tier].fg;
+  ctx.textAlign = 'center';
+  ctx.fillText(text, right - w / 2, baseline - 1 * u, w - 40 * u);
+}
+
+/** The store's QR code on a white tile (scanners need light around it), with an invitation beside it. */
+function storeFooter(ctx: CanvasRenderingContext2D, look: Look, x: number, y: number, w: number, size: number, u: number): void {
+  const quiet = 2;
+  const count = STORE_QR.length + 2 * quiet;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.roundRect(x, y, size, size, 10 * u);
+  ctx.fill();
+  ctx.fillStyle = '#14171c';
+  // Whole-pixel edges, so neighbouring modules never leave hairline seams.
+  const at = (i: number) => Math.round((i * size) / count);
+  STORE_QR.forEach((row, r) => {
+    for (let c = 0; c < row.length; c++) {
+      if (row[c] === '#') ctx.fillRect(x + at(c + quiet), y + at(r + quiet), at(c + quiet + 1) - at(c + quiet), at(r + quiet + 1) - at(r + quiet));
+    }
+  });
+  const textX = x + size + 28 * u;
+  const textW = w - size - 28 * u;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = look.fg;
+  ctx.font = `700 ${32 * u}px ${FONT}`;
+  ctx.fillText(t('share.image.cta'), textX, y + size / 2 - 6 * u, textW);
+  ctx.fillStyle = look.muted;
+  ctx.font = `500 ${24 * u}px ${FONT}`;
+  ctx.fillText(t('share.image.store'), textX, y + size / 2 + 32 * u, textW);
 }
 
 function monthBars(ctx: CanvasRenderingContext2D, values: number[], x: number, y: number, w: number, h: number, color: string): void {
@@ -187,7 +226,9 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   ctx.textAlign = 'right';
   ctx.fillStyle = template === 'label' ? '#ffffff' : look.muted;
   ctx.font = `500 ${28 * u}px ${FONT}`;
-  ctx.fillText(data.year ? t('share.image.year', { year: data.year }) : t('stats.share.title'), right, headY - 2 * u, inner * 0.55);
+  // The tier badge, when there is one, says more than the title; the hero label still names the year.
+  if (data.tier) tierBadge(ctx, data.tier, right, headY - 2 * u, inner * 0.55, u);
+  else ctx.fillText(data.year ? t('share.image.year', { year: data.year }) : t('stats.share.title'), right, headY - 2 * u, inner * 0.55);
   y += headerH + (template === 'label' ? 44 * u : 0);
 
   // What is left is shared out between the hero, the figures and (on tall sizes) the month strip.
@@ -195,14 +236,16 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   const columns = wide ? Math.max(1, cells.length) : 2;
   const rows = Math.ceil(cells.length / columns);
   const cellGap = 20 * u;
-  const cellH = (wide ? 150 : 172) * u;
+  // The square is the tightest fit, so its hero and figures are a little shorter.
+  const square = ratio === 'square';
+  const cellH = (wide || square ? 150 : 172) * u;
   const gridH = rows ? rows * cellH + (rows - 1) * cellGap : 0;
-  const heroH = 236 * u;
-  const codeH = template === 'label' && !wide ? 92 * u : 0;
-  const free = H - padBottom - y - heroH - gridH - codeH;
+  const heroH = (square ? 210 : 236) * u;
+  const footerH = 140 * u;
+  const free = H - padBottom - y - heroH - gridH - footerH;
   const showBars = !wide && data.monthly.length > 1 && free > 300 * u;
   const barsH = showBars ? Math.min(560 * u, free - 150 * u) : 0;
-  const gap = (free - barsH) / (2 + (showBars ? 1 : 0) + (codeH ? 1 : 0));
+  const gap = (free - barsH) / (3 + (showBars ? 1 : 0));
 
   // Hero: net spend.
   y += gap;
@@ -213,7 +256,7 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   ctx.fillStyle = look.fg;
   const amount = formatCurrency(data.stats.netSpend);
   fit(ctx, amount, inner, 152 * u, 700);
-  ctx.fillText(amount, left, y + 200 * u, inner);
+  ctx.fillText(amount, left, y + heroH - 36 * u, inner);
   y += heroH;
 
   if (showBars) {
@@ -233,7 +276,7 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   });
   y += gridH;
 
-  if (codeH) barcode(ctx, data.stats.netSpend, left, y + gap, inner, codeH, look.bars);
+  storeFooter(ctx, look, left, y + gap, inner, footerH, u);
 }
 
 /** Puts the PNG on the clipboard, ready to paste into a chat. Rejects where the browser refuses. */

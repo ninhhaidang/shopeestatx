@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { drawShareImage, SHARE_RATIOS, SHARE_TEMPLATES, type ShareRatio, type ShareTemplate } from '../src/dashboard/share-image';
 import type { Stats } from '../src/dashboard/stats';
+import type { Tier } from '../src/dashboard/tier';
+
+const FOOTER = ['Xem chi tiêu Shopee của bạn', 'Quét mã: ShopeeStatX trên Chrome Web Store'];
 
 const stats: Stats = {
   netSpend: 12_345_000,
@@ -17,14 +20,14 @@ const stats: Stats = {
 const monthly = [100_000, 0, 300_000];
 
 /** Canvas stand-in that records every string drawn; every other drawing call is accepted and ignored. */
-function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', orders = 42, year?: number) {
+function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', orders = 42, year?: number, tier: Tier | null = null) {
   const texts: string[] = [];
   const ctx = new Proxy({} as Record<string, unknown>, {
     get: (_, key) => (key === 'fillText' ? (text: string) => texts.push(text) : key === 'measureText' ? () => ({ width: 100 }) : () => {}),
     set: () => true,
   }) as unknown as CanvasRenderingContext2D;
   const canvas = { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement;
-  drawShareImage(canvas, { stats: s, financialAvailable, monthly, orders, year }, template, ratio);
+  drawShareImage(canvas, { stats: s, financialAvailable, monthly, orders, year, tier }, template, ratio);
   return { canvas, texts };
 }
 
@@ -42,8 +45,8 @@ describe('share image', () => {
     expect(drawn).not.toContain('0 ₫');
     expect(drawn).not.toContain('—');
     expect(drawn).toEqual(expect.arrayContaining(['Ngày hay nhận hàng', 'Chuỗi tháng liên tục', 'Số đơn', '42 đơn']));
-    // Brand, title, hero label and amount, then three figures of two strings.
-    expect(drawn).toHaveLength(10);
+    // Brand, title, hero label and amount, three figures of two strings, the store footer.
+    expect(drawn).toHaveLength(12);
   });
 
   it.each(combos)('%s / %s draws the brand, the net spend hero and the four headline figures, and nothing else', (template, ratio) => {
@@ -62,21 +65,31 @@ describe('share image', () => {
     expect(drawn).toContain('Thứ 7');
     expect(drawn).toContain('Chuỗi tháng liên tục');
     expect(drawn).toContain('5 tháng');
-    // No product names, prices, counts or month figures: only the twelve strings above.
-    expect(texts).toHaveLength(12);
+    expect(drawn).toEqual(expect.arrayContaining(FOOTER));
+    // No product names, prices, counts or month figures: only the fourteen strings above.
+    expect(texts).toHaveLength(14);
     expect(texts.join('|')).not.toMatch(/bí mật|9\.999\.000|40\.000|300\.000/);
     expect([canvas.width, canvas.height]).toEqual(SHARE_RATIOS[ratio]);
   });
 
   it('draws only the hero when no figure has anything to show', () => {
     const { texts } = draw({ ...stats, refundTotal: 0, estimatedSavings: 0, busiestWeekday: null, longestMonthStreak: 0 }, true, 'label', 'square', 0);
-    expect(texts.map(normalize)).toEqual(['ShopeeStatX', 'Chi tiêu Shopee của tôi', 'Chi tiêu ròng', '12.345.000 ₫']);
+    expect(texts.map(normalize)).toEqual(['ShopeeStatX', 'Chi tiêu Shopee của tôi', 'Chi tiêu ròng', '12.345.000 ₫', ...FOOTER]);
   });
 
   it('names the year on a year-end image', () => {
     const { texts } = draw(stats, true, 'label', 'square', 42, 2026);
     expect(texts.slice(0, 3)).toEqual(['ShopeeStatX', 'Tổng kết Shopee 2026', 'Chi tiêu ròng năm 2026']);
     expect(texts).not.toContain('Chi tiêu Shopee của tôi');
+  });
+
+  it.each([
+    ['silver', 'Bạc'],
+    ['gold', 'Vàng'],
+    ['diamond', 'Kim Cương'],
+  ] as const)('prints the %s tier badge in place of the title', (tier, name) => {
+    const { texts } = draw(stats, true, 'night', 'story', 42, 2026, tier);
+    expect(texts.slice(0, 3)).toEqual(['ShopeeStatX', `Đạt chuẩn hạng ${name}`, 'Chi tiêu ròng năm 2026']);
   });
 
   it('sizes the artwork for social feeds, stories and link previews', () => {
