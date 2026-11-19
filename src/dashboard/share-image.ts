@@ -22,6 +22,8 @@ export interface ShareData {
   financialAvailable: boolean;
   /** Net spend per month of the selected range, oldest first; drawn as a small bar strip on tall sizes. */
   monthly: number[];
+  /** Orders of the selected range, counted like the Số đơn tile; fills in for a figure with nothing to show. */
+  orders: number;
 }
 
 const FONT = '"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
@@ -55,15 +57,17 @@ function fit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, size
   }
 }
 
+/** Up to four figures worth showing off: a zero or unknown one is left out, and Số đơn takes its place. */
 function figures(data: ShareData): [string, string][] {
-  const { stats, financialAvailable } = data;
-  const none = t('stats.none');
-  return [
-    [t('stats.savings'), financialAvailable ? formatCurrency(stats.estimatedSavings) : none],
-    [t('stats.refund'), financialAvailable ? formatCurrency(stats.refundTotal) : none],
-    [t('stats.weekday'), stats.busiestWeekday === null ? none : t(`stats.weekday.${stats.busiestWeekday}`)],
-    [t('stats.streak'), stats.longestMonthStreak ? t('stats.streak.unit', { n: stats.longestMonthStreak }) : none],
+  const { stats, financialAvailable, orders } = data;
+  const all: [string, string | null][] = [
+    [t('stats.savings'), financialAvailable && stats.estimatedSavings > 0 ? formatCurrency(stats.estimatedSavings) : null],
+    [t('stats.refund'), financialAvailable && stats.refundTotal > 0 ? formatCurrency(stats.refundTotal) : null],
+    [t('stats.weekday'), stats.busiestWeekday === null ? null : t(`stats.weekday.${stats.busiestWeekday}`)],
+    [t('stats.streak'), stats.longestMonthStreak ? t('stats.streak.unit', { n: stats.longestMonthStreak }) : null],
+    [t('dash.overview.orders'), orders > 0 ? t('popup.orders', { n: orders.toLocaleString('vi-VN') }) : null],
   ];
+  return all.filter((figure): figure is [string, string] => figure[1] !== null).slice(0, 4);
 }
 
 /** Barcode stripes derived from the amount, so the same figure always prints the same code. */
@@ -178,10 +182,11 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
 
   // What is left is shared out between the hero, the figures and (on tall sizes) the month strip.
   const cells = figures(data);
-  const columns = wide ? 4 : 2;
+  const columns = wide ? Math.max(1, cells.length) : 2;
+  const rows = Math.ceil(cells.length / columns);
   const cellGap = 20 * u;
   const cellH = (wide ? 150 : 172) * u;
-  const gridH = (cells.length / columns) * cellH + (cells.length / columns - 1) * cellGap;
+  const gridH = rows ? rows * cellH + (rows - 1) * cellGap : 0;
   const heroH = 236 * u;
   const codeH = template === 'label' && !wide ? 92 * u : 0;
   const free = H - padBottom - y - heroH - gridH - codeH;
@@ -209,15 +214,25 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
     y += barsH;
   }
 
-  // Four headline figures.
+  // Up to four headline figures; an odd last one takes the whole row.
   y += gap;
   const cellW = (inner - (columns - 1) * cellGap) / columns;
   cells.forEach((figure, i) => {
-    cell(ctx, look, template, figure, left + (i % columns) * (cellW + cellGap), y + Math.floor(i / columns) * (cellH + cellGap), cellW, cellH, u);
+    const w = i === cells.length - 1 && i % columns === 0 ? inner : cellW;
+    cell(ctx, look, template, figure, left + (i % columns) * (cellW + cellGap), y + Math.floor(i / columns) * (cellH + cellGap), w, cellH, u);
   });
   y += gridH;
 
   if (codeH) barcode(ctx, data.stats.netSpend, left, y + gap, inner, codeH, look.bars);
+}
+
+/** Puts the PNG on the clipboard, ready to paste into a chat. Rejects where the browser refuses. */
+export async function copyShareImage(data: ShareData, template: ShareTemplate, ratio: ShareRatio): Promise<void> {
+  const canvas = document.createElement('canvas');
+  drawShareImage(canvas, data, template, ratio);
+  // The blob is handed over as a promise so the write still counts as part of the click.
+  const png = new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => (blob ? resolve(blob) : reject(new Error('toBlob'))), 'image/png'));
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
 }
 
 export function downloadShareImage(data: ShareData, template: ShareTemplate, ratio: ShareRatio): void {

@@ -12,13 +12,18 @@ Dashboard có ba màn hình ở thanh điều hướng phía trên: **Tổng qua
 
 Bộ chọn **Khoảng thời gian** ở đầu trang áp dụng cho cả ba màn hình: chọn nhanh (Tất cả, 7 ngày gần nhất, tháng này, tháng trước, 3 tháng gần nhất, năm nay), chọn theo năm hoặc theo tháng, hoặc nhập **Từ ngày / Đến ngày**. Nếu khoảng đã chọn không có đơn, bấm **Xem tất cả** để quay lại.
 
+## 📸 Tạo ảnh khoe
+
+- Bấm **Tạo ảnh khoe** trên thanh công cụ của dashboard, hoặc trong popup khi đã có dữ liệu lưu.
+- Chọn mẫu và tỉ lệ, rồi **Sao chép ảnh** để dán thẳng vào Zalo, Messenger hay bài đăng, hoặc **Tải PNG** để lưu về máy.
+- Ảnh chỉ gồm số liệu tổng hợp, không có tên shop, mã đơn hay tên sản phẩm; ô bằng 0 hoặc thiếu dữ liệu không được in lên ảnh.
+
 ## 📊 Tổng quan
 
 - **Chi tiêu ròng**: tổng chi tiêu của các đơn hợp lệ, kèm mức tăng/giảm so với tháng trước và năm trước.
 - Bốn ô số liệu: **Số đơn**, **Trung bình/đơn**, **Hoàn tiền**, **Tiết kiệm ước tính**.
 - Biểu đồ **Chi tiêu theo tháng** với đường trung bình mỗi tháng; bấm một cột để xem riêng tháng đó, hoặc chọn **Bảng số liệu** để xem dạng bảng.
 - **Top shop**: bấm một shop để mở danh sách đơn của shop đó.
-- **Tạo ảnh chia sẻ** tạo ảnh PNG chỉ gồm số liệu tổng hợp, không có tên shop, mã đơn hay tên sản phẩm.
 
 > Đơn **đã hủy**, **trả hàng** và **chờ thanh toán** không tính vào chi tiêu. **Tiết kiệm ước tính** là tổng giá sản phẩm trừ số đã trả; Shopee không cho biết riêng voucher hay freeship (xem [docs/shopee-order-api.md](../shopee-order-api.md)).
 

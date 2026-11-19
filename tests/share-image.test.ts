@@ -17,14 +17,14 @@ const stats: Stats = {
 const monthly = [100_000, 0, 300_000];
 
 /** Canvas stand-in that records every string drawn; every other drawing call is accepted and ignored. */
-function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square') {
+function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', orders = 42) {
   const texts: string[] = [];
   const ctx = new Proxy({} as Record<string, unknown>, {
     get: (_, key) => (key === 'fillText' ? (text: string) => texts.push(text) : key === 'measureText' ? () => ({ width: 100 }) : () => {}),
     set: () => true,
   }) as unknown as CanvasRenderingContext2D;
   const canvas = { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement;
-  drawShareImage(canvas, { stats: s, financialAvailable, monthly }, template, ratio);
+  drawShareImage(canvas, { stats: s, financialAvailable, monthly, orders }, template, ratio);
   return { canvas, texts };
 }
 
@@ -32,13 +32,18 @@ const normalize = (s: string) => s.replace(/[\u00a0\u202f]/g, ' ');
 const combos = SHARE_TEMPLATES.flatMap(template => (Object.keys(SHARE_RATIOS) as ShareRatio[]).map(ratio => [template, ratio] as const));
 
 describe('share image', () => {
-  it('marks unavailable financial figures unknown without hiding known zero values', () => {
-    const zeroStats = { ...stats, refundTotal: 0, estimatedSavings: 0 };
-    const unknown = draw(zeroStats, false).texts.map(normalize);
-    expect(unknown.filter(text => text === '—')).toHaveLength(2);
-    expect(unknown).not.toContain('0 ₫');
-    const known = draw(zeroStats).texts.map(normalize);
-    expect(known.filter(text => text === '0 ₫')).toHaveLength(2);
+  it.each([
+    ['zero', { ...stats, refundTotal: 0, estimatedSavings: 0 }, true],
+    ['unknown', stats, false],
+  ] as const)('leaves %s financial figures off the image and lets Số đơn take a place', (_, s, financialAvailable) => {
+    const drawn = draw(s, financialAvailable).texts.map(normalize);
+    expect(drawn).not.toContain('Tiết kiệm ước tính');
+    expect(drawn).not.toContain('Hoàn tiền');
+    expect(drawn).not.toContain('0 ₫');
+    expect(drawn).not.toContain('—');
+    expect(drawn).toEqual(expect.arrayContaining(['Ngày hay nhận hàng', 'Chuỗi tháng liên tục', 'Số đơn', '42 đơn']));
+    // Brand, title, hero label and amount, then three figures of two strings.
+    expect(drawn).toHaveLength(10);
   });
 
   it.each(combos)('%s / %s draws the brand, the net spend hero and the four headline figures, and nothing else', (template, ratio) => {
@@ -63,9 +68,9 @@ describe('share image', () => {
     expect([canvas.width, canvas.height]).toEqual(SHARE_RATIOS[ratio]);
   });
 
-  it('shows a dash where there is no weekday or streak', () => {
-    const { texts } = draw({ ...stats, busiestWeekday: null, longestMonthStreak: 0 });
-    expect(texts.filter(text => text === '—')).toHaveLength(2);
+  it('draws only the hero when no figure has anything to show', () => {
+    const { texts } = draw({ ...stats, refundTotal: 0, estimatedSavings: 0, busiestWeekday: null, longestMonthStreak: 0 }, true, 'label', 'square', 0);
+    expect(texts.map(normalize)).toEqual(['ShopeeStatX', 'Chi tiêu Shopee của tôi', 'Chi tiêu ròng', '12.345.000 ₫']);
   });
 
   it('sizes the artwork for social feeds, stories and link previews', () => {

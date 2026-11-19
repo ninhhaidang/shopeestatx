@@ -2,6 +2,7 @@ import { Dialog, DialogBackdrop, DialogClose, DialogContent, DialogTitle } from 
 import { SegmentedControl, SegmentedControlItem } from '@ui-sdk/react/segmented-control';
 import { useEffect, useId, useRef, useState } from 'react';
 import {
+  copyShareImage,
   downloadShareImage,
   drawShareImage,
   SHARE_RATIOS,
@@ -35,11 +36,12 @@ function Choice<T extends string>({ label, options, value, onChange, name }: { l
   );
 }
 
-/** Pick an artwork and a size, see it, download it. The image is only saved to the computer. */
+/** Pick an artwork and a size, see it, copy or download it. The image only goes to the clipboard or the computer. */
 export function ShareDialog({ data, onClose }: { data: ShareData; onClose: () => void }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [template, setTemplate] = useState<ShareTemplate>('label');
   const [ratio, setRatio] = useState<ShareRatio>('square');
+  const [copied, setCopied] = useState<'done' | 'failed' | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -51,6 +53,9 @@ export function ShareDialog({ data, onClose }: { data: ShareData; onClose: () =>
       live = false;
     };
   }, [data, template, ratio]);
+  useEffect(() => setCopied(null), [template, ratio]);
+
+  const copy = () => copyShareImage(data, template, ratio).then(() => setCopied('done'), () => setCopied('failed'));
 
   return (
     <Dialog open onOpenChange={open => !open && onClose()}>
@@ -71,7 +76,9 @@ export function ShareDialog({ data, onClose }: { data: ShareData; onClose: () =>
             </div>
             <p className="text-xs text-muted">{t('share.privacy')}</p>
             <div className="mt-auto flex flex-col gap-2">
-              <Button onClick={() => downloadShareImage(data, template, ratio)}>{t('share.download')}</Button>
+              <p role="status" className={`text-sm ${copied === 'failed' ? 'text-bad' : 'text-good'}`}>{copied && t(`share.copy.${copied}`)}</p>
+              <Button onClick={() => void copy()}>{t('share.copy')}</Button>
+              <Button variant="outline" className="py-2.5" onClick={() => downloadShareImage(data, template, ratio)}>{t('share.download')}</Button>
               <DialogClose render={<Button variant="outline" className="py-2.5" />}>{t('share.close')}</DialogClose>
             </div>
           </div>

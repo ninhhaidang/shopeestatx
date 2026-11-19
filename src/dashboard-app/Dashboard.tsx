@@ -1,6 +1,8 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@ui-sdk/react/tabs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { orderYears } from '../dashboard/month.js';
+import { computeOverview } from '../dashboard/overview.js';
+import { needsRescan } from '../dashboard/stats.js';
 import { filterByRange, resolveRange, type RangeSelection } from '../dashboard/range.js';
 import { t } from '../i18n/index.js';
 import { Button } from '../ui/components/Button';
@@ -12,6 +14,7 @@ import { DashboardContext, type OrdersFilter } from './context';
 import type { DashboardHost } from './host';
 import { OverviewSkeleton } from './OverviewSkeleton';
 import { RangePicker } from './RangePicker';
+import { ShareDialog } from './tabs/overview/ShareDialog';
 import { TABS, type TabId } from './tabs';
 import { formatUpdated } from './updated';
 import { useOrderData } from './useOrderData';
@@ -20,7 +23,7 @@ const ALL_TIME: RangeSelection = { preset: 'all' };
 const currentTime = () => new Date();
 
 /**
- * Dashboard root: top bar (logo, tabs, global date range, refresh, theme) and the active screen.
+ * Dashboard root: top bar (logo, tabs, global date range, refresh, share image, theme) and the active screen.
  * One layout for every width: below the container's 48rem the tabs take their own row under the logo
  * and the toolbar wraps under them (container queries, ADR-0002).
  */
@@ -57,6 +60,19 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const range = useMemo(() => resolveRange(selection, clock), [selection, clock]);
   const years = useMemo(() => (data ? orderYears(data.orders) : []), [data]);
   const orders = useMemo(() => (data ? filterByRange(data.orders, range) : []), [data, range]);
+  const canShare = phase === 'ready' && orders.length > 0;
+  const [sharing, setSharing] = useState(false);
+  const sharedOnOpen = useRef(false);
+  useEffect(() => {
+    if (!host.shareOnOpen || sharedOnOpen.current || !canShare) return;
+    sharedOnOpen.current = true;
+    setSharing(true);
+  }, [host, canShare]);
+  const shareData = useMemo(() => {
+    if (!sharing || !data || !canShare) return null;
+    const overview = computeOverview(orders);
+    return { stats: overview.stats, financialAvailable: !needsRescan(data.orders), monthly: overview.monthly.map(m => m.total), orders: overview.orderCount };
+  }, [sharing, data, orders, canShare]);
   const context = useMemo(() => {
     if (!data) return null;
     const showOrders = (filter: OrdersFilter) => {
@@ -146,6 +162,15 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
             </svg>
             <span className="@max-md:sr-only">{t('dash.refresh')}</span>
           </Button>
+          {canShare && (
+            <Button variant="solid" className="inline-flex items-center gap-1.5" onClick={() => setSharing(true)}>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+                <path d="M2.5 5.5a1 1 0 0 1 1-1h2l1-1.5h3l1 1.5h2a1 1 0 0 1 1 1v6.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1z" />
+                <circle cx="8" cy="8.5" r="2.25" />
+              </svg>
+              {t('share.open')}
+            </Button>
+          )}
           <div className="order-2 flex flex-col text-xs text-muted @3xl:order-none">
             {stamp && <span>{formatUpdated(stamp, clock)}</span>}
             <span role="status" className={notice?.kind === 'error' ? 'text-bad' : undefined}>{status}</span>
@@ -175,6 +200,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
           ))}
         </main>
       </Tabs>
+      {shareData && <ShareDialog data={shareData} onClose={() => setSharing(false)} />}
     </div>
   );
 }

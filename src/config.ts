@@ -47,6 +47,8 @@ export const STORAGE_KEYS = {
 
 /** localStorage (shared by extension pages, read synchronously): the token of the scan the popup asked for. */
 export const SCAN_REQUEST = getStorageKey('scan-request');
+/** Same, for the popup's "Tạo ảnh khoe": the dashboard opens the share dialog once. */
+export const SHARE_REQUEST = getStorageKey('share-request');
 
 // ============= Message Configuration =============
 

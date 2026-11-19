@@ -1,4 +1,4 @@
-import { getStorageKey, MESSAGE_SOURCE, SCAN_REQUEST, STORAGE_KEYS } from '../config.js';
+import { getStorageKey, MESSAGE_SOURCE, SCAN_REQUEST, SHARE_REQUEST, STORAGE_KEYS } from '../config.js';
 import { t } from '../i18n/index.js';
 import { mergeOrderData } from '../dashboard/merge.js';
 import type { OrderData } from '../types/index.js';
@@ -47,14 +47,21 @@ function accountsDiffer(cached: OrderData['user'], fresh: OrderData['user']): bo
   return Boolean(cached.username && fresh.username && cached.username !== fresh.username);
 }
 
-const requested = new URLSearchParams(window.location.search).get('fetch');
-// One scan per popup click: a reload, or the side panel reopened on the same path, finds the token spent and reads the cache.
-const scanOnOpen = requested !== null && requested === localStorage.getItem(SCAN_REQUEST);
-if (scanOnOpen) localStorage.removeItem(SCAN_REQUEST);
-if (requested !== null) history.replaceState(null, '', window.location.pathname);
+const params = new URLSearchParams(window.location.search);
+/** One action per popup click: a reload, or the side panel reopened on the same path, finds the token spent. */
+function claim(param: string, key: string): boolean {
+  const requested = params.get(param);
+  const claimed = requested !== null && requested === localStorage.getItem(key);
+  if (claimed) localStorage.removeItem(key);
+  return claimed;
+}
+const scanOnOpen = claim('fetch', SCAN_REQUEST);
+const shareOnOpen = claim('share', SHARE_REQUEST);
+if (window.location.search) history.replaceState(null, '', window.location.pathname);
 
 export const chromeHost: DashboardHost = {
   scanOnOpen,
+  shareOnOpen,
 
   // A side panel is an extension page outside any tab.
   inSidePanel: async () => (await chrome.tabs.getCurrent()) === undefined,

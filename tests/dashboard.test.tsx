@@ -10,7 +10,7 @@ import { makeData, makeOrder } from './support/orders';
 import { renderSurface } from './support/render';
 
 // The artwork is drawn on a canvas jsdom does not have; what the dialog asks for is asserted.
-const shareImage = vi.hoisted(() => ({ downloadShareImage: vi.fn(), drawShareImage: vi.fn() }));
+const shareImage = vi.hoisted(() => ({ copyShareImage: vi.fn(), downloadShareImage: vi.fn(), drawShareImage: vi.fn() }));
 vi.mock('../src/dashboard/share-image', async original => ({ ...(await original<typeof import('../src/dashboard/share-image')>()), ...shareImage }));
 
 const NOW = new Date(2026, 9, 24, 12, 0); // 24 Oct 2026, noon
@@ -46,6 +46,7 @@ beforeEach(() => {
   delete document.documentElement.dataset.theme;
   mockColorScheme('light');
   shareImage.downloadShareImage.mockClear();
+  shareImage.copyShareImage.mockReset();
 });
 
 describe('Tổng quan', () => {
@@ -164,17 +165,37 @@ describe('Tổng quan', () => {
   it('creates the share image from the aggregate stats of the selected range, in the chosen artwork and size', async () => {
     const { user } = renderDashboard();
 
-    await user.click(await screen.findByRole('button', { name: 'Tạo ảnh chia sẻ' }));
-    const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh chia sẻ' }));
+    await user.click(await screen.findByRole('button', { name: 'Tạo ảnh khoe' }));
+    const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' }));
     await user.click(dialog.getByRole('radio', { name: 'Đêm' }));
     await user.click(dialog.getByRole('radio', { name: 'Story 9:16' }));
-    await user.click(dialog.getByRole('button', { name: 'Tải ảnh' }));
+    await user.click(dialog.getByRole('button', { name: 'Tải PNG' }));
 
     expect(shareImage.downloadShareImage).toHaveBeenCalledOnce();
     const [data, template, ratio] = shareImage.downloadShareImage.mock.calls[0];
-    expect(data).toMatchObject({ stats: { netSpend: 1_300_000 }, financialAvailable: true });
+    expect(data).toMatchObject({ stats: { netSpend: 1_300_000 }, financialAvailable: true, orders: 4 });
     expect(data.monthly.at(-1)).toBe(450_000);
     expect([template, ratio]).toEqual(['night', 'story']);
+  });
+
+  it('copies the image from any screen and says whether the browser allowed it', async () => {
+    shareImage.copyShareImage.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('denied'));
+    const { user } = renderDashboard();
+
+    await user.click(await screen.findByRole('tab', { name: 'Phân tích' }));
+    await user.click(screen.getByRole('button', { name: 'Tạo ảnh khoe' }));
+    const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' }));
+    await user.click(dialog.getByRole('button', { name: 'Sao chép ảnh' }));
+    expect(await dialog.findByText(/Đã sao chép/)).toBeInTheDocument();
+    await user.click(dialog.getByRole('button', { name: 'Sao chép ảnh' }));
+    expect(await dialog.findByText(/Hãy dùng Tải PNG/)).toBeInTheDocument();
+    expect(shareImage.copyShareImage).toHaveBeenCalledWith(expect.objectContaining({ orders: 4 }), 'label', 'square');
+  });
+
+  it('opens the share dialog by itself when the popup asked for it', async () => {
+    renderDashboard(makeHost({ shareOnOpen: true }));
+
+    expect(await screen.findByRole('dialog', { name: 'Tạo ảnh khoe' })).toBeInTheDocument();
   });
 
   it('shows "—" and a re-scan prompt for Hoàn tiền and Tiết kiệm when the cache predates them', async () => {

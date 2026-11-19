@@ -8,7 +8,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Nút «Bắt đầu phân tích» mở dashboard trong bảng bên (side panel) của Chrome, cạnh trang Shopee, để lấy lịch sử đơn hàng từ phiên đăng nhập Shopee đang có; nếu Chrome không mở được bảng bên thì mở ở tab mới. Mỗi lần bấm chỉ quét một lần: tải lại hay mở lại bảng bên sau đó đọc dữ liệu đã lưu.
 - Trong bảng bên, nút «Mở toàn màn hình» (biểu tượng ↗ cạnh bộ chọn giao diện) mở dashboard ở tab mới và đóng bảng bên.
 - Popup chỉ cho bắt đầu khi URL tab hiện tại dùng HTTPS và hostname đúng là `shopee.vn` (không nhận HTTP hay tên miền con, vì bộ thu thập chỉ đọc được từ origin này); chuỗi `shopee.vn` trong đường dẫn, query hoặc hostname giả không đủ. Khi chưa ở trang phù hợp, popup hiển thị lời nhắc mở Shopee, đăng nhập và thay nút bắt đầu bằng nút mở Shopee.
-- Khi đã có dữ liệu lưu trên máy, popup hiện số đơn (đếm như ô «Số đơn» của dashboard, không tính đơn huỷ, trả hàng, chưa thanh toán) cùng thời điểm cập nhật, và có nút «Mở dashboard (dữ liệu đã lưu)» mở dashboard (bảng bên, hoặc tab mới nếu không mở được) trên dữ liệu đó mà không quét lại Shopee, kể cả khi tab hiện tại không phải Shopee.
+- Khi đã có dữ liệu lưu trên máy, popup hiện số đơn (đếm như ô «Số đơn» của dashboard, không tính đơn huỷ, trả hàng, chưa thanh toán) cùng thời điểm cập nhật, và có nút «Mở dashboard (dữ liệu đã lưu)» mở dashboard (bảng bên, hoặc tab mới nếu không mở được) trên dữ liệu đó mà không quét lại Shopee, kể cả khi tab hiện tại không phải Shopee. Khi đó nút chính của popup là «Tạo ảnh khoe»: mở dashboard trên dữ liệu đã lưu và mở ngay hộp tạo ảnh (chỉ một lần, mở lại bảng bên sau đó không tự mở hộp nữa); «Mở dashboard (dữ liệu đã lưu)» đứng sau nó, còn «Bắt đầu phân tích» hoặc «Mở Shopee» chuyển thành nút viền.
 - Popup có liên kết ủng hộ, GitHub, đánh giá tiện ích, hướng dẫn và chính sách bảo mật, xếp thành danh sách: › mở trang trong tiện ích, ↗ mở trang ngoài.
 - Popup có bộ chọn giao diện Sáng và Tối.
 
@@ -50,7 +50,6 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Danh sách năm shop có Chi tiêu ròng cao nhất hiển thị thứ hạng, tên shop, số đơn hàng, số tiền và thanh so sánh trong khoảng đang chọn.
 - Mỗi shop trong Top shop là một nút: bấm mở tab Đơn hàng đã lọc sẵn theo shop đó (cùng khoảng thời gian) và đưa focus về tab Đơn hàng. Rê chuột hoặc focus bằng bàn phím làm sáng cả dòng và thay «N đơn» bằng «Xem đơn hàng ›». Vào tab Đơn hàng bằng thanh tab thì không lọc sẵn.
 - Shop được nhóm theo định danh shop khi có, nếu thiếu dùng định danh người bán trong lịch sử cũ (đơn cũ thiếu định danh shop được gán định danh của đơn khác cùng người bán khi có); tên hiển thị trùng nhau không làm gộp hai người bán và tên chứa dấu phân cách được giữ đầy đủ.
-- Nút «Tạo ảnh chia sẻ» nằm trong khối Top shop của màn hình Tổng quan và mở hộp chọn mẫu, tỉ lệ kèm xem trước.
 
 ## Phân tích
 
@@ -97,11 +96,12 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 
 ## Chia sẻ ảnh
 
-- Hộp tạo ảnh cho chọn một trong ba mẫu (Vận đơn, Cam, Đêm) và một trong bốn tỉ lệ: vuông 1080×1080, dọc 1080×1350, story 1080×1920, ngang 1200×630, rồi tải về ảnh PNG. Ảnh gồm Chi tiêu ròng, Hoàn tiền, Tiết kiệm ước tính, thứ có nhiều đơn hàng nhất và chuỗi tháng có đơn hàng dài nhất của khoảng đang chọn; các tỉ lệ dọc có thêm dải cột chi tiêu theo tháng (chỉ hình, không có số).
-- Khi lịch sử cũ thiếu số liệu Hoàn tiền hoặc Tiết kiệm ước tính, ảnh cũng hiển thị dấu thiếu dữ liệu thay vì 0₫.
+- Nút chính «Tạo ảnh khoe» nằm trên thanh công cụ của dashboard, thấy ở cả ba màn hình, khi khoảng đang chọn có đơn hàng; nút mở hộp chọn mẫu, tỉ lệ kèm xem trước.
+- Hộp tạo ảnh cho chọn một trong ba mẫu (Vận đơn, Cam, Đêm) và một trong bốn tỉ lệ: vuông 1080×1080, dọc 1080×1350, story 1080×1920, ngang 1200×630. Nút chính «Sao chép ảnh» đưa ảnh PNG vào clipboard để dán vào ứng dụng chat hay bài đăng và báo đã sao chép, hoặc báo lỗi kèm gợi ý dùng «Tải PNG» khi trình duyệt không cho; nút «Tải PNG» tải ảnh về máy.
+- Ảnh gồm Chi tiêu ròng của khoảng đang chọn và tối đa bốn ô số liệu, theo thứ tự Tiết kiệm ước tính, Hoàn tiền, thứ có nhiều đơn hàng nhất, chuỗi tháng có đơn hàng dài nhất, Số đơn. Ô bằng 0 hoặc thiếu dữ liệu (kể cả Hoàn tiền, Tiết kiệm ước tính khi lịch sử cũ chưa có) bị bỏ khỏi ảnh và ô kế tiếp lên thay; số ô lẻ thì ô cuối trải hết hàng. Các tỉ lệ dọc có thêm dải cột chi tiêu theo tháng (chỉ hình, không có số).
 - Ảnh chia sẻ chỉ chứa số liệu tổng hợp, không chứa tên tài khoản, tên shop, mã đơn hàng hoặc tên sản phẩm.
 - Ảnh chia sẻ dùng thương hiệu ShopeeStatX; mỗi mẫu có diện mạo cố định, không đổi theo chế độ giao diện đang chọn.
-- Tạo ảnh chỉ tải ảnh về máy, không tự đăng hoặc gửi dữ liệu lên mạng xã hội.
+- Tạo ảnh chỉ sao chép ảnh vào clipboard hoặc tải về máy, không tự đăng hoặc gửi dữ liệu lên mạng xã hội.
 
 ## Ngân sách và dự đoán
 

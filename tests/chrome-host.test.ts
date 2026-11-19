@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { chromeHost } from '../src/dashboard-app/chrome-host';
-import { SCAN_REQUEST, STORAGE_KEYS } from '../src/config';
+import { SCAN_REQUEST, SHARE_REQUEST, STORAGE_KEYS } from '../src/config';
 import type { OrderData, UserProfile } from '../src/types';
 import { makeData, makeOrder } from './support/orders';
 
@@ -69,6 +69,15 @@ describe('Chrome dashboard scan request', () => {
     localStorage.setItem(SCAN_REQUEST, 'new');
     expect((await load('?fetch=old')).scanOnOpen).toBe(false);
     expect(localStorage.getItem(SCAN_REQUEST)).toBe('new');
+  });
+
+  it('opens the share dialog once for the token the popup left, without scanning', async () => {
+    localStorage.setItem(SHARE_REQUEST, 'abc');
+
+    const host = await load('?share=abc');
+    expect([host.shareOnOpen, host.scanOnOpen]).toEqual([true, false]);
+    expect(window.location.search).toBe('');
+    expect((await load('?share=abc')).shareOnOpen).toBe(false);
   });
 });
 

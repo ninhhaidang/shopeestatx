@@ -1,10 +1,13 @@
 import type { ButtonHTMLAttributes } from 'react';
 
-type Variant = 'primary' | 'outline' | 'link' | 'quiet';
+type Variant = 'primary' | 'solid' | 'outline' | 'link' | 'quiet';
 
 const VARIANTS: Record<Variant, string> = {
   primary:
     'w-full rounded-xl bg-accent-solid px-4 py-3 text-base font-semibold text-on-accent hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50',
+  // Primary colours at toolbar size, for the one action a toolbar leads with.
+  solid:
+    'cursor-pointer rounded-lg bg-accent-solid px-3 py-1.5 text-sm font-semibold text-on-accent hover:bg-accent-hover',
   // Compact bordered button for toolbars.
   outline:
     'cursor-pointer rounded-lg border border-line bg-card px-3 py-1.5 text-sm text-fg hover:border-muted disabled:cursor-not-allowed disabled:opacity-50',

@@ -31,7 +31,7 @@ function RowContent({ children, external }: { children: ReactNode; external?: bo
   );
 }
 
-/** Popup launcher: account and cached-data summary, start (or Open Shopee), open the saved dashboard, links. */
+/** Popup launcher: account and cached-data summary, share image and saved dashboard (with cached orders), start (or Open Shopee), links. */
 export function Popup({ host, now = new Date() }: { host: PopupHost; now?: Date }) {
   const [user, setUser] = useState<PopupUser | null>(null);
   const [cache, setCache] = useState<PopupCache | null>(null);
@@ -86,22 +86,26 @@ export function Popup({ host, now = new Date() }: { host: PopupHost; now?: Date 
           </div>
         )}
 
+        {/* With cached orders the share image leads; scanning again becomes a secondary action. */}
+        {cache && (
+          <>
+            <Button onClick={() => host.openDashboard(true)}>{t('share.open')}</Button>
+            <Button variant="outline" className="py-2.5" onClick={() => host.openDashboard()}>
+              {t('popup.openDashboard')}
+            </Button>
+          </>
+        )}
+
         {onShopee === false ? (
           <>
             <p role="status" className="rounded-lg bg-warn-bg px-3 py-2 text-sm text-warn-fg">
               {t('popup.warning')}
             </p>
-            <Button onClick={() => host.openLogin()}>{t('popup.openShopee')}</Button>
+            <Button variant={cache ? 'outline' : undefined} className={cache ? 'py-2.5' : undefined} onClick={() => host.openLogin()}>{t('popup.openShopee')}</Button>
           </>
         ) : (
-          <Button disabled={onShopee !== true} onClick={() => void host.startAnalysis()}>
+          <Button variant={cache ? 'outline' : undefined} className={cache ? 'py-2.5' : undefined} disabled={onShopee !== true} onClick={() => void host.startAnalysis()}>
             {t('popup.btnStart')}
-          </Button>
-        )}
-
-        {cache && (
-          <Button variant="outline" className="py-2.5" onClick={() => host.openDashboard()}>
-            {t('popup.openDashboard')}
           </Button>
         )}
       </main>

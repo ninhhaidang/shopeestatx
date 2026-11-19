@@ -20,8 +20,8 @@ export interface PopupHost {
   isOnShopee(): Promise<boolean>;
   /** Remember the Shopee tab and open the dashboard (side panel, else a tab) to fetch orders. */
   startAnalysis(): Promise<void>;
-  /** Open the dashboard (side panel, else a tab) on the cached orders, without scanning Shopee. */
-  openDashboard(): void;
+  /** Open the dashboard (side panel, else a tab) on the cached orders, without scanning Shopee; `share` opens the share dialog. */
+  openDashboard(share?: boolean): void;
   openLogin(): void;
   openHelp(): void;
   openPrivacy(): void;

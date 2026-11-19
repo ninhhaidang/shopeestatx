@@ -3,7 +3,6 @@ import { computeOverview, monthChange, yearChange } from '../../dashboard/overvi
 import { rangeEnd } from '../../dashboard/range.js';
 import { needsRescan } from '../../dashboard/stats.js';
 import { t } from '../../i18n/index.js';
-import { Button } from '../../ui/components/Button';
 import { MonthChart, MonthMatrix, type MonthPoint } from '../../ui/components/MonthChart';
 import { RankList } from '../../ui/components/RankList';
 import { SegmentedControl, SegmentedControlItem } from '@ui-sdk/react/segmented-control';
@@ -13,13 +12,11 @@ import { RescanBanner } from '../components/RescanBanner';
 import { useDashboard } from '../context';
 import { money, shortMoney } from '../format';
 import { ChangeLine } from './overview/ChangeLine';
-import { ShareDialog } from './overview/ShareDialog';
 
-/** Tổng quan: Chi tiêu ròng with its comparisons and four figures, spend per month, top shops, share image. */
+/** Tổng quan: Chi tiêu ròng with its comparisons and four figures, spend per month, top shops. */
 export function OverviewTab() {
   const { data, orders, range, selection, setSelection, resetRange, now, showOrders } = useDashboard();
   const [view, setView] = useState<'chart' | 'table'>('chart');
-  const [sharing, setSharing] = useState(false);
   const overview = useMemo(() => computeOverview(orders), [orders]);
   // The month-over-month figure looks at the whole history, anchored on the range's last day (never in the future).
   const anchor = useMemo(() => rangeEnd(range, now), [range, now]);
@@ -119,20 +116,7 @@ export function OverviewTab() {
             share: shop.amount / topAmount,
           }))}
         />
-        <div className="mt-auto pt-5">
-          <div className="border-t border-line pt-4">
-          <p className="mb-2 text-xs text-muted">{t('share.pitch')}</p>
-          <Button variant="outline" className="w-full py-2.5 font-medium" onClick={() => setSharing(true)}>{t('stats.share')}</Button>
-          </div>
-        </div>
       </section>
-
-      {sharing && (
-        <ShareDialog
-          data={{ stats, financialAvailable: !stale, monthly: overview.monthly.map(m => m.total) }}
-          onClose={() => setSharing(false)}
-        />
-      )}
     </div>
   );
 }

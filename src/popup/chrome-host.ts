@@ -1,4 +1,4 @@
-import { getActiveDomainUrl, getLoginUrl, SCAN_REQUEST, STORAGE_KEYS } from '../config.js';
+import { getActiveDomainUrl, getLoginUrl, SCAN_REQUEST, SHARE_REQUEST, STORAGE_KEYS } from '../config.js';
 import { isExcludedOrder } from '../dashboard/order-status.js';
 import type { OrderData } from '../types/index.js';
 import type { PopupHost, PopupUser } from './host';
@@ -70,8 +70,15 @@ export const chromeHost: PopupHost = {
     window.close();
   },
 
-  async openDashboard() {
-    await openView(DASHBOARD);
+  async openDashboard(share = false) {
+    let path = DASHBOARD;
+    if (share) {
+      // One-time token, as for a scan: reopening the panel later must not bring the dialog back.
+      const token = crypto.randomUUID();
+      localStorage.setItem(SHARE_REQUEST, token);
+      path += `?share=${token}`;
+    }
+    await openView(path);
     window.close();
   },
 

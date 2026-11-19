@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import { Popup } from '../src/popup/Popup';
 import type { PopupHost } from '../src/popup/host';
 import { chromeHost } from '../src/popup/chrome-host';
-import { SCAN_REQUEST, STORAGE_KEYS } from '../src/config';
+import { SCAN_REQUEST, SHARE_REQUEST, STORAGE_KEYS } from '../src/config';
 import { renderSurface } from './support/render';
 import { mockColorScheme } from './support/match-media';
 
@@ -137,8 +137,19 @@ describe('Popup', () => {
 
     expect(await screen.findByText('1.234 đơn · Cập nhật: 2 giờ trước')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Mở dashboard (dữ liệu đã lưu)' }));
-    expect(host.openDashboard).toHaveBeenCalledOnce();
+    expect(host.openDashboard).toHaveBeenCalledWith();
     expect(host.startAnalysis).not.toHaveBeenCalled();
+  });
+
+  it('leads with the share image once orders are cached', async () => {
+    const host = makeHost({ getCache: vi.fn().mockResolvedValue({ orders: 3, updatedAt: '2026-11-17T10:00:00Z' }) });
+    const { user } = renderSurface(<Popup host={host} />);
+
+    await screen.findByRole('button', { name: 'Tạo ảnh khoe' });
+    const buttons = screen.getAllByRole('button').map(b => b.textContent);
+    expect(buttons.slice(0, 3)).toEqual(['Tạo ảnh khoe', 'Mở dashboard (dữ liệu đã lưu)', 'Bắt đầu phân tích']);
+    await user.click(screen.getByRole('button', { name: 'Tạo ảnh khoe' }));
+    expect(host.openDashboard).toHaveBeenCalledWith(true);
   });
 
   it('offers the saved dashboard off Shopee too, and not at all without cached orders', async () => {
@@ -239,6 +250,16 @@ describe('Chrome popup host opens the dashboard', () => {
     expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: `dashboard-app/dashboard.html?fetch=${token}`, enabled: true });
     expect(chrome.sidePanel.open).toHaveBeenCalledWith({ windowId: 3 });
     expect(chrome.tabs.create).not.toHaveBeenCalled();
+  });
+
+  it('opens the dashboard with a one-time share token', async () => {
+    const chrome = installChrome(async () => {});
+
+    await chromeHost.openDashboard(true);
+
+    const token = localStorage.getItem(SHARE_REQUEST);
+    expect(token).toBeTruthy();
+    expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: `dashboard-app/dashboard.html?share=${token}`, enabled: true });
   });
 
   it('falls back to a tab when Chrome refuses the side panel', async () => {

@@ -5,6 +5,8 @@ import type { OrderData } from '../types/index.js';
 export interface DashboardHost {
   /** Opened from the popup's "Bắt đầu phân tích": scan Shopee straight away instead of reading the cache. */
   readonly scanOnOpen: boolean;
+  /** Opened from the popup's "Tạo ảnh khoe": show the share dialog once the orders are in. */
+  readonly shareOnOpen?: boolean;
   /** Orders cached by the last scan, or null when there are none. */
   loadCached(): Promise<OrderData | null>;
   /**
