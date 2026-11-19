@@ -142,7 +142,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
           <Button variant="outline" disabled={phase === 'loading' || refreshing} onClick={orderData.refresh}>
             {t('dash.refresh')}
           </Button>
-          <div className="flex flex-col text-xs text-muted">
+          <div className="order-2 flex flex-col text-xs text-muted @3xl:order-none">
             {stamp && <span>{formatUpdated(stamp, clock)}</span>}
             <span role="status" className={notice?.kind === 'error' ? 'text-bad' : undefined}>{status}</span>
           </div>

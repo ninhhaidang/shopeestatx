@@ -54,7 +54,7 @@ export function MonthChart({ title, points, active, onSelect, formatValue, forma
     // jsdom has no ResizeObserver; the default width is fine there.
     if (!el || typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(([entry]) => {
-      setWidth(Math.max(280, entry.contentRect.width));
+      setWidth(Math.max(200, entry.contentRect.width));
       setHeight(Math.max(HEIGHT, entry.contentRect.height));
     });
     observer.observe(el);
@@ -218,48 +218,94 @@ export function MonthChart({ title, points, active, onSelect, formatValue, forma
   );
 }
 
-/** The same figures as a year-by-month grid: twelve columns, one row per year, the busier cells tinted. */
+/** Below this width the twelve month columns would scroll sideways, so the grid turns on its side. */
+const WIDE_MATRIX = 736;
+
+/**
+ * The same figures as a grid, the busier cells tinted: one row per year and twelve month columns,
+ * or, when narrow, one row per month and a column per year.
+ */
 export function MonthMatrix({ title, points, formatTick }: Pick<MonthChartProps, 'title' | 'points' | 'formatTick'>) {
+  const box = useRef<HTMLDivElement>(null);
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const el = box.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) => setNarrow(entry.contentRect.width < WIDE_MATRIX));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const years = [...new Set(points.map(p => p.year))];
   const byKey = new Map(points.map(p => [`${p.year}-${p.month}`, p.total]));
   const max = Math.max(1, ...points.map(p => p.total));
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const yearTotal = (year: number) => formatTick(points.reduce((sum, p) => (p.year === year ? sum + p.total : sum), 0));
+  const monthName = (m: number) => t('analysis.heatmap.month', { n: m });
+  const cell = (year: number, m: number) => {
+    const value = byKey.get(`${year}-${m}`);
+    return (
+      <td
+        key={`${year}-${m}`}
+        className={`rounded-md py-2 text-right ${narrow ? 'px-2' : 'px-1'} ${value ? '' : 'text-muted'}`}
+        style={value ? { background: `color-mix(in srgb, var(--accent) ${Math.round(6 + 34 * (value / max))}%, transparent)` } : undefined}
+      >
+        {value === undefined ? '' : value === 0 ? '–' : formatTick(value)}
+      </td>
+    );
+  };
   return (
-    <div role="region" aria-label={title} tabIndex={0} className="overflow-x-auto rounded-lg">
-      <table className="num w-full min-w-[46rem] border-separate border-spacing-0.5 text-xs">
-        <caption className="sr-only">{title}</caption>
-        <thead>
-          <tr className="text-muted">
-            <th scope="col" className="px-2 py-1.5 text-left font-medium">{t('dash.chart.year')}</th>
-            {months.map(m => (
-              <th key={m} scope="col" className="px-1 py-1.5 text-right font-medium">{t('analysis.heatmap.month', { n: m })}</th>
-            ))}
-            <th scope="col" className="px-2 py-1.5 text-right font-medium">{t('dash.chart.yearTotal')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {years.map(year => (
-            <tr key={year}>
-              <th scope="row" className="px-2 py-2 text-left text-sm font-semibold">{year}</th>
-              {months.map(m => {
-                const value = byKey.get(`${year}-${m}`);
-                return (
-                  <td
-                    key={m}
-                    className={`rounded-md px-1 py-2 text-right ${value ? '' : 'text-muted'}`}
-                    style={value ? { background: `color-mix(in srgb, var(--accent) ${Math.round(6 + 34 * (value / max))}%, transparent)` } : undefined}
-                  >
-                    {value === undefined ? '' : value === 0 ? '–' : formatTick(value)}
-                  </td>
-                );
-              })}
-              <td className="px-2 py-2 text-right text-sm font-semibold">
-                {formatTick(points.reduce((sum, p) => (p.year === year ? sum + p.total : sum), 0))}
-              </td>
+    // Still a scroller as a fallback, for many years of history in a narrow card.
+    <div ref={box} role="region" aria-label={title} tabIndex={0} className="relative overflow-x-auto rounded-lg">
+      {narrow ? (
+        <table className="num w-full border-separate border-spacing-0.5 text-xs">
+          <caption className="sr-only">{title}</caption>
+          <thead>
+            <tr className="text-muted">
+              <th scope="col" className="px-2 py-1.5 text-left font-medium">{t('dash.chart.month')}</th>
+              {years.map(year => (
+                <th key={year} scope="col" className="px-2 py-1.5 text-right text-sm font-semibold text-fg">{year}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {months.map(m => (
+              <tr key={m}>
+                <th scope="row" className="px-2 py-1.5 text-left font-medium text-muted">{monthName(m)}</th>
+                {years.map(year => cell(year, m))}
+              </tr>
+            ))}
+            <tr>
+              <th scope="row" className="px-2 py-2 text-left font-medium text-muted">{t('dash.chart.yearTotal')}</th>
+              {years.map(year => (
+                <td key={year} className="px-2 py-2 text-right text-sm font-semibold">{yearTotal(year)}</td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      ) : (
+        <table className="num w-full min-w-[46rem] border-separate border-spacing-0.5 text-xs">
+          <caption className="sr-only">{title}</caption>
+          <thead>
+            <tr className="text-muted">
+              <th scope="col" className="px-2 py-1.5 text-left font-medium">{t('dash.chart.year')}</th>
+              {months.map(m => (
+                <th key={m} scope="col" className="px-1 py-1.5 text-right font-medium">{monthName(m)}</th>
+              ))}
+              <th scope="col" className="px-2 py-1.5 text-right font-medium">{t('dash.chart.yearTotal')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {years.map(year => (
+              <tr key={year}>
+                <th scope="row" className="px-2 py-2 text-left text-sm font-semibold">{year}</th>
+                {months.map(m => cell(year, m))}
+                <td className="px-2 py-2 text-right text-sm font-semibold">{yearTotal(year)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

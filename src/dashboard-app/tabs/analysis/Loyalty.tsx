@@ -61,7 +61,7 @@ export function Loyalty({ orders, onSelect }: { orders: Order[]; onSelect: (shop
                       }}
                       title={shop.shopName}
                       aria-label={`${shop.shopName}, ${t('orders.open')}`}
-                      className="block max-w-full cursor-pointer truncate rounded text-left hover:underline"
+                      className="block max-w-full cursor-pointer rounded text-left break-words hover:underline @3xl:truncate"
                     >
                       {shop.shopName}
                     </button>

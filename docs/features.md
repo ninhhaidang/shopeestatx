@@ -15,6 +15,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Dashboard và khoảng thời gian
 
 - Dashboard chia thành ba màn hình Tổng quan, Phân tích và Đơn hàng, với thanh điều hướng và công cụ luôn nằm ngoài vùng nội dung cuộn.
+- Khổ hẹp, ô phụ của khoảng thời gian (năm và tháng, hoặc từ ngày và đến ngày) nằm trên một hàng riêng chia đôi ngay dưới bộ chọn khoảng và nút làm mới, thay vì đẩy nút làm mới xuống dòng thứ ba.
 - Các tab điều hướng luôn ở phía trên. Khổ hẹp (như bảng bên) chúng chiếm một hàng riêng ngay dưới logo, chia đều bề ngang, tab đang mở có gạch chân màu nhấn; không có thanh tab ở đáy màn hình.
 - Ở khổ trung gian, bộ lọc thời gian và nút làm mới có hàng riêng để không che các tab điều hướng; chỉ ghép lên một hàng khi có đủ chiều rộng.
 - Thanh đầu hiển thị thông tin tài khoản khi có dữ liệu và thời điểm cập nhật gần nhất.
@@ -45,7 +46,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - So sánh tháng và năm dùng toàn bộ lịch sử, lấy mốc ở cuối khoảng đang chọn nhưng không vượt quá ngày hiện tại.
 - Khi tháng hoặc năm của mốc chưa hết, so sánh tính cùng kỳ: chỉ cộng đến ngày của mốc ở cả hai bên (ví dụ «Tháng 11/2026, đến ngày 17 … so với cùng kỳ tháng 10/2026», «Năm 2026, đến 17/11 … so với cùng kỳ năm 2025»); ngày vượt quá tháng ngắn hơn dừng ở ngày cuối tháng đó. Tháng hoặc năm đã hết so với cả tháng hoặc cả năm trước. Nhận xét tự động ở Phân tích dùng cùng quy tắc.
 - Biểu đồ cột hiển thị Chi tiêu ròng theo tháng của toàn bộ lịch sử: cột thuộc khoảng đang chọn tô đậm, cột ngoài khoảng tô nhạt, tháng không có đơn nằm giữa vẫn có cột bằng 0, các năm được tách dải và ghi nhãn, tháng cao nhất có nhãn số, và một đường nét đứt có nhãn «Trung bình …/tháng» đánh dấu chi tiêu trung bình mỗi tháng của mọi tháng trên biểu đồ (kể cả tháng bằng 0). Biểu đồ cao tối thiểu như cũ và giãn theo chiều cao khối. Mỗi cột là tổng cả tháng, kể cả khi khoảng đang chọn chỉ chạm một phần tháng đó. Rê chuột hoặc dùng phím mũi tên hiện số tiền của tháng; bấm cột hoặc Enter chọn riêng tháng đó (tương đương «Theo tháng» trong bộ chọn khoảng thời gian), chọn lại tháng đang chọn trở về Tất cả.
-- Nút chuyển «Biểu đồ / Bảng số liệu» đổi biểu đồ thành bảng năm × 12 tháng kèm tổng cả năm ngay tại chỗ, không kéo dài trang.
+- Nút chuyển «Biểu đồ / Bảng số liệu» đổi biểu đồ thành bảng năm × 12 tháng kèm tổng cả năm ngay tại chỗ, không kéo dài trang. Khi khối hẹp (như bảng bên) bảng xoay lại: mỗi tháng một hàng, mỗi năm một cột, hàng cuối là tổng cả năm, nên không phải cuộn ngang.
 - Danh sách năm shop có Chi tiêu ròng cao nhất hiển thị thứ hạng, tên shop, số đơn hàng, số tiền và thanh so sánh trong khoảng đang chọn.
 - Mỗi shop trong Top shop là một nút: bấm mở tab Đơn hàng đã lọc sẵn theo shop đó (cùng khoảng thời gian) và đưa focus về tab Đơn hàng. Rê chuột hoặc focus bằng bàn phím làm sáng cả dòng và thay «N đơn» bằng «Xem đơn hàng ›». Vào tab Đơn hàng bằng thanh tab thì không lọc sẵn.
 - Shop được nhóm theo định danh shop khi có, nếu thiếu dùng định danh người bán trong lịch sử cũ (đơn cũ thiếu định danh shop được gán định danh của đơn khác cùng người bán khi có); tên hiển thị trùng nhau không làm gộp hai người bán và tên chứa dấu phân cách được giữ đầy đủ.

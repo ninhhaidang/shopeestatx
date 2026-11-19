@@ -115,6 +115,27 @@ describe('Tổng quan', () => {
     expect(cells[12]).toBe('750k');
   });
 
+  it('turns the month table on its side when narrow: a row per month, a column per year', async () => {
+    vi.stubGlobal('ResizeObserver', class {
+      constructor(private report: (entries: { contentRect: { width: number; height: number } }[]) => void) {}
+      observe() {
+        this.report([{ contentRect: { width: 300, height: 340 } }]);
+      }
+      disconnect() {}
+    });
+    try {
+      const { user } = renderDashboard();
+      await user.click(await screen.findByRole('radio', { name: 'Bảng số liệu' }));
+
+      const headers = within(screen.getByRole('region', { name: 'Chi tiêu theo tháng' })).getAllByRole('columnheader').map(th => th.textContent);
+      expect(headers).toEqual(['Tháng', '2025', '2026']);
+      expect(within(screen.getByRole('row', { name: /^Th9/ })).getAllByRole('cell').map(td => td.textContent)).toEqual(['–', '300k']);
+      expect(within(screen.getByRole('row', { name: /^Cả năm/ })).getAllByRole('cell').map(td => td.textContent)).toEqual(['550k', '750k']);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('shows a month\u2019s figure on hover or arrow keys and picks it with Enter', async () => {
     const { user } = renderDashboard();
     await screen.findByRole('heading', { name: 'Chi tiêu theo tháng' });
