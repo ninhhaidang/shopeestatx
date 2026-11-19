@@ -191,7 +191,7 @@ describe('Tổng quan', () => {
     await user.click(dialog.getByRole('button', { name: 'Sao chép ảnh' }));
     expect(await dialog.findByText(/Hãy dùng Lưu ảnh/)).toBeInTheDocument();
     // The latest year leads: 2026 has three counted orders (one is cancelled).
-    expect(shareImage.copyShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026, orders: 3, stats: expect.objectContaining({ netSpend: 750_000 }) }), 'label', 'square');
+    expect(shareImage.copyShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026, orders: 3, stats: expect.objectContaining({ netSpend: 750_000 }) }), 'sale', 'square');
   });
 
   it('puts the year card on Tổng quan: save straight away, or customise in the dialog', async () => {
@@ -200,7 +200,7 @@ describe('Tổng quan', () => {
     const card = within(await screen.findByRole('region', { name: 'Tổng kết Shopee 2026 của bạn' }));
     await user.click(card.getByRole('button', { name: 'Lưu ảnh' }));
     // 2026's second half has three paid orders but only 750.000 ₫: short of Bạc (1.000.000 ₫).
-    expect(shareImage.downloadShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026, tier: null }), 'label', 'square');
+    expect(shareImage.downloadShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026, tier: null }), 'sale', 'square');
 
     await user.click(card.getByRole('button', { name: 'Tuỳ chỉnh…' }));
     const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' }));
@@ -237,7 +237,7 @@ describe('Tổng quan', () => {
 
     const card = within(await screen.findByRole('region', { name: 'Tổng kết Shopee 2026 của bạn' }));
     await user.click(card.getByRole('button', { name: 'Lưu ảnh' }));
-    expect(shareImage.downloadShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026, orders: 1, tier: 'diamond' }), 'label', 'square');
+    expect(shareImage.downloadShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026, orders: 1, tier: 'diamond' }), 'sale', 'square');
   });
 
   it('opens the share dialog by itself when the popup asked for it', async () => {

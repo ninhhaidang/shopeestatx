@@ -8,7 +8,7 @@ beforeEach(() => localStorage.clear());
 
 describe('remembered share style', () => {
   it('starts on Vận đơn, square, and returns what was saved', () => {
-    expect(loadShareStyle()).toEqual({ template: 'label', ratio: 'square' });
+    expect(loadShareStyle()).toEqual({ template: 'sale', ratio: 'square' });
     saveShareStyle({ template: 'cat', ratio: 'story' });
     expect(loadShareStyle()).toEqual({ template: 'cat', ratio: 'story' });
   });
@@ -19,6 +19,6 @@ describe('remembered share style', () => {
     ['wrong types', JSON.stringify({ template: 3, ratio: null })],
   ])('falls back to the default for %s', (_, raw) => {
     localStorage.setItem(KEY, raw);
-    expect(loadShareStyle()).toEqual({ template: 'label', ratio: 'square' });
+    expect(loadShareStyle()).toEqual({ template: 'sale', ratio: 'square' });
   });
 });

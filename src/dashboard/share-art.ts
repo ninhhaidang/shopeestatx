@@ -7,7 +7,7 @@ export type ShareTemplate =
   | 'candy' | 'sky' | 'cat' | 'matcha' | 'xmas' | 'tet' | 'receipt' | 'neon' | 'minimal';
 
 export const SHARE_TEMPLATES: ShareTemplate[] = [
-  'label', 'bold', 'night', 'sale', 'voucher', 'coins', 'parcel', 'candy', 'sky', 'cat', 'matcha', 'xmas', 'tet', 'receipt', 'neon', 'minimal',
+  'sale', 'voucher', 'coins', 'parcel', 'label', 'bold', 'night', 'candy', 'sky', 'cat', 'matcha', 'xmas', 'tet', 'receipt', 'neon', 'minimal',
 ];
 
 export const ORANGE = '#ee4d2d';

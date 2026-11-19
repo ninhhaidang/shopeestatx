@@ -9,7 +9,7 @@ export interface ShareStyle {
 }
 
 const KEY = getStorageKey('share-style');
-const DEFAULT: ShareStyle = { template: 'label', ratio: 'square' };
+const DEFAULT: ShareStyle = { template: 'sale', ratio: 'square' };
 
 export function loadShareStyle(): ShareStyle {
   try {
