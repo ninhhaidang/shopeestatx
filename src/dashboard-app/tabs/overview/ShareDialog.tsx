@@ -55,7 +55,7 @@ export function ShareDialog({ data, onClose }: { data: ShareData; onClose: () =>
   return (
     <Dialog open onOpenChange={open => !open && onClose()}>
       <DialogBackdrop className="fixed inset-0 bg-black/50" />
-      <DialogContent className="m-auto w-[min(56rem,calc(100vw-2rem))] rounded-2xl border border-line bg-card p-0 text-fg">
+      <DialogContent className="fixed inset-0 m-auto h-fit max-h-[calc(100dvh-2rem)] w-[min(56rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-line bg-card p-0 text-fg">
         <div className="grid gap-5 p-5 @container md:grid-cols-[minmax(0,1fr)_17rem]">
           <div className="flex min-h-64 items-center justify-center rounded-xl bg-bg p-3">
             <canvas ref={canvas} aria-label={t('share.preview')} className="max-h-[62vh] w-auto max-w-full rounded-md shadow-md" />
