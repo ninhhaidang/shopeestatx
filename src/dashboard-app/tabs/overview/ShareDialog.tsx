@@ -141,8 +141,8 @@ export function ShareDialog({ options, hasAccount, style, onStyle, onClose }: { 
             <div className="mt-auto flex flex-col gap-2">
               <p role="status" className={`text-sm ${copied === 'failed' ? 'text-bad' : 'text-good'}`}>{copied && t(`share.copy.${copied}`)}</p>
               <Button onClick={() => downloadShareImage(data, template, ratio)}>{t('share.download')}</Button>
-              <Button variant="outline" className="py-2.5" onClick={() => void copy()}>{t('share.copy')}</Button>
-              <DialogClose render={<Button variant="outline" className="py-2.5" />}>{t('share.close')}</DialogClose>
+              <Button variant="secondary" onClick={() => void copy()}>{t('share.copy')}</Button>
+              <DialogClose render={<Button variant="secondary" />}>{t('share.close')}</DialogClose>
             </div>
           </div>
         </div>

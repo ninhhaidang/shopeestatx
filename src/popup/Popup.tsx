@@ -90,7 +90,7 @@ export function Popup({ host, now = new Date() }: { host: PopupHost; now?: Date 
         {cache && (
           <>
             <Button onClick={() => host.openDashboard(true)}>{t('share.open')}</Button>
-            <Button variant="outline" className="py-2.5" onClick={() => host.openDashboard()}>
+            <Button variant="secondary" onClick={() => host.openDashboard()}>
               {t('popup.openDashboard')}
             </Button>
           </>
@@ -101,10 +101,10 @@ export function Popup({ host, now = new Date() }: { host: PopupHost; now?: Date 
             <p role="status" className="rounded-lg bg-warn-bg px-3 py-2 text-sm text-warn-fg">
               {t('popup.warning')}
             </p>
-            <Button variant={cache ? 'outline' : undefined} className={cache ? 'py-2.5' : undefined} onClick={() => host.openLogin()}>{t('popup.openShopee')}</Button>
+            <Button variant={cache ? 'secondary' : 'primary'} onClick={() => host.openLogin()}>{t('popup.openShopee')}</Button>
           </>
         ) : (
-          <Button variant={cache ? 'outline' : undefined} className={cache ? 'py-2.5' : undefined} disabled={onShopee !== true} onClick={() => void host.startAnalysis()}>
+          <Button variant={cache ? 'secondary' : 'primary'} disabled={onShopee !== true} onClick={() => void host.startAnalysis()}>
             {t('popup.btnStart')}
           </Button>
         )}
