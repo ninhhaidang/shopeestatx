@@ -45,6 +45,9 @@ export const STORAGE_KEYS = {
   BUDGET: getStorageKey('budget'),
 } as const;
 
+/** localStorage (shared by extension pages, read synchronously): the token of the scan the popup asked for. */
+export const SCAN_REQUEST = getStorageKey('scan-request');
+
 // ============= Message Configuration =============
 
 export const MESSAGE_SOURCE = 'shopee-stats';

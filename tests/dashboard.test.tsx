@@ -317,6 +317,23 @@ describe('tab', () => {
   });
 });
 
+describe('bảng bên', () => {
+  it('offers a full tab only inside the side panel', async () => {
+    const openInTab = vi.fn();
+    const { user } = renderDashboard(makeHost({ inSidePanel: vi.fn().mockResolvedValue(true), openInTab }));
+
+    await user.click(await screen.findByRole('button', { name: 'Mở toàn màn hình' }));
+    expect(openInTab).toHaveBeenCalledOnce();
+  });
+
+  it('shows no full-tab button in a tab', async () => {
+    renderDashboard(makeHost({ inSidePanel: vi.fn().mockResolvedValue(false), openInTab: vi.fn() }));
+
+    expect(await screen.findByText('Chi tiêu ròng')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mở toàn màn hình' })).not.toBeInTheDocument();
+  });
+});
+
 describe('tải dữ liệu', () => {
   it('shows a skeleton while the cache loads', () => {
     renderDashboard(makeHost({ loadCached: vi.fn(() => new Promise<OrderData | null>(() => {})) }));

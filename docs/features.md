@@ -5,15 +5,17 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 ## Popup
 
 - Popup hiển thị lời chào cùng tên và ảnh đại diện khi có thông tin tài khoản, hoặc giới thiệu ngắn khi chưa có thông tin này.
-- Nút «Bắt đầu phân tích» mở dashboard ở tab mới để lấy lịch sử đơn hàng từ phiên đăng nhập Shopee đang có.
+- Nút «Bắt đầu phân tích» mở dashboard trong bảng bên (side panel) của Chrome, cạnh trang Shopee, để lấy lịch sử đơn hàng từ phiên đăng nhập Shopee đang có; nếu Chrome không mở được bảng bên thì mở ở tab mới. Mỗi lần bấm chỉ quét một lần: tải lại hay mở lại bảng bên sau đó đọc dữ liệu đã lưu.
+- Trong bảng bên, nút «Mở toàn màn hình» (biểu tượng ↗ cạnh bộ chọn giao diện) mở dashboard ở tab mới và đóng bảng bên.
 - Popup chỉ cho bắt đầu khi URL tab hiện tại dùng HTTPS và hostname đúng là `shopee.vn` (không nhận HTTP hay tên miền con, vì bộ thu thập chỉ đọc được từ origin này); chuỗi `shopee.vn` trong đường dẫn, query hoặc hostname giả không đủ. Khi chưa ở trang phù hợp, popup hiển thị lời nhắc mở Shopee, đăng nhập và thay nút bắt đầu bằng nút mở Shopee.
-- Khi đã có dữ liệu lưu trên máy, popup hiện số đơn (đếm như ô «Số đơn» của dashboard, không tính đơn huỷ, trả hàng, chưa thanh toán) cùng thời điểm cập nhật, và có nút «Mở dashboard (dữ liệu đã lưu)» mở dashboard trên dữ liệu đó mà không quét lại Shopee, kể cả khi tab hiện tại không phải Shopee.
+- Khi đã có dữ liệu lưu trên máy, popup hiện số đơn (đếm như ô «Số đơn» của dashboard, không tính đơn huỷ, trả hàng, chưa thanh toán) cùng thời điểm cập nhật, và có nút «Mở dashboard (dữ liệu đã lưu)» mở dashboard (bảng bên, hoặc tab mới nếu không mở được) trên dữ liệu đó mà không quét lại Shopee, kể cả khi tab hiện tại không phải Shopee.
 - Popup có liên kết ủng hộ, GitHub, đánh giá tiện ích, hướng dẫn và chính sách bảo mật, xếp thành danh sách: › mở trang trong tiện ích, ↗ mở trang ngoài.
 - Popup có bộ chọn giao diện Sáng và Tối.
 
 ## Dashboard và khoảng thời gian
 
 - Dashboard chia thành ba màn hình Tổng quan, Phân tích và Đơn hàng, với thanh điều hướng và công cụ luôn nằm ngoài vùng nội dung cuộn.
+- Các tab điều hướng luôn ở phía trên. Khổ hẹp (như bảng bên) chúng chiếm một hàng riêng ngay dưới logo, chia đều bề ngang, tab đang mở có gạch chân màu nhấn; không có thanh tab ở đáy màn hình.
 - Ở khổ trung gian, bộ lọc thời gian và nút làm mới có hàng riêng để không che các tab điều hướng; chỉ ghép lên một hàng khi có đủ chiều rộng.
 - Thanh đầu hiển thị thông tin tài khoản khi có dữ liệu và thời điểm cập nhật gần nhất.
 - Bộ chọn khoảng thời gian có Tất cả, 7 ngày gần nhất, tháng này, tháng trước, 3 tháng gần nhất, năm nay, theo năm, theo tháng và khoảng ngày tùy chọn. Nếu nhập ngày Từ sau ngày Đến, hai đầu được hiểu đảo lại thay vì lọc ra khoảng rỗng.
@@ -59,10 +61,10 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Nhận xét tự động dùng toàn bộ lịch sử để nêu chi tiêu tháng hiện tại, thay đổi so với tháng trước khi có dữ liệu và mức thay đổi khác 0, shop mua nhiều nhất, số đơn hàng trung bình mỗi tháng, ngày chi nhiều nhất tháng hiện tại và giá trị đơn bị loại khi phù hợp, với tối đa năm nhận xét.
 - Số đơn trung bình mỗi tháng chỉ dùng đơn có ngày hợp lệ ở cả tử số và tập tháng; chỉ sinh nhận xét khi có hơn một tháng thực sự. Giá trị đơn bị loại lấy từ giá trị gốc đã lưu, không được diễn đạt như giao dịch hoàn tiền đã xác minh hoặc Tiết kiệm ước tính.
 - Biểu đồ nhiệt hiển thị số đơn hàng theo ngày trong cửa sổ 12 tháng kết thúc ở mốc cuối khoảng đang chọn, không vượt quá ngày hiện tại.
-- Biểu đồ nhiệt dùng màu để phân biệt mức độ, có chú giải Ít–Nhiều, nhãn ngày và số đơn hàng khi rê chuột, tự giãn theo chiều rộng khối và cuộn ngang khi hẹp. Không có bảng số liệu hiển thị; số đơn từng ngày đọc qua nhãn khi rê chuột, và trình đọc màn hình có một bảng ẩn liệt kê các ngày có đơn.
+- Biểu đồ nhiệt dùng màu để phân biệt mức độ, có chú giải Ít–Nhiều, nhãn ngày và số đơn hàng khi rê chuột, tự giãn theo chiều rộng khối và không cuộn ngang: khi khối hẹp (như bảng bên), 12 tháng được chia thành hai hoặc ba dải xếp chồng, dải sau ghi cả tên tháng đang dở ở đầu. Không có bảng số liệu hiển thị; số đơn từng ngày đọc qua nhãn khi rê chuột, và trình đọc màn hình có một bảng ẩn liệt kê các ngày có đơn.
 - Shop thân thiết dùng toàn bộ lịch sử và hiển thị tối đa mười shop có ít nhất ba đơn hàng không bị loại, ưu tiên shop có nhiều đơn hàng nhất; shop cùng số đơn xếp theo Chi tiêu ròng, nhiều hơn trước.
-- Mỗi dòng shop thân thiết mở tab Đơn hàng lọc sẵn theo shop đó: tên shop là nút (cho bàn phím và trình đọc màn hình), bấm chỗ khác trên dòng cũng vậy; dòng sáng lên khi rê chuột và có dấu › ở cuối.
-- Bảng shop thân thiết hiển thị số đơn hàng, Chi tiêu ròng, Chi tiêu ròng trung bình mỗi đơn hàng, tần suất đơn hàng mỗi tháng và ngày mua gần nhất. Tần suất chỉ tính trên đơn có ngày giao; shop không có đơn nào có ngày hiển thị dấu thiếu dữ liệu.
+- Mỗi dòng shop thân thiết mở tab Đơn hàng lọc sẵn theo shop đó: tên shop là nút (cho bàn phím và trình đọc màn hình), bấm chỗ khác trên dòng cũng vậy; dòng sáng lên khi rê chuột và có dấu › ở cuối (khổ rộng).
+- Bảng shop thân thiết hiển thị số đơn hàng, Chi tiêu ròng, Chi tiêu ròng trung bình mỗi đơn hàng, tần suất đơn hàng mỗi tháng và ngày mua gần nhất. Tần suất chỉ tính trên đơn có ngày giao; shop không có đơn nào có ngày hiển thị dấu thiếu dữ liệu. Khổ hẹp (như bảng bên) không cuộn ngang: mỗi shop là một khối gồm tên shop và Chi tiêu ròng trên một dòng, các số liệu còn lại kèm nhãn ở dòng dưới.
 - Khi chưa có sản phẩm, shop thân thiết hoặc nhận xét phù hợp, Phân tích hiển thị lời giải thích thay cho danh sách trống.
 
 ## Đơn hàng
@@ -71,7 +73,7 @@ Danh sách này là mốc đối chiếu khi review hoặc viết yêu cầu «k
 - Mặc định danh sách xếp theo ngày giao, mới nhất trước, và chia theo tháng: mỗi tháng có dòng tiêu đề kèm số đơn và chi tiêu của cả tháng trong kết quả đang lọc (kể cả phần nằm ở trang khác). Đơn chưa có ngày giao nằm cuối, dưới tiêu đề «Chưa có ngày giao». Khi sắp xếp theo trạng thái hoặc số tiền thì không chia theo tháng.
 - Bảng khổ rộng nằm trong một thẻ, tiêu đề cột dính ở đầu khi cuộn, và giữ chiều rộng cho ngày, trạng thái, số lượng và số tiền; tên sản phẩm được xuống dòng trong phần còn lại, không bị cắt bằng dấu ba chấm. Nút mở chi tiết nằm ở cuối hàng. Khổ hẹp mỗi đơn là một thẻ mở đầu bằng tên sản phẩm.
 - Ô tìm kiếm lọc ngay theo mã đơn hàng, tên sản phẩm, tên shop, mô tả sản phẩm hoặc trạng thái và không phân biệt chữ hoa với chữ thường.
-- Bộ lọc trạng thái là một hàng nút kèm số đơn, gồm «Tất cả» và mỗi trạng thái có trong khoảng đang chọn (hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán, trả hàng). Số đơn trên mỗi nút tính theo ô tìm kiếm và bộ lọc shop hiện tại; mỗi nút mang chấm màu của trạng thái đó nên hàng nút cũng là chú giải màu.
+- Bộ lọc trạng thái là một hàng nút kèm số đơn, gồm «Tất cả» và mỗi trạng thái có trong khoảng đang chọn (hoàn thành, đã hủy, chờ vận chuyển, đang giao, chờ thanh toán, trả hàng). Số đơn trên mỗi nút tính theo ô tìm kiếm và bộ lọc shop hiện tại; mỗi nút mang chấm màu của trạng thái đó nên hàng nút cũng là chú giải màu. Khổ hẹp hàng nút nằm trên một dòng cuộn ngang thay vì xuống nhiều dòng; ô tìm kiếm đi cùng nút «Xuất dữ liệu», bộ lọc shop và bộ chọn sắp xếp chia đôi hàng bên dưới.
 - Bộ lọc shop thu hẹp danh sách theo một shop có đơn hàng trong khoảng đang chọn. Tên shop dài không đẩy bộ lọc vượt vùng nội dung; danh sách lựa chọn vẫn giữ đầy đủ tên.
 - Người dùng có thể sắp xếp tăng hoặc giảm theo ngày giao, trạng thái hoặc số tiền bằng tiêu đề cột ở khổ rộng (cột sắp xếp được luôn có mũi tên mờ) và bộ chọn ở khổ hẹp. Không còn lựa chọn «Mặc định» theo thứ tự Shopee trả về.
 - Người dùng có thể chọn 20, 50, 100 hoặc tất cả đơn hàng mỗi trang và chuyển trang trong danh sách kết quả.

@@ -22,7 +22,7 @@
 
 ## Side Effects
 
-Chrome host reads cached stats and queries active tabs. Starting analysis saves the tab ID, opens `dashboard-app/dashboard.html?fetch=true`, then closes the popup. Opening the saved dashboard opens `dashboard-app/dashboard.html` without `fetch`, so no Shopee request is made, then closes the popup. Login opens configured Shopee login and closes the popup; help/privacy open extension pages. External anchors open new tabs with `noopener noreferrer`; avatar rendering may load its image URL. Shared locale/theme initialization affects DOM and theme behavior.
+Chrome host reads cached stats and queries active tabs. Starting analysis saves the tab ID, writes a one-time scan token to `localStorage`, opens `dashboard-app/dashboard.html?fetch=<token>` in Chrome's side panel (a new tab if `sidePanel.open` fails), then closes the popup. Opening the saved dashboard opens `dashboard-app/dashboard.html` without `fetch` the same way, so no Shopee request is made, then closes the popup. Login opens configured Shopee login and closes the popup; help/privacy open extension pages. External anchors open new tabs with `noopener noreferrer`; avatar rendering may load its image URL. Shared locale/theme initialization affects DOM and theme behavior.
 
 ## Verification
 

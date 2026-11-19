@@ -1,4 +1,4 @@
-import { getStorageKey, MESSAGE_SOURCE, STORAGE_KEYS } from '../config.js';
+import { getStorageKey, MESSAGE_SOURCE, SCAN_REQUEST, STORAGE_KEYS } from '../config.js';
 import { t } from '../i18n/index.js';
 import { mergeOrderData } from '../dashboard/merge.js';
 import type { OrderData } from '../types/index.js';
@@ -47,12 +47,27 @@ function accountsDiffer(cached: OrderData['user'], fresh: OrderData['user']): bo
   return Boolean(cached.username && fresh.username && cached.username !== fresh.username);
 }
 
-const scanOnOpen = new URLSearchParams(window.location.search).get('fetch') === 'true';
-// One scan per popup launch: a reload must read the cache, not replace it with another scan.
-if (scanOnOpen) history.replaceState(null, '', window.location.pathname);
+const requested = new URLSearchParams(window.location.search).get('fetch');
+// One scan per popup click: a reload, or the side panel reopened on the same path, finds the token spent and reads the cache.
+const scanOnOpen = requested !== null && requested === localStorage.getItem(SCAN_REQUEST);
+if (scanOnOpen) localStorage.removeItem(SCAN_REQUEST);
+if (requested !== null) history.replaceState(null, '', window.location.pathname);
 
 export const chromeHost: DashboardHost = {
   scanOnOpen,
+
+  // A side panel is an extension page outside any tab.
+  inSidePanel: async () => (await chrome.tabs.getCurrent()) === undefined,
+
+  async openInTab() {
+    const { id: windowId } = await chrome.windows.getCurrent();
+    await chrome.tabs.create({ url: chrome.runtime.getURL('dashboard-app/dashboard.html') });
+    try {
+      await chrome.sidePanel.close({ windowId: windowId! }); // Chrome 141+
+    } catch {
+      window.close();
+    }
+  },
 
   async loadCached() {
     const stored = await chrome.storage.local.get(STORAGE_KEYS.STATS);

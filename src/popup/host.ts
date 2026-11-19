@@ -18,9 +18,9 @@ export interface PopupHost {
   getCache(): Promise<PopupCache | null>;
   /** True when the active tab is on the Shopee domain. */
   isOnShopee(): Promise<boolean>;
-  /** Remember the Shopee tab and open the dashboard to fetch orders. */
+  /** Remember the Shopee tab and open the dashboard (side panel, else a tab) to fetch orders. */
   startAnalysis(): Promise<void>;
-  /** Open the dashboard on the cached orders, without scanning Shopee. */
+  /** Open the dashboard (side panel, else a tab) on the cached orders, without scanning Shopee. */
   openDashboard(): void;
   openLogin(): void;
   openHelp(): void;

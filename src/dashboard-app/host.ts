@@ -13,4 +13,8 @@ export interface DashboardHost {
    * `onProgress` reports how many orders have been fetched so far.
    */
   refresh(onProgress: (count: number) => void, mode: 'replace' | 'merge'): Promise<{ data: OrderData; added: number }>;
+  /** True when the page sits in Chrome's side panel rather than a tab. */
+  inSidePanel?(): Promise<boolean>;
+  /** Open the dashboard in a full tab and close the side panel. */
+  openInTab?(): void;
 }

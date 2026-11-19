@@ -21,8 +21,8 @@ const currentTime = () => new Date();
 
 /**
  * Dashboard root: top bar (logo, tabs, global date range, refresh, theme) and the active screen.
- * One layout for every width: below the container's 48rem the tabs drop to a bottom bar and the
- * toolbar wraps under the logo (container queries, ADR-0002).
+ * One layout for every width: below the container's 48rem the tabs take their own row under the logo
+ * and the toolbar wraps under them (container queries, ADR-0002).
  */
 export function Dashboard({ host, now = currentTime }: { host: DashboardHost; now?: () => Date }) {
   const orderData = useOrderData(host);
@@ -36,6 +36,10 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   };
   const [selection, setSelection] = useState<RangeSelection>(ALL_TIME);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [inSidePanel, setInSidePanel] = useState(false);
+  useEffect(() => {
+    host.inSidePanel?.().then(setInSidePanel, () => {});
+  }, [host]);
 
   const [clock, setClock] = useState(now);
   useEffect(() => {
@@ -102,14 +106,14 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
         value={tab}
         onValueChange={next => next && openTab(next)}
         loop
-        className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)] grid-rows-[auto_auto_auto_minmax(0,1fr)_auto] @3xl:grid-cols-[auto_minmax(0,1fr)_auto] @3xl:grid-rows-[auto_auto_minmax(0,1fr)] @6xl:grid-cols-[auto_minmax(0,1fr)_auto_auto] @6xl:grid-rows-[auto_minmax(0,1fr)]"
+        className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)] grid-rows-[auto_auto_auto_minmax(0,1fr)] @3xl:grid-cols-[auto_minmax(0,1fr)_auto] @3xl:grid-rows-[auto_auto_minmax(0,1fr)] @6xl:grid-cols-[auto_minmax(0,1fr)_auto_auto] @6xl:grid-rows-[auto_minmax(0,1fr)]"
       >
         <div className="col-start-1 row-start-1 flex items-center px-4 pt-3 @3xl:py-3">
           <Logo />
         </div>
 
         <nav
-          className="col-span-full row-start-5 border-t border-line bg-card @3xl:border-0 @3xl:bg-transparent @3xl:[grid-column:2] @3xl:row-start-1 @3xl:self-center"
+          className="col-span-full row-start-2 mt-1 border-b border-line @3xl:mt-0 @3xl:border-0 @3xl:[grid-column:2] @3xl:row-start-1 @3xl:self-center"
         >
           <TabsList aria-label={t('dash.tabs.label')} className="flex @3xl:gap-1">
             {TABS.map(def => (
@@ -120,10 +124,10 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
                   tabRefs.current[def.id] = el;
                 }}
                 className={({ selected }) =>
-                  `flex-1 cursor-pointer px-3 py-3 text-sm @3xl:flex-none @3xl:rounded-lg @3xl:py-1.5 ${
+                  `-mb-px flex-1 cursor-pointer px-3 py-2.5 text-sm @3xl:mb-0 @3xl:flex-none @3xl:rounded-lg @3xl:py-1.5 ${
                     selected
-                      ? 'border-t-2 border-accent-text font-semibold text-accent-text @3xl:border-t-0 @3xl:bg-card @3xl:text-fg @3xl:shadow-[0_0_0_1px_var(--line)]'
-                      : 'border-t-2 border-transparent text-muted hover:text-fg @3xl:border-t-0'
+                      ? 'border-b-2 border-accent-text font-semibold text-accent-text @3xl:border-b-0 @3xl:bg-card @3xl:text-fg @3xl:shadow-[0_0_0_1px_var(--line)]'
+                      : 'border-b-2 border-transparent text-muted hover:text-fg @3xl:border-b-0'
                   }`
                 }
               >
@@ -133,7 +137,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
           </TabsList>
         </nav>
 
-        <div className="col-span-full row-start-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 pb-3 @3xl:row-start-2 @6xl:[grid-column:3] @6xl:row-start-1 @6xl:p-3">
+        <div className="col-span-full row-start-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 pt-3 pb-3 @3xl:row-start-2 @3xl:pt-0 @6xl:[grid-column:3] @6xl:row-start-1 @6xl:p-3">
           <RangePicker value={selection} onChange={setSelection} years={years} now={clock} />
           <Button variant="outline" disabled={phase === 'loading' || refreshing} onClick={orderData.refresh}>
             {t('dash.refresh')}
@@ -147,6 +151,13 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
         <div className="col-start-1 row-start-1 flex min-w-0 items-center gap-3 justify-self-end px-4 py-3 @3xl:col-start-3 @6xl:col-start-4">
           {data?.user && <AccountChip user={data.user} />}
           <ThemeToggle />
+          {inSidePanel && host.openInTab && (
+            <Button variant="outline" className="p-1.5" aria-label={t('dash.openInTab')} title={t('dash.openInTab')} onClick={host.openInTab}>
+              <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+                <path d="M9 2.5h4.5V7M13.5 2.5 7.5 8.5M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3" />
+              </svg>
+            </Button>
+          )}
         </div>
 
         <main

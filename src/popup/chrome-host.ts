@@ -1,7 +1,19 @@
-import { getActiveDomainUrl, getLoginUrl, STORAGE_KEYS } from '../config.js';
+import { getActiveDomainUrl, getLoginUrl, SCAN_REQUEST, STORAGE_KEYS } from '../config.js';
 import { isExcludedOrder } from '../dashboard/order-status.js';
 import type { OrderData } from '../types/index.js';
 import type { PopupHost, PopupUser } from './host';
+
+const DASHBOARD = 'dashboard-app/dashboard.html';
+
+/** Opens the dashboard in the side panel; a tab when Chrome refuses (no user gesture left, or no side panel). */
+async function openView(path: string, windowId?: number) {
+  try {
+    await chrome.sidePanel.setOptions({ path, enabled: true });
+    await chrome.sidePanel.open({ windowId: windowId ?? (await chrome.windows.getCurrent()).id! });
+  } catch {
+    await chrome.tabs.create({ url: chrome.runtime.getURL(path) });
+  }
+}
 
 export const chromeHost: PopupHost = {
   async getUser() {
@@ -46,7 +58,10 @@ export const chromeHost: PopupHost = {
   async startAnalysis() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     await chrome.storage.local.set({ [STORAGE_KEYS.TAB_ID]: tab.id });
-    await chrome.tabs.create({ url: chrome.runtime.getURL('dashboard-app/dashboard.html?fetch=true') });
+    // A fresh token per click: a new path reloads an open panel, and reopening the panel later finds the token spent.
+    const token = crypto.randomUUID();
+    localStorage.setItem(SCAN_REQUEST, token);
+    await openView(`${DASHBOARD}?fetch=${token}`, tab.windowId);
     window.close();
   },
 
@@ -55,8 +70,8 @@ export const chromeHost: PopupHost = {
     window.close();
   },
 
-  openDashboard() {
-    void chrome.tabs.create({ url: chrome.runtime.getURL('dashboard-app/dashboard.html') });
+  async openDashboard() {
+    await openView(DASHBOARD);
     window.close();
   },
 

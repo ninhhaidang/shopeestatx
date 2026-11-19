@@ -6,7 +6,7 @@ const read = (path: string) => readFileSync(resolve(__dirname, '..', path), 'utf
 
 // Pages are built from src/, so a chrome.runtime.getURL('x/y.html') must exist at src/x/y.html.
 function pagesOpenedBy(path: string): string[] {
-  return [...read(path).matchAll(/getURL\('([^'?]+\.html)/g)].map(match => match[1]);
+  return [...read(path).matchAll(/(?:getURL\(|DASHBOARD = )'([^'?]+\.html)/g)].map(match => match[1]);
 }
 
 describe('extension entry points', () => {
@@ -17,7 +17,7 @@ describe('extension entry points', () => {
   });
 
   it('opens the new dashboard from the popup', () => {
-    expect(read('src/popup/chrome-host.ts')).toContain('dashboard-app/dashboard.html?fetch=true');
+    expect(read('src/popup/chrome-host.ts')).toContain("const DASHBOARD = 'dashboard-app/dashboard.html'");
   });
 
   it('builds only the new entries', () => {

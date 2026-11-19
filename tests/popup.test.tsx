@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import { Popup } from '../src/popup/Popup';
 import type { PopupHost } from '../src/popup/host';
 import { chromeHost } from '../src/popup/chrome-host';
-import { STORAGE_KEYS } from '../src/config';
+import { SCAN_REQUEST, STORAGE_KEYS } from '../src/config';
 import { renderSurface } from './support/render';
 import { mockColorScheme } from './support/match-media';
 
@@ -211,5 +211,42 @@ describe('Popup theme', () => {
     renderSurface(<Popup host={makeHost()} />);
 
     expect(await screen.findByRole('radio', { name: 'Sáng' })).toBeChecked();
+  });
+});
+
+describe('Chrome popup host opens the dashboard', () => {
+  function installChrome(open: () => Promise<void>) {
+    const chrome = {
+      tabs: { query: vi.fn().mockResolvedValue([{ id: 7, windowId: 3 }]), create: vi.fn().mockResolvedValue({}) },
+      windows: { getCurrent: vi.fn().mockResolvedValue({ id: 3 }) },
+      storage: { local: { set: vi.fn().mockResolvedValue(undefined) } },
+      runtime: { getURL: (path: string) => `chrome-extension://x/${path}` },
+      sidePanel: { setOptions: vi.fn().mockResolvedValue(undefined), open: vi.fn(open) },
+    };
+    vi.stubGlobal('chrome', chrome);
+    vi.stubGlobal('close', vi.fn());
+    return chrome;
+  }
+
+  it('starts the analysis in the side panel with a one-time scan token', async () => {
+    const chrome = installChrome(async () => {});
+
+    await chromeHost.startAnalysis();
+
+    const token = localStorage.getItem(SCAN_REQUEST);
+    expect(token).toBeTruthy();
+    expect(chrome.storage.local.set).toHaveBeenCalledWith({ [STORAGE_KEYS.TAB_ID]: 7 });
+    expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: `dashboard-app/dashboard.html?fetch=${token}`, enabled: true });
+    expect(chrome.sidePanel.open).toHaveBeenCalledWith({ windowId: 3 });
+    expect(chrome.tabs.create).not.toHaveBeenCalled();
+  });
+
+  it('falls back to a tab when Chrome refuses the side panel', async () => {
+    const chrome = installChrome(() => Promise.reject(new Error('needs a user gesture')));
+
+    await chromeHost.openDashboard();
+
+    expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: 'dashboard-app/dashboard.html', enabled: true });
+    expect(chrome.tabs.create).toHaveBeenCalledWith({ url: 'chrome-extension://x/dashboard-app/dashboard.html' });
   });
 });

@@ -27,6 +27,7 @@ Dữ liệu này **chỉ được lưu trên máy người dùng** trong `chrome
 | `activeTab` | Đọc URL tab hiện tại để kiểm tra người dùng đang ở shopee.vn trước khi bắt đầu |
 | `storage` | Lưu cache lịch sử đơn hàng trên máy người dùng để tránh phải tải lại mỗi lần mở extension |
 | `scripting` | Inject script vào tab Shopee để gọi API Shopee với cookie trình duyệt — đây là cách duy nhất để lấy dữ liệu mà không cần tài khoản riêng hay server trung gian |
+| `sidePanel` | Mở dashboard trong bảng bên của Chrome, cạnh trang Shopee |
 | `https://shopee.vn/*` | Giới hạn host permission — extension chỉ có thể inject script vào shopee.vn, không có quyền trên bất kỳ trang web nào khác |
 
 ## 4. Dữ liệu không được chia sẻ (No Data Sharing)

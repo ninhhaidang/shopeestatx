@@ -139,7 +139,7 @@ export function OrdersTab() {
       <Toggle
         key={code ?? 'all'}
         value={code === null ? 'all' : String(code)}
-        className={`inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-sm ${on ? `border-current font-semibold ${tone} ${STATUS_TINT}` : 'border-line bg-card text-fg hover:border-control-line'}`}
+        className={`inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-sm ${on ? `border-current font-semibold ${tone} ${STATUS_TINT}` : 'border-line bg-card text-fg hover:border-control-line'}`}
       >
         {code !== null && <span aria-hidden="true" className={`size-1.5 rounded-full bg-current ${tone}`} />}
         {label}{' '}
@@ -168,52 +168,58 @@ export function OrdersTab() {
 
   return (
     <section aria-label={t('dash.tab.orders')} className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          type="search"
-          aria-label={t('orders.search')}
-          placeholder={t('filter.search.placeholder')}
-          value={search}
-          onChange={e => changeFilter(() => setSearch(e.target.value))}
-          className={`${control} min-w-48 flex-1 placeholder:text-muted`}
-        />
-        <select aria-label={t('orders.filter.shop')} value={activeShop} onChange={e => changeFilter(() => setShop(e.target.value))} className={`${control} max-w-56`}>
-          <option value="">{t('orders.allShops')}</option>
-          {shops.map(([id, name]) => (
-            <option key={id} value={id}>{name}</option>
-          ))}
-        </select>
-        {/* The header row is only for screen readers when rows are cards, so sorting moves here. */}
-        <select
-          aria-label={t('orders.sort')}
-          value={`${sort.field}:${sort.direction}`}
-          onChange={e => {
-            const [field, direction] = e.target.value.split(':') as [SortField, SortDirection];
-            changeFilter(() => setSort({ field, direction }));
-          }}
-          className={`${control} @5xl:hidden`}
-        >
-          {SORT_COLUMNS.flatMap(c => [
-            <option key={`${c.field}:asc`} value={`${c.field}:asc`}>{t('orders.sort.asc', { column: t(c.label) })}</option>,
-            <option key={`${c.field}:desc`} value={`${c.field}:desc`}>{t('orders.sort.desc', { column: t(c.label) })}</option>,
-          ])}
-        </select>
-        {/* One menu instead of three toolbar buttons. */}
-        <Menu>
-          <MenuTrigger className={`${control} cursor-pointer`}>{t('orders.export')}</MenuTrigger>
-          <MenuContent side="bottom" align="end" sideOffset={4} className="z-10 flex min-w-40 flex-col gap-1 rounded-xl border border-line bg-card p-1.5 shadow-lg outline-none">
-            <MenuItem disabled={results.length === 0} onSelect={() => exportToExcel(results)} className={exportItem}>{t('export.excel')}</MenuItem>
-            <MenuItem disabled={results.length === 0} onSelect={() => exportToCSV(results)} className={exportItem}>{t('export.csv')}</MenuItem>
-            <MenuItem disabled={results.length === 0} onSelect={() => setPrinting(true)} className={exportItem}>{t('export.pdf')}</MenuItem>
-          </MenuContent>
-        </Menu>
+      {/* Narrow: search and export on one row, shop and sort in equal halves below; wide: one wrapping row. */}
+      <div className="flex flex-col gap-2 @5xl:flex-row @5xl:flex-wrap @5xl:items-center">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 @5xl:contents">
+          <input
+            type="search"
+            aria-label={t('orders.search')}
+            placeholder={t('filter.search.placeholder')}
+            value={search}
+            onChange={e => changeFilter(() => setSearch(e.target.value))}
+            className={`${control} min-w-0 flex-1 placeholder:text-muted @5xl:min-w-48`}
+          />
+          {/* One menu instead of three toolbar buttons. */}
+          <Menu>
+            <MenuTrigger className={`${control} cursor-pointer whitespace-nowrap @5xl:order-last`}>{t('orders.export')}</MenuTrigger>
+            <MenuContent side="bottom" align="end" sideOffset={4} className="z-10 flex min-w-40 flex-col gap-1 rounded-xl border border-line bg-card p-1.5 shadow-lg outline-none">
+              <MenuItem disabled={results.length === 0} onSelect={() => exportToExcel(results)} className={exportItem}>{t('export.excel')}</MenuItem>
+              <MenuItem disabled={results.length === 0} onSelect={() => exportToCSV(results)} className={exportItem}>{t('export.csv')}</MenuItem>
+              <MenuItem disabled={results.length === 0} onSelect={() => setPrinting(true)} className={exportItem}>{t('export.pdf')}</MenuItem>
+            </MenuContent>
+          </Menu>
+        </div>
+        <div className="grid grid-cols-2 gap-2 @5xl:contents">
+          <select aria-label={t('orders.filter.shop')} value={activeShop} onChange={e => changeFilter(() => setShop(e.target.value))} className={`${control} min-w-0 @5xl:max-w-56`}>
+            <option value="">{t('orders.allShops')}</option>
+            {shops.map(([id, name]) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
+          </select>
+          {/* The header row is only for screen readers when rows are cards, so sorting moves here. */}
+          <select
+            aria-label={t('orders.sort')}
+            value={`${sort.field}:${sort.direction}`}
+            onChange={e => {
+              const [field, direction] = e.target.value.split(':') as [SortField, SortDirection];
+              changeFilter(() => setSort({ field, direction }));
+            }}
+            className={`${control} min-w-0 @5xl:hidden`}
+          >
+            {SORT_COLUMNS.flatMap(c => [
+              <option key={`${c.field}:asc`} value={`${c.field}:asc`}>{t('orders.sort.asc', { column: t(c.label) })}</option>,
+              <option key={`${c.field}:desc`} value={`${c.field}:desc`}>{t('orders.sort.desc', { column: t(c.label) })}</option>,
+            ])}
+          </select>
+        </div>
       </div>
       <ToggleGroup
         aria-label={t('orders.filter.status')}
         value={[status === null ? 'all' : String(status)]}
         deselectable={false}
         onValueChange={([next]) => next && changeFilter(() => setStatus(next === 'all' ? null : Number(next)))}
-        className="flex flex-wrap gap-1.5"
+        // Narrow: one row that scrolls sideways, bleeding to the screen edges, instead of three rows of chips.
+        className="relative -mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] @3xl:mx-0 @3xl:flex-wrap @3xl:overflow-visible @3xl:px-0 @3xl:pb-0"
       >
         {statusChip(null, t('orders.status.all'), searched.length)}
         {statuses.map(s => statusChip(s.code, t(s.label), searched.filter(o => o.statusCode === s.code).length))}

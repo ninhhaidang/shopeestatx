@@ -34,11 +34,11 @@ describe('Privacy', () => {
     ]);
   });
 
-  it('lists the four permissions, each paired with its reason', () => {
+  it('lists the five permissions, each paired with its reason', () => {
     renderSurface(<Privacy />);
 
     const terms = screen.getAllByRole('term');
-    expect(terms.map((dt) => dt.textContent)).toEqual(['activeTab', 'storage', 'scripting', 'https://shopee.vn/*']);
+    expect(terms.map((dt) => dt.textContent)).toEqual(['activeTab', 'storage', 'scripting', 'sidePanel', 'https://shopee.vn/*']);
     expect(terms[2].nextElementSibling).toHaveTextContent(/^Inject script vào tab Shopee/);
   });
 

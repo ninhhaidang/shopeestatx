@@ -31,7 +31,7 @@ describe('Shopee request surface', () => {
 
   it('keeps the manifest limited to Shopee hosts and the current permissions', () => {
     const manifest = JSON.parse(readFileSync(resolve(root, 'src/manifest.json'), 'utf8'));
-    expect(manifest.permissions, BAN_RISK).toEqual(['activeTab', 'storage', 'scripting']);
+    expect(manifest.permissions, BAN_RISK).toEqual(['activeTab', 'storage', 'scripting', 'sidePanel']);
     expect(manifest.host_permissions.every((h: string) => /^https:\/\/shopee\.[a-z.]+\/\*$/.test(h)), BAN_RISK).toBe(true);
   });
 });

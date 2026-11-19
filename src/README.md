@@ -25,7 +25,7 @@ Chrome Manifest V3 runtime and shared React presentation layer. Popup selects a 
 
 - [config.ts](./config.ts) exports `getActiveDomainUrl`, `getOrderUrl`, `getLoginUrl`, `getHomeUrl`, `getStorageKey`, `STORAGE_KEYS`, and `MESSAGE_SOURCE`. The only domain is `shopee.vn`; `STORAGE_KEYS` holds `STATS`, `TAB_ID`, and `BUDGET`; storage names use `shopeestatx-`; progress source is `shopee-stats`.
 - [background.ts](./background.ts) registers the installation listener: first install opens `welcome/welcome.html`.
-- [manifest.json](./manifest.json) declares Chrome 116+, popup, background worker, `activeTab`/`storage`/`scripting`, and host access limited to `https://shopee.vn/*`. `vite-env.d.ts` supplies Vite client types. `icons/` contains static images, not a code package.
+- [manifest.json](./manifest.json) declares Chrome 116+, popup, background worker, `activeTab`/`storage`/`scripting`/`sidePanel`, and host access limited to `https://shopee.vn/*`. `vite-env.d.ts` supplies Vite client types. `icons/` contains static images, not a code package.
 
 ## Invariants
 

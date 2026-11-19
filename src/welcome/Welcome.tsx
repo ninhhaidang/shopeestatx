@@ -12,6 +12,7 @@ const PERMISSIONS = [
   { name: 'activeTab', key: 'welcome.permission.activeTab' },
   { name: 'storage', key: 'welcome.permission.storage' },
   { name: 'scripting', key: 'welcome.permission.scripting' },
+  { name: 'sidePanel', key: 'welcome.permission.sidePanel' },
   { name: 'shopee.vn', key: 'welcome.permission.host' },
 ] as const;
 const STEPS = [1, 2, 3, 4] as const;

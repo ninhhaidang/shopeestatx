@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { buildHeatmapGrid, heatmapWindow } from '../../../dashboard/heatmap.js';
 import { formatDate } from '../../../i18n/format.js';
 import { t } from '../../../i18n/index.js';
@@ -10,6 +10,8 @@ const GAP = 2.5;
 const STEP = CELL + GAP;
 const LEFT = 20;
 const TOP = 18;
+/** Narrowest week column before the year splits into stacked strips instead of shrinking further. */
+const MIN_STEP = 10;
 const DAY_LABELS: Record<number, string> = { 1: 'heatmap.day.mon', 3: 'heatmap.day.wed', 5: 'heatmap.day.fri' };
 
 /** Empty days use a faint line colour; busier days mix in more of the accent. */
@@ -30,12 +32,24 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
     return buildHeatmapGrid(orders, start, end);
   }, [orders, range, now]);
 
-  const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(null);
+  const box = useRef<HTMLDivElement>(null);
+  const [boxWidth, setBoxWidth] = useState(0);
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => setBoxWidth(entry.contentRect.width));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  const strips = boxWidth ? Math.max(1, Math.ceil((grid.weeks.length * MIN_STEP + LEFT) / boxWidth)) : 1;
+  const perStrip = Math.ceil(grid.weeks.length / strips);
+
+  const [tip, setTip] = useState<{ text: string; x: number; y: number; strip: number } | null>(null);
   const title = t('analysis.heatmap.title');
   const from = formatDate(grid.start);
   const to = formatDate(grid.end);
   const summary = t('analysis.heatmap.summary', { title, days: grid.days.length, orders: grid.totalOrders, from, to });
-  const width = grid.weeks.length * STEP + LEFT;
+  const width = perStrip * STEP + LEFT;
   const height = 7 * STEP + TOP;
 
   return (
@@ -45,52 +59,62 @@ export function Heatmap({ orders, range, now }: { orders: Order[]; range: DateRa
         <span className={chip}>{t('analysis.scope.year')}</span>
       </div>
       <p className="mb-3 text-xs text-muted">{t('analysis.heatmap.period', { from, to })}</p>
-      {/* The grid grows with the card; below its minimum width it scrolls sideways (focusable for the keyboard). */}
-      <div role="region" aria-label={t('analysis.heatmap.scroll')} tabIndex={0} className="overflow-x-auto rounded-lg pb-2">
-        <div className="relative min-w-[40rem] max-w-[72rem]" onMouseLeave={() => setTip(null)}>
-          <svg role="img" aria-label={summary} viewBox={`0 0 ${width} ${height}`} className="block h-auto w-full">
-            {Object.entries(DAY_LABELS).map(([row, key]) => (
-              <text key={row} x={0} y={TOP + Number(row) * STEP + CELL - 2} fontSize={9} fill="var(--muted)">{t(key)}</text>
-            ))}
-            {grid.monthLabels.map(m => (
-              <text key={`${m.col}-${m.month}`} x={LEFT + m.col * STEP} y={11} fontSize={9} fill="var(--muted)">
-                {t('analysis.heatmap.month', { n: m.month + 1 })}
-              </text>
-            ))}
-            {grid.weeks.map((week, col) =>
-              week.map((cell, row) => {
-                if (!cell) return null;
-                const text = cell.orderCount ? t('analysis.heatmap.tip', { date: dayOf(cell.date), n: cell.orderCount }) : dayOf(cell.date);
-                const x = LEFT + col * STEP;
-                const y = TOP + row * STEP;
-                return (
-                  <rect
-                    key={cell.date}
-                    data-date={cell.date}
-                    data-level={cell.intensity}
-                    x={x}
-                    y={y}
-                    width={CELL}
-                    height={CELL}
-                    rx={2.5}
-                    fill={FILL[cell.intensity]}
-                    onMouseEnter={() => setTip({ text, x: ((x + CELL / 2) / width) * 100, y: (y / height) * 100 })}
-                  >
-                    <title>{text}</title>
-                  </rect>
-                );
-              }),
-            )}
-          </svg>
-          {tip && (
-            <div
-              className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md border border-line bg-card px-2 py-1 text-xs shadow-lg"
-              style={{ left: `clamp(4.5rem, ${tip.x}%, calc(100% - 4.5rem))`, top: `calc(${tip.y}% - 4px)` }}
-            >
-              {tip.text}
+      {/* Grows with the card; when weeks would get too thin it splits into stacked strips rather than scrolling. */}
+      <div ref={box} role="img" aria-label={summary} className="grid max-w-[72rem] gap-2 pb-2" onMouseLeave={() => setTip(null)}>
+        {Array.from({ length: strips }, (_, strip) => {
+          const first = strip * perStrip;
+          const weeks = grid.weeks.slice(first, first + perStrip);
+          const labels = grid.monthLabels.filter(m => m.col >= first && m.col < first + perStrip).map(m => ({ ...m, col: m.col - first }));
+          // A strip that starts mid-month names that month too, unless a label already sits at its start.
+          const opening = weeks[0]?.find(Boolean);
+          if (strip > 0 && opening && (labels[0]?.col ?? Infinity) >= 3) labels.unshift({ col: 0, month: new Date(`${opening.date}T00:00:00`).getMonth() });
+          return (
+            <div key={first} className="relative">
+              <svg viewBox={`0 0 ${width} ${height}`} className="block h-auto w-full">
+                {Object.entries(DAY_LABELS).map(([row, key]) => (
+                  <text key={row} x={0} y={TOP + Number(row) * STEP + CELL - 2} fontSize={9} fill="var(--muted)">{t(key)}</text>
+                ))}
+                {labels.map(m => (
+                  <text key={`${m.col}-${m.month}`} x={LEFT + m.col * STEP} y={11} fontSize={9} fill="var(--muted)">
+                    {t('analysis.heatmap.month', { n: m.month + 1 })}
+                  </text>
+                ))}
+                {weeks.map((week, col) =>
+                  week.map((cell, row) => {
+                    if (!cell) return null;
+                    const text = cell.orderCount ? t('analysis.heatmap.tip', { date: dayOf(cell.date), n: cell.orderCount }) : dayOf(cell.date);
+                    const x = LEFT + col * STEP;
+                    const y = TOP + row * STEP;
+                    return (
+                      <rect
+                        key={cell.date}
+                        data-date={cell.date}
+                        data-level={cell.intensity}
+                        x={x}
+                        y={y}
+                        width={CELL}
+                        height={CELL}
+                        rx={2.5}
+                        fill={FILL[cell.intensity]}
+                        onMouseEnter={() => setTip({ text, x: ((x + CELL / 2) / width) * 100, y: (y / height) * 100, strip })}
+                      >
+                        <title>{text}</title>
+                      </rect>
+                    );
+                  }),
+                )}
+              </svg>
+              {tip?.strip === strip && (
+                <div
+                  className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md border border-line bg-card px-2 py-1 text-xs shadow-lg"
+                  style={{ left: `clamp(4.5rem, ${tip.x}%, calc(100% - 4.5rem))`, top: `calc(${tip.y}% - 4px)` }}
+                >
+                  {tip.text}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          );
+        })}
       </div>
       <p aria-hidden="true" className="mt-1 flex items-center gap-1 text-xs text-muted">
         {t('analysis.heatmap.less')}

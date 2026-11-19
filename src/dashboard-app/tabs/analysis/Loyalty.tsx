@@ -6,6 +6,11 @@ import type { Order } from '../../../types/index.js';
 import { card, chip } from '../../../ui/styles/classes';
 import { money } from '../../format';
 
+/** Narrow: one running line of figures under the shop name, dot-separated. Wide: a right-aligned cell. */
+const detail = 'inline text-xs text-muted @3xl:table-cell @3xl:px-3 @3xl:py-1.5 @3xl:text-right @3xl:text-sm @3xl:text-fg';
+const dot = "after:mx-1 after:content-['·'] @3xl:after:content-none";
+const label = (key: 'orders' | 'average' | 'rate' | 'last') => <span className="@3xl:hidden">{t(`analysis.loyalty.${key}`)} </span>;
+
 const dayOf = (key: string) => (key ? formatDate(new Date(`${key}T00:00:00`)) : t('stats.none'));
 
 /**
@@ -25,9 +30,11 @@ export function Loyalty({ orders, onSelect }: { orders: Order[]; onSelect: (shop
       {shops.length === 0 ? (
         <p className="text-sm text-muted">{t('analysis.loyalty.empty')}</p>
       ) : (
-        <div role="region" aria-label={title} tabIndex={0} className="overflow-x-auto rounded-lg">
-          <table className="num w-full min-w-max text-left text-sm">
-            <thead>
+        // relative: keeps the absolute sr-only header inside the scroller, or it widens <main>.
+        <div role="region" aria-label={title} tabIndex={0} className="relative rounded-lg @3xl:overflow-x-auto">
+          {/* Narrow widths turn each row into a block with labelled figures; the header is for screen readers only. */}
+          <table className="num block w-full text-left text-sm @3xl:table @3xl:min-w-max">
+            <thead className="sr-only @3xl:not-sr-only @3xl:table-header-group">
               <tr className="text-xs text-muted">
                 <th scope="col" className="py-1 pr-3 font-medium">{t('analysis.loyalty.shop')}</th>
                 <th scope="col" className="px-3 py-1 text-right font-medium">{t('analysis.loyalty.orders')}</th>
@@ -38,10 +45,14 @@ export function Loyalty({ orders, onSelect }: { orders: Order[]; onSelect: (shop
                 <th scope="col" className="w-5"><span className="sr-only">{t('orders.open')}</span></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="block @3xl:table-row-group">
               {shops.map(shop => (
-                <tr key={shop.shopKey} onClick={() => onSelect(shop.shopKey)} className="cursor-pointer border-t border-line hover:bg-bg">
-                  <th scope="row" className="max-w-56 py-1.5 pr-3 font-normal">
+                <tr
+                  key={shop.shopKey}
+                  onClick={() => onSelect(shop.shopKey)}
+                  className="relative block cursor-pointer border-t border-line py-2 hover:bg-bg @3xl:table-row @3xl:py-0"
+                >
+                  <th scope="row" className="block pr-28 font-medium @3xl:table-cell @3xl:max-w-56 @3xl:py-1.5 @3xl:pr-3 @3xl:font-normal">
                     <button
                       type="button"
                       onClick={e => {
@@ -55,12 +66,15 @@ export function Loyalty({ orders, onSelect }: { orders: Order[]; onSelect: (shop
                       {shop.shopName}
                     </button>
                   </th>
-                  <td className="px-3 py-1.5 text-right">{shop.orderCount}</td>
-                  <td className="px-3 py-1.5 text-right">{money(shop.totalSpent)}</td>
-                  <td className="px-3 py-1.5 text-right">{money(shop.avgOrderValue)}</td>
-                  <td className="px-3 py-1.5 text-right">{shop.repeatRate === null ? t('stats.none') : t('analysis.loyalty.rate.unit', { n: shop.repeatRate.toLocaleString('vi-VN') })}</td>
-                  <td className="py-1.5 pl-3 text-right">{dayOf(shop.lastOrder)}</td>
-                  <td aria-hidden="true" className="pl-2 text-right text-muted">›</td>
+                  <td className={`${detail} ${dot}`}>{label('orders')}{shop.orderCount}</td>
+                  <td className="absolute top-2 right-0 text-right font-semibold @3xl:static @3xl:table-cell @3xl:px-3 @3xl:py-1.5 @3xl:font-normal">{money(shop.totalSpent)}</td>
+                  <td className={`${detail} ${dot}`}>{label('average')}{money(shop.avgOrderValue)}</td>
+                  <td className={`${detail} ${dot}`}>
+                    {label('rate')}
+                    {shop.repeatRate === null ? t('stats.none') : t('analysis.loyalty.rate.unit', { n: shop.repeatRate.toLocaleString('vi-VN') })}
+                  </td>
+                  <td className={`${detail} @3xl:pr-0 @3xl:pl-3`}>{label('last')}{dayOf(shop.lastOrder)}</td>
+                  <td aria-hidden="true" className="hidden pl-2 text-right text-muted @3xl:table-cell">›</td>
                 </tr>
               ))}
             </tbody>

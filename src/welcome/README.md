@@ -14,7 +14,7 @@
 ## Invariants
 
 - Browser integration is host-injected; the page component does not call Chrome APIs directly.
-- Permission explanations cover `activeTab`, `storage`, `scripting`, and `shopee.vn`.
+- Permission explanations cover `activeTab`, `storage`, `scripting`, `sidePanel`, and `shopee.vn`.
 - Semantic sections use `useId()` headings and `aria-labelledby`; usage steps remain an ordered list.
 - Privacy navigation prevents the anchor's default action and invokes the host, keeping Chrome routing in the adapter.
 

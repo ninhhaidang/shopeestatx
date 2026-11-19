@@ -1,6 +1,6 @@
 # Hướng dẫn sử dụng ShopeeStatX
 
-Dashboard có ba màn hình ở thanh điều hướng phía trên: **Tổng quan**, **Phân tích** và **Đơn hàng**. Khi cửa sổ hẹp, thanh này chuyển xuống dưới cùng và bảng đơn hàng chuyển thành danh sách thẻ. Giao diện có hai chế độ màu **Sáng** (mặc định) và **Tối**, chọn ở góc trên.
+Dashboard có ba màn hình ở thanh điều hướng phía trên: **Tổng quan**, **Phân tích** và **Đơn hàng**. Khi cửa sổ hẹp (như bảng bên), thanh này nằm trên một hàng riêng ngay dưới logo và bảng đơn hàng chuyển thành danh sách thẻ. Giao diện có hai chế độ màu **Sáng** (mặc định) và **Tối**, chọn ở góc trên.
 
 ## 🚀 Bắt đầu
 

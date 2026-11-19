@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { chromeHost } from '../src/dashboard-app/chrome-host';
-import { STORAGE_KEYS } from '../src/config';
+import { SCAN_REQUEST, STORAGE_KEYS } from '../src/config';
 import type { OrderData, UserProfile } from '../src/types';
 import { makeData, makeOrder } from './support/orders';
 
@@ -40,6 +40,35 @@ describe('Chrome scan account isolation', () => {
 
     expect(stored.orders).toEqual([]);
     expect(stored.user).toBeUndefined();
+  });
+});
+
+describe('Chrome dashboard scan request', () => {
+  afterEach(() => {
+    history.replaceState(null, '', '/');
+    localStorage.clear();
+    vi.resetModules();
+  });
+
+  const load = async (search: string) => {
+    vi.resetModules();
+    history.replaceState(null, '', `/dashboard-app/dashboard.html${search}`);
+    return (await import('../src/dashboard-app/chrome-host')).chromeHost;
+  };
+
+  it('scans once for the token the popup left, then strips it from the URL', async () => {
+    localStorage.setItem(SCAN_REQUEST, 'abc');
+
+    expect((await load('?fetch=abc')).scanOnOpen).toBe(true);
+    expect(window.location.search).toBe('');
+    expect(localStorage.getItem(SCAN_REQUEST)).toBeNull();
+  });
+
+  it('reads the cache when the panel reopens on a spent or foreign token', async () => {
+    expect((await load('?fetch=abc')).scanOnOpen).toBe(false);
+    localStorage.setItem(SCAN_REQUEST, 'new');
+    expect((await load('?fetch=old')).scanOnOpen).toBe(false);
+    expect(localStorage.getItem(SCAN_REQUEST)).toBe('new');
   });
 });
 

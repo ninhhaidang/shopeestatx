@@ -12,6 +12,7 @@ const PERMISSIONS = [
     'scripting',
     'Inject script vào tab Shopee để gọi API Shopee với cookie trình duyệt — đây là cách duy nhất để lấy dữ liệu mà không cần tài khoản riêng hay server trung gian',
   ],
+  ['sidePanel', 'Mở dashboard trong bảng bên của Chrome, cạnh trang Shopee'],
   ['https://shopee.vn/*', 'Giới hạn host permission — extension chỉ có thể inject script vào shopee.vn, không có quyền trên bất kỳ trang web nào khác'],
 ] as const;
 

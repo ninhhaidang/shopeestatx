@@ -88,6 +88,27 @@ describe('Phân tích: heatmap', () => {
     expect(rows.some(r => /10\/8\/2025/.test(r!))).toBe(false); // older than 12 months
   });
 
+  it('stacks the year in strips instead of scrolling when the card is narrow', async () => {
+    vi.stubGlobal('ResizeObserver', class {
+      constructor(private report: (entries: { contentRect: { width: number } }[]) => void) {}
+      observe() {
+        this.report([{ contentRect: { width: 296 } }]);
+      }
+      disconnect() {}
+    });
+    try {
+      await openAnalysis();
+
+      const heatmap = screen.getByRole('img', { name: /Số đơn theo ngày/ });
+      expect(heatmap.querySelectorAll('svg')).toHaveLength(2);
+      expect(heatmap.querySelectorAll('rect').length).toBeGreaterThanOrEqual(365);
+      expect(new Set([...heatmap.querySelectorAll('rect')].map(r => r.dataset.date)).size).toBe(heatmap.querySelectorAll('rect').length);
+      expect(screen.queryByRole('region', { name: /cuộn ngang/ })).not.toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('marks a day with orders and leaves an empty day plain', async () => {
     await openAnalysis();
 
