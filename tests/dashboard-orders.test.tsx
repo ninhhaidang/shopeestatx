@@ -257,7 +257,7 @@ describe('Đơn hàng: phân trang', () => {
     const { user } = await openOrders(many);
     expect(screen.getAllByRole('link', { name: /^11\d\d$/ })).toHaveLength(20);
     expect(screen.getByText('Hiển thị 1–20 trong tổng số 45 đơn')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Trang trước' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Trang trước' })).toHaveAttribute('aria-disabled', 'true');
 
     await user.click(screen.getByRole('button', { name: 'Trang sau' }));
     expect(screen.getByText('Hiển thị 21–40 trong tổng số 45 đơn')).toBeInTheDocument();
@@ -266,7 +266,7 @@ describe('Đơn hàng: phân trang', () => {
     await user.click(screen.getByRole('button', { name: 'Trang 3' }));
     expect(screen.getAllByRole('link', { name: /^11\d\d$/ })).toHaveLength(5);
     expect(screen.getByRole('button', { name: 'Trang 3' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Trang sau' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Trang sau' })).toHaveAttribute('aria-disabled', 'true');
   });
 
   it('lets the reader pick how many orders a page shows, or all of them', async () => {
@@ -345,7 +345,8 @@ describe('Đơn hàng: xuất dữ liệu', () => {
     await user.selectOptions(screen.getByRole('combobox', { name: 'Lọc theo shop' }), 'b - Beta');
     await user.click(within(screen.getByRole('columnheader', { name: /Tổng tiền/ })).getByRole('button'));
 
-    await user.click(screen.getByRole('button', { name: 'CSV (.csv)' }));
+    await user.click(screen.getByRole('button', { name: 'Xuất dữ liệu' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'CSV (.csv)' }));
 
     expect(downloads).toHaveLength(1);
     expect(downloads[0].filename).toMatch(/^shopee-stats-\d{4}-\d{2}-\d{2}\.csv$/);
@@ -361,7 +362,8 @@ describe('Đơn hàng: xuất dữ liệu', () => {
       { cachedAt: NOW.toISOString() },
     );
     const { user } = await openOrders(many);
-    await user.click(screen.getByRole('button', { name: 'CSV (.csv)' }));
+    await user.click(screen.getByRole('button', { name: 'Xuất dữ liệu' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'CSV (.csv)' }));
     expect((await readBlob(downloads[0].blob!)).split('\n')).toHaveLength(46);
   });
 
@@ -369,7 +371,8 @@ describe('Đơn hàng: xuất dữ liệu', () => {
     const { user } = await openOrders();
     await user.click(screen.getByRole('button', { name: 'Đã hủy 1' }));
 
-    await user.click(screen.getByRole('button', { name: 'Excel (.xlsx)' }));
+    await user.click(screen.getByRole('button', { name: 'Xuất dữ liệu' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Excel (.xlsx)' }));
 
     await vi.waitFor(() => expect(downloads).toHaveLength(1));
     expect(downloads[0].filename).toMatch(/\.xlsx$/);
@@ -386,7 +389,8 @@ describe('Đơn hàng: xuất dữ liệu', () => {
       printed = document.getElementById('orders-print')?.textContent ?? '';
     });
 
-    await user.click(screen.getByRole('button', { name: 'In / PDF' }));
+    await user.click(screen.getByRole('button', { name: 'Xuất dữ liệu' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'In / PDF' }));
 
     expect(print).toHaveBeenCalledOnce();
     expect(printed).toContain('1001');
@@ -398,8 +402,9 @@ describe('Đơn hàng: xuất dữ liệu', () => {
   it('disables export when nothing matches', async () => {
     const { user } = await openOrders();
     await user.type(screen.getByRole('searchbox', { name: 'Tìm kiếm đơn hàng' }), 'khong-co-gi');
-    expect(screen.getByRole('button', { name: 'CSV (.csv)' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Excel (.xlsx)' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'In / PDF' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Xuất dữ liệu' }));
+    for (const name of ['CSV (.csv)', 'Excel (.xlsx)', 'In / PDF']) {
+      expect(await screen.findByRole('menuitem', { name })).toHaveAttribute('aria-disabled', 'true');
+    }
   });
 });

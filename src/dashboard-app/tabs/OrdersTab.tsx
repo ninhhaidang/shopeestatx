@@ -1,3 +1,5 @@
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '@ui-sdk/react/menu';
+import { Toggle, ToggleGroup } from '@ui-sdk/react/toggle';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { matchesStatusAndSearch, sortOrders } from '../../dashboard/order-query.js';
@@ -7,7 +9,6 @@ import { isExcludedOrder, ORDER_STATUSES } from '../../dashboard/order-status.js
 import { t } from '../../i18n/index.js';
 import { shopIdentity } from '../../dashboard/shop.js';
 import type { Order, SortDirection } from '../../types/index.js';
-import { Button } from '../../ui/components/Button';
 import { StateMessage } from '../../ui/components/StateMessage';
 import { control } from '../../ui/styles/classes';
 import { NoOrdersInRange } from '../components/NoOrdersInRange';
@@ -28,6 +29,7 @@ const SORT_COLUMNS: { field: SortField; label: string }[] = [
   { field: 'subTotal', label: 'table.col.total' },
 ];
 /** Header cells stay in view while the list scrolls; the inset shadow is their bottom rule (a border would not stick). */
+const exportItem = 'cursor-pointer rounded-lg px-3 py-1.5 text-left text-sm text-fg outline-none data-highlighted:bg-bg data-disabled:cursor-not-allowed data-disabled:opacity-50';
 const th = 'px-3 py-2.5 text-xs font-medium text-muted first:pl-5 @5xl:sticky @5xl:top-0 @5xl:z-[1] @5xl:bg-card @5xl:shadow-[inset_0_-1px_0_var(--line)]';
 interface Sort {
   field: SortField;
@@ -134,17 +136,15 @@ export function OrdersTab() {
     const on = status === code;
     const tone = code === null ? 'text-fg' : (STATUS_TONE[code] ?? 'text-muted');
     return (
-      <button
+      <Toggle
         key={code ?? 'all'}
-        type="button"
-        aria-pressed={on}
-        onClick={() => changeFilter(() => setStatus(code))}
+        value={code === null ? 'all' : String(code)}
         className={`inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-sm ${on ? `border-current font-semibold ${tone} ${STATUS_TINT}` : 'border-line bg-card text-fg hover:border-control-line'}`}
       >
         {code !== null && <span aria-hidden="true" className={`size-1.5 rounded-full bg-current ${tone}`} />}
         {label}{' '}
         <span className={`num text-xs ${on ? '' : 'text-muted'}`}>{count}</span>
-      </button>
+      </Toggle>
     );
   };
 
@@ -198,25 +198,26 @@ export function OrdersTab() {
             <option key={`${c.field}:desc`} value={`${c.field}:desc`}>{t('orders.sort.desc', { column: t(c.label) })}</option>,
           ])}
         </select>
-        {/* One menu instead of three toolbar buttons. It closes when focus leaves it or a format is picked. */}
-        <details className="relative" onBlur={e => !e.currentTarget.contains(e.relatedTarget) && (e.currentTarget.open = false)}>
-          <summary className={`${control} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>{t('orders.export')}</summary>
-          <div
-            role="group"
-            aria-label={t('orders.export')}
-            onClick={e => ((e.currentTarget.parentElement as HTMLDetailsElement).open = false)}
-            className="absolute left-0 z-10 mt-1 flex min-w-40 flex-col gap-1 rounded-xl border border-line bg-card p-1.5 shadow-lg @5xl:left-auto @5xl:right-0"
-          >
-            <Button variant="outline" className="border-transparent text-left" disabled={results.length === 0} onClick={() => exportToExcel(results)}>{t('export.excel')}</Button>
-            <Button variant="outline" className="border-transparent text-left" disabled={results.length === 0} onClick={() => exportToCSV(results)}>{t('export.csv')}</Button>
-            <Button variant="outline" className="border-transparent text-left" disabled={results.length === 0} onClick={() => setPrinting(true)}>{t('export.pdf')}</Button>
-          </div>
-        </details>
+        {/* One menu instead of three toolbar buttons. */}
+        <Menu>
+          <MenuTrigger className={`${control} cursor-pointer`}>{t('orders.export')}</MenuTrigger>
+          <MenuContent side="bottom" align="end" sideOffset={4} className="z-10 flex min-w-40 flex-col gap-1 rounded-xl border border-line bg-card p-1.5 shadow-lg outline-none">
+            <MenuItem disabled={results.length === 0} onSelect={() => exportToExcel(results)} className={exportItem}>{t('export.excel')}</MenuItem>
+            <MenuItem disabled={results.length === 0} onSelect={() => exportToCSV(results)} className={exportItem}>{t('export.csv')}</MenuItem>
+            <MenuItem disabled={results.length === 0} onSelect={() => setPrinting(true)} className={exportItem}>{t('export.pdf')}</MenuItem>
+          </MenuContent>
+        </Menu>
       </div>
-      <div role="group" aria-label={t('orders.filter.status')} className="flex flex-wrap gap-1.5">
+      <ToggleGroup
+        aria-label={t('orders.filter.status')}
+        value={[status === null ? 'all' : String(status)]}
+        deselectable={false}
+        onValueChange={([next]) => next && changeFilter(() => setStatus(next === 'all' ? null : Number(next)))}
+        className="flex flex-wrap gap-1.5"
+      >
         {statusChip(null, t('orders.status.all'), searched.length)}
         {statuses.map(s => statusChip(s.code, t(s.label), searched.filter(o => o.statusCode === s.code).length))}
-      </div>
+      </ToggleGroup>
       {printing && createPortal(<PrintSheet orders={results} />, document.body)}
 
       {results.length === 0 ? (

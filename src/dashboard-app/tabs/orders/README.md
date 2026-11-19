@@ -8,8 +8,7 @@ Order table helpers, pagination, detail expansion, and print sheet. Filtering an
 
 - [OrderRow.tsx](OrderRow.tsx): `OrderRow({ order, expanded, onToggle })` renders the row/card and its optional detail region.
 - [OrderDetail.tsx](OrderDetail.tsx): `OrderDetail({ order, id, excluded })` renders seller, delivery time, total, and item detail.
-- [Pagination.tsx](Pagination.tsx): `Pagination({ page, pages, onPage })` renders previous/next and numbered controls; caller provides valid one-based page bounds.
-- [PageButton.tsx](PageButton.tsx): `PageButton({ label, current?, disabled?, onClick, children })` supplies accessible labels and current-page semantics.
+- [Pagination.tsx](Pagination.tsx): `Pagination({ page, pages, onPage })` styles ui-sdk Pagination: previous/next and numbered controls with accessible labels and current-page semantics; caller provides valid one-based page bounds.
 - [PrintSheet.tsx](PrintSheet.tsx): `PrintSheet({ orders: Order[] })` renders the print-only `orders-print` table.
 
 ## Invariants

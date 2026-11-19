@@ -6,6 +6,7 @@ import { RescanBanner } from '../components/RescanBanner';
 import { useDashboard } from '../context';
 import { money } from '../format';
 import { RankList } from '../../ui/components/RankList';
+import { SegmentedControl, SegmentedControlItem } from '@ui-sdk/react/segmented-control';
 import { card, segment, segments } from '../../ui/styles/classes';
 
 import { Budget } from './analysis/Budget';
@@ -55,10 +56,10 @@ function Products({ quantity, price, onSelect }: { quantity: ProductRows; price:
     <section aria-labelledby="analysis-products" className={`${card} min-w-0 @5xl:col-span-2`}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h3 id="analysis-products" className="text-base font-semibold">{t('analysis.products')}</h3>
-        <div role="group" aria-label={t('analysis.products.by')} className={segments}>
-          <button type="button" aria-pressed={by === 'quantity'} onClick={() => setBy('quantity')} className={segment(by === 'quantity')}>{t('analysis.products.quantity')}</button>
-          <button type="button" aria-pressed={by === 'price'} onClick={() => setBy('price')} className={segment(by === 'price')}>{t('analysis.products.price')}</button>
-        </div>
+        <SegmentedControl aria-label={t('analysis.products.by')} value={by} onValueChange={next => next && setBy(next)} className={segments}>
+          <SegmentedControlItem value="quantity" className={segment}>{t('analysis.products.quantity')}</SegmentedControlItem>
+          <SegmentedControlItem value="price" className={segment}>{t('analysis.products.price')}</SegmentedControlItem>
+        </SegmentedControl>
       </div>
       {rows.length === 0 ? (
         <p className="text-sm text-muted">{t('analysis.noProducts')}</p>

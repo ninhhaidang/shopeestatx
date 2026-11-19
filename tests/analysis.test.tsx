@@ -56,7 +56,7 @@ describe('Phân tích: thói quen và sản phẩm', () => {
     const top = within(screen.getByRole('list', { name: 'Sản phẩm mua nhiều nhất' })).getAllByRole('listitem');
     expect(top[0]).toHaveTextContent(/Áo thun.*x3/);
 
-    await user.click(screen.getByRole('button', { name: 'Đắt nhất' }));
+    await user.click(screen.getByRole('radio', { name: 'Đắt nhất' }));
     const priciest = within(screen.getByRole('list', { name: 'Sản phẩm đắt nhất' })).getAllByRole('listitem');
     expect(priciest[0]).toHaveTextContent(/Giày.*300\.000/);
     expect(screen.queryByText('Laptop')).not.toBeInTheDocument(); // cancelled order
@@ -264,14 +264,14 @@ describe('Phân tích: dự đoán và ngân sách', () => {
 
     await setBudget(user, '1000000');
 
-    const meter = screen.getByRole('progressbar', { name: 'Ngân sách tháng' });
+    const meter = screen.getByRole('meter', { name: 'Ngân sách tháng' });
     expect(meter).toHaveAttribute('aria-valuenow', '60');
     expect(screen.getByTestId('budget-figures')).toHaveTextContent(/600\.000.*1\.000\.000/);
     expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.BUDGET) ?? 'null')).toMatchObject({ monthlyLimit: 1_000_000, enabled: true });
 
     unmount();
     await openAnalysis();
-    expect(await screen.findByRole('progressbar', { name: 'Ngân sách tháng' })).toHaveAttribute('aria-valuenow', '60');
+    expect(await screen.findByRole('meter', { name: 'Ngân sách tháng' })).toHaveAttribute('aria-valuenow', '60');
   });
 
   it('saves a whole-VND limit and lets an existing non-round budget change its alert threshold', async () => {
@@ -312,7 +312,7 @@ describe('Phân tích: dự đoán và ngân sách', () => {
     await user.type(input, '700000');
     await user.click(screen.getByRole('button', { name: 'Lưu' }));
 
-    expect(screen.getByRole('progressbar', { name: 'Ngân sách tháng' })).toHaveAttribute('aria-valuenow', '86');
+    expect(screen.getByRole('meter', { name: 'Ngân sách tháng' })).toHaveAttribute('aria-valuenow', '86');
     expect(screen.getByText('Cảnh báo: Đã tiêu 86% ngân sách tháng này!')).toBeInTheDocument();
     expect(screen.getByText(/Dự kiến vượt ngân sách 75\.000/)).toBeInTheDocument();
   });
@@ -323,6 +323,6 @@ describe('Phân tích: dự đoán và ngân sách', () => {
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'Khoảng thời gian' }), 'Tháng trước');
 
-    expect(screen.getByRole('progressbar', { name: 'Ngân sách tháng' })).toHaveAttribute('aria-valuenow', '60');
+    expect(screen.getByRole('meter', { name: 'Ngân sách tháng' })).toHaveAttribute('aria-valuenow', '60');
   });
 });

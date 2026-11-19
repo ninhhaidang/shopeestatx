@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState, type FormEvent } from 'react';
+import { Meter, MeterIndicator, MeterTrack } from '@ui-sdk/react/meter';
 import {
   budgetProgress,
   currentMonthSpend,
@@ -164,17 +165,11 @@ export function Budget({ allOrders, now }: { allOrders: Order[]; now: Date }) {
             <strong className="text-xl">{money(spent)}</strong>
             <span className="text-muted"> / {money(config.monthlyLimit)}</span>
           </p>
-          <div
-            role="progressbar"
-            aria-label={t('comparison.budget')}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.min(percent, 100)}
-            aria-valuetext={`${percent}%`}
-            className="h-2.5 overflow-hidden rounded-full bg-line"
-          >
-            <div className={`h-full rounded-full ${LEVEL_BAR[progress.level]}`} style={{ width: `${Math.min(percent, 100)}%` }} />
-          </div>
+          <Meter value={percent} aria-label={t('comparison.budget')} getValueLabel={() => `${percent}%`}>
+            <MeterTrack className="h-2.5 overflow-hidden rounded-full bg-line">
+              <MeterIndicator className={`h-full rounded-full ${LEVEL_BAR[progress.level]}`} />
+            </MeterTrack>
+          </Meter>
           <p className="num text-muted">{percent}%</p>
           {progress.alert && <p role="status" className="font-medium text-bad">{t('analysis.budget.alert', { percent })}</p>}
           <div><Button variant="outline" onClick={() => setEditing(true)}>{t('analysis.budget.edit')}</Button></div>

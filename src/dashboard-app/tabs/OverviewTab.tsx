@@ -6,6 +6,7 @@ import { t } from '../../i18n/index.js';
 import { Button } from '../../ui/components/Button';
 import { MonthChart, MonthMatrix, type MonthPoint } from '../../ui/components/MonthChart';
 import { RankList } from '../../ui/components/RankList';
+import { SegmentedControl, SegmentedControlItem } from '@ui-sdk/react/segmented-control';
 import { card, segment, segments } from '../../ui/styles/classes';
 import { NoOrdersInRange } from '../components/NoOrdersInRange';
 import { RescanBanner } from '../components/RescanBanner';
@@ -92,10 +93,10 @@ export function OverviewTab() {
             <h2 className="text-base font-semibold">{chartTitle}</h2>
             <p className="text-xs text-muted">{t('dash.chart.hint')}</p>
           </div>
-          <div role="group" aria-label={t('dash.chart.view')} className={segments}>
-            <button type="button" aria-pressed={view === 'chart'} onClick={() => setView('chart')} className={segment(view === 'chart')}>{t('dash.chart.showChart')}</button>
-            <button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')} className={segment(view === 'table')}>{t('dash.chart.showTable')}</button>
-          </div>
+          <SegmentedControl aria-label={t('dash.chart.view')} value={view} onValueChange={next => next && setView(next)} className={segments}>
+            <SegmentedControlItem value="chart" className={segment}>{t('dash.chart.showChart')}</SegmentedControlItem>
+            <SegmentedControlItem value="table" className={segment}>{t('dash.chart.showTable')}</SegmentedControlItem>
+          </SegmentedControl>
         </div>
         {view === 'chart' ? (
           <MonthChart title={chartTitle} points={series.points} active={series.active} onSelect={pickMonth} formatValue={money} formatTick={shortMoney} />

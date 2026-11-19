@@ -1,31 +1,26 @@
-import * as ToggleGroup from '@radix-ui/react-toggle-group';
+import { SegmentedControl, SegmentedControlItem } from '@ui-sdk/react/segmented-control';
 import { t } from '../../i18n/index.js';
 import { isColorMode, type ColorMode } from '../theme/theme';
 import { useTheme } from '../theme/ThemeProvider';
+import { segment, segments } from '../styles/classes';
 
 const OPTIONS: ColorMode[] = ['light', 'dark'];
 
-/** Light / Dark switch. Radix gives arrow-key roving focus and radio semantics. */
+/** Light / Dark switch: a radio group with arrow-key roving focus. */
 export function ThemeToggle() {
   const { mode, setMode } = useTheme();
   return (
-    <ToggleGroup.Root
-      type="single"
+    <SegmentedControl
       value={mode}
-      // Radix reports '' when the active item is clicked again; keep the current choice.
       onValueChange={(value) => isColorMode(value) && setMode(value)}
       aria-label={t('colorMode.label')}
-      className="inline-flex rounded-lg border border-line bg-card p-0.5"
+      className={segments}
     >
       {OPTIONS.map((option) => (
-        <ToggleGroup.Item
-          key={option}
-          value={option}
-          className="cursor-pointer rounded-md px-2.5 py-1 text-xs text-muted transition-colors hover:text-fg data-[state=on]:bg-bg data-[state=on]:font-semibold data-[state=on]:text-fg data-[state=on]:shadow-[0_0_0_1px_var(--line)]"
-        >
+        <SegmentedControlItem key={option} value={option} className={`${segment} transition-colors`}>
           {t(`colorMode.${option}`)}
-        </ToggleGroup.Item>
+        </SegmentedControlItem>
       ))}
-    </ToggleGroup.Root>
+    </SegmentedControl>
   );
 }

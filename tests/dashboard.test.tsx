@@ -105,7 +105,7 @@ describe('Tổng quan', () => {
     expect(screen.getByRole('img', { name: /Chi tiêu theo tháng, 15 cột, trung bình 86\.667\s₫ mỗi tháng/ })).toBeInTheDocument();
     expect(screen.getByTestId('chart-average')).toHaveTextContent('Trung bình 87k/tháng');
 
-    await user.click(screen.getByRole('button', { name: 'Bảng số liệu' }));
+    await user.click(screen.getByRole('radio', { name: 'Bảng số liệu' }));
     const cells = within(screen.getByRole('row', { name: /^2026/ })).getAllByRole('cell').map(td => td.textContent);
     // Twelve months then the year total; September is the ninth month.
     expect(cells).toHaveLength(13);
@@ -145,8 +145,8 @@ describe('Tổng quan', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Tạo ảnh chia sẻ' }));
     const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh chia sẻ' }));
-    await user.click(dialog.getByRole('button', { name: 'Đêm' }));
-    await user.click(dialog.getByRole('button', { name: 'Story 9:16' }));
+    await user.click(dialog.getByRole('radio', { name: 'Đêm' }));
+    await user.click(dialog.getByRole('radio', { name: 'Story 9:16' }));
     await user.click(dialog.getByRole('button', { name: 'Tải ảnh' }));
 
     expect(shareImage.downloadShareImage).toHaveBeenCalledOnce();
