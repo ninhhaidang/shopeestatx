@@ -4,10 +4,10 @@
 
 export type ShareTemplate =
   | 'label' | 'bold' | 'night' | 'sale' | 'voucher' | 'coins' | 'parcel'
-  | 'candy' | 'sky' | 'cat' | 'matcha' | 'tet' | 'receipt' | 'neon' | 'minimal';
+  | 'candy' | 'sky' | 'cat' | 'matcha' | 'xmas' | 'tet' | 'receipt' | 'neon' | 'minimal';
 
 export const SHARE_TEMPLATES: ShareTemplate[] = [
-  'label', 'bold', 'night', 'sale', 'voucher', 'coins', 'parcel', 'candy', 'sky', 'cat', 'matcha', 'tet', 'receipt', 'neon', 'minimal',
+  'label', 'bold', 'night', 'sale', 'voucher', 'coins', 'parcel', 'candy', 'sky', 'cat', 'matcha', 'xmas', 'tet', 'receipt', 'neon', 'minimal',
 ];
 
 export const ORANGE = '#ee4d2d';
@@ -434,6 +434,48 @@ function upArrows(ctx: Ctx, x: number, y: number, s: number, color: string): voi
   ctx.fillRect(x - s * 0.36, y + s * 0.38, s * 0.72, s * 0.08);
 }
 
+function snowflake(ctx: Ctx, x: number, y: number, r: number, color: string): void {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(1.5, r * 0.12);
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    const [cos, sin] = [Math.cos(a), Math.sin(a)];
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + cos * r, y + sin * r);
+    // A small V on each arm.
+    const bx = x + cos * r * 0.6;
+    const by = y + sin * r * 0.6;
+    for (const side of [-1, 1]) {
+      const b = a + side * 0.7;
+      ctx.moveTo(bx, by);
+      ctx.lineTo(bx + Math.cos(b) * r * 0.3, by + Math.sin(b) * r * 0.3);
+    }
+    ctx.stroke();
+  }
+}
+
+/** A fir tree with a star and baubles. */
+function tree(ctx: Ctx, x: number, y: number, s: number): void {
+  const cx = x + s / 2;
+  ctx.fillStyle = '#7a4a2a';
+  ctx.fillRect(cx - s * 0.06, y + s * 0.82, s * 0.12, s * 0.14);
+  ctx.fillStyle = '#3fbf6f';
+  for (const [top, half, bottom] of [[0.14, 0.2, 0.42], [0.3, 0.28, 0.64], [0.48, 0.36, 0.84]]) {
+    ctx.beginPath();
+    ctx.moveTo(cx, y + s * top);
+    ctx.lineTo(cx + s * half, y + s * bottom);
+    ctx.lineTo(cx - s * half, y + s * bottom);
+    ctx.closePath();
+    ctx.fill();
+  }
+  for (const [dx, dy, color] of [[-0.12, 0.4, '#ff6b6b'], [0.1, 0.56, '#ffd15c'], [-0.18, 0.74, '#ffd15c'], [0.2, 0.78, '#ff6b6b'], [0, 0.66, '#ffffff']] as const) {
+    circle(ctx, cx + dx * s, y + dy * s, s * 0.04, color);
+  }
+  star(ctx, cx, y + s * 0.12, s * 0.1, '#ffd15c');
+}
+
 /** Doodles scattered round the edges, clear of the content column. */
 function corners(W: number, H: number, u: number, draw: (x: number, y: number, s: number, i: number) => void): void {
   const m = 34 * u;
@@ -521,6 +563,18 @@ export const LOOKS: Record<ShareTemplate, Look> = {
     bg: '#e9f2df', fg: '#2c3a20', muted: '#6a7b57', brand: '#4f8a2e', bars: '#8fbf6a', rule: '#cfe0bd', cell: { fill: '#f9f7ef', radius: 26 },
     backdrop: (ctx, W, H, u) => corners(W, H, u, (x, y, s, i) => leaf(ctx, x, y, s * 2.6, i * 1.1 - 0.6, '#b9d69c', '#e9f2df')),
     mascot: matchaCup,
+  },
+  xmas: {
+    bg: '#0f4d2e', fg: '#ffffff', muted: 'rgba(255,255,255,0.8)', brand: '#ff7b7b', bars: '#ff8a80', rule: 'rgba(255,255,255,0.25)',
+    cell: { fill: 'rgba(255,255,255,0.1)', radius: 22 },
+    backdrop: (ctx, W, H, u) => {
+      // Light snow: the same fixed scatter on every image.
+      let seed = 7;
+      const next = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      for (let i = 0; i < 70; i++) circle(ctx, next() * W, next() * H, (2 + next() * 4) * u, 'rgba(255,255,255,0.28)');
+      corners(W, H, u, (x, y, s) => snowflake(ctx, x, y, s * 0.9, 'rgba(255,255,255,0.75)'));
+    },
+    mascot: tree,
   },
   tet: {
     bg: '#b8121e', fg: '#fff4dc', muted: '#f7c9a3', brand: '#ffd15c', bars: '#ffd15c', rule: 'rgba(255,209,92,0.5)', cell: { fill: 'rgba(0,0,0,0.18)', radius: 18 },

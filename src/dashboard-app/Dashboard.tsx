@@ -15,6 +15,7 @@ import { DashboardContext, type OrdersFilter } from './context';
 import type { DashboardHost } from './host';
 import { OverviewSkeleton } from './OverviewSkeleton';
 import { RangePicker } from './RangePicker';
+import { loadShareStyle, saveShareStyle, type ShareStyle } from './share-style';
 import { ShareDialog, type ShareOption } from './tabs/overview/ShareDialog';
 import { TABS, type TabId } from './tabs';
 import { formatUpdated } from './updated';
@@ -72,6 +73,11 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   }, [data, years, stale]);
   const canShare = phase === 'ready' && (yearShare !== null || orders.length > 0);
   const [sharing, setSharing] = useState(false);
+  const [shareStyle, setShareStyleState] = useState(loadShareStyle);
+  const setShareStyle = (next: ShareStyle) => {
+    setShareStyleState(next);
+    saveShareStyle(next);
+  };
   const sharedOnOpen = useRef(false);
   useEffect(() => {
     if (!host.shareOnOpen || sharedOnOpen.current || !canShare) return;
@@ -93,8 +99,8 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
       // The clicked row unmounts with the tab; keep focus on the tab it led to.
       tabRefs.current.orders?.focus();
     };
-    return { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh, ordersFilter, showOrders, yearShare, openShare: () => setSharing(true) };
-  }, [data, orders, range, selection, clock, ordersFilter, yearShare]);
+    return { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh, ordersFilter, showOrders, yearShare, shareStyle, openShare: () => setSharing(true) };
+  }, [data, orders, range, selection, clock, ordersFilter, yearShare, shareStyle]);
 
   const stamp = data?.cachedAt ?? data?.fetchedAt;
   const progressText =
@@ -212,7 +218,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
           ))}
         </main>
       </Tabs>
-      {shareOptions && <ShareDialog options={shareOptions} onClose={() => setSharing(false)} />}
+      {shareOptions && <ShareDialog options={shareOptions} style={shareStyle} onStyle={setShareStyle} onClose={() => setSharing(false)} />}
     </div>
   );
 }

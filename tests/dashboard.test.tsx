@@ -207,6 +207,27 @@ describe('Tổng quan', () => {
     expect(dialog.getByRole('radio', { name: 'Năm 2026' })).toBeChecked();
   });
 
+  it('remembers the artwork and size: the year card and the next dialog start there', async () => {
+    const { user, unmount } = renderDashboard();
+
+    await user.click(await screen.findByRole('button', { name: 'Tạo ảnh khoe' }));
+    let dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' }));
+    await user.click(dialog.getByRole('radio', { name: 'Giáng sinh' }));
+    await user.click(dialog.getByRole('radio', { name: 'Story 9:16' }));
+    await user.click(dialog.getByRole('button', { name: 'Đóng' }));
+
+    const card = within(screen.getByRole('region', { name: 'Tổng kết Shopee 2026 của bạn' }));
+    await user.click(card.getByRole('button', { name: 'Lưu ảnh' }));
+    expect(shareImage.downloadShareImage).toHaveBeenLastCalledWith(expect.objectContaining({ year: 2026 }), 'xmas', 'story');
+
+    unmount();
+    const again = renderDashboard();
+    await again.user.click(await screen.findByRole('button', { name: 'Tạo ảnh khoe' }));
+    dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' }));
+    expect(dialog.getByRole('radio', { name: 'Giáng sinh' })).toBeChecked();
+    expect(dialog.getByRole('radio', { name: 'Story 9:16' })).toBeChecked();
+  });
+
   it('carries a Kim Cương tier from 2025 into the 2026 year card', async () => {
     const history = [
       ...Array.from({ length: 75 }, (_, i) => makeOrder(`2025-08-${String((i % 28) + 1).padStart(2, '0')}T10:00:00`, { subTotal: 200_000 })),

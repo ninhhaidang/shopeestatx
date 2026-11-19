@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 import type { DateRange, Order, OrderData } from '../types/index.js';
 import type { RangeSelection } from '../dashboard/range.js';
 import type { ShareData } from '../dashboard/share-image.js';
+import type { ShareStyle } from './share-style';
 
 /** What every tab gets once data is loaded. Tabs read this instead of re-deriving the range or the data. */
 export interface DashboardContextValue {
@@ -22,6 +23,8 @@ export interface DashboardContextValue {
   showOrders: (filter: OrdersFilter) => void;
   /** The share image of the latest year with orders, or null when there is none. */
   yearShare: { year: number; data: ShareData } | null;
+  /** The artwork and size picked last in the share dialog. */
+  shareStyle: ShareStyle;
   /** Open the share dialog (the same as the toolbar's «Tạo ảnh khoe»). */
   openShare: () => void;
 }

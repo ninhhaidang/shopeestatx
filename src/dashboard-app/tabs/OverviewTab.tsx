@@ -16,7 +16,7 @@ import { ChangeLine } from './overview/ChangeLine';
 
 /** Tổng quan: Chi tiêu ròng with its comparisons and the year's share card, four figures, spend per month, top shops. */
 export function OverviewTab() {
-  const { data, orders, range, selection, setSelection, resetRange, now, showOrders, yearShare, openShare } = useDashboard();
+  const { data, orders, range, selection, setSelection, resetRange, now, showOrders, yearShare, shareStyle, openShare } = useDashboard();
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const overview = useMemo(() => computeOverview(orders), [orders]);
   // The month-over-month figure looks at the whole history, anchored on the range's last day (never in the future).
@@ -72,7 +72,7 @@ export function OverviewTab() {
             <ChangeLine unit="year" change={yearDiff} testId="year-change" />
           </div>
         </div>
-        {yearShare && <BragCard data={yearShare.data} year={yearShare.year} onCustomize={openShare} />}
+        {yearShare && <BragCard data={yearShare.data} year={yearShare.year} style={shareStyle} onCustomize={openShare} />}
       </section>
 
       <dl className="col-span-full grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line @2xl:grid-cols-4">
