@@ -18,7 +18,7 @@ The **Time range** picker at the top applies to all three screens: quick choices
 - Four tiles: orders, average per order, refunds, estimated savings.
 - **Spend per month** chart with an average-month line; click a bar to view that month, or switch to the data table.
 - **Top shops**: click a shop to open its orders.
-- The share button creates a PNG with aggregate figures only (no shop names, order IDs or product names).
+- The share button creates a PNG with aggregate figures (no shop names, order IDs or product names); you can choose to add your Shopee username, or avatar and username, at the top (hidden by default).
 
 Cancelled, returned and unpaid orders are not counted as spending. Estimated savings is items total minus amount paid; Shopee does not expose vouchers or free shipping separately (see [docs/shopee-order-api.md](../shopee-order-api.md)). If refunds or savings show "—", the cache comes from an older version: use the re-scan button.
 
