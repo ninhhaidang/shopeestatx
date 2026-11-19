@@ -167,13 +167,14 @@ describe('Tổng quan', () => {
 
     await user.click(await screen.findByRole('button', { name: 'Tạo ảnh khoe' }));
     const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' }));
+    await user.click(dialog.getByRole('radio', { name: 'Khoảng đang chọn' }));
     await user.click(dialog.getByRole('radio', { name: 'Đêm' }));
     await user.click(dialog.getByRole('radio', { name: 'Story 9:16' }));
     await user.click(dialog.getByRole('button', { name: 'Tải PNG' }));
 
     expect(shareImage.downloadShareImage).toHaveBeenCalledOnce();
     const [data, template, ratio] = shareImage.downloadShareImage.mock.calls[0];
-    expect(data).toMatchObject({ stats: { netSpend: 1_300_000 }, financialAvailable: true, orders: 4 });
+    expect(data).toMatchObject({ stats: { netSpend: 1_300_000 }, financialAvailable: true, orders: 4, year: undefined });
     expect(data.monthly.at(-1)).toBe(450_000);
     expect([template, ratio]).toEqual(['night', 'story']);
   });
@@ -189,7 +190,22 @@ describe('Tổng quan', () => {
     expect(await dialog.findByText(/Đã sao chép/)).toBeInTheDocument();
     await user.click(dialog.getByRole('button', { name: 'Sao chép ảnh' }));
     expect(await dialog.findByText(/Hãy dùng Tải PNG/)).toBeInTheDocument();
-    expect(shareImage.copyShareImage).toHaveBeenCalledWith(expect.objectContaining({ orders: 4 }), 'label', 'square');
+    // The latest year leads: 2026 has three counted orders (one is cancelled).
+    expect(shareImage.copyShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026, orders: 3, stats: expect.objectContaining({ netSpend: 750_000 }) }), 'label', 'square');
+  });
+
+  it('puts the year card on Tổng quan: copy straight away, or customise in the dialog', async () => {
+    shareImage.copyShareImage.mockResolvedValue(undefined);
+    const { user } = renderDashboard();
+
+    const card = within(await screen.findByRole('region', { name: 'Tổng kết Shopee 2026 của bạn' }));
+    await user.click(card.getByRole('button', { name: 'Sao chép ảnh' }));
+    expect(shareImage.copyShareImage).toHaveBeenCalledWith(expect.objectContaining({ year: 2026 }), 'label', 'square');
+    expect(await card.findByText(/Đã sao chép/)).toBeInTheDocument();
+
+    await user.click(card.getByRole('button', { name: 'Tuỳ chỉnh…' }));
+    const dialog = within(screen.getByRole('dialog', { name: 'Tạo ảnh khoe' }));
+    expect(dialog.getByRole('radio', { name: 'Năm 2026' })).toBeChecked();
   });
 
   it('opens the share dialog by itself when the popup asked for it', async () => {

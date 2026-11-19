@@ -1,5 +1,7 @@
 // Builds a shareable PNG from aggregate stats only (no shop names, order ids or product names).
 // Three artworks in four sizes; each is a fixed design, not themed, so it looks the same wherever it is posted.
+import type { Order } from '../types/index.js';
+import { computeOverview } from './overview.js';
 import type { Stats } from './stats.js';
 import { formatCurrency } from '../i18n/format.js';
 import { t } from '../i18n/index.js';
@@ -24,6 +26,8 @@ export interface ShareData {
   monthly: number[];
   /** Orders of the selected range, counted like the Số đơn tile; fills in for a figure with nothing to show. */
   orders: number;
+  /** Set when the image sums up one calendar year: the header and hero say so. */
+  year?: number;
 }
 
 const FONT = '"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
@@ -55,6 +59,12 @@ function fit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, size
     if (px <= 18 || ctx.measureText(text).width <= maxWidth) return px;
     px -= 4;
   }
+}
+
+/** What the image shows for these orders; `year` when they are exactly that year's. */
+export function shareDataOf(orders: Order[], financialAvailable: boolean, year?: number): ShareData {
+  const overview = computeOverview(orders);
+  return { stats: overview.stats, financialAvailable, monthly: overview.monthly.map(m => m.total), orders: overview.orderCount, year };
 }
 
 /** Up to four figures worth showing off: a zero or unknown one is left out, and Số đơn takes its place. */
@@ -177,7 +187,7 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   ctx.textAlign = 'right';
   ctx.fillStyle = template === 'label' ? '#ffffff' : look.muted;
   ctx.font = `500 ${28 * u}px ${FONT}`;
-  ctx.fillText(t('stats.share.title'), right, headY - 2 * u, inner * 0.55);
+  ctx.fillText(data.year ? t('share.image.year', { year: data.year }) : t('stats.share.title'), right, headY - 2 * u, inner * 0.55);
   y += headerH + (template === 'label' ? 44 * u : 0);
 
   // What is left is shared out between the hero, the figures and (on tall sizes) the month strip.
@@ -199,7 +209,7 @@ export function drawShareImage(canvas: HTMLCanvasElement, data: ShareData, templ
   ctx.textAlign = 'left';
   ctx.fillStyle = look.muted;
   ctx.font = `500 ${34 * u}px ${FONT}`;
-  ctx.fillText(t('stats.netSpend'), left, y + 34 * u);
+  ctx.fillText(data.year ? t('share.image.netSpendYear', { year: data.year }) : t('stats.netSpend'), left, y + 34 * u, inner);
   ctx.fillStyle = look.fg;
   const amount = formatCurrency(data.stats.netSpend);
   fit(ctx, amount, inner, 152 * u, 700);

@@ -14,7 +14,8 @@ Bộ chọn **Khoảng thời gian** ở đầu trang áp dụng cho cả ba mà
 
 ## 📸 Tạo ảnh khoe
 
-- Bấm **Tạo ảnh khoe** trên thanh công cụ của dashboard, hoặc trong popup khi đã có dữ liệu lưu.
+- Màn **Tổng quan** có sẵn thẻ **Tổng kết Shopee** của năm gần nhất: bấm **Sao chép ảnh** là xong, hoặc **Tuỳ chỉnh…** để đổi mẫu, tỉ lệ.
+- Bấm **Tạo ảnh khoe** trên thanh công cụ của dashboard, hoặc trong popup khi đã có dữ liệu lưu; trong hộp có thể chọn ảnh theo năm hoặc theo khoảng thời gian đang xem.
 - Chọn mẫu và tỉ lệ, rồi **Sao chép ảnh** để dán thẳng vào Zalo, Messenger hay bài đăng, hoặc **Tải PNG** để lưu về máy.
 - Ảnh chỉ gồm số liệu tổng hợp, không có tên shop, mã đơn hay tên sản phẩm; ô bằng 0 hoặc thiếu dữ liệu không được in lên ảnh.
 

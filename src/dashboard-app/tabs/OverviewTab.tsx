@@ -11,11 +11,12 @@ import { NoOrdersInRange } from '../components/NoOrdersInRange';
 import { RescanBanner } from '../components/RescanBanner';
 import { useDashboard } from '../context';
 import { money, shortMoney } from '../format';
+import { BragCard } from './overview/BragCard';
 import { ChangeLine } from './overview/ChangeLine';
 
-/** Tổng quan: Chi tiêu ròng with its comparisons and four figures, spend per month, top shops. */
+/** Tổng quan: Chi tiêu ròng with its comparisons and the year's share card, four figures, spend per month, top shops. */
 export function OverviewTab() {
-  const { data, orders, range, selection, setSelection, resetRange, now, showOrders } = useDashboard();
+  const { data, orders, range, selection, setSelection, resetRange, now, showOrders, yearShare, openShare } = useDashboard();
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const overview = useMemo(() => computeOverview(orders), [orders]);
   // The month-over-month figure looks at the whole history, anchored on the range's last day (never in the future).
@@ -60,7 +61,7 @@ export function OverviewTab() {
     <div className="grid grid-cols-[minmax(0,1fr)] gap-4 @5xl:grid-cols-[minmax(0,1fr)_21rem] @7xl:grid-cols-[minmax(0,1fr)_25rem]">
       {stale && <RescanBanner className="col-span-full" />}
 
-      <section aria-label={t('stats.netSpend')} className="col-span-full flex flex-col gap-4 @5xl:flex-row @5xl:items-end @5xl:justify-between @5xl:gap-8">
+      <section aria-label={t('stats.netSpend')} className="col-span-full flex flex-col gap-4 @5xl:flex-row @5xl:items-center @5xl:justify-between @5xl:gap-8">
         <div>
           <p className="text-sm font-medium text-muted">{t('stats.netSpend')}</p>
           <p data-testid="net-spend" className="num my-1 text-[clamp(2.125rem,7cqi,3.75rem)] font-semibold leading-tight tracking-tight">
@@ -71,18 +72,20 @@ export function OverviewTab() {
             <ChangeLine unit="year" change={yearDiff} testId="year-change" />
           </div>
         </div>
-        <dl className="grid flex-1 grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line @2xl:grid-cols-4 @5xl:max-w-3xl">
-          {tiles.map(item => (
-            <div key={item.label} className="bg-card px-4 py-3.5">
-              <dt className="text-xs text-muted">{item.label}</dt>
-              <dd className="num mt-0.5 text-2xl font-semibold">
-                {item.value}
-                {item.note && <span className="mt-0.5 block text-xs font-normal text-muted">{item.note}</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        {yearShare && <BragCard data={yearShare.data} year={yearShare.year} onCustomize={openShare} />}
       </section>
+
+      <dl className="col-span-full grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line @2xl:grid-cols-4">
+        {tiles.map(item => (
+          <div key={item.label} className="bg-card px-4 py-3.5">
+            <dt className="text-xs text-muted">{item.label}</dt>
+            <dd className="num mt-0.5 text-2xl font-semibold">
+              {item.value}
+              {item.note && <span className="mt-0.5 block text-xs font-normal text-muted">{item.note}</span>}
+            </dd>
+          </div>
+        ))}
+      </dl>
 
       <section className={`${card} flex flex-col`}>
         <div className="mb-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">

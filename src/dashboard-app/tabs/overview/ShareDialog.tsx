@@ -1,6 +1,6 @@
 import { Dialog, DialogBackdrop, DialogClose, DialogContent, DialogTitle } from '@ui-sdk/react/dialog';
 import { SegmentedControl, SegmentedControlItem } from '@ui-sdk/react/segmented-control';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type RefObject } from 'react';
 import {
   copyShareImage,
   downloadShareImage,
@@ -36,13 +36,8 @@ function Choice<T extends string>({ label, options, value, onChange, name }: { l
   );
 }
 
-/** Pick an artwork and a size, see it, copy or download it. The image only goes to the clipboard or the computer. */
-export function ShareDialog({ data, onClose }: { data: ShareData; onClose: () => void }) {
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const [template, setTemplate] = useState<ShareTemplate>('label');
-  const [ratio, setRatio] = useState<ShareRatio>('square');
-  const [copied, setCopied] = useState<'done' | 'failed' | null>(null);
-
+/** Keeps a canvas showing the share image for these choices. */
+export function useShareCanvas(canvas: RefObject<HTMLCanvasElement | null>, data: ShareData, template: ShareTemplate, ratio: ShareRatio): void {
   useEffect(() => {
     let live = true;
     const draw = () => live && canvas.current && drawShareImage(canvas.current, data, template, ratio);
@@ -52,8 +47,27 @@ export function ShareDialog({ data, onClose }: { data: ShareData; onClose: () =>
     return () => {
       live = false;
     };
-  }, [data, template, ratio]);
-  useEffect(() => setCopied(null), [template, ratio]);
+  }, [canvas, data, template, ratio]);
+}
+
+/** A period the image can sum up: the latest year, or the dashboard's selected range. */
+export interface ShareOption {
+  key: 'year' | 'range';
+  label: string;
+  data: ShareData;
+}
+
+/** Pick a period, an artwork and a size, see it, copy or download it. The image only goes to the clipboard or the computer. */
+export function ShareDialog({ options, onClose }: { options: ShareOption[]; onClose: () => void }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [period, setPeriod] = useState(options[0].key);
+  const [template, setTemplate] = useState<ShareTemplate>('label');
+  const [ratio, setRatio] = useState<ShareRatio>('square');
+  const [copied, setCopied] = useState<'done' | 'failed' | null>(null);
+  const data = (options.find(o => o.key === period) ?? options[0]).data;
+
+  useShareCanvas(canvas, data, template, ratio);
+  useEffect(() => setCopied(null), [data, template, ratio]);
 
   const copy = () => copyShareImage(data, template, ratio).then(() => setCopied('done'), () => setCopied('failed'));
 
@@ -67,6 +81,9 @@ export function ShareDialog({ data, onClose }: { data: ShareData; onClose: () =>
           </div>
           <div className="flex flex-col gap-4">
             <DialogTitle className="text-lg font-semibold">{t('share.title')}</DialogTitle>
+            {options.length > 1 && (
+              <Choice label={t('share.period')} options={options.map(o => o.key)} value={period} onChange={setPeriod} name={key => options.find(o => o.key === key)!.label} />
+            )}
             <Choice label={t('share.template')} options={SHARE_TEMPLATES} value={template} onChange={setTemplate} name={o => t(`share.template.${o}`)} />
             <div>
               <Choice label={t('share.ratio')} options={RATIOS} value={ratio} onChange={setRatio} name={o => t(`share.ratio.${o}`)} />

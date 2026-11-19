@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@ui-sdk/react/tabs';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { orderYears } from '../dashboard/month.js';
-import { computeOverview } from '../dashboard/overview.js';
+import { monthOf, orderYears } from '../dashboard/month.js';
+import { shareDataOf } from '../dashboard/share-image.js';
 import { needsRescan } from '../dashboard/stats.js';
 import { filterByRange, resolveRange, type RangeSelection } from '../dashboard/range.js';
 import { t } from '../i18n/index.js';
@@ -14,7 +14,7 @@ import { DashboardContext, type OrdersFilter } from './context';
 import type { DashboardHost } from './host';
 import { OverviewSkeleton } from './OverviewSkeleton';
 import { RangePicker } from './RangePicker';
-import { ShareDialog } from './tabs/overview/ShareDialog';
+import { ShareDialog, type ShareOption } from './tabs/overview/ShareDialog';
 import { TABS, type TabId } from './tabs';
 import { formatUpdated } from './updated';
 import { useOrderData } from './useOrderData';
@@ -60,7 +60,15 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
   const range = useMemo(() => resolveRange(selection, clock), [selection, clock]);
   const years = useMemo(() => (data ? orderYears(data.orders) : []), [data]);
   const orders = useMemo(() => (data ? filterByRange(data.orders, range) : []), [data, range]);
-  const canShare = phase === 'ready' && orders.length > 0;
+  const stale = useMemo(() => (data ? needsRescan(data.orders) : false), [data]);
+  // The image leads with the latest year that has orders: a year-end summary.
+  const yearShare = useMemo(() => {
+    const year = years[0];
+    if (!data || year === undefined) return null;
+    const share = shareDataOf(data.orders.filter(o => monthOf(o)?.year === year), !stale, year);
+    return share.orders > 0 ? { year, data: share } : null;
+  }, [data, years, stale]);
+  const canShare = phase === 'ready' && (yearShare !== null || orders.length > 0);
   const [sharing, setSharing] = useState(false);
   const sharedOnOpen = useRef(false);
   useEffect(() => {
@@ -68,11 +76,13 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
     sharedOnOpen.current = true;
     setSharing(true);
   }, [host, canShare]);
-  const shareData = useMemo(() => {
-    if (!sharing || !data || !canShare) return null;
-    const overview = computeOverview(orders);
-    return { stats: overview.stats, financialAvailable: !needsRescan(data.orders), monthly: overview.monthly.map(m => m.total), orders: overview.orderCount };
-  }, [sharing, data, orders, canShare]);
+  const shareOptions = useMemo(() => {
+    if (!sharing || !canShare) return null;
+    const options: ShareOption[] = [];
+    if (yearShare) options.push({ key: 'year', label: t('share.period.year', { year: yearShare.year }), data: yearShare.data });
+    if (orders.length > 0) options.push({ key: 'range', label: t('share.period.range'), data: shareDataOf(orders, !stale) });
+    return options;
+  }, [sharing, canShare, yearShare, orders, stale]);
   const context = useMemo(() => {
     if (!data) return null;
     const showOrders = (filter: OrdersFilter) => {
@@ -81,8 +91,8 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
       // The clicked row unmounts with the tab; keep focus on the tab it led to.
       tabRefs.current.orders?.focus();
     };
-    return { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh, ordersFilter, showOrders };
-  }, [data, orders, range, selection, clock, ordersFilter]);
+    return { data, orders, range, selection, setSelection, resetRange: () => setSelection(ALL_TIME), now: clock, refresh: orderData.refresh, ordersFilter, showOrders, yearShare, openShare: () => setSharing(true) };
+  }, [data, orders, range, selection, clock, ordersFilter, yearShare]);
 
   const stamp = data?.cachedAt ?? data?.fetchedAt;
   const progressText =
@@ -200,7 +210,7 @@ export function Dashboard({ host, now = currentTime }: { host: DashboardHost; no
           ))}
         </main>
       </Tabs>
-      {shareData && <ShareDialog data={shareData} onClose={() => setSharing(false)} />}
+      {shareOptions && <ShareDialog options={shareOptions} onClose={() => setSharing(false)} />}
     </div>
   );
 }

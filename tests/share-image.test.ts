@@ -17,14 +17,14 @@ const stats: Stats = {
 const monthly = [100_000, 0, 300_000];
 
 /** Canvas stand-in that records every string drawn; every other drawing call is accepted and ignored. */
-function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', orders = 42) {
+function draw(s: Stats, financialAvailable = true, template: ShareTemplate = 'label', ratio: ShareRatio = 'square', orders = 42, year?: number) {
   const texts: string[] = [];
   const ctx = new Proxy({} as Record<string, unknown>, {
     get: (_, key) => (key === 'fillText' ? (text: string) => texts.push(text) : key === 'measureText' ? () => ({ width: 100 }) : () => {}),
     set: () => true,
   }) as unknown as CanvasRenderingContext2D;
   const canvas = { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement;
-  drawShareImage(canvas, { stats: s, financialAvailable, monthly, orders }, template, ratio);
+  drawShareImage(canvas, { stats: s, financialAvailable, monthly, orders, year }, template, ratio);
   return { canvas, texts };
 }
 
@@ -71,6 +71,12 @@ describe('share image', () => {
   it('draws only the hero when no figure has anything to show', () => {
     const { texts } = draw({ ...stats, refundTotal: 0, estimatedSavings: 0, busiestWeekday: null, longestMonthStreak: 0 }, true, 'label', 'square', 0);
     expect(texts.map(normalize)).toEqual(['ShopeeStatX', 'Chi tiêu Shopee của tôi', 'Chi tiêu ròng', '12.345.000 ₫']);
+  });
+
+  it('names the year on a year-end image', () => {
+    const { texts } = draw(stats, true, 'label', 'square', 42, 2026);
+    expect(texts.slice(0, 3)).toEqual(['ShopeeStatX', 'Tổng kết Shopee 2026', 'Chi tiêu ròng năm 2026']);
+    expect(texts).not.toContain('Chi tiêu Shopee của tôi');
   });
 
   it('sizes the artwork for social feeds, stories and link previews', () => {
