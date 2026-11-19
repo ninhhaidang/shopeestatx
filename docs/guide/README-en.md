@@ -21,11 +21,11 @@ A Chrome extension that turns your **Shopee Vietnam** order history into spendin
 
 | Overview | Analysis |
 | --- | --- |
-| ![Overview: net spend, monthly comparisons, refunds, estimated savings and spending chart](../../store-assets/screenshots/01-summary-cards.png) | ![Analysis: insights, monthly budget, daily heatmap and shopping habits](../../store-assets/screenshots/02-charts.png) |
+| ![Overview: net spend, year summary card, refunds, estimated savings and spending chart](../../store-assets/screenshots/01-summary-cards.png) | ![Analysis: insights, monthly budget, daily heatmap and shopping habits](../../store-assets/screenshots/02-charts.png) |
 | **Orders** | **Share image** |
-| ![Orders grouped by month, one order expanded with its line items](../../store-assets/screenshots/03-order-details.png) | ![Share image dialog with aggregate figures only](../../store-assets/screenshots/04-share-image.png) |
+| ![Orders grouped by month, one order expanded with its line items](../../store-assets/screenshots/03-order-details.png) | ![Share image dialog: year summary, membership tier and QR code, aggregate figures only](../../store-assets/screenshots/04-share-image.png) |
 | **Popup** | |
-| ![Popup with the Start analysis button and a summary of saved data](../../store-assets/screenshots/05-popup.png) | |
+| ![Popup leading with Tạo ảnh khoe and a summary of saved data](../../store-assets/screenshots/05-popup.png) | |
 
 <sub>Screenshots show the Vietnamese interface with fictional demo data, not real purchases.</sub>
 

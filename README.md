@@ -21,11 +21,11 @@ Tiện ích Chrome tổng hợp lịch sử mua hàng **Shopee Việt Nam** thà
 
 | Tổng quan | Phân tích |
 | --- | --- |
-| ![Tổng quan: chi tiêu ròng, so sánh tháng, hoàn tiền, tiết kiệm ước tính và biểu đồ chi tiêu](store-assets/screenshots/01-summary-cards.png) | ![Phân tích: nhận xét, ngân sách tháng, biểu đồ nhiệt và thói quen mua sắm](store-assets/screenshots/02-charts.png) |
+| ![Tổng quan: chi tiêu ròng, thẻ tổng kết năm, hoàn tiền, tiết kiệm ước tính và biểu đồ chi tiêu](store-assets/screenshots/01-summary-cards.png) | ![Phân tích: nhận xét, ngân sách tháng, biểu đồ nhiệt và thói quen mua sắm](store-assets/screenshots/02-charts.png) |
 | **Đơn hàng** | **Ảnh chia sẻ** |
-| ![Đơn hàng theo tháng, một đơn mở chi tiết từng sản phẩm](store-assets/screenshots/03-order-details.png) | ![Hộp tạo ảnh chia sẻ chỉ chứa số liệu tổng hợp](store-assets/screenshots/04-share-image.png) |
+| ![Đơn hàng theo tháng, một đơn mở chi tiết từng sản phẩm](store-assets/screenshots/03-order-details.png) | ![Hộp tạo ảnh khoe: tổng kết năm, hạng thành viên và mã QR, chỉ chứa số liệu tổng hợp](store-assets/screenshots/04-share-image.png) |
 | **Popup** | |
-| ![Popup với nút Bắt đầu phân tích và tóm tắt dữ liệu đã lưu](store-assets/screenshots/05-popup.png) | |
+| ![Popup với nút Tạo ảnh khoe và tóm tắt dữ liệu đã lưu](store-assets/screenshots/05-popup.png) | |
 
 <sub>Ảnh dùng dữ liệu minh họa, không phải lịch sử mua hàng thật.</sub>
 
